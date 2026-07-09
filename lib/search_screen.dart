@@ -10,20 +10,58 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final _ctrl = TextEditingController();
+  final _scroll = ScrollController();
   List<Video> _results = [];
   bool _loading = false;
+  bool _loadingMore = false;
   String? _error;
+  String _query = "";
+  String? _nextToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(() {
+      if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 500) {
+        _loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _ctrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _search() async {
     final q = _ctrl.text.trim();
     if (q.isEmpty) return;
-    setState(() { _loading = true; _error = null; });
+    setState(() { _loading = true; _error = null; _results = []; _query = q; _nextToken = null; });
     try {
       final r = await YoutubeService.search(q);
-      setState(() { _results = r; _loading = false; });
+      setState(() { _results = r.videos; _nextToken = r.nextPageToken; _loading = false; });
     } catch (e) {
       setState(() { _error = e.toString(); _loading = false; });
     }
   }
+
+  Future<void> _loadMore() async {
+    if (_loadingMore || _loading || _nextToken == null || _query.isEmpty) return;
+    setState(() { _loadingMore = true; });
+    try {
+      final r = await YoutubeService.search(_query, pageToken: _nextToken);
+      setState(() {
+        _results.addAll(r.videos);
+        _nextToken = r.nextPageToken;
+        _loadingMore = false;
+      });
+    } catch (e) {
+      setState(() { _loadingMore = false; });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +90,7 @@ class _SearchScreenState extends State<SearchScreen> {
           if (!_loading)
             Expanded(
               child: GridView.builder(
+                controller: _scroll,
                 padding: const EdgeInsets.all(12),
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 320, childAspectRatio: 0.85, crossAxisSpacing: 12, mainAxisSpacing: 12),
@@ -76,6 +115,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
               ),
             ),
+          if (_loadingMore)
+            const Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()),
         ],
       ),
     );
