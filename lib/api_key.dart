@@ -1,1 +1,1 @@
-﻿const String kYoutubeApiKey = "AIzaSyArkeIKsJrGcO1hRQDOMoXULnAgGF7Ra6o";
+﻿const String kYoutubeApiKey = "AIzaSyCn3D1SvPTvbbYxUxWPeEE7io7zvKvMk30";

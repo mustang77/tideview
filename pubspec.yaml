@@ -37,6 +37,7 @@ dependencies:
   http: ^1.6.0
   youtube_player_flutter: 10.0.1
   youtube_player_iframe: ^6.0.2
+  share_plus: ^13.2.0
 
 dev_dependencies:
   flutter_test:
