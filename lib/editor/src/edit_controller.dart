@@ -386,6 +386,37 @@ class EditController extends ChangeNotifier {
     return appendClip(trackId, clip);
   }
 
+  /// The id of the first audio track, creating one if the project has none.
+  String ensureAudioTrack() {
+    for (final Track t in _project.tracks) {
+      if (t.type == TrackType.audio) return t.id;
+    }
+    return addTrack(TrackType.audio, name: "Audio");
+  }
+
+  /// Import an audio clip onto the end of the audio track. [durationMs] is the
+  /// source length. When [atPlayhead] is true the clip starts at the current
+  /// playhead instead of appended to the end (handy for dropping music at a
+  /// point).
+  Clip importAudioClip({
+    required String path,
+    required int durationMs,
+    bool atPlayhead = false,
+  }) {
+    final String trackId = ensureAudioTrack();
+    final Track track = _project.trackById(trackId)!;
+    final int start = atPlayhead ? _playheadMs : track.durationMs;
+    final Clip clip = Clip(
+      id: "",
+      type: ClipType.audio,
+      sourcePath: path,
+      sourceInMs: 0,
+      sourceOutMs: durationMs,
+      startMs: start,
+    );
+    return addClip(trackId, clip);
+  }
+
   /// Insert a sticker (emoji) clip at the current playhead.
   String addStickerAtPlayhead(int codePoint, {int durationMs = 3000}) {
     Track? overlay = _project.tracks

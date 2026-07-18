@@ -45,6 +45,10 @@ dependencies:
   video_player: ^2.9.2
   # Gallery import (video + photos) for the editor.
   image_picker: ^1.1.2
+  # Audio/music file import for the editor.
+  file_picker: ^8.1.2
+  # Audio-track playback synced to the timeline.
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:

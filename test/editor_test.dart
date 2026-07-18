@@ -240,6 +240,46 @@ void main() {
       expect(c.project.trackById(id), isNotNull);
       expect(c.project.trackById(id)!.type, TrackType.video);
     });
+
+    test("multiple imports stack sequentially on the timeline", () {
+      final EditController c = EditController(const Project(
+        id: "p",
+        name: "empty",
+        tracks: <Track>[],
+      ));
+      final Clip a = c.importClip(
+          type: ClipType.image, path: "a.jpg", durationMs: 3000);
+      final Clip b = c.importClip(
+          type: ClipType.video, path: "b.mp4", durationMs: 4000);
+      expect(a.startMs, 0);
+      expect(b.startMs, 3000); // right after the first
+      expect(c.durationMs, 7000);
+    });
+
+    test("importAudioClip lands on an audio track", () {
+      final EditController c = EditController(_demo());
+      final Clip audio =
+          c.importAudioClip(path: "song.mp3", durationMs: 30000);
+      final loc = c.project.locate(audio.id)!;
+      expect(loc.track.type, TrackType.audio);
+      expect(audio.type, ClipType.audio);
+      expect(audio.startMs, 0); // fresh audio track starts empty
+    });
+
+    test("importAudioClip atPlayhead starts at the playhead", () {
+      final EditController c = EditController(_demo());
+      c.seek(2000);
+      final Clip audio = c.importAudioClip(
+          path: "song.mp3", durationMs: 30000, atPlayhead: true);
+      expect(audio.startMs, 2000);
+    });
+
+    test("ensureAudioTrack reuses an existing audio track", () {
+      final EditController c = EditController(_demo());
+      final String first = c.ensureAudioTrack();
+      final String second = c.ensureAudioTrack();
+      expect(first, second);
+    });
   });
 
   group("Compositing queries", () {

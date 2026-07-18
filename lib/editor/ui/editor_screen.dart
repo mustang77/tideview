@@ -1,5 +1,7 @@
 import "dart:io";
 
+import "package:audioplayers/audioplayers.dart";
+import "package:file_picker/file_picker.dart";
 import "package:flutter/material.dart";
 import "package:flutter/scheduler.dart";
 import "package:image_picker/image_picker.dart";
@@ -10,6 +12,7 @@ import "../src/edit_controller.dart";
 import "../src/filters.dart";
 import "../src/model.dart";
 import "../src/project_codec.dart";
+import "audio_mixer.dart";
 import "preview_stage.dart";
 import "timeline_view.dart";
 
@@ -28,6 +31,7 @@ class _EditorScreenState extends State<EditorScreen>
     with SingleTickerProviderStateMixin {
   late final EditController _c;
   late final Ticker _ticker;
+  late final AudioMixer _audio;
   Duration _lastElapsed = Duration.zero;
 
   VideoPlayerController? _video;
@@ -39,6 +43,7 @@ class _EditorScreenState extends State<EditorScreen>
   void initState() {
     super.initState();
     _c = EditController(DemoProject.build());
+    _audio = AudioMixer(_c);
     _c.addListener(_onControllerChanged);
     _ticker = createTicker(_onTick);
     _syncVideoSource();
@@ -49,6 +54,7 @@ class _EditorScreenState extends State<EditorScreen>
     _ticker.dispose();
     _c.removeListener(_onControllerChanged);
     _c.dispose();
+    _audio.dispose();
     _video?.dispose();
     super.dispose();
   }
@@ -58,6 +64,7 @@ class _EditorScreenState extends State<EditorScreen>
   void _onControllerChanged() {
     if (mounted) setState(() {});
     _syncVideoSource();
+    _audio.sync(playing: _c.isPlaying);
   }
 
   void _onTick(Duration elapsed) {
@@ -184,34 +191,76 @@ class _EditorScreenState extends State<EditorScreen>
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _importVideo() async {
+  static const Set<String> _videoExts = <String>{
+    "mp4", "mov", "m4v", "avi", "mkv", "webm", "3gp", "hevc"
+  };
+
+  static bool _looksLikeVideo(String path) {
+    final int dot = path.lastIndexOf(".");
+    if (dot < 0) return false;
+    return _videoExts.contains(path.substring(dot + 1).toLowerCase());
+  }
+
+  /// Import one or more photos/videos in a single pick.
+  Future<void> _importMedia() async {
     try {
-      final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
-      if (file == null) return;
-      final int durationMs = await _probeDuration(file.path);
-      _c.importClip(
-        type: ClipType.video,
-        path: file.path,
-        durationMs: durationMs,
-      );
-      _toast("Imported video");
+      final List<XFile> files = await _picker.pickMultipleMedia();
+      if (files.isEmpty) return;
+      int count = 0;
+      for (final XFile f in files) {
+        if (_looksLikeVideo(f.path)) {
+          final int durationMs = await _probeDuration(f.path);
+          _c.importClip(
+              type: ClipType.video, path: f.path, durationMs: durationMs);
+        } else {
+          _c.importClip(type: ClipType.image, path: f.path, durationMs: 3000);
+        }
+        count++;
+      }
+      _toast("Imported $count item${count == 1 ? '' : 's'}");
     } catch (e) {
       _toast("Import failed: $e");
     }
   }
 
-  Future<void> _importPhoto() async {
+  /// Import one or more audio/music files onto the audio track.
+  Future<void> _importAudio() async {
     try {
-      final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
-      if (file == null) return;
-      _c.importClip(
-        type: ClipType.image,
-        path: file.path,
-        durationMs: 3000,
+      final FilePickerResult? res = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+        allowMultiple: true,
       );
-      _toast("Imported photo");
+      if (res == null || res.files.isEmpty) return;
+      int count = 0;
+      for (final PlatformFile f in res.files) {
+        final String? path = f.path;
+        if (path == null) continue;
+        final int durationMs = await _probeAudioDuration(path);
+        _c.importAudioClip(path: path, durationMs: durationMs);
+        count++;
+      }
+      _toast("Added $count track${count == 1 ? '' : 's'}");
     } catch (e) {
-      _toast("Import failed: $e");
+      _toast("Audio import failed: $e");
+    }
+  }
+
+  Future<int> _probeAudioDuration(String path) async {
+    final AudioPlayer probe = AudioPlayer();
+    try {
+      await probe.setSource(AudioMixer.sourceFor(path));
+      // Duration may not be ready immediately; give it a brief moment.
+      Duration? d = await probe.getDuration();
+      for (int i = 0; i < 5 && (d == null || d.inMilliseconds == 0); i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        d = await probe.getDuration();
+      }
+      final int ms = d?.inMilliseconds ?? 0;
+      return ms > 0 ? ms : 30000;
+    } catch (_) {
+      return 30000;
+    } finally {
+      await probe.dispose();
     }
   }
 
@@ -232,17 +281,17 @@ class _EditorScreenState extends State<EditorScreen>
 
   void _showImportMenu() {
     _sheet(
-      "Import media",
+      "Import",
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _importOption(Icons.video_library, "Video", () {
+          _importOption(Icons.perm_media, "Photos & Videos", () {
             Navigator.of(context).pop();
-            _importVideo();
+            _importMedia();
           }),
-          _importOption(Icons.photo_library, "Photo", () {
+          _importOption(Icons.library_music, "Music / Audio", () {
             Navigator.of(context).pop();
-            _importPhoto();
+            _importAudio();
           }),
         ],
       ),

@@ -66,11 +66,12 @@ the Banuba color engine, so the editor and AR studio share one set of looks.
 | `TimelineView` | `lib/editor/ui/timeline_view.dart` | Scrollable, zoomable, draggable/trimmable multi-track timeline. |
 
 ### Features
-Multi-track timeline (video / overlay / text / audio) · split at playhead · drag
-to move · edge-drag to trim · speed (0.25–4×) · volume · opacity · per-clip
-filters · text captions · emoji stickers · transitions · undo/redo · live preview
-with a shared playhead clock · project save/load (JSON) · export **recipe**
-(EDL / render plan).
+Multi-track timeline (video / overlay / text / audio) · multi-select media
+import (photos + videos) · music / audio import with timeline-synced playback ·
+split at playhead · drag to move · edge-drag to trim · speed (0.25–4×) · volume ·
+opacity · per-clip filters · text captions · emoji stickers · transitions ·
+undo/redo · live preview with a shared playhead clock · project save/load (JSON)
+· export **recipe** (EDL / render plan).
 
 ### Export
 On-device `.mp4` encoding needs a native encoder (ffmpeg/MediaCodec), which isn't
