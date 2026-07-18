@@ -209,6 +209,39 @@ void main() {
     });
   });
 
+  group("Media import", () {
+    test("importClip appends to the video track at the end", () {
+      final EditController c = EditController(_demo());
+      final Clip imported = c.importClip(
+        type: ClipType.image,
+        path: "/photos/pic.jpg",
+        durationMs: 3000,
+      );
+      expect(imported.id, isNotEmpty);
+      expect(imported.type, ClipType.image);
+      expect(imported.startMs, 9000); // after c2's end
+      expect(imported.endMs, 12000);
+      expect(c.durationMs, 12000);
+      expect(c.selectedClipId, imported.id);
+    });
+
+    test("ensureVideoTrack reuses an existing video track", () {
+      final EditController c = EditController(_demo());
+      expect(c.ensureVideoTrack(), "v1");
+    });
+
+    test("ensureVideoTrack creates one when absent", () {
+      final EditController c = EditController(const Project(
+        id: "p",
+        name: "empty",
+        tracks: <Track>[],
+      ));
+      final String id = c.ensureVideoTrack();
+      expect(c.project.trackById(id), isNotNull);
+      expect(c.project.trackById(id)!.type, TrackType.video);
+    });
+  });
+
   group("Compositing queries", () {
     test("videoClipAt picks the video-track clip", () {
       final EditController c = EditController(_demo());

@@ -1,5 +1,8 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter/scheduler.dart";
+import "package:image_picker/image_picker.dart";
 import "package:video_player/video_player.dart";
 
 import "../src/demo_project.dart";
@@ -113,6 +116,13 @@ class _EditorScreenState extends State<EditorScreen>
       return;
     }
 
+    // Image bases are painted directly by PreviewStage — no video source.
+    if (clip.type != ClipType.video) {
+      _activeClipId = clip.id;
+      if (_video != null && _video!.value.isPlaying) await _video!.pause();
+      return;
+    }
+
     if (path != _loadedPath) {
       await _loadVideo(path, clip);
       _activeClipId = clip.id;
@@ -136,8 +146,7 @@ class _EditorScreenState extends State<EditorScreen>
     _videoReady = false;
     if (mounted) setState(() {});
     final VideoPlayerController? old = _video;
-    final VideoPlayerController next =
-        VideoPlayerController.networkUrl(Uri.parse(path));
+    final VideoPlayerController next = _controllerFor(path);
     try {
       await next.initialize();
       await next.setLooping(false);
@@ -161,6 +170,108 @@ class _EditorScreenState extends State<EditorScreen>
         await old.dispose();
       }
     }
+  }
+
+  VideoPlayerController _controllerFor(String path) {
+    final Uri uri = Uri.parse(path);
+    if (uri.scheme == "http" || uri.scheme == "https") {
+      return VideoPlayerController.networkUrl(uri);
+    }
+    return VideoPlayerController.file(File(path));
+  }
+
+  // ---- media import --------------------------------------------------------
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _importVideo() async {
+    try {
+      final XFile? file = await _picker.pickVideo(source: ImageSource.gallery);
+      if (file == null) return;
+      final int durationMs = await _probeDuration(file.path);
+      _c.importClip(
+        type: ClipType.video,
+        path: file.path,
+        durationMs: durationMs,
+      );
+      _toast("Imported video");
+    } catch (e) {
+      _toast("Import failed: $e");
+    }
+  }
+
+  Future<void> _importPhoto() async {
+    try {
+      final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+      if (file == null) return;
+      _c.importClip(
+        type: ClipType.image,
+        path: file.path,
+        durationMs: 3000,
+      );
+      _toast("Imported photo");
+    } catch (e) {
+      _toast("Import failed: $e");
+    }
+  }
+
+  /// Read a video file's duration by briefly initializing a throwaway
+  /// controller. Falls back to 5s if the probe fails.
+  Future<int> _probeDuration(String path) async {
+    final VideoPlayerController probe = _controllerFor(path);
+    try {
+      await probe.initialize();
+      final int ms = probe.value.duration.inMilliseconds;
+      return ms > 0 ? ms : 5000;
+    } catch (_) {
+      return 5000;
+    } finally {
+      await probe.dispose();
+    }
+  }
+
+  void _showImportMenu() {
+    _sheet(
+      "Import media",
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          _importOption(Icons.video_library, "Video", () {
+            Navigator.of(context).pop();
+            _importVideo();
+          }),
+          _importOption(Icons.photo_library, "Photo", () {
+            Navigator.of(context).pop();
+            _importPhoto();
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _importOption(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, color: Colors.white, size: 34),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(color: Colors.white70)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _toast(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
   }
 
   // ---- edit target ---------------------------------------------------------
@@ -220,6 +331,12 @@ class _EditorScreenState extends State<EditorScreen>
                 style: const TextStyle(color: Colors.white70, fontSize: 11)),
           ),
           const Spacer(),
+          IconButton(
+            tooltip: "Import media",
+            onPressed: _showImportMenu,
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+            color: Colors.white,
+          ),
           IconButton(
             tooltip: "Undo",
             onPressed: _c.canUndo ? _c.undo : null,

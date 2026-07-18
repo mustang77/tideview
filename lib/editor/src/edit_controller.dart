@@ -358,6 +358,34 @@ class EditController extends ChangeNotifier {
     return clip.id;
   }
 
+  /// The id of the first video track, creating one if the project has none.
+  String ensureVideoTrack() {
+    for (final Track t in _project.tracks) {
+      if (t.type == TrackType.video) return t.id;
+    }
+    return addTrack(TrackType.video, name: "Video");
+  }
+
+  /// Import a media clip (video or image) onto the end of the video track.
+  /// [durationMs] is the source length for video, or the desired on-screen
+  /// duration for a still image.
+  Clip importClip({
+    required ClipType type,
+    required String path,
+    required int durationMs,
+  }) {
+    final String trackId = ensureVideoTrack();
+    final Clip clip = Clip(
+      id: "",
+      type: type,
+      sourcePath: path,
+      sourceInMs: 0,
+      sourceOutMs: durationMs,
+      startMs: 0,
+    );
+    return appendClip(trackId, clip);
+  }
+
   /// Insert a sticker (emoji) clip at the current playhead.
   String addStickerAtPlayhead(int codePoint, {int durationMs = 3000}) {
     Track? overlay = _project.tracks

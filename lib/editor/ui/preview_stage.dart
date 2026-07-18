@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:video_player/video_player.dart";
 
@@ -78,10 +80,16 @@ class PreviewStage extends StatelessWidget {
 
   Widget _buildBase(Clip? base, int ms) {
     if (base == null) return const SizedBox.shrink();
-    Widget video;
-    if (videoReady && videoController != null) {
+    Widget content;
+    if (base.type == ClipType.image && base.sourcePath != null) {
+      content = Image.file(
+        File(base.sourcePath!),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const ColoredBox(color: Color(0xFF10151F)),
+      );
+    } else if (videoReady && videoController != null) {
       final Size s = videoController!.value.size;
-      video = FittedBox(
+      content = FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
           width: s.width == 0 ? 16 : s.width,
@@ -90,7 +98,7 @@ class PreviewStage extends StatelessWidget {
         ),
       );
     } else {
-      video = Container(
+      content = Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -103,9 +111,9 @@ class PreviewStage extends StatelessWidget {
 
     final ColorFilter? filter = EditorFilters.colorFilterFor(base.filterId);
     if (filter != null) {
-      video = ColorFiltered(colorFilter: filter, child: video);
+      content = ColorFiltered(colorFilter: filter, child: content);
     }
-    return Opacity(opacity: _alpha(base, ms), child: video);
+    return Opacity(opacity: _alpha(base, ms), child: content);
   }
 
   Widget _buildOverlay(Clip c, int ms, double scale, Size canvas) {

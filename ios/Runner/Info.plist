@@ -68,5 +68,7 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>AR Studio uses the camera for real-time face filters and effects.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Import videos and photos from your library to edit them in TideView.</string>
 </dict>
 </plist>

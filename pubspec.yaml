@@ -43,6 +43,8 @@ dependencies:
   camera: ^0.11.0
   # Video preview/playback for the CapCut-style editor.
   video_player: ^2.9.2
+  # Gallery import (video + photos) for the editor.
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
