@@ -499,8 +499,8 @@
   };
 
   PoolScene.prototype.resize = function () {
-    const w = this.canvas.clientWidth || window.innerWidth;
-    const h = this.canvas.clientHeight || window.innerHeight;
+    const w = window.innerWidth || this.canvas.clientWidth;
+    const h = window.innerHeight || this.canvas.clientHeight;
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();

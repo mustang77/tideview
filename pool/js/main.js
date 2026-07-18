@@ -28,7 +28,10 @@
   }
   requestAnimationFrame(loop);
 
-  window.addEventListener('resize', () => scene.resize());
+  function doResize() { scene.resize(); }
+  window.addEventListener('resize', doResize);
+  window.addEventListener('orientationchange', () => setTimeout(doResize, 250));
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', doResize);
 
   // ------------------------------------------------------------- menu
   let selectedMode = 'ai', selectedDiff = 'medium';
