@@ -48,6 +48,39 @@ real detector into the same `FaceTracker` contract.
 Tests for the pure logic (color math, landmark geometry, effect state) live in
 `test/banuba_test.dart`.
 
+## Video Editor (CapCut-style)
+
+An in-app, multi-track video editor. Open the **Editor** tab. Clip filters reuse
+the Banuba color engine, so the editor and AR studio share one set of looks.
+
+### What's included
+
+| Piece | File | Role |
+| --- | --- | --- |
+| `Project` / `Track` / `Clip` | `lib/editor/src/model.dart` | Immutable timeline model (ms-based), with trim/speed/transform/text and JSON. |
+| `EditController` | `lib/editor/src/edit_controller.dart` | Editing engine: split, trim, move, speed, volume, opacity, filters, text, stickers, transitions, undo/redo, playhead/zoom/selection, compositing queries. |
+| `EditorFilters` | `lib/editor/src/filters.dart` | Bridges clip filters to the Banuba `ColorMatrix` engine. |
+| `ProjectCodec` / `RenderPlan` / `VideoExporter` | `lib/editor/src/project_codec.dart` | Save/load JSON; flatten the timeline into an ordered render plan (EDL); the encoder plug-in seam. |
+| `EditorScreen` | `lib/editor/ui/editor_screen.dart` | Preview + transport + tool bar; timeline is the master clock, video preview kept in sync. |
+| `PreviewStage` | `lib/editor/ui/preview_stage.dart` | Composites base video (filtered) + text/sticker overlays with transitions. |
+| `TimelineView` | `lib/editor/ui/timeline_view.dart` | Scrollable, zoomable, draggable/trimmable multi-track timeline. |
+
+### Features
+Multi-track timeline (video / overlay / text / audio) · split at playhead · drag
+to move · edge-drag to trim · speed (0.25–4×) · volume · opacity · per-clip
+filters · text captions · emoji stickers · transitions · undo/redo · live preview
+with a shared playhead clock · project save/load (JSON) · export **recipe**
+(EDL / render plan).
+
+### Export
+On-device `.mp4` encoding needs a native encoder (ffmpeg/MediaCodec), which isn't
+bundled. Instead the editor produces a `RenderPlan` (an ordered, resolution-aware
+edit decision list) and exposes a `VideoExporter` interface — implement it with a
+real encoder to write pixels. The shipped `PlanOnlyExporter` emits the recipe.
+
+Tests: `test/editor_test.dart` (timing math, split/trim/move, undo/redo,
+compositing queries, JSON round-trip, render plan, filter bridge).
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
