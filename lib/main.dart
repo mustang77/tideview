@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "search_screen.dart";
 import "shorts_screen.dart";
+import "banuba/ui/ar_studio_screen.dart";
+import "editor/ui/editor_screen.dart";
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +85,8 @@ class _RootShellState extends State<RootShell> {
     final pages = [
       SearchScreen(onToggleTheme: widget.onToggleTheme),
       const ShortsScreen(),
+      const ARStudioScreen(),
+      const EditorScreen(),
     ];
     return Scaffold(
       body: IndexedStack(index: _index, children: pages),
@@ -92,6 +96,8 @@ class _RootShellState extends State<RootShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "Home"),
           NavigationDestination(icon: Icon(Icons.play_circle_outline), selectedIcon: Icon(Icons.play_circle), label: "Shorts"),
+          NavigationDestination(icon: Icon(Icons.face_retouching_natural), selectedIcon: Icon(Icons.face), label: "AR Studio"),
+          NavigationDestination(icon: Icon(Icons.movie_creation_outlined), selectedIcon: Icon(Icons.movie_creation), label: "Editor"),
         ],
       ),
     );

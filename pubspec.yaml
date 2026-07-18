@@ -39,6 +39,16 @@ dependencies:
   youtube_player_iframe: ^6.0.2
   share_plus: ^13.2.0
   google_fonts: ^8.1.0
+  # Live camera feed for the Banuba-clone Face AR studio.
+  camera: ^0.11.0
+  # Video preview/playback for the CapCut-style editor.
+  video_player: ^2.9.2
+  # Gallery import (video + photos) for the editor.
+  image_picker: ^1.1.2
+  # Audio/music file import for the editor.
+  file_picker: ^8.1.2
+  # Audio-track playback synced to the timeline.
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
