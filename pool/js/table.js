@@ -492,27 +492,30 @@
     this.camera.lookAt(tgt);
   };
 
-  // The default aiming view: high and angled so the whole table reads, with
-  // the long axis running across the screen (good for landscape phones).
+  // The default aiming view: a STATIC, near-top-down look at the whole table
+  // (like the app-store 8-ball games). Being nearly overhead means the screen
+  // maps almost 1:1 to the cloth, so pointing the cue where you want is easy.
   PoolScene.prototype.setAimView = function () {
     this.cam.mode = 'aim';
-    this.cam.az = -Math.PI / 2;   // long axis horizontal
-    this.cam.el = 0.92;           // steep, near top-down
+    this.cam.az = -Math.PI / 2;   // long axis runs across the screen
+    this.cam.el = 1.47;           // ~84°: essentially top-down, tiny bit of depth
     this.cam.dist = this._fitDist();
   };
 
   PoolScene.prototype._fitDist = function () {
-    // Pull back enough to frame the full table for the current aspect ratio.
+    // Pull back just enough to frame the whole table for the current aspect.
+    // Near-overhead, the binding constraint is the short axis fitting vertically.
     const aspect = this.camera.aspect || 1.8;
-    const base = 2.05;
-    return aspect < 1.4 ? base * 1.5 : base;
+    if (aspect >= 2.2) return 1.78;
+    if (aspect >= 2.0) return 1.9;
+    if (aspect >= 1.6) return 2.15;
+    if (aspect >= 1.2) return 2.7;
+    return 3.6;                    // portrait-ish (should be rotated anyway)
   };
 
   PoolScene.prototype.setOverhead = function () {
-    this.cam.mode = 'free';
-    this.cam.az = -Math.PI / 2;
-    this.cam.el = 1.45;
-    this.cam.dist = this._fitDist() * 0.98;
+    this.cam.mode = 'aim';
+    this.setAimView();
   };
 
   PoolScene.prototype.resize = function () {

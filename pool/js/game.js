@@ -557,7 +557,7 @@
     if (hint) {
       if (this.phase === 'placing') hint.textContent = 'Ball in hand — drag the cue ball to a legal spot, then click to place';
       else if (this.phase === 'aiming' && this.player().isAI) hint.textContent = this.players[this.current].name + ' is thinking…';
-      else if (this.phase === 'aiming') hint.textContent = 'Drag anywhere to swing the aim · set POWER on the right · tap SHOOT';
+      else if (this.phase === 'aiming') hint.textContent = 'Drag to aim the cue · set POWER on the right · tap SHOOT';
       else hint.textContent = '';
     }
   };
