@@ -163,11 +163,9 @@
     const sinkWater = new T.Mesh(new T.PlaneGeometry(0.82, 0.62), new T.MeshStandardMaterial({ color: '#8fd8f4', transparent: true, opacity: 0.5, roughness: 0.15, metalness: 0.2 }));
     sinkWater.rotateX(-Math.PI / 2); sinkWater.position.set(sinkX, COUNTER_Y - 0.14, -0.05); sinkWater.visible = false; scene.add(sinkWater);
 
-    // ---- station: drying rack ----
-    const rackBase = new T.Mesh(new T.BoxGeometry(1.2, 0.06, 0.7), mat('#d7dde2', 0.4, 0.4));
-    rackBase.position.set(STATION.rack, COUNTER_Y + 0.11, -0.1); scene.add(rackBase);
-    for (let i = 0; i < 7; i++) { const wire = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 0.5, 6), mat('#b7bfc6', 0.3, 0.5)); wire.position.set(STATION.rack - 0.5 + i * 0.16, COUNTER_Y + 0.32, -0.1); scene.add(wire); }
+    // ---- station: commercial grey peg dish rack ----
     const rackGroup = new T.Group(); scene.add(rackGroup);
+    const dryRack = makePegRack(0.98, 0.74); dryRack.position.set(STATION.rack, COUNTER_Y + 0.05, -0.08); scene.add(dryRack);
 
     // ---- station: tall stainless conveyor dishwasher ----
     const washer = new T.Group(); washer.position.set(STATION.washer, 0, 0); scene.add(washer);
@@ -218,15 +216,35 @@
       return grp;
     }
 
+    // grey commercial peg rack: lattice tray + grid of upright pegs
+    function makePegRack(w, d) {
+      const g = new T.Group();
+      const plastic = mat('#b3b8bd', 0.75, 0.02);
+      const dark = mat('#8b9197', 0.75);
+      const base = new T.Mesh(new T.BoxGeometry(w, 0.05, d), plastic); base.position.y = 0.025; base.receiveShadow = true; g.add(base);
+      const wallH = 0.13;
+      for (const [x, z, ww, dd] of [[0, d / 2, w, 0.035], [0, -d / 2, w, 0.035], [w / 2, 0, 0.035, d], [-w / 2, 0, 0.035, d]]) {
+        const wall = new T.Mesh(new T.BoxGeometry(ww, wallH, dd), plastic); wall.position.set(x, 0.02 + wallH / 2, z); g.add(wall);
+      }
+      const nx = Math.max(4, Math.round(w / 0.13)), nz = Math.max(3, Math.round(d / 0.14));
+      for (let ix = 0; ix < nx; ix++) for (let iz = 0; iz < nz; iz++) {
+        const peg = new T.Mesh(new T.CylinderGeometry(0.011, 0.014, 0.17, 6), dark);
+        peg.position.set(-w / 2 + 0.09 + ix * (w - 0.18) / (nx - 1), 0.11, -d / 2 + 0.09 + iz * (d - 0.18) / (nz - 1));
+        g.add(peg);
+      }
+      return g;
+    }
+
     // preallocate dirty stack
     const dirtyPlates = [];
     for (let i = 0; i < 24; i++) { const pl = makePlate(true); pl.position.set(STATION.pile, COUNTER_Y + 0.17 + i * 0.03, -0.1); pl.visible = false; dirtyGroup.add(pl); dirtyPlates.push(pl); }
-    // rack slots (vertical plates)
+    // rack slots — plates leaning between the pegs
     const rackPlates = [];
-    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.position.set(STATION.rack - 0.5 + i * 0.16, COUNTER_Y + 0.34, -0.1); pl.visible = false; rackGroup.add(pl); rackPlates.push(pl); }
-    // washer rack plates
+    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.rotation.z = 0.32; pl.position.set(STATION.rack - 0.36 + i * 0.095, COUNTER_Y + 0.21, -0.08); pl.visible = false; rackGroup.add(pl); rackPlates.push(pl); }
+    // peg rack inside the dishwasher + its leaning plates
+    const washerPegRack = makePegRack(0.82, 0.6); washerPegRack.position.set(0, -0.06, 0); washerRack.add(washerPegRack);
     const washerPlates = [];
-    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.position.set(-0.5 + i * 0.14, 0, 0); pl.visible = false; washerRack.add(pl); washerPlates.push(pl); }
+    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.rotation.z = 0.32; pl.position.set(-0.3 + i * 0.085, 0.13, 0); pl.visible = false; washerRack.add(pl); washerPlates.push(pl); }
     // done stack
     const donePlates = [];
     for (let i = 0; i < 30; i++) { const pl = makePlate(false); pl.position.set(3.4, 1.56 + i * 0.03, -1.6); pl.visible = false; doneGroup.add(pl); donePlates.push(pl); }
