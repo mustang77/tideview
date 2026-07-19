@@ -104,7 +104,7 @@
   }
 
   // ---------------------------------------------------------------- view sync
-  const stationX = { sink: G.STATION.sink, rack: G.STATION.rack, washer: G.STATION.washer, pile: G.STATION.pile, idle: G.STATION.sink };
+  const stationX = { sink: G.STATION.sink, rack: G.STATION.rack, washer: G.STATION.washer - 0.85, pile: G.STATION.pile, idle: G.STATION.sink };
   let lowTickT = 0;
   function syncView(dt) {
     // dish counts

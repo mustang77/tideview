@@ -111,35 +111,57 @@
 
     // ---- counter ----
     const counter = new T.Group(); scene.add(counter);
-    const topTex = tileTexture('#1fa9b0', '#188f96');
-    topTex.repeat.set(10, 2);
-    const cTop = new T.Mesh(new T.BoxGeometry(8.4, 0.16, 1.15), mat('#1fa9b0', 0.5));
-    cTop.material.map = topTex; cTop.position.set(0, COUNTER_Y, -0.1); cTop.receiveShadow = true; cTop.castShadow = true; counter.add(cTop);
-    // gold trim
-    const trim = new T.Mesh(new T.BoxGeometry(8.5, 0.06, 1.25), mat('#f2c14e', 0.4, 0.4)); trim.position.set(0, COUNTER_Y - 0.09, -0.1); counter.add(trim);
-    // base cabinet
-    const base = new T.Mesh(new T.BoxGeometry(8.4, 0.92, 1.05), mat('#2f6ea5', 0.7)); base.position.set(0, 0.46, -0.15); base.receiveShadow = true; counter.add(base);
-    for (let x = -3.5; x <= 3.5; x += 1) { const p = new T.Mesh(new T.BoxGeometry(0.9, 0.7, 0.04), mat('#356fb0', 0.6)); p.position.set(x, 0.5, 0.38); counter.add(p);
-      const kn = new T.Mesh(new T.SphereGeometry(0.03, 8, 8), mat('#f2c14e', 0.3, 0.5)); kn.position.set(x + 0.35, 0.5, 0.41); counter.add(kn); }
+    // brushed stainless commercial worktable
+    const steel = () => mat('#c7d0d6', 0.34, 0.72);
+    const steelDark = () => mat('#9aa4ab', 0.42, 0.6);
+    const cTop = new T.Mesh(new T.BoxGeometry(8.4, 0.1, 1.15), steel());
+    cTop.position.set(0, COUNTER_Y, -0.1); cTop.receiveShadow = true; cTop.castShadow = true; counter.add(cTop);
+    // raised back splash
+    const splash = new T.Mesh(new T.BoxGeometry(8.4, 0.22, 0.06), steel()); splash.position.set(0, COUNTER_Y + 0.1, -0.66); counter.add(splash);
+    // apron + under-shelf + legs (open commercial table)
+    const apron = new T.Mesh(new T.BoxGeometry(8.4, 0.14, 1.02), steelDark()); apron.position.set(0, COUNTER_Y - 0.12, -0.12); counter.add(apron);
+    const undershelf = new T.Mesh(new T.BoxGeometry(8.2, 0.05, 0.9), steelDark()); undershelf.position.set(0, 0.28, -0.12); counter.add(undershelf);
+    for (const lx of [-4.0, -1.3, 1.3, 4.0]) for (const lz of [0.28, -0.5]) {
+      const leg = new T.Mesh(new T.CylinderGeometry(0.045, 0.045, COUNTER_Y - 0.05, 10), steelDark());
+      leg.position.set(lx, (COUNTER_Y - 0.05) / 2, lz); leg.castShadow = true; counter.add(leg);
+      const foot = new T.Mesh(new T.CylinderGeometry(0.06, 0.05, 0.05, 10), mat('#2a2f33', 0.6)); foot.position.set(lx, 0.02, lz); counter.add(foot);
+    }
 
-    // ---- station: dirty tray ----
-    const tray = new T.Mesh(new T.BoxGeometry(1.0, 0.08, 0.8), mat('#7a6a58', 0.7));
-    tray.position.set(STATION.pile, COUNTER_Y + 0.12, -0.1); scene.add(tray);
+    // ---- station: dirty-dish landing tray (stainless, with a lip) ----
+    const tray = new T.Mesh(new T.BoxGeometry(1.0, 0.06, 0.8), steelDark());
+    tray.position.set(STATION.pile, COUNTER_Y + 0.08, -0.1); scene.add(tray);
+    for (const [dx, dz, w, d] of [[0, 0.4, 1.0, 0.05], [0, -0.4, 1.0, 0.05], [0.5, 0, 0.05, 0.8], [-0.5, 0, 0.05, 0.8]]) {
+      const lip = new T.Mesh(new T.BoxGeometry(w, 0.07, d), steelDark()); lip.position.set(STATION.pile + dx, COUNTER_Y + 0.12, -0.1 + dz); scene.add(lip);
+    }
     const dirtyGroup = new T.Group(); scene.add(dirtyGroup);
 
-    // ---- station: sink ----
-    const sinkBox = new T.Mesh(new T.BoxGeometry(1.1, 0.34, 0.85), mat('#c9d3da', 0.4, 0.3));
-    sinkBox.position.set(STATION.sink, COUNTER_Y + 0.02, -0.1); scene.add(sinkBox);
-    const sinkHole = new T.Mesh(new T.BoxGeometry(0.85, 0.3, 0.62), mat('#8b98a2', 0.3, 0.4)); sinkHole.position.set(STATION.sink, COUNTER_Y + 0.12, -0.1); sinkHole.material.side = T.BackSide; scene.add(sinkHole);
-    const faucet = new T.Group();
-    const fbody = new T.Mesh(new T.CylinderGeometry(0.04, 0.04, 0.5, 10), mat('#cfd6db', 0.3, 0.6)); fbody.position.y = 0.25; faucet.add(fbody);
-    const fspout = new T.Mesh(new T.CylinderGeometry(0.035, 0.035, 0.3, 10), mat('#cfd6db', 0.3, 0.6)); fspout.rotation.z = Math.PI / 2; fspout.position.set(0.12, 0.48, 0); faucet.add(fspout);
-    faucet.position.set(STATION.sink - 0.25, COUNTER_Y + 0.14, -0.32); scene.add(faucet);
-    const water = new T.Mesh(new T.CylinderGeometry(0.02, 0.02, 0.4, 8), new T.MeshStandardMaterial({ color: '#aee3ff', transparent: true, opacity: 0.6 }));
-    water.position.set(STATION.sink - 0.13, COUNTER_Y + 0.05, -0.32); water.visible = false; scene.add(water);
-    // sink water pool
-    const sinkWater = new T.Mesh(new T.PlaneGeometry(0.8, 0.6), new T.MeshStandardMaterial({ color: '#7fd0f0', transparent: true, opacity: 0.55, roughness: 0.2 }));
-    sinkWater.rotateX(-Math.PI / 2); sinkWater.position.set(STATION.sink, COUNTER_Y + 0.06, -0.1); sinkWater.visible = false; scene.add(sinkWater);
+    // ---- station: deep commercial sink + pre-rinse spray unit ----
+    const sinkX = STATION.sink;
+    // deep basin (recessed box, open top)
+    const basinOuter = new T.Mesh(new T.BoxGeometry(1.0, 0.4, 0.8), steel());
+    basinOuter.position.set(sinkX, COUNTER_Y - 0.06, -0.05); scene.add(basinOuter);
+    const basinIn = new T.Mesh(new T.BoxGeometry(0.86, 0.36, 0.66), steelDark());
+    basinIn.material.side = T.BackSide; basinIn.position.set(sinkX, COUNTER_Y - 0.02, -0.05); scene.add(basinIn);
+    // pre-rinse spray unit: riser + coil spring + gooseneck + spray gun
+    const spray = new T.Group(); spray.position.set(sinkX - 0.34, COUNTER_Y, -0.34);
+    const riser = new T.Mesh(new T.CylinderGeometry(0.028, 0.03, 0.42, 10), mat('#e2e8ec', 0.25, 0.85)); riser.position.y = 0.21; spray.add(riser);
+    const valve = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.09, 10), mat('#d33b3b', 0.4)); valve.position.y = 0.44; valve.rotation.z = Math.PI / 2; valve.position.x = 0.06; spray.add(valve);
+    // coiled spring hose (stack of torus rings)
+    const coilMat = mat('#cfd6db', 0.3, 0.8);
+    for (let i = 0; i < 14; i++) { const ring = new T.Mesh(new T.TorusGeometry(0.055, 0.012, 6, 16), coilMat); ring.position.set(0, 0.5 + i * 0.045, 0); ring.rotation.x = Math.PI / 2; spray.add(ring); }
+    // gooseneck arch over the sink
+    const neck = new T.Mesh(new T.TorusGeometry(0.16, 0.02, 8, 20, Math.PI * 0.9), mat('#e2e8ec', 0.25, 0.85));
+    neck.position.set(0.15, 1.14, 0); neck.rotation.z = -Math.PI * 0.15; spray.add(neck);
+    // spray gun head pointing down into the basin
+    const gun = new T.Group(); gun.position.set(0.3, 1.02, 0);
+    const grip = new T.Mesh(new T.CylinderGeometry(0.03, 0.035, 0.16, 8), mat('#2b2f33', 0.5)); grip.position.y = 0.02; gun.add(grip);
+    const nozzle = new T.Mesh(new T.CylinderGeometry(0.05, 0.04, 0.08, 12), mat('#c7ced3', 0.3, 0.7)); nozzle.position.y = -0.1; gun.add(nozzle);
+    spray.add(gun); scene.add(spray);
+    // water stream + basin pool
+    const water = new T.Mesh(new T.CylinderGeometry(0.022, 0.03, 0.42, 8), new T.MeshStandardMaterial({ color: '#bfeaff', transparent: true, opacity: 0.55 }));
+    water.position.set(sinkX - 0.04, COUNTER_Y - 0.16, -0.39); water.visible = false; scene.add(water);
+    const sinkWater = new T.Mesh(new T.PlaneGeometry(0.82, 0.62), new T.MeshStandardMaterial({ color: '#8fd8f4', transparent: true, opacity: 0.5, roughness: 0.15, metalness: 0.2 }));
+    sinkWater.rotateX(-Math.PI / 2); sinkWater.position.set(sinkX, COUNTER_Y - 0.14, -0.05); sinkWater.visible = false; scene.add(sinkWater);
 
     // ---- station: drying rack ----
     const rackBase = new T.Mesh(new T.BoxGeometry(1.2, 0.06, 0.7), mat('#d7dde2', 0.4, 0.4));
@@ -147,16 +169,34 @@
     for (let i = 0; i < 7; i++) { const wire = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 0.5, 6), mat('#b7bfc6', 0.3, 0.5)); wire.position.set(STATION.rack - 0.5 + i * 0.16, COUNTER_Y + 0.32, -0.1); scene.add(wire); }
     const rackGroup = new T.Group(); scene.add(rackGroup);
 
-    // ---- station: dishwasher ----
+    // ---- station: tall stainless conveyor dishwasher ----
     const washer = new T.Group(); washer.position.set(STATION.washer, 0, 0); scene.add(washer);
-    const wBody = new T.Mesh(new T.BoxGeometry(1.2, 1.5, 1.0), mat('#dfe4e8', 0.4, 0.4)); wBody.position.set(0, 0.75, -0.1); wBody.castShadow = true; washer.add(wBody);
-    const door = new T.Group(); door.position.set(0, 0.2, 0.4); washer.add(door);
-    const doorPanel = new T.Mesh(new T.BoxGeometry(1.1, 1.0, 0.08), mat('#eef2f5', 0.35, 0.5)); doorPanel.position.y = 0.5; door.add(doorPanel);
-    const portGlass = new T.Mesh(new T.CircleGeometry(0.28, 24), new T.MeshStandardMaterial({ color: '#2a4a5a', metalness: 0.4, roughness: 0.1 })); portGlass.position.set(0, 0.6, 0.05); door.add(portGlass);
-    const handle = new T.Mesh(new T.BoxGeometry(0.7, 0.06, 0.06), mat('#9aa4ac', 0.3, 0.6)); handle.position.set(0, 0.95, 0.06); door.add(handle);
-    const light = new T.Mesh(new T.SphereGeometry(0.05, 10, 10), new T.MeshStandardMaterial({ color: '#38d66a', emissive: '#2fbf5a', emissiveIntensity: 0.8 }));
-    light.position.set(0.42, 1.3, 0.45); washer.add(light);
-    const washerRack = new T.Group(); washerRack.position.set(0, 0.55, -0.1); washer.add(washerRack); washerRack.visible = false;
+    // legs
+    for (const lx of [-0.55, 0.55]) for (const lz of [0.3, -0.55]) { const leg = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.2, 8), steelDark()); leg.position.set(lx, 0.1, lz); washer.add(leg); }
+    // main body
+    const wBody = new T.Mesh(new T.BoxGeometry(1.35, 1.4, 1.0), steel()); wBody.position.set(0, 0.9, -0.12); wBody.castShadow = true; wBody.receiveShadow = true; washer.add(wBody);
+    // raised wash hood (the hump)
+    const hood = new T.Mesh(new T.BoxGeometry(1.0, 0.5, 0.85), steel()); hood.position.set(0, 1.82, -0.12); hood.castShadow = true; washer.add(hood);
+    // entry tunnel opening (dark recess) facing the rack side (+X toward rack)
+    const opening = new T.Mesh(new T.BoxGeometry(0.12, 0.5, 0.7), mat('#20272c', 0.9)); opening.position.set(-0.7, 1.15, -0.12); washer.add(opening);
+    const opening2 = new T.Mesh(new T.BoxGeometry(0.12, 0.5, 0.7), mat('#20272c', 0.9)); opening2.position.set(0.7, 1.15, -0.12); washer.add(opening2);
+    // lifting front hood/door
+    const door = new T.Group(); door.position.set(0, 0.9, 0.4); washer.add(door);
+    const doorPanel = new T.Mesh(new T.BoxGeometry(1.15, 0.95, 0.07), mat('#dfe6ea', 0.3, 0.7)); door.add(doorPanel);
+    const doorInset = new T.Mesh(new T.BoxGeometry(0.9, 0.7, 0.03), steelDark()); doorInset.position.z = 0.04; door.add(doorInset);
+    const handle = new T.Mesh(new T.CylinderGeometry(0.03, 0.03, 0.95, 10), mat('#6f7a81', 0.3, 0.7)); handle.rotation.z = Math.PI / 2; handle.position.set(0, 0.55, 0.08); door.add(handle);
+    const doorBaseY = 0.9;
+    // control panel on top front (angled) with indicators + knobs
+    const panel = new T.Mesh(new T.BoxGeometry(1.1, 0.28, 0.1), mat('#e6ebee', 0.4, 0.5));
+    panel.position.set(0, 2.02, 0.34); panel.rotation.x = -0.5; washer.add(panel);
+    const dotColors = ['#38d66a', '#ffcf3a', '#e94f4f'];
+    for (let i = 0; i < 3; i++) { const d = new T.Mesh(new T.SphereGeometry(0.035, 10, 10), new T.MeshStandardMaterial({ color: dotColors[i], emissive: dotColors[i], emissiveIntensity: 0.5 })); d.position.set(-0.42 + i * 0.14, 2.08, 0.42); washer.add(d); }
+    for (let i = 0; i < 2; i++) { const k = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, 0.05, 12), mat('#3a4046', 0.5)); k.position.set(0.2 + i * 0.18, 2.02, 0.42); k.rotation.x = -0.5; washer.add(k); }
+    // status light (its own emissive orb)
+    const light = new T.Mesh(new T.SphereGeometry(0.05, 12, 12), new T.MeshStandardMaterial({ color: '#38d66a', emissive: '#2fbf5a', emissiveIntensity: 0.8 }));
+    light.position.set(-0.42, 2.08, 0.44); washer.add(light);
+    // plates visible at the machine mouth while loaded
+    const washerRack = new T.Group(); washerRack.position.set(0, 1.05, 0.18); washer.add(washerRack); washerRack.visible = false;
 
     // ---- done shelf (clean stacked plates behind) ----
     const doneGroup = new T.Group(); scene.add(doneGroup);
@@ -208,7 +248,7 @@
       render() { renderer.render(scene, camera); },
       update(dt, t) {
         doorOpen += (doorTarget - doorOpen) * Math.min(1, dt * 8);
-        door.rotation.x = doorOpen * -1.4;
+        door.position.y = doorBaseY + doorOpen * 0.92;   // hood lifts to load/unload
         // indicator light color
         if (lightState === 'run') { light.material.color.set('#ff9a3c'); light.material.emissive.set('#ff7a1c'); light.material.emissiveIntensity = 0.6 + Math.sin(t * 8) * 0.4; }
         else if (lightState === 'done') { light.material.color.set('#38d66a'); light.material.emissive.set('#2fbf5a'); light.material.emissiveIntensity = 1.0; }
