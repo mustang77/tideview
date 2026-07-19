@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Grandmaster — 3D Chess</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;}
+  html,body{margin:0;padding:0;height:100%;height:100dvh;width:100%;position:fixed;inset:0;overflow:hidden;
+    overscroll-behavior:none;background:#0b0e14;touch-action:none;color:#e7eef7;}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+
+  /* top status */
+  #turn{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+    background:rgba(18,24,34,.82);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+    padding:8px 20px;font-weight:700;font-size:15px;z-index:12;backdrop-filter:blur(8px);white-space:nowrap;}
+  #turn.check{border-color:#ff6b6b;color:#ffb3b3;box-shadow:0 0 16px rgba(255,80,80,.3);}
+
+  /* captured trays */
+  .captray{position:fixed;left:calc(14px + env(safe-area-inset-left));z-index:11;font-size:22px;line-height:1;
+    max-width:44vw;word-break:break-all;text-shadow:0 1px 2px rgba(0,0,0,.6);opacity:.9;}
+  #capTop{top:calc(58px + env(safe-area-inset-top));color:#e9d3a4;}
+  #capBot{bottom:calc(74px + env(safe-area-inset-bottom));color:#c7ccd6;}
+
+  /* tools top-right */
+  #tools{position:fixed;top:calc(12px + env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));display:flex;gap:8px;z-index:14;}
+  .tbtn{cursor:pointer;background:rgba(18,24,34,.82);border:1px solid rgba(255,255,255,.12);color:#dbe6f0;
+    border-radius:12px;padding:9px 12px;font-size:14px;font-weight:600;}
+  .tbtn:active{transform:scale(.95);}
+
+  /* bottom actions */
+  #actions{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    display:flex;gap:12px;z-index:13;}
+  .act{cursor:pointer;border:none;border-radius:16px;color:#08131f;font-weight:800;font-size:15px;
+    padding:13px 22px;background:linear-gradient(#e7d3a0,#c9b07c);box-shadow:0 5px 0 rgba(120,90,40,.5);}
+  .act:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(120,90,40,.5);}
+  .act.sub{background:linear-gradient(#2a3442,#1c2532);color:#cdd9e6;box-shadow:0 5px 0 rgba(0,0,0,.4);}
+
+  /* overlays */
+  .overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 35%,rgba(30,44,66,.6),rgba(4,7,12,.94));backdrop-filter:blur(4px);}
+  .overlay.show{display:flex;}
+  .card{background:linear-gradient(160deg,#18202c,#0c121b);border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;padding:28px 32px;max-width:420px;width:90vw;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.6);}
+  .card h1{margin:0 0 4px;font-size:28px;letter-spacing:.5px;
+    background:linear-gradient(90deg,#e7d3a0,#fff4d8);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .card .sub{color:#9fb0c4;font-size:14px;margin-bottom:16px;}
+  .field{text-align:left;margin:14px 0;}
+  .field label{font-size:12px;color:#9fb0c4;font-weight:700;letter-spacing:.6px;text-transform:uppercase;display:block;margin-bottom:8px;}
+  .seg{display:flex;gap:8px;} .seg button{flex:1;cursor:pointer;background:#1c2632;border:1px solid rgba(255,255,255,.1);
+    color:#cdd9e6;padding:11px 6px;border-radius:12px;font-weight:700;font-size:14px;}
+  .seg button.sel{background:#e7d3a0;color:#20160a;border-color:#e7d3a0;}
+  #startBtn,#againBtn{margin-top:18px;width:100%;cursor:pointer;border:none;border-radius:14px;color:#20160a;font-weight:800;
+    font-size:17px;padding:15px;background:linear-gradient(#e7d3a0,#c9b07c);box-shadow:0 6px 0 rgba(120,90,40,.5);}
+  #resultTitle{font-size:28px;margin:0 0 6px;font-weight:800;}
+
+  /* promotion picker */
+  #promoPick{position:fixed;inset:0;z-index:45;display:none;align-items:center;justify-content:center;background:rgba(4,7,12,.7);}
+  #promoPick.show{display:flex;}
+  #promoPick .row{display:flex;gap:12px;background:#18202c;border:1px solid rgba(255,255,255,.12);padding:18px;border-radius:20px;}
+  #promoPick button{width:74px;height:74px;font-size:44px;line-height:1;border-radius:14px;border:1px solid rgba(255,255,255,.12);
+    background:#e7d3a0;color:#20160a;cursor:pointer;}
+  #promoPick button:active{transform:scale(.94);}
+
+  #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:28px;background:radial-gradient(circle at 50% 40%,#141b26,#070b11);}
+  #rotate .ico{font-size:48px;animation:sp 2.4s ease-in-out infinite;}
+  @keyframes sp{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(78deg);}}
+  @media (orientation:portrait) and (max-width:900px){ #rotate{display:flex;} }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+
+  <div id="turn">White to move</div>
+  <div class="captray" id="capTop"></div>
+  <div class="captray" id="capBot"></div>
+
+  <div id="tools">
+    <button class="tbtn" id="undoBtn" title="Undo">↶</button>
+    <button class="tbtn" id="flipBtn" title="Flip board">⇅</button>
+    <button class="tbtn" id="soundBtn" title="Sound">🔊</button>
+    <button class="tbtn" id="newBtn" title="New game">☰ New</button>
+  </div>
+
+  <!-- start menu -->
+  <div class="overlay show" id="menu">
+    <div class="card">
+      <h1>♟ GRANDMASTER</h1>
+      <div class="sub">3D Chess</div>
+      <div class="field"><label>Opponent</label>
+        <div class="seg" id="modeSeg"><button data-v="ai" class="sel">vs Computer</button><button data-v="2p">2 Players</button></div>
+      </div>
+      <div class="field" id="sideField"><label>Play as</label>
+        <div class="seg" id="sideSeg"><button data-v="1" class="sel">♔ White</button><button data-v="-1">♚ Black</button></div>
+      </div>
+      <div class="field" id="diffField"><label>Difficulty</label>
+        <div class="seg" id="diffSeg"><button data-v="easy">Easy</button><button data-v="medium" class="sel">Medium</button><button data-v="hard">Hard</button></div>
+      </div>
+      <button id="startBtn">START</button>
+    </div>
+  </div>
+
+  <!-- result -->
+  <div class="overlay" id="result">
+    <div class="card">
+      <div style="font-size:40px;margin-bottom:4px">♛</div>
+      <div id="resultTitle">Checkmate!</div>
+      <div class="sub" id="resultSub"></div>
+      <button id="againBtn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- promotion -->
+  <div id="promoPick"><div class="row">
+    <button id="promo-5">♕</button><button id="promo-4">♖</button><button id="promo-3">♗</button><button id="promo-2">♘</button>
+  </div></div>
+
+  <div id="rotate"><div class="ico">📱</div><h2 style="margin:0">Rotate your device</h2><p style="color:#9fb0c4;max-width:280px">Grandmaster plays best in landscape — turn your phone sideways.</p></div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/board3d.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Galley Rush — World Cruise Academy</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+    font-family:'Baloo 2','Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;}
+  html,body{margin:0;padding:0;height:100%;height:100dvh;width:100%;position:fixed;inset:0;overflow:hidden;
+    overscroll-behavior:none;background:#f0d9bd;touch-action:none;color:#3a2a18;}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+
+  /* ---- top HUD ---- */
+  #top{position:fixed;top:calc(10px + env(safe-area-inset-top));left:0;right:0;display:flex;
+    justify-content:center;align-items:center;gap:12px;z-index:12;pointer-events:none;padding:0 12px;}
+  .pill{background:linear-gradient(#fff,#ffe9cf);border:3px solid #fff;border-radius:30px;
+    box-shadow:0 5px 0 rgba(180,120,60,.35),0 8px 16px rgba(0,0,0,.2);padding:6px 16px;
+    display:flex;align-items:center;gap:8px;font-weight:800;}
+  #timePill .ico{font-size:20px;}
+  #timeVal{font-size:20px;font-variant-numeric:tabular-nums;color:#c0392b;min-width:58px;text-align:center;}
+  #timePill.low{animation:flash .5s infinite;}
+  @keyframes flash{50%{background:linear-gradient(#ffd2c2,#ffb59c);}}
+  #progWrap{min-width:210px;max-width:44vw;}
+  #progTop{display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#6b4a22;margin-bottom:3px;padding:0 2px;}
+  #progBar{height:16px;background:#e7c49a;border-radius:12px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.2);}
+  #progFill{height:100%;width:0;background:linear-gradient(90deg,#7bd66a,#4caf50);transition:width .3s;border-radius:12px;}
+
+  #pauseBtn,#soundBtn{pointer-events:auto;cursor:pointer;width:46px;height:46px;border-radius:50%;border:3px solid #fff;
+    background:linear-gradient(#ffb347,#ff8c1a);color:#fff;font-size:20px;font-weight:800;
+    box-shadow:0 5px 0 rgba(180,100,20,.5);display:flex;align-items:center;justify-content:center;}
+  #util{position:fixed;top:calc(10px + env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));display:flex;gap:8px;z-index:14;}
+
+  /* ---- rack indicator ---- */
+  #rackInd{position:fixed;bottom:calc(112px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+    z-index:11;display:flex;gap:5px;align-items:center;background:rgba(255,255,255,.82);
+    border-radius:20px;padding:5px 14px;font-weight:800;font-size:13px;color:#1a7a80;box-shadow:0 3px 8px rgba(0,0,0,.2);}
+  #rackInd .dot{width:11px;height:11px;border-radius:50%;background:#cfe3e4;border:1px solid #9fc;}
+  #rackInd .dot.on{background:#22c3cc;box-shadow:0 0 5px #22c3cc;}
+
+  /* ---- bottom action buttons ---- */
+  #actions{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:0;right:0;z-index:13;
+    display:flex;justify-content:center;gap:16px;padding:0 16px;}
+  .act{position:relative;pointer-events:auto;cursor:pointer;border:none;border-radius:22px;color:#fff;
+    font-weight:900;font-size:17px;letter-spacing:.5px;padding:16px 8px;min-width:104px;
+    box-shadow:0 6px 0 rgba(0,0,0,.28),0 10px 18px rgba(0,0,0,.22);transition:transform .08s,filter .2s;overflow:hidden;}
+  .act:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.28);}
+  .act .lbl{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1;}
+  .act .lbl .big{font-size:22px;}
+  #washBtn{background:linear-gradient(#38b6ff,#1f8fe0);}
+  #washBtn .fill{position:absolute;left:0;bottom:0;width:100%;height:0;background:rgba(255,255,255,.35);z-index:1;}
+  #rackBtn{background:linear-gradient(#28c7a9,#159e86);}
+  #runBtn{background:linear-gradient(#ffb347,#f2820f);}
+  .act.disabled{filter:grayscale(.7) brightness(.85);opacity:.6;pointer-events:none;}
+  .act.pulse{animation:pulse .8s infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  #heartsPill .ico{font-size:16px;} #heartsPill{color:#e0395b;font-weight:900;}
+
+  /* ---- sink wash progress ---- */
+  #sink{position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    z-index:12;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.9);border:3px solid #fff;
+    border-radius:20px;padding:6px 14px;box-shadow:0 5px 0 rgba(150,110,60,.3),0 8px 14px rgba(0,0,0,.2);}
+  #sinkLabel{font-size:11px;font-weight:900;color:#7f8a92;letter-spacing:1px;}
+  #sinkItem{font-size:24px;line-height:1;}
+  #washBar{width:120px;height:12px;background:#e0e6ea;border-radius:8px;overflow:hidden;}
+  #washBarFill{height:100%;width:0;background:linear-gradient(90deg,#7fd0f0,#2aa6dd);border-radius:8px;}
+  #queueDots{display:flex;gap:4px;font-size:15px;min-width:44px;}
+
+  /* ---- choose-what-to-wash buttons ---- */
+  #washRow{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:0;right:0;z-index:13;
+    display:flex;justify-content:center;gap:14px;padding:0 14px;}
+  .wbtn{position:relative;pointer-events:auto;cursor:pointer;border:none;border-radius:20px;color:#06344a;
+    font-weight:900;background:linear-gradient(#eaf6ff,#c4e6fa);min-width:98px;padding:12px 8px 10px;
+    box-shadow:0 6px 0 rgba(40,120,160,.35),0 10px 16px rgba(0,0,0,.2);transition:transform .08s,filter .15s;
+    display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .wbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(40,120,160,.35);}
+  .wbtn .wi{font-size:26px;line-height:1;} .wbtn .wn{font-size:14px;}
+  .wbtn.flash{animation:wflash .3s;}
+  @keyframes wflash{0%{filter:brightness(1.6);}100%{filter:brightness(1);}}
+  .wbtn .stock{position:absolute;top:-8px;right:-8px;min-width:24px;height:24px;border-radius:50%;
+    background:#2ea24e;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;
+    border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.3);}
+  .wbtn .stock.zero{background:#b6bcc2;}
+  @media (max-height:430px){ .wbtn{min-width:82px;padding:9px 6px 8px;} .wbtn .wi{font-size:22px;} #sink{bottom:calc(96px + env(safe-area-inset-bottom));} }
+
+  /* ---- waiter order cards ---- */
+  #orders{position:fixed;top:calc(60px + env(safe-area-inset-top));left:0;right:0;display:flex;
+    justify-content:center;gap:14px;z-index:11;pointer-events:none;padding:0 10px;}
+  .ocard{pointer-events:auto;cursor:pointer;width:92px;background:rgba(255,255,255,.92);border:3px solid #fff;
+    border-radius:16px;box-shadow:0 5px 0 rgba(150,110,60,.3),0 8px 14px rgba(0,0,0,.22);
+    padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .2s,transform .12s,border-color .12s;position:relative;}
+  .ocard.empty{opacity:0;pointer-events:none;transform:scale(.6);}
+  .ocard.sel{border-color:#ffb347;transform:translateY(-4px);box-shadow:0 9px 0 rgba(180,100,20,.45);}
+  .ocard .bubble{background:#fff;border:2px solid #ecdfca;border-radius:12px;width:100%;text-align:center;
+    padding:4px 0;font-size:27px;line-height:1;position:relative;}
+  .ocard .bubble:after{content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+    border:7px solid transparent;border-top-color:#fff;}
+  .ocard .avatar{font-size:32px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
+  .ocard .pat{width:100%;height:7px;background:#e7d8c0;border-radius:6px;overflow:hidden;}
+  .ocard .patfill{height:100%;width:100%;background:linear-gradient(90deg,#6bd06a,#37b34a);border-radius:6px;transition:width .12s linear;}
+  .ocard.urgent .patfill{background:linear-gradient(90deg,#ff6b5a,#e03a2a);}
+  .ocard.pop{animation:pop .34s;}
+  @keyframes pop{0%{transform:scale(.5);}60%{transform:scale(1.12);}100%{transform:scale(1);}}
+  @media (max-height:430px){ .ocard{width:78px;} .ocard .bubble{font-size:23px;} .ocard .avatar{font-size:26px;} }
+
+  /* ---- toast ---- */
+  #toast{position:fixed;top:calc(108px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) scale(.8);
+    background:rgba(20,20,30,.85);color:#fff;padding:8px 18px;border-radius:22px;font-weight:800;font-size:15px;
+    z-index:20;opacity:0;transition:.2s;pointer-events:none;}
+  #toast.show{opacity:1;transform:translateX(-50%) scale(1);}
+
+  /* ---- overlays ---- */
+  .overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 35%,rgba(255,180,110,.55),rgba(60,30,10,.9));backdrop-filter:blur(3px);}
+  .overlay.show{display:flex;}
+  .card{background:linear-gradient(160deg,#fff,#ffe9cf);border:5px solid #fff;border-radius:28px;
+    padding:26px 30px;max-width:420px;width:90vw;text-align:center;box-shadow:0 16px 44px rgba(0,0,0,.4);}
+  .card h1{margin:0 0 2px;font-size:26px;color:#e8720f;letter-spacing:.5px;}
+  .card .neon{font-size:13px;font-weight:900;letter-spacing:2px;color:#1aa0c4;margin-bottom:10px;}
+  .card .sub{color:#6b4a22;font-size:15px;font-weight:700;margin-bottom:6px;}
+  .card .goal{font-size:17px;font-weight:800;color:#2a7a2f;margin:12px 0;}
+  .stars{font-size:34px;letter-spacing:6px;margin:8px 0;}
+  .cbtn{margin-top:16px;width:100%;cursor:pointer;border:none;border-radius:16px;color:#fff;font-weight:900;
+    font-size:19px;padding:15px;background:linear-gradient(#ffb347,#f2820f);box-shadow:0 6px 0 rgba(180,100,20,.5);}
+  .cbtn.green{background:linear-gradient(#5ad07a,#2ea24e);box-shadow:0 6px 0 rgba(30,120,50,.5);}
+
+  #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;
+    gap:12px;text-align:center;padding:28px;background:radial-gradient(circle at 50% 40%,#2a1c10,#120a04);color:#ffd9b0;}
+  #rotate .ico{font-size:50px;animation:sp 2.4s ease-in-out infinite;}
+  @keyframes sp{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(78deg);}}
+  @media (orientation:portrait) and (max-width:900px){ #rotate{display:flex;} }
+  @media (max-height:430px){ .act{padding:12px 8px;min-width:92px;font-size:15px;} #progWrap{min-width:170px;} }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+
+  <div id="top">
+    <div class="pill" id="heartsPill"><span class="ico">❤️</span><span id="heartsVal">5</span></div>
+    <div class="pill" id="timePill"><span class="ico">⏳</span><span id="timeVal">0:00</span></div>
+    <div class="pill" id="progWrap">
+      <div style="flex:1">
+        <div id="progTop"><span>👨‍🍳 Orders</span><span id="progNum">0/0</span></div>
+        <div id="progBar"><div id="progFill"></div></div>
+      </div>
+    </div>
+  </div>
+  <div id="util">
+    <button id="soundBtn" title="Sound">🔊</button>
+    <button id="pauseBtn" title="Pause">⏸</button>
+  </div>
+
+  <div id="orders">
+    <div class="ocard empty" id="ocard0"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard1"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard2"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard3"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+  </div>
+
+  <!-- sink wash progress -->
+  <div id="sink">
+    <div id="sinkLabel">SINK</div>
+    <div id="sinkItem">—</div>
+    <div id="washBar"><div id="washBarFill"></div></div>
+    <div id="queueDots"></div>
+  </div>
+
+  <!-- choose what to wash -->
+  <div id="washRow">
+    <button class="wbtn" id="wash-plate"><span class="wi">🍽️</span><span class="wn">Plate</span><span class="stock" id="stock-plate">0</span></button>
+    <button class="wbtn" id="wash-bowl"><span class="wi">🥣</span><span class="wn">Bowl</span><span class="stock" id="stock-bowl">0</span></button>
+    <button class="wbtn" id="wash-glass"><span class="wi">🥛</span><span class="wn">Glass</span><span class="stock" id="stock-glass">0</span></button>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- briefing -->
+  <div class="overlay show" id="briefing">
+    <div class="card">
+      <div class="neon">✦ WORLD CRUISE ACADEMY ✦</div>
+      <h1>Galley Rush</h1>
+      <div class="sub" id="briefSub">Dish-washing duty, steward!</div>
+      <div class="goal" id="briefGoal">Serve 12 orders</div>
+      <div class="sub" style="font-size:13px;color:#8a6a44;line-height:1.5">Waiters ask for a 🍽️ plate, 🥣 bowl or 🥛 glass. <b>Tap a dish type below</b> to wash it in the sink (one at a time!) — clean ones stack as <b>stock</b>. <b>Tap a waiter</b> to hand over a matching clean item before their patience runs out. Wash the right things in the right order! Don't lose all 5 ❤️.</div>
+      <button class="cbtn green" id="startBtn">START SHIFT</button>
+    </div>
+  </div>
+
+  <!-- win -->
+  <div class="overlay" id="win">
+    <div class="card">
+      <div class="neon">✦ WORLD CRUISE ACADEMY ✦</div>
+      <h1>Shift Complete!</h1>
+      <div class="stars" id="winStars">★★★</div>
+      <div class="sub" id="winSub">All dishes sparkling clean.</div>
+      <button class="cbtn green" id="nextBtn">NEXT SHIFT →</button>
+    </div>
+  </div>
+
+  <!-- lose -->
+  <div class="overlay" id="lose">
+    <div class="card">
+      <div class="neon">✦ WORLD CRUISE ACADEMY ✦</div>
+      <h1 style="color:#c0392b">Time's Up!</h1>
+      <div class="sub" id="loseSub">You washed 0 dishes.</div>
+      <button class="cbtn" id="retryBtn">TRY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- pause -->
+  <div class="overlay" id="pause">
+    <div class="card">
+      <h1>Paused</h1>
+      <div class="sub">Take a breather.</div>
+      <button class="cbtn green" id="resumeBtn">RESUME</button>
+      <button class="cbtn" id="restartBtn" style="margin-top:10px;background:linear-gradient(#9aa4ac,#6b747c);box-shadow:0 6px 0 rgba(60,66,72,.5)">RESTART SHIFT</button>
+    </div>
+  </div>
+
+  <div id="rotate"><div class="ico">📱</div><h2 style="color:#ffcf8a;margin:0">Rotate your device</h2><p style="max-width:280px;color:#e8c49a">Galley Rush plays in landscape — turn your phone sideways.</p></div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

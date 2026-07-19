@@ -1,0 +1,58 @@
+name: Build Android APK
+
+# Builds an installable debug APK in the cloud so it can be downloaded and
+# sideloaded onto a phone without a local Flutter/Android toolchain.
+# Runs automatically on pushes to the feature branch, and can be started
+# manually from the Actions tab (Run workflow).
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/3d-8-pool-game-g9irrg
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.6
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tideview-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish APK to a downloadable release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: TideView test APK (latest)
+          prerelease: true
+          files: build/app/outputs/flutter-apk/app-debug.apk
+          body: |
+            Latest test build of TideView, including the TikTok-style Shorts feed.
+            Download **app-debug.apk** below and install it on your Android phone.

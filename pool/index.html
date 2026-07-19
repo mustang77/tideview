@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Break &amp; Run — 3D 8-Ball Pool</title>
+<style>
+  :root{
+    --gold:#f6c500; --blue:#2a7fe0; --panel:rgba(15,20,28,.72);
+    --line:rgba(255,255,255,.12);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    -webkit-user-select:none;user-select:none;}
+  html,body{margin:0;padding:0;height:100%;height:100dvh;width:100%;
+    position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;
+    background:#05070a;touch-action:none;
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:#eef3f8;}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+  /* safe-area helper (edge insets live on each control's own rule below, with a
+     fixed floor because Android often reports 0 for the gesture-nav inset). */
+  #hud{padding-top:max(10px,env(safe-area-inset-top));}
+
+  /* ---- Top HUD ---- */
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;
+    gap:14px;padding:12px;pointer-events:none;z-index:10;}
+  .pcard{pointer-events:auto;min-width:170px;background:var(--panel);
+    backdrop-filter:blur(9px);border:1px solid var(--line);border-radius:14px;
+    padding:10px 14px;transition:.25s;opacity:.6;transform:translateY(-2px);}
+  .pcard.active{opacity:1;border-color:var(--gold);
+    box-shadow:0 6px 22px rgba(246,197,0,.18);transform:translateY(0);}
+  #p2card.active{border-color:var(--blue);box-shadow:0 6px 22px rgba(42,127,224,.2);}
+  .pname{font-weight:700;font-size:15px;letter-spacing:.3px;display:flex;
+    align-items:center;gap:8px;}
+  .ptimer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;
+    font-size:14px;color:#9fb2c6;min-width:34px;text-align:right;}
+  .ptimer.low{color:#ff5a5a;animation:pulse .5s ease-in-out infinite;}
+  @keyframes pulse{50%{opacity:.45;}}
+  .dot{width:9px;height:9px;border-radius:50%;background:#556;flex:none;}
+  .pcard.active .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+  #p2card.active .dot{background:var(--blue);box-shadow:0 0 8px var(--blue);}
+  .prow{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .grp{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+    letter-spacing:.5px;}
+  .grp.open{background:#2a3340;color:#9fb0c2;}
+  .grp.solid{background:var(--gold);color:#3a2c00;}
+  .grp.stripe{background:var(--blue);color:#03203f;}
+  .pcount{font-size:12px;color:#9fb2c6;}
+  #vs{align-self:center;font-weight:800;color:#5f7286;font-size:13px;}
+
+  /* ---- Toast + hint ---- */
+  #toast{position:fixed;top:96px;left:50%;transform:translateX(-50%) translateY(-8px);
+    background:rgba(10,14,20,.9);border:1px solid var(--line);padding:9px 18px;
+    border-radius:24px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;
+    transition:.3s;z-index:20;max-width:88vw;text-align:center;}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #hint{position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;
+    transform:translateX(-50%);
+    font-size:12.5px;color:#9fb2c6;background:var(--panel);padding:6px 14px;
+    border-radius:20px;pointer-events:none;z-index:10;text-align:center;max-width:80vw;}
+
+  /* ---- Right controls (power) ---- */
+  #right{position:fixed;right:calc(40px + env(safe-area-inset-right));top:46%;
+    transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;z-index:12;}
+  #powerTrack{width:34px;height:196px;background:rgba(10,14,20,.72);
+    border:1px solid var(--line);border-radius:20px;position:relative;
+    overflow:hidden;cursor:pointer;touch-action:none;}
+  #powerFill{position:absolute;left:0;right:0;bottom:0;height:75%;
+    background:linear-gradient(#22c55e,#eab308 55%,#ef4444);transition:height .05s;}
+  #powerTrack .plabel{position:absolute;top:6px;left:0;right:0;text-align:center;
+    font-size:10px;font-weight:700;color:#cfe;mix-blend-mode:difference;z-index:2;}
+  #powerVal{font-weight:800;font-size:15px;}
+  #powerCap{font-size:10px;color:#8ea3b8;letter-spacing:1px;}
+
+  /* ---- Left controls (spin) ---- */
+  #left{position:fixed;left:calc(40px + env(safe-area-inset-left));top:46%;
+    transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;z-index:12;}
+  #spinPad{width:92px;height:92px;border-radius:50%;position:relative;
+    background:radial-gradient(circle at 50% 40%,#fbfbf5,#d7d9d0);
+    border:2px solid rgba(255,255,255,.25);cursor:pointer;touch-action:none;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);}
+  #spinPad::before{content:"";position:absolute;inset:50% 0 auto 0;height:1px;
+    background:rgba(0,0,0,.12);}
+  #spinPad::after{content:"";position:absolute;inset:0 50% 0 auto;width:1px;
+    background:rgba(0,0,0,.12);}
+  #spinDot{position:absolute;width:20px;height:20px;border-radius:50%;
+    background:#c0122b;left:50%;top:50%;transform:translate(-50%,-50%);
+    box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.5);pointer-events:none;}
+  #spinCap{font-size:10px;color:#8ea3b8;letter-spacing:1px;}
+
+  /* ---- Bottom-center shoot ---- */
+  #shootWrap{position:fixed;bottom:calc(40px + env(safe-area-inset-bottom));
+    left:50%;transform:translateX(-50%);
+    z-index:14;display:flex;gap:10px;align-items:center;}
+  #shootBtn{pointer-events:auto;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#f6c500,#ef8f00);color:#2a1e00;
+    font-weight:800;font-size:16px;letter-spacing:.5px;padding:14px 40px;
+    border-radius:40px;box-shadow:0 8px 24px rgba(246,197,0,.35);transition:.15s;}
+  #shootBtn:active{transform:scale(.96);}
+  #shootBtn:disabled{opacity:.35;cursor:default;box-shadow:none;filter:grayscale(.5);}
+
+  /* ---- Top-right buttons ---- */
+  #tools{position:fixed;top:max(12px,env(safe-area-inset-top));
+    right:calc(40px + env(safe-area-inset-right));display:flex;gap:8px;z-index:15;}
+  .tbtn{pointer-events:auto;cursor:pointer;background:var(--panel);
+    border:1px solid var(--line);color:#dbe6f0;border-radius:11px;
+    padding:9px 12px;font-size:13px;font-weight:600;transition:.15s;}
+  .tbtn:hover{border-color:var(--gold);}
+  .tbtn:active{transform:scale(.95);}
+
+  /* ---- Overlays ---- */
+  .overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;
+    justify-content:center;background:radial-gradient(circle at 50% 40%,rgba(10,16,24,.7),rgba(3,5,8,.94));
+    backdrop-filter:blur(4px);}
+  .overlay.show{display:flex;}
+  .card{background:linear-gradient(160deg,#141b25,#0b1017);border:1px solid var(--line);
+    border-radius:22px;padding:34px 40px;max-width:400px;width:88vw;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .card h1{margin:0 0 4px;font-size:30px;letter-spacing:.5px;
+    background:linear-gradient(90deg,#f6c500,#ffe589);-webkit-background-clip:text;
+    background-clip:text;color:transparent;}
+  .card .sub{color:#93a6ba;font-size:14px;margin-bottom:22px;}
+  .field{text-align:left;margin:16px 0;}
+  .field label{font-size:12px;color:#93a6ba;font-weight:700;letter-spacing:.6px;
+    text-transform:uppercase;display:block;margin-bottom:8px;}
+  .seg{display:flex;gap:8px;}
+  .seg button{flex:1;cursor:pointer;background:#1a2431;border:1px solid var(--line);
+    color:#cdd9e6;padding:11px;border-radius:12px;font-weight:700;font-size:14px;transition:.15s;}
+  .seg button.sel{background:var(--gold);color:#2a1e00;border-color:var(--gold);}
+  #startBtn,#playAgain{margin-top:22px;width:100%;cursor:pointer;border:none;
+    background:linear-gradient(135deg,#f6c500,#ef8f00);color:#2a1e00;font-weight:800;
+    font-size:17px;padding:15px;border-radius:14px;box-shadow:0 8px 24px rgba(246,197,0,.3);}
+  #resultText{font-size:26px;margin:0 0 6px;font-weight:800;}
+  #resultSub{color:#93a6ba;font-size:14px;}
+
+  @media (max-width:560px){
+    .pcard{min-width:0;padding:8px 10px;}
+    #spinPad{width:74px;height:74px;} #spinDot{width:16px;height:16px;}
+    #powerTrack{height:170px;width:30px;}
+    #shootBtn{padding:12px 30px;font-size:15px;}
+  }
+  /* Landscape phones are short — pack controls tighter and lift off edges */
+  @media (max-height:480px){
+    #hud{padding:6px;gap:8px;}
+    .pcard{min-width:0;padding:6px 10px;border-radius:11px;}
+    .pname{font-size:13px;} #vs{font-size:11px;}
+    .prow{margin-top:3px;}
+    #spinPad{width:74px;height:74px;} #spinDot{width:16px;height:16px;}
+    #spinCap,#powerCap{font-size:9px;}
+    #powerTrack{height:138px;width:28px;}
+    #powerVal{font-size:13px;}
+    #shootWrap{bottom:calc(34px + env(safe-area-inset-bottom));}
+    #shootBtn{padding:11px 44px;font-size:15px;}
+    #hint{bottom:calc(84px + env(safe-area-inset-bottom));font-size:11px;padding:4px 10px;}
+    #tools .tbtn{padding:7px 9px;font-size:12px;}
+    #toast{top:64px;}
+  }
+  /* Rotate-to-landscape prompt (target device is a phone held sideways) */
+  #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;text-align:center;padding:28px;
+    background:radial-gradient(circle at 50% 40%,#111a24,#05070a);}
+  #rotate .ico{font-size:52px;animation:spin 2.4s ease-in-out infinite;}
+  #rotate h2{margin:0;font-size:22px;background:linear-gradient(90deg,#f6c500,#ffe589);
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  #rotate p{margin:0;color:#93a6ba;font-size:14px;max-width:280px;}
+  @keyframes spin{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(78deg);}}
+  @media (orientation:portrait) and (max-width:900px){ #rotate{display:flex;} }
+  @media (prefers-reduced-motion:reduce){ #rotate .ico{animation:none;} }
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+
+  <div id="rotate">
+    <div class="ico">📱</div>
+    <h2>Rotate your device</h2>
+    <p>Break &amp; Run plays in landscape. Turn your phone sideways to rack 'em up.</p>
+  </div>
+
+  <div id="hud">
+    <div class="pcard active" id="p1card">
+      <div class="pname"><span class="dot"></span><span id="p1name">Player 1</span><span class="ptimer" id="p1timer"></span></div>
+      <div class="prow"><span class="grp open" id="p1group">—</span><span class="pcount" id="p1count"></span></div>
+    </div>
+    <div id="vs">VS</div>
+    <div class="pcard" id="p2card">
+      <div class="pname"><span class="dot"></span><span id="p2name">Computer</span><span class="ptimer" id="p2timer"></span></div>
+      <div class="prow"><span class="grp open" id="p2group">—</span><span class="pcount" id="p2count"></span></div>
+    </div>
+  </div>
+
+  <div id="tools">
+    <button class="tbtn" id="soundBtn" title="Toggle sound">🔊</button>
+    <button class="tbtn" id="camBtn" title="Toggle free camera">🎥 Free</button>
+    <button class="tbtn" id="topBtn" title="Overhead view">⬇ Top</button>
+    <button class="tbtn" id="menuBtn" title="New game">☰ Menu</button>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="left">
+    <div id="spinPad"><div id="spinDot"></div></div>
+    <div id="spinCap">SPIN</div>
+  </div>
+
+  <div id="right">
+    <div id="powerVal">75</div>
+    <div id="powerTrack"><div class="plabel">PWR</div><div id="powerFill"></div></div>
+    <div id="powerCap">POWER</div>
+  </div>
+
+  <div id="shootWrap">
+    <button id="shootBtn">SHOOT</button>
+  </div>
+
+  <div id="hint"></div>
+
+  <!-- Start menu -->
+  <div class="overlay show" id="menu">
+    <div class="card">
+      <h1>BREAK &amp; RUN</h1>
+      <div class="sub">Professional 3D 8-Ball Pool</div>
+      <div class="field">
+        <label>Opponent</label>
+        <div class="seg" id="modeSeg">
+          <button data-mode="ai" class="sel">vs Computer</button>
+          <button data-mode="2p">2 Players</button>
+        </div>
+      </div>
+      <div class="field" id="diffField">
+        <label>Difficulty</label>
+        <div class="seg" id="diffSeg">
+          <button data-diff="easy">Easy</button>
+          <button data-diff="medium" class="sel">Medium</button>
+          <button data-diff="hard">Hard</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Shot clock</label>
+        <div class="seg" id="clockSeg">
+          <button data-clock="0">Off</button>
+          <button data-clock="30" class="sel">30s</button>
+          <button data-clock="60">60s</button>
+        </div>
+      </div>
+      <button id="startBtn">START GAME</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="overlay" id="result">
+    <div class="card">
+      <div style="font-size:44px;margin-bottom:6px">🏆</div>
+      <div id="resultText">Player 1 wins!</div>
+      <div id="resultSub"></div>
+      <button id="playAgain">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
