@@ -34,6 +34,33 @@ class _ShortsScreenState extends State<ShortsScreen> {
   int _current = 0;
   bool _muted = false;
 
+  // Manual swipe. We drive the pager from RAW pointer events (a Listener),
+  // which bypasses the gesture arena completely. The YouTube player is a
+  // native WebView that can swallow a vertical drag before a PageView ever
+  // sees it; reading pointer deltas directly means the swipe works no matter
+  // what the WebView does. The PageView itself is set to
+  // NeverScrollableScrollPhysics so we are the only thing moving it.
+  double _dragDy = 0;
+  bool _dragging = false;
+
+  void _endDrag() {
+    if (!_dragging) return;
+    _dragging = false;
+    final threshold = MediaQuery.of(context).size.height * 0.08;
+    if (_dragDy <= -threshold) {
+      _goToPage(_current + 1);
+    } else if (_dragDy >= threshold) {
+      _goToPage(_current - 1);
+    }
+    _dragDy = 0;
+  }
+
+  void _goToPage(int target) {
+    final t = target.clamp(0, _videos.length - 1);
+    if (t == _current || !_page.hasClients) return;
+    _page.animateToPage(t, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -125,6 +152,7 @@ class _ShortsScreenState extends State<ShortsScreen> {
           PageView.builder(
             controller: _page,
             scrollDirection: Axis.vertical,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: _videos.length,
             onPageChanged: (i) {
               setState(() => _current = i);
@@ -138,6 +166,18 @@ class _ShortsScreenState extends State<ShortsScreen> {
               muted: _muted,
               onShare: () => _share(_videos[i]),
               onComments: () => _openComments(_videos[i]),
+            ),
+          ),
+          // Raw-pointer swipe layer over the whole feed. Translucent so taps
+          // still reach the page below (tap-to-pause, double-tap-like, and the
+          // right-rail buttons); it only reads vertical drags to page the feed.
+          Positioned.fill(
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              onPointerDown: (_) { _dragDy = 0; _dragging = true; },
+              onPointerMove: (e) { if (_dragging) _dragDy += e.delta.dy; },
+              onPointerUp: (_) => _endDrag(),
+              onPointerCancel: (_) { _dragging = false; _dragDy = 0; },
             ),
           ),
           // mute toggle (top-right)
