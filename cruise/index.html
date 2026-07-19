@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>Deck &amp; Horizon — Cruise Ship Walk</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+  html,body{margin:0;padding:0;height:100%;height:100dvh;width:100%;position:fixed;inset:0;
+    overflow:hidden;overscroll-behavior:none;background:#0a0d12;touch-action:none;
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:#eef3f8;}
+  #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+
+  /* crosshair */
+  #cross{position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
+    border-radius:50%;background:rgba(255,255,255,.5);box-shadow:0 0 4px rgba(0,0,0,.6);
+    pointer-events:none;z-index:5;}
+
+  /* floating movement joystick (left) */
+  #joyBase{position:fixed;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.08),rgba(255,255,255,.03));
+    border:2px solid rgba(255,255,255,.22);z-index:8;pointer-events:none;display:none;}
+  #joyBase.show{display:block;}
+  #joyKnob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;
+    border-radius:50%;background:rgba(255,255,255,.28);border:2px solid rgba(255,255,255,.5);}
+
+  /* action buttons (right) */
+  .abtn{position:fixed;z-index:12;border:none;border-radius:50%;color:#06263a;font-weight:800;
+    background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);cursor:pointer;font-size:26px;}
+  .abtn:active{transform:scale(.94);}
+  #jumpBtn{width:74px;height:74px;right:calc(38px + env(safe-area-inset-right));bottom:calc(40px + env(safe-area-inset-bottom));}
+  #runBtn{width:58px;height:58px;right:calc(122px + env(safe-area-inset-right));bottom:calc(46px + env(safe-area-inset-bottom));font-size:20px;background:rgba(255,255,255,.7);}
+  #runBtn.on{background:#f6c500;}
+  #interactBtn{width:66px;height:66px;right:calc(46px + env(safe-area-inset-right));bottom:calc(126px + env(safe-area-inset-bottom));
+    background:#f6c500;display:none;font-size:28px;}
+  #interactBtn.show{display:flex;}
+
+  /* top-right utility */
+  #util{position:fixed;top:calc(12px + env(safe-area-inset-top));right:calc(38px + env(safe-area-inset-right));
+    display:flex;gap:8px;z-index:15;}
+  .ubtn{background:rgba(15,20,28,.7);border:1px solid rgba(255,255,255,.14);color:#dbe6f0;
+    border-radius:11px;padding:8px 12px;font-size:14px;font-weight:600;cursor:pointer;}
+  .ubtn:active{transform:scale(.95);}
+
+  /* prompt + toast */
+  #prompt{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    background:rgba(10,14,20,.82);border:1px solid rgba(255,255,255,.16);padding:8px 16px;border-radius:22px;
+    font-size:14px;font-weight:600;z-index:10;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap;}
+  #prompt.show{opacity:1;}
+  #toast{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translateX(-50%);
+    background:rgba(10,14,20,.85);padding:8px 16px;border-radius:22px;font-size:14px;font-weight:600;
+    z-index:20;opacity:0;transition:.25s;pointer-events:none;max-width:86vw;text-align:center;}
+  #toast.show{opacity:1;}
+
+  /* telescope vignette */
+  #scopeVig{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:0;transition:.25s;
+    background:radial-gradient(circle at 50% 50%,transparent 30%,rgba(0,0,0,.55) 46%,#000 60%);}
+  #scopeVig.show{opacity:1;}
+
+  /* underwater tint */
+  #water{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;transition:.3s;
+    background:linear-gradient(rgba(20,110,160,.35),rgba(10,70,120,.55));}
+  #water.show{opacity:1;}
+
+  /* rotate + menu overlays */
+  #rotate{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;text-align:center;padding:28px;background:radial-gradient(circle at 50% 40%,#10202e,#060a10);}
+  #rotate .ico{font-size:50px;animation:sp 2.4s ease-in-out infinite;}
+  @keyframes sp{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(78deg);}}
+  @media (orientation:portrait) and (max-width:900px){ #rotate{display:flex;} }
+
+  .overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 35%,rgba(20,50,80,.6),rgba(4,8,14,.95));backdrop-filter:blur(4px);}
+  .overlay.show{display:flex;}
+  .card{background:linear-gradient(160deg,#122234,#0a121c);border:1px solid rgba(255,255,255,.14);
+    border-radius:22px;padding:30px 34px;max-width:440px;width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .card h1{margin:0 0 4px;font-size:30px;letter-spacing:.5px;
+    background:linear-gradient(90deg,#7fd4ff,#e8f6ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .card .sub{color:#9fc0d8;font-size:14px;margin-bottom:18px;}
+  .keys{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;font-size:13px;color:#bcd3e4;margin-bottom:8px;text-align:left;}
+  .keys b{color:#eaf4ff;}
+  #startBtn{margin-top:20px;width:100%;cursor:pointer;border:none;
+    background:linear-gradient(135deg,#37b7ff,#1f8fe0);color:#062033;font-weight:800;font-size:17px;
+    padding:15px;border-radius:14px;box-shadow:0 8px 24px rgba(55,183,255,.3);}
+</style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="cross"></div>
+
+  <div id="joyBase"><div id="joyKnob"></div></div>
+
+  <button class="abtn" id="runBtn" title="Run">🏃</button>
+  <button class="abtn" id="jumpBtn" title="Jump">⤒</button>
+  <button class="abtn" id="interactBtn" title="Interact">✋</button>
+
+  <div id="util">
+    <button class="ubtn" id="soundBtn" title="Sound">🔊</button>
+    <button class="ubtn" id="menuBtn" title="Help">☰ Help</button>
+  </div>
+
+  <div id="prompt"></div>
+  <div id="toast"></div>
+  <div id="scopeVig"></div>
+  <div id="water"></div>
+
+  <div id="rotate">
+    <div class="ico">📱</div>
+    <h2>Rotate your device</h2>
+    <p style="color:#9fc0d8;max-width:280px">Deck &amp; Horizon plays in landscape. Turn your phone sideways to come aboard.</p>
+  </div>
+
+  <div class="overlay show" id="menu">
+    <div class="card">
+      <h1>DECK &amp; HORIZON</h1>
+      <div class="sub">Walk the deck of a cruise ship at sea</div>
+      <div class="keys">
+        <span><b>Move</b> · left side / WASD</span>
+        <span><b>Look</b> · right side / drag</span>
+        <span><b>Jump</b> · ⤒ / Space</span>
+        <span><b>Run</b> · 🏃 / Shift</span>
+        <span><b>Interact</b> · ✋ / E</span>
+      </div>
+      <div class="sub" style="margin-top:12px">Ring the bell, peer through the telescope, and take a dip in the pool. Best on a phone held sideways.</div>
+      <button id="startBtn">COME ABOARD</button>
+    </div>
+  </div>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
