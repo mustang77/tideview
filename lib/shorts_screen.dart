@@ -273,6 +273,7 @@ class _ShortPageState extends State<_ShortPage> with SingleTickerProviderStateMi
     final thumb = v.thumbnail.isNotEmpty ? v.thumbnail : "https://img.youtube.com/vi/${v.id}/hqdefault.jpg";
     final c = _controller;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: _togglePlay,
       onDoubleTap: _doubleLike,
       child: Stack(
@@ -285,9 +286,12 @@ class _ShortPageState extends State<_ShortPage> with SingleTickerProviderStateMi
             filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
             child: Container(color: Colors.black.withValues(alpha: 0.35)),
           )),
-          // the player (only for current/neighbour pages)
+          // the player (only for current/neighbour pages).
+          // IgnorePointer is critical: the player is a WebView that would
+          // otherwise swallow vertical drags, blocking the swipe-to-next
+          // gesture. We drive playback from code, so it needs no touches.
           if (c != null)
-            Center(child: YoutubePlayer(controller: c, aspectRatio: 9 / 16))
+            IgnorePointer(child: Center(child: YoutubePlayer(controller: c, aspectRatio: 9 / 16)))
           else
             Center(child: Image.network(thumb, fit: BoxFit.contain)),
 
