@@ -1,121 +1,135 @@
 /* ============================================================================
- * Galley Rush — game logic
+ * Galley Rush — order-serving logic (wash-to-serve + hearts)
  * ----------------------------------------------------------------------------
- * The steward's shift: wash each dirty dish at the sink, stack it in the rack,
- * then run a full rack through the dishwasher. Clear all the dishes before the
- * shift clock runs out. Time budget scales with the number of dishes.
+ * Waiters/waitresses queue up (3 slots), each asking for a clean PLATE, BOWL
+ * or GLASS with a patience bar. Select a waiter, hold WASH to scrub that item,
+ * and it's served automatically. Serve the shift's order target to win. If a
+ * waiter's patience runs out they leave and you lose a heart — 0 hearts (or the
+ * shift clock) ends the shift.
  * ==========================================================================*/
 (function (global) {
   'use strict';
 
-  const SCRUB_TIME = 0.9;   // seconds of scrubbing per dish
-  const CYCLE_TIME = 3.2;   // dishwasher cycle
-  const PER_DISH = 4.2;     // seconds of shift time granted per dish
+  const TYPES = ['plate', 'bowl', 'glass'];
+  const SCRUB_TIME = 0.85;   // hold-time to wash one item
 
-  function Game() {
-    this.level = 0;
-    this.reset();
-  }
+  function Game() { this.level = 0; this.reset(); }
 
   Game.prototype.levels = function (i) {
-    // dishes grows each shift; rack size steps up; time = dishes * PER_DISH
-    const dishes = 10 + i * 4;
-    const rack = i < 2 ? 5 : (i < 4 ? 6 : 8);
-    return { dishes, rack, time: Math.round(dishes * PER_DISH) };
+    const target = 12 + i * 4;
+    const patience = Math.max(7, 15 - i);       // seconds a waiter waits
+    const time = Math.round(target * 3.2) + 15; // shift clock
+    return { target, patience, time };
   };
 
   Game.prototype.reset = function () {
     const L = this.levels(this.level);
-    this.dishes = L.dishes; this.rackSize = L.rack; this.timeLimit = L.time;
-    this.timeLeft = L.time;
-    this.dirty = L.dishes;        // dishes not yet washed
-    this.hand = null;             // null | { stage:'dirty'|'clean', scrub:0 }
-    this.rack = 0;                // washed dishes waiting in the rack
-    this.washer = { running: false, cycle: 0, load: 0 };
-    this.done = 0;                // fully cleaned (through the dishwasher)
-    this.phase = 'briefing';      // briefing | playing | won | lost
-    this.station = 'idle';        // where the steward is working
-    this.stationT = 0;            // time to hold a transient station pose
-    this.events = [];             // one-shot cues for the view/audio layer
+    this.target = L.target; this.timeLimit = L.time; this.timeLeft = L.time;
+    this.basePatience = L.patience;
+    this.hearts = 5;
+    this.served = 0;
+    this.slots = [null, null, null];    // each: {type, patience, max, fresh}
+    this.current = null;                // {slot, type, scrub}
+    this.spawnT = 0;
+    this.stationT = 0;
+    this.phase = 'briefing';            // briefing | playing | won | lost
+    this.station = 'idle';
+    this.events = [];
   };
 
-  Game.prototype.start = function () { this.phase = 'playing'; this.station = 'sink'; };
-
+  Game.prototype.start = function () {
+    this.phase = 'playing'; this.station = 'sink';
+    this.spawnOrder(); this.spawnOrder();   // seed two waiters
+    this.spawnT = 1.5;
+  };
   Game.prototype.nextLevel = function () { this.level++; this.reset(); };
   Game.prototype.retry = function () { this.reset(); };
-
   Game.prototype._emit = function (e) { this.events.push(e); };
+  Game.prototype._rand = function (n) { return Math.floor(Math.random() * n); };
 
-  // Grab a dirty dish (if hands free) — first press of WASH.
-  Game.prototype.grab = function () {
+  Game.prototype.spawnOrder = function () {
+    const empty = [];
+    for (let i = 0; i < 3; i++) if (!this.slots[i]) empty.push(i);
+    if (!empty.length) return;
+    const i = empty[this._rand(empty.length)];
+    const type = TYPES[this._rand(TYPES.length)];
+    this.slots[i] = { type, patience: this.basePatience, max: this.basePatience, fresh: 0.4 };
+    this._emit('newOrder');
+  };
+
+  // Pick a waiter to serve (grabs that item to wash).
+  Game.prototype.select = function (i) {
     if (this.phase !== 'playing') return;
-    if (this.hand || this.dirty <= 0) return;
-    this.hand = { stage: 'dirty', scrub: 0 };
-    this.dirty--;
+    if (!this.slots[i]) return;
+    if (this.current && this.current.slot === i) return;
+    this.current = { slot: i, type: this.slots[i].type, scrub: 0 };
     this.station = 'sink'; this._emit('pickup');
   };
+  Game.prototype.autoSelect = function () {
+    let best = -1, bp = Infinity;
+    for (let i = 0; i < 3; i++) if (this.slots[i] && this.slots[i].patience < bp) { bp = this.slots[i].patience; best = i; }
+    if (best >= 0) this.select(best);
+  };
 
-  // Hold-to-scrub. Returns true while actively scrubbing.
+  // Hold-to-wash the selected order; auto-serves when the item is clean.
   Game.prototype.scrub = function (dt) {
     if (this.phase !== 'playing') return false;
-    if (!this.hand) { this.grab(); return !!this.hand; }
-    if (this.hand.stage !== 'dirty') return false;
+    if (!this.current) { this.autoSelect(); if (!this.current) return false; }
+    const o = this.slots[this.current.slot];
+    if (!o || o.type !== this.current.type) { this.current = null; return false; }
     this.station = 'sink';
-    this.hand.scrub += dt / SCRUB_TIME;
+    this.current.scrub += dt / SCRUB_TIME;
     this._emit('scrub');
-    if (this.hand.scrub >= 1) { this.hand.stage = 'clean'; this.hand.scrub = 1; this._emit('clean'); }
+    if (this.current.scrub >= 1) this._serve(this.current.slot);
     return true;
   };
 
-  // Place the washed dish into the rack.
-  Game.prototype.toRack = function () {
-    if (this.phase !== 'playing') return false;
-    if (!this.hand || this.hand.stage !== 'clean') return false;
-    if (this.rack >= this.rackSize) return false;
-    this.rack++; this.hand = null;
-    this.station = 'rack'; this.stationT = 0.5; this._emit('rack');
-    return true;
+  Game.prototype._serve = function (i) {
+    this.slots[i] = null; this.current = null;
+    this.served++; this.station = 'serve'; this.stationT = 0.4;
+    this._emit('served');
+    if (this.served >= this.target) { this.phase = 'won'; this._emit('won'); }
   };
 
-  // Load the rack into the dishwasher and run a cycle.
-  Game.prototype.run = function () {
-    if (this.phase !== 'playing') return false;
-    if (this.washer.running || this.rack <= 0) return false;
-    this.washer.running = true; this.washer.cycle = CYCLE_TIME; this.washer.load = this.rack;
-    this.rack = 0; this.station = 'washer'; this.stationT = 0.6; this._emit('run');
-    return true;
-  };
-
-  Game.prototype.canRack = function () { return this.hand && this.hand.stage === 'clean' && this.rack < this.rackSize; };
-  Game.prototype.canRun = function () { return !this.washer.running && this.rack > 0; };
-  Game.prototype.rackFull = function () { return this.rack >= this.rackSize; };
+  Game.prototype.currentType = function () { return this.current ? this.current.type : null; };
+  Game.prototype.currentScrub = function () { return this.current ? this.current.scrub : 0; };
 
   Game.prototype.update = function (dt) {
     if (this.phase !== 'playing') return;
     this.timeLeft -= dt;
-    if (this.stationT > 0) { this.stationT -= dt; if (this.stationT <= 0 && this.station !== 'washer') this.station = 'sink'; }
+    if (this.stationT > 0) { this.stationT -= dt; if (this.stationT <= 0 && this.station === 'serve') this.station = 'sink'; }
 
-    if (this.washer.running) {
-      this.washer.cycle -= dt;
-      if (this.washer.cycle <= 0) {
-        this.done += this.washer.load; this.washer.load = 0; this.washer.running = false;
-        this._emit('cycleDone');
-        if (this.station === 'washer') this.station = 'sink';
+    // patience (the order being washed is spared)
+    for (let i = 0; i < 3; i++) {
+      const o = this.slots[i]; if (!o) continue;
+      if (o.fresh > 0) o.fresh -= dt;
+      const washingThis = this.current && this.current.slot === i;
+      if (!washingThis) {
+        o.patience -= dt;
+        if (o.patience <= 0) {
+          this.slots[i] = null;
+          if (this.current && this.current.slot === i) this.current = null;
+          this.hearts--; this._emit('fail');
+          if (this.hearts <= 0) { this.phase = 'lost'; this._emit('lost'); return; }
+        }
       }
     }
 
-    if (this.done >= this.dishes) { this.phase = 'won'; this._emit('won'); return; }
+    // spawn new waiters over time
+    this.spawnT -= dt;
+    const occupied = this.slots.filter(Boolean).length;
+    if (this.spawnT <= 0 && occupied < 3) { this.spawnOrder(); this.spawnT = 1.8 + Math.random() * 2.2; }
+
     if (this.timeLeft <= 0) { this.timeLeft = 0; this.phase = 'lost'; this._emit('lost'); }
   };
 
-  // Stars for a completed shift, by time remaining.
   Game.prototype.stars = function () {
-    const frac = this.timeLeft / this.timeLimit;
-    return frac > 0.4 ? 3 : (frac > 0.15 ? 2 : 1);
+    const h = this.hearts;
+    return h >= 5 ? 3 : (h >= 3 ? 2 : 1);
   };
 
   global.Galley = global.Galley || {};
   global.Galley.Game = Game;
-  global.Galley.SCRUB_TIME = SCRUB_TIME;
+  global.Galley.ORDER_TYPES = TYPES;
 
 })(window);

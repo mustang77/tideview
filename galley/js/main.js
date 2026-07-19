@@ -1,5 +1,5 @@
 /* ============================================================================
- * Galley Rush — bootstrap, view sync, HUD, input
+ * Galley Rush — bootstrap, order cards, view sync, input
  * ==========================================================================*/
 (function () {
   'use strict';
@@ -16,56 +16,59 @@
   const game = new G.Game();
   const audio = new G.Audio();
 
-  // in-hand plate parented to the right hand
-  const handPlate = scene.makePlate(true);
-  handPlate.rotation.x = Math.PI * 0.5;
-  handPlate.position.set(0, -0.03, 0.02);
-  steward.parts.handAnchor.add(handPlate);
-  handPlate.visible = false;
-  const CLEAN = new T.Color('#fbfdff'), DIRTY = new T.Color('#cdbf9a');
+  // in-hand item (rebuilt per order type)
+  let handItem = null;
+  function setHandItem(type) {
+    if (handItem) { steward.parts.handAnchor.remove(handItem); handItem = null; }
+    if (!type) return;
+    handItem = scene.makeItem(type);
+    handItem.scale.set(0.9, 0.9, 0.9);
+    handItem.position.set(0, -0.02, 0.02);
+    if (type === 'plate') { handItem.rotation.x = Math.PI * 0.5; }
+    steward.parts.handAnchor.add(handItem);
+  }
 
   window.addEventListener('resize', () => scene.resize());
   window.addEventListener('orientationchange', () => setTimeout(() => scene.resize(), 250));
 
-  // ---------------------------------------------------------------- HUD refs
   const el = (id) => document.getElementById(id);
+  const ITEM_ICON = { plate: '🍽️', bowl: '🥣', glass: '🥛' };
+  const AVATARS = ['🧑', '👩', '🧔']; // one per slot
+  const cards = [0, 1, 2].map(i => ({
+    root: el('ocard' + i),
+    item: el('ocard' + i).querySelector('.oitem'),
+    avatar: el('ocard' + i).querySelector('.avatar'),
+    pat: el('ocard' + i).querySelector('.patfill'),
+  }));
+  cards.forEach((c, i) => c.root.addEventListener('pointerdown', (e) => { e.preventDefault(); audio.ensure(); game.select(i); audio.ui(); }));
+
   const timeVal = el('timeVal'), timePill = el('timePill'), progNum = el('progNum'), progFill = el('progFill');
-  const rackDots = el('rackDots'), toast = el('toast'), washFill = el('washBtn').querySelector('.fill');
-  const washBtn = el('washBtn'), rackBtn = el('rackBtn'), runBtn = el('runBtn');
+  const heartsVal = el('heartsVal'), toast = el('toast'), washFill = el('washBtn').querySelector('.fill'), washBtn = el('washBtn');
 
   function fmt(t) { t = Math.max(0, Math.ceil(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
   let toastT = 0;
-  function showToast(m) { toast.textContent = m; toast.classList.add('show'); toastT = 1.6; }
+  function showToast(m) { toast.textContent = m; toast.classList.add('show'); toastT = 1.4; }
 
-  function buildRackDots() {
-    rackDots.innerHTML = '';
-    for (let i = 0; i < game.rackSize; i++) { const d = document.createElement('span'); d.className = 'dot'; rackDots.appendChild(d); }
-  }
-
-  // ---------------------------------------------------------------- input
+  // ---- input ----
   let holdingWash = false;
-  function press(btn, downFn, upFn) {
-    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); audio.ensure(); if (!btn.classList.contains('disabled')) downFn(); });
-    if (upFn) { btn.addEventListener('pointerup', upFn); btn.addEventListener('pointerleave', upFn); btn.addEventListener('pointercancel', upFn); }
-  }
-  press(washBtn, () => { holdingWash = true; }, () => { holdingWash = false; });
-  press(rackBtn, () => { if (game.toRack()) {} });
-  press(runBtn, () => { if (game.run()) {} });
-
+  washBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); audio.ensure(); if (!washBtn.classList.contains('disabled')) holdingWash = true; });
+  const stopWash = () => { holdingWash = false; };
+  washBtn.addEventListener('pointerup', stopWash); washBtn.addEventListener('pointerleave', stopWash); washBtn.addEventListener('pointercancel', stopWash);
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return; audio.ensure();
     if (e.code === 'Space') { holdingWash = true; e.preventDefault(); }
-    else if (e.code === 'KeyR') game.toRack();
-    else if (e.code === 'Enter' || e.code === 'KeyF') game.run();
+    else if (e.code === 'Digit1') game.select(0);
+    else if (e.code === 'Digit2') game.select(1);
+    else if (e.code === 'Digit3') game.select(2);
   });
   window.addEventListener('keyup', (e) => { if (e.code === 'Space') holdingWash = false; });
 
-  // overlays
+  // ---- overlays ----
+  let paused = false;
   function hideOverlays() { for (const id of ['briefing', 'win', 'lose', 'pause']) el(id).classList.remove('show'); }
   function showBriefing() {
-    el('briefSub').textContent = 'Shift ' + (game.level + 1) + ' — dish-washing duty!';
-    el('briefGoal').textContent = 'Wash ' + game.dishes + ' dishes in ' + fmt(game.timeLimit);
-    buildRackDots();
+    el('briefSub').textContent = 'Shift ' + (game.level + 1) + ' — clean & serve!';
+    el('briefGoal').textContent = 'Serve ' + game.target + ' orders in ' + fmt(game.timeLimit);
     el('briefing').classList.add('show');
   }
   el('startBtn').addEventListener('click', () => { audio.ensure(); hideOverlays(); game.start(); });
@@ -75,95 +78,88 @@
   el('resumeBtn').addEventListener('click', () => { paused = false; hideOverlays(); });
   el('restartBtn').addEventListener('click', () => { paused = false; game.retry(); hideOverlays(); showBriefing(); });
   el('soundBtn').addEventListener('click', (e) => { audio.ensure(); const on = audio.enabled; audio.setEnabled(!on); e.currentTarget.textContent = on ? '🔇' : '🔊'; });
-  let paused = false;
 
-  // ---------------------------------------------------------------- events
+  // ---- events ----
   let scrubSndT = 0;
   function processEvents(dt) {
     scrubSndT -= dt;
     for (const ev of game.events) {
-      if (ev === 'pickup') audio.pickup();
+      if (ev === 'newOrder') audio.clink();
+      else if (ev === 'pickup') { audio.pickup(); setHandItem(game.currentType()); }
       else if (ev === 'scrub') { if (scrubSndT <= 0) { audio.scrub(); scrubSndT = 0.13; } }
-      else if (ev === 'clean') audio.ding();
-      else if (ev === 'rack') { audio.clink(); scene.setRack(game.rack); }
-      else if (ev === 'run') { audio.startHum(); scene.openDoor(true); scene.setWasherLoad(game.washer.load); scene.setLight('run'); setTimeout(() => scene.openDoor(false), 500); }
-      else if (ev === 'cycleDone') { audio.stopHum(); audio.ding(); scene.setLight('done'); scene.setWasherLoad(0); scene.setDone(game.done); showToast('✨ ' + game.done + ' done!'); setTimeout(() => scene.setLight('idle'), 1200); }
-      else if (ev === 'won') { audio.win(); onWin(); }
-      else if (ev === 'lost') { audio.lose(); audio.stopHum(); onLose(); }
+      else if (ev === 'served') { audio.ding(); setHandItem(null); showToast('✔ Served!'); }
+      else if (ev === 'fail') { audio.lose(); showToast('😠 A waiter left! −1 ❤️'); }
+      else if (ev === 'won') { audio.win(); onEnd(true); }
+      else if (ev === 'lost') { audio.lose(); onEnd(false); }
     }
     game.events.length = 0;
   }
-  function onWin() {
-    el('winStars').textContent = '★★★☆☆☆'.slice(3 - game.stars(), 6 - game.stars());
-    el('winSub').textContent = 'All ' + game.dishes + ' dishes sparkling — ' + fmt(game.timeLeft) + ' to spare!';
-    el('win').classList.add('show');
-  }
-  function onLose() {
-    el('loseSub').textContent = 'You washed ' + game.done + ' of ' + game.dishes + ' dishes.';
-    el('lose').classList.add('show');
+  function onEnd(won) {
+    setHandItem(null);
+    if (won) {
+      el('winStars').textContent = '★★★☆☆☆'.slice(3 - game.stars(), 6 - game.stars());
+      el('winSub').textContent = 'Served all ' + game.target + ' orders with ' + game.hearts + ' ❤️ to spare!';
+      el('win').classList.add('show');
+    } else {
+      el('loseSub').textContent = 'You served ' + game.served + ' of ' + game.target + ' orders.';
+      el('lose').classList.add('show');
+    }
   }
 
-  // ---------------------------------------------------------------- view sync
-  const stationX = { sink: G.STATION.sink, rack: G.STATION.rack, washer: G.STATION.washer - 0.85, pile: G.STATION.pile, idle: G.STATION.sink };
-  let lowTickT = 0;
+  // ---- view sync ----
+  let lastFresh = [0, 0, 0], lowTickT = 0;
   function syncView(dt) {
-    // dish counts
-    scene.setDirty(game.dirty + (game.hand ? 1 : 0)); // include the one in hand? no — keep pile = dirty
-    scene.setDirty(game.dirty);
-    scene.setRack(game.rack);
-    scene.setDone(game.done);
+    // order cards
+    for (let i = 0; i < 3; i++) {
+      const o = game.slots[i], c = cards[i];
+      if (o) {
+        if (c.root.classList.contains('empty')) { c.root.classList.remove('empty'); c.root.classList.add('pop'); setTimeout(() => c.root.classList.remove('pop'), 340); }
+        c.item.textContent = ITEM_ICON[o.type];
+        c.avatar.textContent = AVATARS[i];
+        const frac = Math.max(0, o.patience / o.max);
+        c.pat.style.width = (frac * 100) + '%';
+        c.root.classList.toggle('urgent', frac < 0.34);
+        c.root.classList.toggle('sel', game.current && game.current.slot === i);
+      } else {
+        c.root.classList.add('empty'); c.root.classList.remove('sel', 'urgent');
+      }
+    }
 
-    // hand plate
-    if (game.hand) {
-      handPlate.visible = true;
-      const c = game.hand.stage === 'clean' ? CLEAN : DIRTY.clone().lerp(CLEAN, game.hand.scrub);
-      handPlate._disc.material.color.copy(c);
-      if (handPlate._grime) handPlate._grime.visible = game.hand.scrub < 0.6;
-    } else handPlate.visible = false;
-
-    // steward slide + pose
-    const tx = stationX[game.station] || G.STATION.sink;
-    steward.group.position.x += (tx - steward.group.position.x) * Math.min(1, dt * 6);
+    // steward pose + hand
     let pose = 'idle';
     if (game.phase === 'playing') {
-      if (game.station === 'washer' && game.washer.running) pose = 'run';
-      else if (game.station === 'rack' && game.stationT > 0) pose = 'rack';
-      else if (holdingWash && game.hand && game.hand.stage === 'dirty') pose = 'scrub';
-      else if (game.hand && game.hand.stage === 'clean') pose = 'carry';
+      if (holdingWash && game.current) pose = 'scrub';
+      else if (game.station === 'serve' && game.stationT > 0) pose = 'rack';
+      else if (game.current) pose = 'carry';
     }
     steward.setState(pose, dt);
     scene.waterOn(pose === 'scrub');
+    // clean sparkle: brighten the plate as it scrubs (visual only)
+    if (handItem && handItem.userData.kind === 'plate' && handItem._disc) {
+      const s = game.currentScrub();
+      handItem._disc.material.color.setRGB(0.8 + s * 0.19, 0.75 + s * 0.24, 0.6 + s * 0.39);
+    }
 
     // HUD
+    heartsVal.textContent = game.hearts;
     timeVal.textContent = fmt(game.timeLeft);
     timePill.classList.toggle('low', game.phase === 'playing' && game.timeLeft <= 8);
-    progNum.textContent = game.done + '/' + game.dishes;
-    progFill.style.width = (100 * game.done / game.dishes) + '%';
-    washFill.style.height = (game.hand && game.hand.stage === 'dirty' ? game.hand.scrub * 100 : 0) + '%';
-    // rack dots
-    const dots = rackDots.children;
-    for (let i = 0; i < dots.length; i++) dots[i].classList.toggle('on', i < game.rack);
-    // button states
+    progNum.textContent = game.served + '/' + game.target;
+    progFill.style.width = (100 * game.served / game.target) + '%';
+    washFill.style.height = (game.current ? game.currentScrub() * 100 : 0) + '%';
     const playing = game.phase === 'playing' && !paused;
-    washBtn.classList.toggle('disabled', !playing || (game.dirty <= 0 && !(game.hand && game.hand.stage === 'dirty')));
-    rackBtn.classList.toggle('disabled', !playing || !game.canRack());
-    rackBtn.classList.toggle('pulse', playing && game.canRack());
-    runBtn.classList.toggle('disabled', !playing || !game.canRun());
-    runBtn.classList.toggle('pulse', playing && game.canRun() && (game.rackFull() || game.dirty === 0));
+    const anyOrder = game.slots.some(Boolean);
+    washBtn.classList.toggle('disabled', !playing || !anyOrder);
+    washBtn.classList.toggle('pulse', playing && anyOrder && !game.current);
 
-    // low-time ticks
     if (game.phase === 'playing' && game.timeLeft <= 5) { lowTickT -= dt; if (lowTickT <= 0) { audio.tick(); lowTickT = 1; } }
   }
 
-  // ---------------------------------------------------------------- loop
-  buildRackDots();
+  // ---- loop ----
   let last = performance.now(), t = 0;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-    if (!paused && game.phase === 'playing') {
-      if (holdingWash) game.scrub(dt);
-      game.update(dt);
-    }
+    if (!paused && game.phase === 'playing') { if (holdingWash) game.scrub(dt); game.update(dt); }
     processEvents(dt);
     syncView(dt);
     scene.update(dt, t);
@@ -173,5 +169,5 @@
   }
   requestAnimationFrame(frame);
   showBriefing();
-  window.__galley = { game, scene, steward }; // debug hook
+  window.__galley = { game, scene, steward };
 })();

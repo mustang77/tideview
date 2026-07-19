@@ -274,11 +274,25 @@
       }
       g.userData.kind = 'basket'; return g;
     }
-    function makeItem(type) { return type === 'cup' ? makeCup() : type === 'bowl' ? makeBowl() : (function () { const p = makePlate(false); p.userData.kind = 'plate'; return p; })(); }
+    function makeGlass() {
+      const g = new T.Group();
+      const body = new T.Mesh(new T.CylinderGeometry(0.05, 0.042, 0.16, 16),
+        new T.MeshStandardMaterial({ color: '#dff3ff', transparent: true, opacity: 0.5, roughness: 0.08, metalness: 0.1 }));
+      body.position.y = 0.08; g.add(body);
+      const rim = new T.Mesh(new T.TorusGeometry(0.05, 0.006, 8, 18), new T.MeshStandardMaterial({ color: '#bfe6ff', transparent: true, opacity: 0.7 })); rim.rotation.x = Math.PI / 2; rim.position.y = 0.16; g.add(rim);
+      g.userData.kind = 'glass'; return g;
+    }
+    function makeItem(type) {
+      if (type === 'cup') return makeCup();
+      if (type === 'bowl') return makeBowl();
+      if (type === 'glass') return makeGlass();
+      const p = makePlate(false); p.userData.kind = 'plate'; return p;
+    }
     function placeItem(item, x, y, z) {
       const k = item.userData.kind;
       if (k === 'plate') { item.rotation.x = Math.PI / 2; item.rotation.z = 0.32; item.position.set(x, y + 0.15, z); }
       else if (k === 'cup') { item.rotation.x = Math.PI; item.position.set(x, y + 0.16, z); }  // inverted on pegs
+      else if (k === 'glass') { item.position.set(x, y + 0.1, z); }
       else { item.position.set(x, y + 0.05, z); }  // bowl dome-up
     }
     const ITEM_PATTERN = ['plate', 'cup', 'plate', 'bowl', 'plate', 'cup', 'bowl', 'plate'];
@@ -305,7 +319,7 @@
     const api = {
       scene, camera, renderer, STATION, COUNTER_Y,
       addSteward(s) { scene.add(s.group); },
-      makePlate,
+      makePlate, makeItem,
       setDirty(n) { for (let i = 0; i < dirtyPlates.length; i++) dirtyPlates[i].visible = i < n; },
       setRack(n) { for (let i = 0; i < rackPlates.length; i++) rackPlates[i].visible = i < n; },
       setDone(n) { for (let i = 0; i < donePlates.length; i++) donePlates[i].visible = i < n; },

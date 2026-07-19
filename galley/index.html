@@ -56,6 +56,28 @@
   .act.disabled{filter:grayscale(.7) brightness(.85);opacity:.6;pointer-events:none;}
   .act.pulse{animation:pulse .8s infinite;}
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  #heartsPill .ico{font-size:16px;} #heartsPill{color:#e0395b;font-weight:900;}
+  #washBtn{min-width:230px;background:linear-gradient(#38b6ff,#1f8fe0);}
+
+  /* ---- waiter order cards ---- */
+  #orders{position:fixed;top:calc(60px + env(safe-area-inset-top));left:0;right:0;display:flex;
+    justify-content:center;gap:14px;z-index:11;pointer-events:none;padding:0 10px;}
+  .ocard{pointer-events:auto;cursor:pointer;width:92px;background:rgba(255,255,255,.92);border:3px solid #fff;
+    border-radius:16px;box-shadow:0 5px 0 rgba(150,110,60,.3),0 8px 14px rgba(0,0,0,.22);
+    padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .2s,transform .12s,border-color .12s;position:relative;}
+  .ocard.empty{opacity:0;pointer-events:none;transform:scale(.6);}
+  .ocard.sel{border-color:#ffb347;transform:translateY(-4px);box-shadow:0 9px 0 rgba(180,100,20,.45);}
+  .ocard .bubble{background:#fff;border:2px solid #ecdfca;border-radius:12px;width:100%;text-align:center;
+    padding:4px 0;font-size:27px;line-height:1;position:relative;}
+  .ocard .bubble:after{content:"";position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+    border:7px solid transparent;border-top-color:#fff;}
+  .ocard .avatar{font-size:32px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
+  .ocard .pat{width:100%;height:7px;background:#e7d8c0;border-radius:6px;overflow:hidden;}
+  .ocard .patfill{height:100%;width:100%;background:linear-gradient(90deg,#6bd06a,#37b34a);border-radius:6px;transition:width .12s linear;}
+  .ocard.urgent .patfill{background:linear-gradient(90deg,#ff6b5a,#e03a2a);}
+  .ocard.pop{animation:pop .34s;}
+  @keyframes pop{0%{transform:scale(.5);}60%{transform:scale(1.12);}100%{transform:scale(1);}}
+  @media (max-height:430px){ .ocard{width:78px;} .ocard .bubble{font-size:23px;} .ocard .avatar{font-size:26px;} }
 
   /* ---- toast ---- */
   #toast{position:fixed;top:calc(108px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) scale(.8);
@@ -90,10 +112,11 @@
   <canvas id="gl"></canvas>
 
   <div id="top">
+    <div class="pill" id="heartsPill"><span class="ico">❤️</span><span id="heartsVal">5</span></div>
     <div class="pill" id="timePill"><span class="ico">⏳</span><span id="timeVal">0:00</span></div>
     <div class="pill" id="progWrap">
       <div style="flex:1">
-        <div id="progTop"><span>🍽️ Dishes</span><span id="progNum">0/0</span></div>
+        <div id="progTop"><span>👨‍🍳 Orders</span><span id="progNum">0/0</span></div>
         <div id="progBar"><div id="progFill"></div></div>
       </div>
     </div>
@@ -103,12 +126,14 @@
     <button id="pauseBtn" title="Pause">⏸</button>
   </div>
 
-  <div id="rackInd"><span>Rack</span><span id="rackDots"></span></div>
+  <div id="orders">
+    <div class="ocard empty" id="ocard0"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard1"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard2"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+  </div>
 
   <div id="actions">
-    <button class="act" id="washBtn"><span class="fill"></span><span class="lbl"><span class="big">🧽</span>WASH</span></button>
-    <button class="act" id="rackBtn"><span class="lbl"><span class="big">🗄️</span>RACK</span></button>
-    <button class="act" id="runBtn"><span class="lbl"><span class="big">🌀</span>RUN</span></button>
+    <button class="act" id="washBtn"><span class="fill"></span><span class="lbl"><span class="big">🧽</span>WASH &amp; SERVE</span></button>
   </div>
 
   <div id="toast"></div>
@@ -119,8 +144,8 @@
       <div class="neon">✦ WORLD CRUISE ACADEMY ✦</div>
       <h1>Galley Rush</h1>
       <div class="sub" id="briefSub">Dish-washing duty, steward!</div>
-      <div class="goal" id="briefGoal">Wash 10 dishes in 0:42</div>
-      <div class="sub" style="font-size:13px;color:#8a6a44">Hold <b>WASH</b> to scrub · <b>RACK</b> to stack · <b>RUN</b> the dishwasher when the rack is full</div>
+      <div class="goal" id="briefGoal">Serve 12 orders</div>
+      <div class="sub" style="font-size:13px;color:#8a6a44">Waiters ask for a 🍽️ plate, 🥣 bowl or 🥛 glass. <b>Tap a waiter</b>, then <b>hold WASH</b> to clean &amp; serve it — before their patience runs out. Don't lose all 5 ❤️!</div>
       <button class="cbtn green" id="startBtn">START SHIFT</button>
     </div>
   </div>
