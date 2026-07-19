@@ -35,6 +35,10 @@
   #p2card.active{border-color:var(--blue);box-shadow:0 6px 22px rgba(42,127,224,.2);}
   .pname{font-weight:700;font-size:15px;letter-spacing:.3px;display:flex;
     align-items:center;gap:8px;}
+  .ptimer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;
+    font-size:14px;color:#9fb2c6;min-width:34px;text-align:right;}
+  .ptimer.low{color:#ff5a5a;animation:pulse .5s ease-in-out infinite;}
+  @keyframes pulse{50%{opacity:.45;}}
   .dot{width:9px;height:9px;border-radius:50%;background:#556;flex:none;}
   .pcard.active .dot{background:var(--gold);box-shadow:0 0 8px var(--gold);}
   #p2card.active .dot{background:var(--blue);box-shadow:0 0 8px var(--blue);}
@@ -175,17 +179,18 @@
 
   <div id="hud">
     <div class="pcard active" id="p1card">
-      <div class="pname"><span class="dot"></span><span id="p1name">Player 1</span></div>
+      <div class="pname"><span class="dot"></span><span id="p1name">Player 1</span><span class="ptimer" id="p1timer"></span></div>
       <div class="prow"><span class="grp open" id="p1group">—</span><span class="pcount" id="p1count"></span></div>
     </div>
     <div id="vs">VS</div>
     <div class="pcard" id="p2card">
-      <div class="pname"><span class="dot"></span><span id="p2name">Computer</span></div>
+      <div class="pname"><span class="dot"></span><span id="p2name">Computer</span><span class="ptimer" id="p2timer"></span></div>
       <div class="prow"><span class="grp open" id="p2group">—</span><span class="pcount" id="p2count"></span></div>
     </div>
   </div>
 
   <div id="tools">
+    <button class="tbtn" id="soundBtn" title="Toggle sound">🔊</button>
     <button class="tbtn" id="camBtn" title="Toggle free camera">🎥 Free</button>
     <button class="tbtn" id="topBtn" title="Overhead view">⬇ Top</button>
     <button class="tbtn" id="menuBtn" title="New game">☰ Menu</button>
@@ -230,6 +235,14 @@
           <button data-diff="hard">Hard</button>
         </div>
       </div>
+      <div class="field">
+        <label>Shot clock</label>
+        <div class="seg" id="clockSeg">
+          <button data-clock="0">Off</button>
+          <button data-clock="30" class="sel">30s</button>
+          <button data-clock="60">60s</button>
+        </div>
+      </div>
       <button id="startBtn">START GAME</button>
     </div>
   </div>
@@ -248,6 +261,7 @@
   <script src="js/physics.js"></script>
   <script src="js/table.js"></script>
   <script src="js/game.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

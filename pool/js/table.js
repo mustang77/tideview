@@ -481,7 +481,9 @@
     // In aim mode, look at the cue ball and sit behind it.
     if (this.cam.mode === 'aim' && cue && cue.active) {
       tgt.lerp(new T.Vector3(cue.x, C.R, cue.z), Math.min(1, dt * 6));
-      this.cam.az = this.aimAngle + Math.PI;
+      // While the player is actively aiming/pulling, hold the camera still so
+      // the view doesn't swing around under their finger.
+      if (!this.freezeAim) this.cam.az = this.aimAngle + Math.PI;
     }
     const el = Math.max(0.08, Math.min(1.45, this.cam.el));
     const d = this.cam.dist;
@@ -508,6 +510,17 @@
 
   PoolScene.prototype.render = function () {
     this.renderer.render(this.scene, this.camera);
+  };
+
+  // Project a world point to CSS pixel coordinates (for the cue-drag gesture).
+  PoolScene.prototype.worldToScreen = function (x, y, z) {
+    const v = new T.Vector3(x, y, z).project(this.camera);
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (v.x * 0.5 + 0.5) * rect.width + rect.left,
+      y: (-v.y * 0.5 + 0.5) * rect.height + rect.top,
+      behind: v.z > 1,
+    };
   };
 
   // Convert a screen point to a point on the cloth plane (y = R).

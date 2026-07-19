@@ -47,7 +47,28 @@
     this.preShot = null;
     this._aiThinkTimer = 0;
     this._toastTimer = 0;
+    // Shot clock
+    this.turnLimit = 30;        // seconds per shot (0 = off)
+    this.turnTime = 30;
+    this._lastTickSecond = -1;
+    this.audio = null;
   }
+
+  // Wire the audio engine into both the game and the physics sim (once).
+  Game.prototype.attachAudio = function (audio) {
+    this.audio = audio;
+    const a = audio;
+    this.sim.sound = {
+      ball: (v, cue) => a.ball(v, cue),
+      rail: (v) => a.rail(v),
+      pocket: (isCue) => a.pocket(isCue),
+    };
+  };
+
+  Game.prototype.startTurnTimer = function () {
+    this.turnTime = this.turnLimit;
+    this._lastTickSecond = -1;
+  };
 
   // ---------------------------------------------------------------- rack
   Game.prototype.newGame = function (mode, difficulty) {
@@ -106,6 +127,7 @@
     this.scene.buildBalls(balls);
     this.scene.aimAngle = 0;      // aim toward +x (into the rack)
     this.scene.cam.mode = 'aim';
+    this.startTurnTimer();
     this.updateHUD();
     this.toast(this.players[0].name + ' to break', 2200);
     this.maybeAI();
@@ -135,7 +157,9 @@
       ? BREAK_SPEED
       : (0.35 + this.power * (MAX_SPEED - 0.35));
     this.sim.shoot(Math.cos(ang), Math.sin(ang), speed, this.spinFollow, this.spinSide);
+    if (this.audio) this.audio.cue(this.isBreakShot ? 1 : this.power);
     this.phase = 'shooting';
+    this.scene.freezeAim = false;
     this.scene.updateAim(this.sim, 0, false);
   };
 
@@ -168,6 +192,43 @@
       this._toastTimer -= dt;
       if (this._toastTimer <= 0) this._hideToast();
     }
+    this._tickTimer(dt);
+  };
+
+  // Shot clock: counts down during a player's aiming / ball-in-hand turn.
+  Game.prototype._tickTimer = function (dt) {
+    if (!this.turnLimit || this.phase === 'over' || this.phase === 'menu') {
+      this.updateTimerUI();
+      return;
+    }
+    if (this.phase !== 'aiming' && this.phase !== 'placing') { this.updateTimerUI(); return; }
+    this.turnTime -= dt;
+    const secs = Math.ceil(this.turnTime);
+    if (secs !== this._lastTickSecond) {
+      this._lastTickSecond = secs;
+      if (secs <= 5 && secs > 0 && this.audio && !this.player().isAI) this.audio.tick();
+    }
+    if (this.turnTime <= 0) { this.turnTime = 0; this.onTimeout(); }
+    this.updateTimerUI();
+  };
+
+  Game.prototype.onTimeout = function () {
+    if (this.player().isAI) {
+      // Force the computer to take its (already planned) shot immediately.
+      if (this._aiPlan) { this.scene.aimAngle = this._aiPlan.angle; this.power = this._aiPlan.power; }
+      if (this.phase === 'aiming') this.beginShot();
+      return;
+    }
+    // Human ran out of time: foul, opponent gets ball in hand.
+    if (this.audio) this.audio.foul();
+    this.toast("Time's up — foul! Ball in hand.", 2800);
+    this.current = 1 - this.current;
+    this.ballInHand = true;
+    this.phase = 'placing';
+    this.placeCueDefault();
+    this.startTurnTimer();
+    this.updateHUD();
+    this.maybeAI();
   };
 
   // ---------------------------------------------------------------- rules
@@ -260,11 +321,13 @@
     }
 
     if (foul) {
+      if (this.audio) this.audio.foul();
       this.toast('Foul — ' + reason + '. Ball in hand.', 3000);
       this.current = 1 - this.current;
       this.ballInHand = true;
       this.phase = 'placing';
       this.placeCueDefault();
+      this.startTurnTimer();
       this.updateHUD();
       this.maybeAI();
       return;
@@ -278,6 +341,7 @@
       this.current = 1 - this.current;
       this.phase = 'aiming';
     }
+    this.startTurnTimer();
     this.pointAimAtSensibleTarget();
     this.updateHUD();
     this.maybeAI();
@@ -290,7 +354,9 @@
   Game.prototype.endGame = function (winnerIdx, msg) {
     this.phase = 'over';
     this.scene.updateAim(this.sim, 0, false);
+    this.scene.freezeAim = false;
     this.winner = winnerIdx;
+    if (this.audio) this.audio.win();
     const el = document.getElementById('resultText');
     const sub = document.getElementById('resultSub');
     if (el) el.textContent = this.players[winnerIdx].name + ' wins!';
@@ -343,6 +409,7 @@
     if (this.phase !== 'placing') return;
     this.ballInHand = false;
     this.phase = 'aiming';
+    this.startTurnTimer();
     this.pointAimAtSensibleTarget();
     this.updateHUD();
     this.maybeAI();
@@ -490,8 +557,20 @@
     if (hint) {
       if (this.phase === 'placing') hint.textContent = 'Ball in hand — drag the cue ball to a legal spot, then click to place';
       else if (this.phase === 'aiming' && this.player().isAI) hint.textContent = this.players[this.current].name + ' is thinking…';
-      else if (this.phase === 'aiming') hint.textContent = this.isBreakShot ? 'Aim and break! Drag to aim · slider for power · Space to shoot' : 'Drag on the table to aim · adjust power & spin · Space to shoot';
+      else if (this.phase === 'aiming') hint.textContent = 'Drag the table to aim · pull the cue back & release to shoot (or use the power slider + SHOOT)';
       else hint.textContent = '';
+    }
+  };
+
+  Game.prototype.updateTimerUI = function () {
+    for (let i = 0; i < 2; i++) {
+      const el = document.getElementById('p' + (i + 1) + 'timer');
+      if (!el) continue;
+      const isActive = i === this.current && (this.phase === 'aiming' || this.phase === 'placing');
+      if (!this.turnLimit || !isActive) { el.textContent = ''; el.className = 'ptimer'; continue; }
+      const s = Math.max(0, Math.ceil(this.turnTime));
+      el.textContent = ':' + (s < 10 ? '0' + s : s);
+      el.className = 'ptimer' + (s <= 5 ? ' low' : '');
     }
   };
 

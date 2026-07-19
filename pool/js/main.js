@@ -12,7 +12,13 @@
   const scene = new P.PoolScene(canvas);
   const sim = new P.Simulation();
   const game = new P.Game(scene, sim);
+  const audio = new P.Audio();
+  game.attachAudio(audio);
   window.__g = game; // debug/inspection hook
+
+  // Audio needs a user gesture to start (browser autoplay policy).
+  function wakeAudio() { audio.ensure(); }
+  window.addEventListener('pointerdown', wakeAudio, { once: true });
 
   // ------------------------------------------------------------- main loop
   let last = performance.now();
@@ -34,7 +40,7 @@
   if (window.visualViewport) window.visualViewport.addEventListener('resize', doResize);
 
   // ------------------------------------------------------------- menu
-  let selectedMode = 'ai', selectedDiff = 'medium';
+  let selectedMode = 'ai', selectedDiff = 'medium', selectedClock = 30;
   document.getElementById('modeSeg').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     selectedMode = b.dataset.mode;
@@ -46,14 +52,27 @@
     selectedDiff = b.dataset.diff;
     for (const x of e.currentTarget.children) x.classList.toggle('sel', x === b);
   });
+  document.getElementById('clockSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    selectedClock = parseInt(b.dataset.clock, 10);
+    for (const x of e.currentTarget.children) x.classList.toggle('sel', x === b);
+  });
   function startGame() {
+    audio.ensure();
     document.getElementById('menu').classList.remove('show');
     document.getElementById('result').classList.remove('show');
     scene.cam.mode = 'aim'; scene.cam.el = 0.6; scene.cam.dist = 1.9;
+    game.turnLimit = selectedClock;
     game.newGame(selectedMode, selectedDiff);
     game.power = 0.75; game.updatePowerUI();
     setSpin(0, 0);
   }
+  // Sound toggle
+  document.getElementById('soundBtn').addEventListener('click', (e) => {
+    audio.ensure();
+    audio.enabled = !audio.enabled;
+    e.currentTarget.textContent = audio.enabled ? '🔊' : '🔇';
+  });
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('playAgain').addEventListener('click', startGame);
   document.getElementById('menuBtn').addEventListener('click', () => {
@@ -121,18 +140,44 @@
   // ------------------------------------------------------------- canvas input
   const pointers = new Map();
   let orbitLast = null, pinchLast = null;
+  let gesture = null;          // 'pull' | 'point' | 'orbit' | null
+  const GRAB_R = 90;           // px radius around the cue ball that "grabs" the stick
 
   function isOrbitGesture(e) {
     return scene.cam.mode === 'free' || e.button === 2 || e.shiftKey;
   }
 
+  // Point-to-aim: cue travels toward the finger's spot on the cloth.
   function aimToClient(clientX, clientY) {
     const cue = sim.cueBall();
     if (!cue || !cue.active) return;
     const pt = scene.screenToTable(clientX, clientY);
     if (!pt) return;
-    const a = Math.atan2(pt.z - cue.z, pt.x - cue.x);
-    scene.aimAngle = a;
+    scene.aimAngle = Math.atan2(pt.z - cue.z, pt.x - cue.x);
+  }
+
+  // Pull-back (slingshot): the cue is drawn back behind the ball; distance sets
+  // power and the ball fires away from the finger on release.
+  function updatePull(clientX, clientY) {
+    const cue = sim.cueBall();
+    if (!cue || !cue.active) return;
+    const cs = scene.worldToScreen(cue.x, P.CONFIG.R, cue.z);
+    const d = Math.hypot(clientX - cs.x, clientY - cs.y);
+    if (d > 34) {   // outside a small deadzone, aim opposite the pull
+      const pt = scene.screenToTable(clientX, clientY);
+      if (pt) scene.aimAngle = Math.atan2(cue.z - pt.z, cue.x - pt.x);
+    }
+    const maxPull = Math.min(window.innerWidth, window.innerHeight) * 0.5;
+    game.power = Math.max(0.05, Math.min(1, (d - 14) / maxPull));
+    game.updatePowerUI();
+  }
+
+  function cueGrabbed(clientX, clientY) {
+    const cue = sim.cueBall();
+    if (!cue || !cue.active) return false;
+    const cs = scene.worldToScreen(cue.x, P.CONFIG.R, cue.z);
+    if (cs.behind) return false;
+    return Math.hypot(clientX - cs.x, clientY - cs.y) < GRAB_R;
   }
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -140,23 +185,26 @@
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (game.phase === 'placing' && !game.player().isAI) {
+      gesture = 'place';
       const pt = scene.screenToTable(e.clientX, e.clientY);
       if (pt) game.tryPlaceCue(pt.x, pt.z);
       return;
     }
     if (pointers.size === 1) {
-      if (isOrbitGesture(e)) orbitLast = { x: e.clientX, y: e.clientY };
-      else if (game.canShoot()) aimToClient(e.clientX, e.clientY);
+      if (isOrbitGesture(e)) { gesture = 'orbit'; orbitLast = { x: e.clientX, y: e.clientY }; }
+      else if (game.canShoot()) {
+        scene.freezeAim = true;
+        if (cueGrabbed(e.clientX, e.clientY)) { gesture = 'pull'; updatePull(e.clientX, e.clientY); }
+        else { gesture = 'point'; aimToClient(e.clientX, e.clientY); }
+      }
     }
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (!pointers.has(e.pointerId)) {
-      return; // hover: ignore (aim only while dragging)
-    }
+    if (!pointers.has(e.pointerId)) return; // hover: ignore
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    if (game.phase === 'placing' && !game.player().isAI && pointers.size === 1) {
+    if (gesture === 'place') {
       const pt = scene.screenToTable(e.clientX, e.clientY);
       if (pt) game.tryPlaceCue(pt.x, pt.z);
       return;
@@ -164,6 +212,7 @@
 
     if (pointers.size >= 2) {
       // two-finger orbit + pinch zoom
+      gesture = 'orbit';
       const pts = [...pointers.values()];
       const cx = (pts[0].x + pts[1].x) / 2, cy = (pts[0].y + pts[1].y) / 2;
       const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
@@ -171,7 +220,7 @@
         scene.cam.az -= (cx - orbitLast.x) * 0.006;
         scene.cam.el += (cy - orbitLast.y) * 0.006;
         scene.cam.el = Math.max(0.1, Math.min(1.45, scene.cam.el));
-        if (scene.cam.mode === 'aim') scene.cam.mode = 'free', document.getElementById('camBtn').textContent = '🎯 Aim';
+        if (scene.cam.mode === 'aim') { scene.cam.mode = 'free'; document.getElementById('camBtn').textContent = '🎯 Aim'; }
       }
       if (pinchLast) {
         scene.cam.dist *= pinchLast / dist;
@@ -182,26 +231,38 @@
     }
 
     // single pointer
-    if (isOrbitGesture(e) || (orbitLast && scene.cam.mode === 'free')) {
+    if (gesture === 'orbit') {
       if (!orbitLast) orbitLast = { x: e.clientX, y: e.clientY };
       scene.cam.az -= (e.clientX - orbitLast.x) * 0.006;
       scene.cam.el += (e.clientY - orbitLast.y) * 0.006;
       scene.cam.el = Math.max(0.1, Math.min(1.45, scene.cam.el));
       orbitLast = { x: e.clientX, y: e.clientY };
-    } else if (game.canShoot()) {
+    } else if (gesture === 'pull') {
+      updatePull(e.clientX, e.clientY);
+    } else if (gesture === 'point') {
       aimToClient(e.clientX, e.clientY);
     }
   });
 
   function endPointer(e) {
-    const wasPlacing = game.phase === 'placing' && !game.player().isAI;
+    const wasPull = gesture === 'pull';
+    const wasPlacing = gesture === 'place';
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchLast = null;
-    if (pointers.size === 0) orbitLast = null;
+    if (pointers.size === 0) { orbitLast = null; }
+
     if (wasPlacing && pointers.size === 0) {
-      // confirm placement on release if valid
       const cue = sim.cueBall();
       if (game.isValidCuePos(cue.x, cue.z)) game.confirmPlace();
+    }
+    // Release the cue: if pulled back far enough, strike.
+    if (wasPull && pointers.size === 0) {
+      if (game.canShoot() && game.power >= 0.08) game.beginShot();
+      else scene.freezeAim = false;
+    }
+    if (pointers.size === 0) {
+      if (!wasPull) scene.freezeAim = false;
+      gesture = null;
     }
   }
   canvas.addEventListener('pointerup', endPointer);

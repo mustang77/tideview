@@ -83,6 +83,7 @@
   function Simulation() {
     this.balls = [];
     this.events = null;
+    this.sound = null;   // optional { ball(v,cue), rail(v), pocket(isCue) }
     this.reset();
   }
 
@@ -214,6 +215,7 @@
 
     // Event / spin handling — only the cue vs an object ball matters for rules.
     const cueInvolved = a.group === 'cue' || b.group === 'cue';
+    if (this.sound) this.sound.ball(Math.abs(relN), cueInvolved);
     if (cueInvolved && this.events) {
       const cue = a.group === 'cue' ? a : b;
       const obj = a.group === 'cue' ? b : a;
@@ -285,8 +287,9 @@
       }
     }
 
-    if (hit && this.events) {
-      if (this.events.contactHappened) this.events.cushionAfterContact = true;
+    if (hit) {
+      if (this.sound) this.sound.rail(Math.hypot(b.vx, b.vz) / CONFIG.CUSHION_RESTITUTION);
+      if (this.events && this.events.contactHappened) this.events.cushionAfterContact = true;
     }
   };
 
@@ -298,6 +301,7 @@
         b.vx = 0; b.vz = 0;
         // Sink target for the drop animation (renderer reads this).
         b.sinkX = p.x; b.sinkZ = p.z;
+        if (this.sound) this.sound.pocket(b.group === 'cue');
         if (this.events) {
           this.events.pocketed.push({ id: b.id, group: b.group, number: b.number });
         }
