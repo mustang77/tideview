@@ -235,16 +235,67 @@
       return g;
     }
 
+    // ---- dishware variety: cups, bowls, cutlery basket ----
+    function makeCup() {
+      const g = new T.Group();
+      const body = new T.Mesh(new T.CylinderGeometry(0.062, 0.05, 0.11, 16), mat('#fbfdff', 0.45));
+      body.position.y = 0.055; g.add(body);
+      const rim = new T.Mesh(new T.TorusGeometry(0.062, 0.008, 8, 18), mat('#4fa8e9', 0.4)); rim.rotation.x = Math.PI / 2; rim.position.y = 0.11; g.add(rim);
+      const handle = new T.Mesh(new T.TorusGeometry(0.035, 0.011, 8, 16, Math.PI), mat('#fbfdff', 0.45));
+      handle.position.set(0.07, 0.055, 0); handle.rotation.z = -Math.PI / 2; g.add(handle);
+      g.userData.kind = 'cup'; return g;
+    }
+    function makeBowl() {
+      const g = new T.Group();
+      const b = new T.Mesh(new T.SphereGeometry(0.092, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat('#fbfdff', 0.45));
+      b.position.y = 0.005; g.add(b);   // dome up (inverted bowl, as racked)
+      const rim = new T.Mesh(new T.TorusGeometry(0.092, 0.009, 8, 20), mat('#e08a3a', 0.4)); rim.rotation.x = Math.PI / 2; g.add(rim);
+      g.userData.kind = 'bowl'; return g;
+    }
+    function makeCutleryBasket() {
+      const g = new T.Group();
+      const dk = mat('#797f85', 0.78), st = mat('#c7ced3', 0.28, 0.72);
+      const s = 0.2, h = 0.17;
+      const base = new T.Mesh(new T.BoxGeometry(s, 0.03, s), dk); base.position.y = 0.015; g.add(base);
+      for (const [x, z, w, d] of [[0, s / 2, s, 0.03], [0, -s / 2, s, 0.03], [s / 2, 0, 0.03, s], [-s / 2, 0, 0.03, s]]) {
+        const wall = new T.Mesh(new T.BoxGeometry(w, h, d), dk); wall.position.set(x, 0.02 + h / 2, z); g.add(wall);
+      }
+      const kinds = ['fork', 'spoon', 'knife', 'fork', 'spoon', 'knife'];
+      let n = 0;
+      for (const ux of [-0.05, 0.05]) for (const uz of [-0.05, 0, 0.05]) {
+        const u = new T.Group();
+        const handle = new T.Mesh(new T.CylinderGeometry(0.006, 0.008, 0.17, 6), st); handle.position.y = 0.1; u.add(handle);
+        const kind = kinds[n % kinds.length];
+        if (kind === 'fork') { const hd = new T.Mesh(new T.BoxGeometry(0.028, 0.05, 0.006), st); hd.position.y = 0.2; u.add(hd); }
+        else if (kind === 'knife') { const hd = new T.Mesh(new T.BoxGeometry(0.018, 0.06, 0.004), st); hd.position.y = 0.21; u.add(hd); }
+        else { const hd = new T.Mesh(new T.SphereGeometry(0.022, 10, 8), st); hd.scale.set(1, 1.7, 0.5); hd.position.y = 0.21; u.add(hd); }
+        u.position.set(ux, 0, uz); u.rotation.z = ((n % 3) - 1) * 0.12; u.rotation.x = ((n % 2) - 0.5) * 0.14;
+        g.add(u); n++;
+      }
+      g.userData.kind = 'basket'; return g;
+    }
+    function makeItem(type) { return type === 'cup' ? makeCup() : type === 'bowl' ? makeBowl() : (function () { const p = makePlate(false); p.userData.kind = 'plate'; return p; })(); }
+    function placeItem(item, x, y, z) {
+      const k = item.userData.kind;
+      if (k === 'plate') { item.rotation.x = Math.PI / 2; item.rotation.z = 0.32; item.position.set(x, y + 0.15, z); }
+      else if (k === 'cup') { item.rotation.x = Math.PI; item.position.set(x, y + 0.16, z); }  // inverted on pegs
+      else { item.position.set(x, y + 0.05, z); }  // bowl dome-up
+    }
+    const ITEM_PATTERN = ['plate', 'cup', 'plate', 'bowl', 'plate', 'cup', 'bowl', 'plate'];
+
     // preallocate dirty stack
     const dirtyPlates = [];
     for (let i = 0; i < 24; i++) { const pl = makePlate(true); pl.position.set(STATION.pile, COUNTER_Y + 0.17 + i * 0.03, -0.1); pl.visible = false; dirtyGroup.add(pl); dirtyPlates.push(pl); }
-    // rack slots — plates leaning between the pegs
+    // drying rack — mix of plates / cups / bowls, plus a cutlery basket
     const rackPlates = [];
-    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.rotation.z = 0.32; pl.position.set(STATION.rack - 0.36 + i * 0.095, COUNTER_Y + 0.21, -0.08); pl.visible = false; rackGroup.add(pl); rackPlates.push(pl); }
-    // peg rack inside the dishwasher + its leaning plates
+    for (let i = 0; i < 8; i++) { const it = makeItem(ITEM_PATTERN[i]); placeItem(it, STATION.rack - 0.16 + i * 0.082, COUNTER_Y + 0.06, -0.06); it.visible = false; rackGroup.add(it); rackPlates.push(it); }
+    const dryBasket = makeCutleryBasket(); dryBasket.position.set(STATION.rack - 0.40, COUNTER_Y + 0.06, -0.06); scene.add(dryBasket);
+
+    // peg rack inside the dishwasher + its mixed load and a cutlery basket
     const washerPegRack = makePegRack(0.82, 0.6); washerPegRack.position.set(0, -0.06, 0); washerRack.add(washerPegRack);
     const washerPlates = [];
-    for (let i = 0; i < 8; i++) { const pl = makePlate(false); pl.rotation.x = Math.PI / 2; pl.rotation.z = 0.32; pl.position.set(-0.3 + i * 0.085, 0.13, 0); pl.visible = false; washerRack.add(pl); washerPlates.push(pl); }
+    for (let i = 0; i < 8; i++) { const it = makeItem(ITEM_PATTERN[i]); placeItem(it, -0.12 + i * 0.072, 0, 0); it.visible = false; washerRack.add(it); washerPlates.push(it); }
+    const washerBasket = makeCutleryBasket(); washerBasket.position.set(-0.34, 0, 0); washerRack.add(washerBasket);
     // done stack
     const donePlates = [];
     for (let i = 0; i < 30; i++) { const pl = makePlate(false); pl.position.set(3.4, 1.56 + i * 0.03, -1.6); pl.visible = false; doneGroup.add(pl); donePlates.push(pl); }
