@@ -18,12 +18,9 @@
     background:#05070a;touch-action:none;
     font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:#eef3f8;}
   #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
-  /* safe-area helpers — add a fixed floor because Android often reports 0 for
-     the gesture-nav inset even though the bar is there. */
+  /* safe-area helper (edge insets live on each control's own rule below, with a
+     fixed floor because Android often reports 0 for the gesture-nav inset). */
   #hud{padding-top:max(10px,env(safe-area-inset-top));}
-  #tools{top:max(10px,env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));}
-  #left{left:calc(14px + env(safe-area-inset-left));}
-  #right{right:calc(14px + env(safe-area-inset-right));}
 
   /* ---- Top HUD ---- */
   #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;
@@ -64,8 +61,9 @@
     border-radius:20px;pointer-events:none;z-index:10;text-align:center;max-width:80vw;}
 
   /* ---- Right controls (power) ---- */
-  #right{position:fixed;right:14px;top:46%;transform:translateY(-50%);
-    display:flex;flex-direction:column;align-items:center;gap:10px;z-index:12;}
+  #right{position:fixed;right:calc(40px + env(safe-area-inset-right));top:46%;
+    transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;z-index:12;}
   #powerTrack{width:34px;height:196px;background:rgba(10,14,20,.72);
     border:1px solid var(--line);border-radius:20px;position:relative;
     overflow:hidden;cursor:pointer;touch-action:none;}
@@ -77,7 +75,8 @@
   #powerCap{font-size:10px;color:#8ea3b8;letter-spacing:1px;}
 
   /* ---- Left controls (spin) ---- */
-  #left{position:fixed;left:14px;top:46%;transform:translateY(-50%);
+  #left{position:fixed;left:calc(40px + env(safe-area-inset-left));top:46%;
+    transform:translateY(-50%);
     display:flex;flex-direction:column;align-items:center;gap:8px;z-index:12;}
   #spinPad{width:92px;height:92px;border-radius:50%;position:relative;
     background:radial-gradient(circle at 50% 40%,#fbfbf5,#d7d9d0);
@@ -104,7 +103,8 @@
   #shootBtn:disabled{opacity:.35;cursor:default;box-shadow:none;filter:grayscale(.5);}
 
   /* ---- Top-right buttons ---- */
-  #tools{position:fixed;top:12px;right:14px;display:flex;gap:8px;z-index:15;}
+  #tools{position:fixed;top:max(12px,env(safe-area-inset-top));
+    right:calc(40px + env(safe-area-inset-right));display:flex;gap:8px;z-index:15;}
   .tbtn{pointer-events:auto;cursor:pointer;background:var(--panel);
     border:1px solid var(--line);color:#dbe6f0;border-radius:11px;
     padding:9px 12px;font-size:13px;font-weight:600;transition:.15s;}
@@ -152,9 +152,9 @@
     #spinCap,#powerCap{font-size:9px;}
     #powerTrack{height:138px;width:28px;}
     #powerVal{font-size:13px;}
-    #shootWrap{bottom:calc(26px + env(safe-area-inset-bottom));}
+    #shootWrap{bottom:calc(34px + env(safe-area-inset-bottom));}
     #shootBtn{padding:11px 44px;font-size:15px;}
-    #hint{bottom:calc(78px + env(safe-area-inset-bottom));font-size:11px;padding:4px 10px;}
+    #hint{bottom:calc(84px + env(safe-area-inset-bottom));font-size:11px;padding:4px 10px;}
     #tools .tbtn{padding:7px 9px;font-size:12px;}
     #toast{top:64px;}
   }
