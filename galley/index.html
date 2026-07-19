@@ -57,7 +57,33 @@
   .act.pulse{animation:pulse .8s infinite;}
   @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
   #heartsPill .ico{font-size:16px;} #heartsPill{color:#e0395b;font-weight:900;}
-  #washBtn{min-width:230px;background:linear-gradient(#38b6ff,#1f8fe0);}
+
+  /* ---- sink wash progress ---- */
+  #sink{position:fixed;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    z-index:12;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.9);border:3px solid #fff;
+    border-radius:20px;padding:6px 14px;box-shadow:0 5px 0 rgba(150,110,60,.3),0 8px 14px rgba(0,0,0,.2);}
+  #sinkLabel{font-size:11px;font-weight:900;color:#7f8a92;letter-spacing:1px;}
+  #sinkItem{font-size:24px;line-height:1;}
+  #washBar{width:120px;height:12px;background:#e0e6ea;border-radius:8px;overflow:hidden;}
+  #washBarFill{height:100%;width:0;background:linear-gradient(90deg,#7fd0f0,#2aa6dd);border-radius:8px;}
+  #queueDots{display:flex;gap:4px;font-size:15px;min-width:44px;}
+
+  /* ---- choose-what-to-wash buttons ---- */
+  #washRow{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:0;right:0;z-index:13;
+    display:flex;justify-content:center;gap:14px;padding:0 14px;}
+  .wbtn{position:relative;pointer-events:auto;cursor:pointer;border:none;border-radius:20px;color:#06344a;
+    font-weight:900;background:linear-gradient(#eaf6ff,#c4e6fa);min-width:98px;padding:12px 8px 10px;
+    box-shadow:0 6px 0 rgba(40,120,160,.35),0 10px 16px rgba(0,0,0,.2);transition:transform .08s,filter .15s;
+    display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .wbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(40,120,160,.35);}
+  .wbtn .wi{font-size:26px;line-height:1;} .wbtn .wn{font-size:14px;}
+  .wbtn.flash{animation:wflash .3s;}
+  @keyframes wflash{0%{filter:brightness(1.6);}100%{filter:brightness(1);}}
+  .wbtn .stock{position:absolute;top:-8px;right:-8px;min-width:24px;height:24px;border-radius:50%;
+    background:#2ea24e;color:#fff;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;
+    border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.3);}
+  .wbtn .stock.zero{background:#b6bcc2;}
+  @media (max-height:430px){ .wbtn{min-width:82px;padding:9px 6px 8px;} .wbtn .wi{font-size:22px;} #sink{bottom:calc(96px + env(safe-area-inset-bottom));} }
 
   /* ---- waiter order cards ---- */
   #orders{position:fixed;top:calc(60px + env(safe-area-inset-top));left:0;right:0;display:flex;
@@ -130,10 +156,22 @@
     <div class="ocard empty" id="ocard0"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
     <div class="ocard empty" id="ocard1"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
     <div class="ocard empty" id="ocard2"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
+    <div class="ocard empty" id="ocard3"><div class="bubble"><span class="oitem"></span></div><div class="avatar"></div><div class="pat"><div class="patfill"></div></div></div>
   </div>
 
-  <div id="actions">
-    <button class="act" id="washBtn"><span class="fill"></span><span class="lbl"><span class="big">🧽</span>WASH &amp; SERVE</span></button>
+  <!-- sink wash progress -->
+  <div id="sink">
+    <div id="sinkLabel">SINK</div>
+    <div id="sinkItem">—</div>
+    <div id="washBar"><div id="washBarFill"></div></div>
+    <div id="queueDots"></div>
+  </div>
+
+  <!-- choose what to wash -->
+  <div id="washRow">
+    <button class="wbtn" id="wash-plate"><span class="wi">🍽️</span><span class="wn">Plate</span><span class="stock" id="stock-plate">0</span></button>
+    <button class="wbtn" id="wash-bowl"><span class="wi">🥣</span><span class="wn">Bowl</span><span class="stock" id="stock-bowl">0</span></button>
+    <button class="wbtn" id="wash-glass"><span class="wi">🥛</span><span class="wn">Glass</span><span class="stock" id="stock-glass">0</span></button>
   </div>
 
   <div id="toast"></div>
@@ -145,7 +183,7 @@
       <h1>Galley Rush</h1>
       <div class="sub" id="briefSub">Dish-washing duty, steward!</div>
       <div class="goal" id="briefGoal">Serve 12 orders</div>
-      <div class="sub" style="font-size:13px;color:#8a6a44">Waiters ask for a 🍽️ plate, 🥣 bowl or 🥛 glass. <b>Tap a waiter</b>, then <b>hold WASH</b> to clean &amp; serve it — before their patience runs out. Don't lose all 5 ❤️!</div>
+      <div class="sub" style="font-size:13px;color:#8a6a44;line-height:1.5">Waiters ask for a 🍽️ plate, 🥣 bowl or 🥛 glass. <b>Tap a dish type below</b> to wash it in the sink (one at a time!) — clean ones stack as <b>stock</b>. <b>Tap a waiter</b> to hand over a matching clean item before their patience runs out. Wash the right things in the right order! Don't lose all 5 ❤️.</div>
       <button class="cbtn green" id="startBtn">START SHIFT</button>
     </div>
   </div>
@@ -184,7 +222,6 @@
   <div id="rotate"><div class="ico">📱</div><h2 style="color:#ffcf8a;margin:0">Rotate your device</h2><p style="max-width:280px;color:#e8c49a">Galley Rush plays in landscape — turn your phone sideways.</p></div>
 
   <script src="vendor/three.min.js"></script>
-  <script src="js/character.js"></script>
   <script src="js/scene.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/game.js"></script>
