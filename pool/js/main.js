@@ -61,7 +61,8 @@
     audio.ensure();
     document.getElementById('menu').classList.remove('show');
     document.getElementById('result').classList.remove('show');
-    scene.cam.mode = 'aim'; scene.cam.el = 0.6; scene.cam.dist = 1.9;
+    document.getElementById('camBtn').textContent = '🎥 Free';
+    scene.setAimView();
     game.turnLimit = selectedClock;
     game.newGame(selectedMode, selectedDiff);
     game.power = 0.75; game.updatePowerUI();
@@ -81,9 +82,8 @@
 
   // ------------------------------------------------------------- camera btns
   document.getElementById('camBtn').addEventListener('click', (e) => {
-    scene.cam.mode = scene.cam.mode === 'aim' ? 'free' : 'aim';
-    e.currentTarget.textContent = scene.cam.mode === 'aim' ? '🎥 Free' : '🎯 Aim';
-    if (scene.cam.mode === 'aim') scene.cam.el = 0.6;
+    if (scene.cam.mode === 'aim') { scene.cam.mode = 'free'; e.currentTarget.textContent = '🎯 Aim'; }
+    else { scene.setAimView(); e.currentTarget.textContent = '🎥 Free'; }
   });
   document.getElementById('topBtn').addEventListener('click', () => {
     scene.setOverhead();
@@ -140,44 +140,24 @@
   // ------------------------------------------------------------- canvas input
   const pointers = new Map();
   let orbitLast = null, pinchLast = null;
-  let gesture = null;          // 'pull' | 'point' | 'orbit' | null
-  const GRAB_R = 90;           // px radius around the cue ball that "grabs" the stick
+  let gesture = null;          // 'aim' | 'orbit' | 'place' | null
 
   function isOrbitGesture(e) {
     return scene.cam.mode === 'free' || e.button === 2 || e.shiftKey;
   }
 
-  // Point-to-aim: cue travels toward the finger's spot on the cloth.
-  function aimToClient(clientX, clientY) {
+  // Absolute point-to-aim: the cue points from the ball toward the finger's
+  // spot on the cloth (matches "drag your finger to move the cue"). Ignored in
+  // a small dead-zone right on the ball, where the direction is ill-defined.
+  const AIM_DEADZONE = 0.05;
+  function aimAtFinger(clientX, clientY) {
     const cue = sim.cueBall();
     if (!cue || !cue.active) return;
     const pt = scene.screenToTable(clientX, clientY);
     if (!pt) return;
-    scene.aimAngle = Math.atan2(pt.z - cue.z, pt.x - cue.x);
-  }
-
-  // Pull-back (slingshot): the cue is drawn back behind the ball; distance sets
-  // power and the ball fires away from the finger on release.
-  function updatePull(clientX, clientY) {
-    const cue = sim.cueBall();
-    if (!cue || !cue.active) return;
-    const cs = scene.worldToScreen(cue.x, P.CONFIG.R, cue.z);
-    const d = Math.hypot(clientX - cs.x, clientY - cs.y);
-    if (d > 34) {   // outside a small deadzone, aim opposite the pull
-      const pt = scene.screenToTable(clientX, clientY);
-      if (pt) scene.aimAngle = Math.atan2(cue.z - pt.z, cue.x - pt.x);
-    }
-    const maxPull = Math.min(window.innerWidth, window.innerHeight) * 0.5;
-    game.power = Math.max(0.05, Math.min(1, (d - 14) / maxPull));
-    game.updatePowerUI();
-  }
-
-  function cueGrabbed(clientX, clientY) {
-    const cue = sim.cueBall();
-    if (!cue || !cue.active) return false;
-    const cs = scene.worldToScreen(cue.x, P.CONFIG.R, cue.z);
-    if (cs.behind) return false;
-    return Math.hypot(clientX - cs.x, clientY - cs.y) < GRAB_R;
+    const dx = pt.x - cue.x, dz = pt.z - cue.z;
+    if (Math.hypot(dx, dz) < AIM_DEADZONE) return;
+    scene.aimAngle = Math.atan2(dz, dx);
   }
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -193,9 +173,8 @@
     if (pointers.size === 1) {
       if (isOrbitGesture(e)) { gesture = 'orbit'; orbitLast = { x: e.clientX, y: e.clientY }; }
       else if (game.canShoot()) {
-        scene.freezeAim = true;
-        if (cueGrabbed(e.clientX, e.clientY)) { gesture = 'pull'; updatePull(e.clientX, e.clientY); }
-        else { gesture = 'point'; aimToClient(e.clientX, e.clientY); }
+        gesture = 'aim';
+        aimAtFinger(e.clientX, e.clientY);
       }
     }
   });
@@ -219,12 +198,12 @@
       if (orbitLast) {
         scene.cam.az -= (cx - orbitLast.x) * 0.006;
         scene.cam.el += (cy - orbitLast.y) * 0.006;
-        scene.cam.el = Math.max(0.1, Math.min(1.45, scene.cam.el));
+        scene.cam.el = Math.max(0.12, Math.min(1.5, scene.cam.el));
         if (scene.cam.mode === 'aim') { scene.cam.mode = 'free'; document.getElementById('camBtn').textContent = '🎯 Aim'; }
       }
       if (pinchLast) {
         scene.cam.dist *= pinchLast / dist;
-        scene.cam.dist = Math.max(0.7, Math.min(4, scene.cam.dist));
+        scene.cam.dist = Math.max(0.7, Math.min(4.5, scene.cam.dist));
       }
       orbitLast = { x: cx, y: cy }; pinchLast = dist;
       return;
@@ -235,35 +214,23 @@
       if (!orbitLast) orbitLast = { x: e.clientX, y: e.clientY };
       scene.cam.az -= (e.clientX - orbitLast.x) * 0.006;
       scene.cam.el += (e.clientY - orbitLast.y) * 0.006;
-      scene.cam.el = Math.max(0.1, Math.min(1.45, scene.cam.el));
+      scene.cam.el = Math.max(0.12, Math.min(1.5, scene.cam.el));
       orbitLast = { x: e.clientX, y: e.clientY };
-    } else if (gesture === 'pull') {
-      updatePull(e.clientX, e.clientY);
-    } else if (gesture === 'point') {
-      aimToClient(e.clientX, e.clientY);
+    } else if (gesture === 'aim' && game.canShoot()) {
+      aimAtFinger(e.clientX, e.clientY);
     }
   });
 
   function endPointer(e) {
-    const wasPull = gesture === 'pull';
     const wasPlacing = gesture === 'place';
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchLast = null;
-    if (pointers.size === 0) { orbitLast = null; }
-
+    if (pointers.size === 0) orbitLast = null;
     if (wasPlacing && pointers.size === 0) {
       const cue = sim.cueBall();
       if (game.isValidCuePos(cue.x, cue.z)) game.confirmPlace();
     }
-    // Release the cue: if pulled back far enough, strike.
-    if (wasPull && pointers.size === 0) {
-      if (game.canShoot() && game.power >= 0.08) game.beginShot();
-      else scene.freezeAim = false;
-    }
-    if (pointers.size === 0) {
-      if (!wasPull) scene.freezeAim = false;
-      gesture = null;
-    }
+    if (pointers.size === 0) gesture = null;
   }
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', endPointer);

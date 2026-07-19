@@ -476,16 +476,14 @@
 
   // ------------------------------------------------------------- camera rig
   PoolScene.prototype.updateCamera = function (sim, dt) {
-    const cue = sim.cueBall();
     const tgt = this.cam.target;
-    // In aim mode, look at the cue ball and sit behind it.
-    if (this.cam.mode === 'aim' && cue && cue.active) {
-      tgt.lerp(new T.Vector3(cue.x, C.R, cue.z), Math.min(1, dt * 6));
-      // While the player is actively aiming/pulling, hold the camera still so
-      // the view doesn't swing around under their finger.
-      if (!this.freezeAim) this.cam.az = this.aimAngle + Math.PI;
+    // Aim mode is a STABLE, near-top-down view of the whole table — it does
+    // not swing around as you aim (that made aiming disorienting). You rotate
+    // the cue by dragging; the camera stays put. Free mode orbits freely.
+    if (this.cam.mode === 'aim') {
+      tgt.lerp(new T.Vector3(0, 0, 0), Math.min(1, dt * 6));
     }
-    const el = Math.max(0.08, Math.min(1.45, this.cam.el));
+    const el = Math.max(0.08, Math.min(1.5, this.cam.el));
     const d = this.cam.dist;
     const cx = tgt.x + Math.cos(this.cam.az) * Math.cos(el) * d;
     const cy = tgt.y + Math.sin(el) * d;
@@ -494,10 +492,27 @@
     this.camera.lookAt(tgt);
   };
 
+  // The default aiming view: high and angled so the whole table reads, with
+  // the long axis running across the screen (good for landscape phones).
+  PoolScene.prototype.setAimView = function () {
+    this.cam.mode = 'aim';
+    this.cam.az = -Math.PI / 2;   // long axis horizontal
+    this.cam.el = 0.92;           // steep, near top-down
+    this.cam.dist = this._fitDist();
+  };
+
+  PoolScene.prototype._fitDist = function () {
+    // Pull back enough to frame the full table for the current aspect ratio.
+    const aspect = this.camera.aspect || 1.8;
+    const base = 2.05;
+    return aspect < 1.4 ? base * 1.5 : base;
+  };
+
   PoolScene.prototype.setOverhead = function () {
     this.cam.mode = 'free';
-    this.cam.el = 1.4;
-    this.cam.dist = 2.1;
+    this.cam.az = -Math.PI / 2;
+    this.cam.el = 1.45;
+    this.cam.dist = this._fitDist() * 0.98;
   };
 
   PoolScene.prototype.resize = function () {

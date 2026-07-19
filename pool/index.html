@@ -18,11 +18,12 @@
     background:#05070a;touch-action:none;
     font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:#eef3f8;}
   #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
-  /* safe-area helpers for notched phones */
+  /* safe-area helpers — add a fixed floor because Android often reports 0 for
+     the gesture-nav inset even though the bar is there. */
   #hud{padding-top:max(10px,env(safe-area-inset-top));}
-  #tools{top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));}
-  #left{left:max(12px,env(safe-area-inset-left));}
-  #right{right:max(12px,env(safe-area-inset-right));}
+  #tools{top:max(10px,env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));}
+  #left{left:calc(14px + env(safe-area-inset-left));}
+  #right{right:calc(14px + env(safe-area-inset-right));}
 
   /* ---- Top HUD ---- */
   #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;
@@ -57,14 +58,15 @@
     border-radius:24px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;
     transition:.3s;z-index:20;max-width:88vw;text-align:center;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  #hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+  #hint{position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;
+    transform:translateX(-50%);
     font-size:12.5px;color:#9fb2c6;background:var(--panel);padding:6px 14px;
-    border-radius:20px;pointer-events:none;z-index:10;text-align:center;max-width:92vw;}
+    border-radius:20px;pointer-events:none;z-index:10;text-align:center;max-width:80vw;}
 
   /* ---- Right controls (power) ---- */
-  #right{position:fixed;right:14px;top:50%;transform:translateY(-50%);
+  #right{position:fixed;right:14px;top:46%;transform:translateY(-50%);
     display:flex;flex-direction:column;align-items:center;gap:10px;z-index:12;}
-  #powerTrack{width:34px;height:210px;background:rgba(10,14,20,.72);
+  #powerTrack{width:34px;height:196px;background:rgba(10,14,20,.72);
     border:1px solid var(--line);border-radius:20px;position:relative;
     overflow:hidden;cursor:pointer;touch-action:none;}
   #powerFill{position:absolute;left:0;right:0;bottom:0;height:75%;
@@ -75,7 +77,7 @@
   #powerCap{font-size:10px;color:#8ea3b8;letter-spacing:1px;}
 
   /* ---- Left controls (spin) ---- */
-  #left{position:fixed;left:14px;top:50%;transform:translateY(-50%);
+  #left{position:fixed;left:14px;top:46%;transform:translateY(-50%);
     display:flex;flex-direction:column;align-items:center;gap:8px;z-index:12;}
   #spinPad{width:92px;height:92px;border-radius:50%;position:relative;
     background:radial-gradient(circle at 50% 40%,#fbfbf5,#d7d9d0);
@@ -91,7 +93,8 @@
   #spinCap{font-size:10px;color:#8ea3b8;letter-spacing:1px;}
 
   /* ---- Bottom-center shoot ---- */
-  #shootWrap{position:fixed;bottom:44px;left:50%;transform:translateX(-50%);
+  #shootWrap{position:fixed;bottom:calc(40px + env(safe-area-inset-bottom));
+    left:50%;transform:translateX(-50%);
     z-index:14;display:flex;gap:10px;align-items:center;}
   #shootBtn{pointer-events:auto;border:none;cursor:pointer;
     background:linear-gradient(135deg,#f6c500,#ef8f00);color:#2a1e00;
@@ -147,11 +150,11 @@
     .prow{margin-top:3px;}
     #spinPad{width:74px;height:74px;} #spinDot{width:16px;height:16px;}
     #spinCap,#powerCap{font-size:9px;}
-    #powerTrack{height:150px;width:28px;}
+    #powerTrack{height:138px;width:28px;}
     #powerVal{font-size:13px;}
-    #shootWrap{bottom:max(14px,env(safe-area-inset-bottom));}
-    #shootBtn{padding:12px 46px;font-size:16px;}
-    #hint{bottom:max(6px,env(safe-area-inset-bottom));font-size:11px;padding:4px 10px;}
+    #shootWrap{bottom:calc(26px + env(safe-area-inset-bottom));}
+    #shootBtn{padding:11px 44px;font-size:15px;}
+    #hint{bottom:calc(78px + env(safe-area-inset-bottom));font-size:11px;padding:4px 10px;}
     #tools .tbtn{padding:7px 9px;font-size:12px;}
     #toast{top:64px;}
   }

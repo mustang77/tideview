@@ -126,7 +126,7 @@
     this.sim.balls = balls;
     this.scene.buildBalls(balls);
     this.scene.aimAngle = 0;      // aim toward +x (into the rack)
-    this.scene.cam.mode = 'aim';
+    this.scene.setAimView();
     this.startTurnTimer();
     this.updateHUD();
     this.toast(this.players[0].name + ' to break', 2200);
@@ -557,7 +557,7 @@
     if (hint) {
       if (this.phase === 'placing') hint.textContent = 'Ball in hand — drag the cue ball to a legal spot, then click to place';
       else if (this.phase === 'aiming' && this.player().isAI) hint.textContent = this.players[this.current].name + ' is thinking…';
-      else if (this.phase === 'aiming') hint.textContent = 'Drag the table to aim · pull the cue back & release to shoot (or use the power slider + SHOOT)';
+      else if (this.phase === 'aiming') hint.textContent = 'Drag anywhere to swing the aim · set POWER on the right · tap SHOOT';
       else hint.textContent = '';
     }
   };
