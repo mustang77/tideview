@@ -30,7 +30,7 @@ class _ShortsScreenState extends State<ShortsScreen> {
   bool _loading = true;
   String? _error;
   String? _nextToken;
-  String _seed = kShortsSeeds[0];
+  final String _seed = kShortsSeeds[0];
   int _current = 0;
   bool _muted = false;
 
@@ -280,7 +280,7 @@ class _ShortPageState extends State<_ShortPage> with SingleTickerProviderStateMi
         children: [
           // blurred thumbnail backdrop — never a black flash while loading
           Image.network(thumb, fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(color: Colors.black)),
+            errorBuilder: (_, _, _) => Container(color: Colors.black)),
           Positioned.fill(child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
             child: Container(color: Colors.black.withValues(alpha: 0.35)),
