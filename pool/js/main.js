@@ -82,7 +82,7 @@
 
   // ------------------------------------------------------------- camera btns
   document.getElementById('camBtn').addEventListener('click', (e) => {
-    if (scene.cam.mode === 'aim') { scene.cam.mode = 'free'; e.currentTarget.textContent = '🎯 Aim'; }
+    if (scene.cam.mode === 'aim') { scene.setFreeView(); e.currentTarget.textContent = '🎯 Flat'; }
     else { scene.setAimView(); e.currentTarget.textContent = '🎥 Free'; }
   });
   document.getElementById('topBtn').addEventListener('click', () => {
@@ -190,20 +190,26 @@
     }
 
     if (pointers.size >= 2) {
-      // two-finger orbit + pinch zoom
       gesture = 'orbit';
       const pts = [...pointers.values()];
       const cx = (pts[0].x + pts[1].x) / 2, cy = (pts[0].y + pts[1].y) / 2;
       const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      if (orbitLast) {
-        scene.cam.az -= (cx - orbitLast.x) * 0.006;
-        scene.cam.el += (cy - orbitLast.y) * 0.006;
-        scene.cam.el = Math.max(0.12, Math.min(1.5, scene.cam.el));
-        if (scene.cam.mode === 'aim') { scene.cam.mode = 'free'; document.getElementById('camBtn').textContent = '🎯 Aim'; }
-      }
-      if (pinchLast) {
-        scene.cam.dist *= pinchLast / dist;
-        scene.cam.dist = Math.max(0.7, Math.min(4.5, scene.cam.dist));
+      if (scene.cam.mode === 'aim') {
+        // Flat board stays flat — pinch just zooms it in/out.
+        if (pinchLast) {
+          scene.orthoZoom *= dist / pinchLast;
+          scene.orthoZoom = Math.max(0.6, Math.min(2.4, scene.orthoZoom));
+        }
+      } else {
+        if (orbitLast) {
+          scene.cam.az -= (cx - orbitLast.x) * 0.006;
+          scene.cam.el += (cy - orbitLast.y) * 0.006;
+          scene.cam.el = Math.max(0.12, Math.min(1.5, scene.cam.el));
+        }
+        if (pinchLast) {
+          scene.cam.dist *= pinchLast / dist;
+          scene.cam.dist = Math.max(0.7, Math.min(4.5, scene.cam.dist));
+        }
       }
       orbitLast = { x: cx, y: cy }; pinchLast = dist;
       return;
@@ -236,8 +242,13 @@
   canvas.addEventListener('pointercancel', endPointer);
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('wheel', (e) => {
-    scene.cam.dist *= (1 + Math.sign(e.deltaY) * 0.08);
-    scene.cam.dist = Math.max(0.7, Math.min(4, scene.cam.dist));
+    if (scene.cam.mode === 'aim') {
+      scene.orthoZoom *= (1 - Math.sign(e.deltaY) * 0.08);
+      scene.orthoZoom = Math.max(0.6, Math.min(2.4, scene.orthoZoom));
+    } else {
+      scene.cam.dist *= (1 + Math.sign(e.deltaY) * 0.08);
+      scene.cam.dist = Math.max(0.7, Math.min(4, scene.cam.dist));
+    }
     e.preventDefault();
   }, { passive: false });
 

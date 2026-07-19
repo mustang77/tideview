@@ -102,15 +102,25 @@
     this.scene.background = new T.Color('#0a0d12');
     this.scene.fog = new T.Fog('#0a0d12', 4, 12);
 
-    this.camera = new T.PerspectiveCamera(45, 1, 0.05, 100);
+    // Two cameras: a true orthographic top-down for the flat "board" aim view
+    // (zero perspective — the screen maps exactly to the cloth), and a
+    // perspective camera for the optional free/cinematic orbit.
+    this.pcamera = new T.PerspectiveCamera(45, 1, 0.05, 100);
+    this.ocamera = new T.OrthographicCamera(-1, 1, 1, -1, 0.01, 30);
+    this.ocamera.position.set(0, 3, 0);
+    this.ocamera.up.set(0, 0, -1);      // long axis (X) runs across the screen
+    this.ocamera.lookAt(0, 0, 0);
+    this.camera = this.ocamera;         // active camera (flat by default)
+    this._aspect = 1.8;
+    this.orthoZoom = 1;
 
-    // Camera rig
+    // Orbit rig (used only by the perspective/free camera)
     this.cam = {
       target: new T.Vector3(0, 0, 0),
       dist: 1.9,
-      az: Math.PI,     // azimuth
-      el: 0.62,        // elevation (radians above table)
-      mode: 'aim',     // 'aim' | 'free'
+      az: -Math.PI / 2,
+      el: 0.62,
+      mode: 'aim',     // 'aim' (flat ortho) | 'free' (perspective orbit)
     };
     this.aimAngle = 0; // direction (radians in XZ) the cue ball will travel
 
@@ -140,17 +150,12 @@
     key.shadow.bias = -0.0005;
     this.scene.add(key);
 
-    // Two warm hall lamps hanging over the cloth
+    // Two warm hall lamps over the cloth (lights only — no visible fixtures,
+    // so nothing floats over the board in the flat top-down view).
     for (const x of [-0.6, 0.6]) {
       const lamp = new T.PointLight('#ffe9c0', 0.5, 5, 2);
       lamp.position.set(x, 1.5, 0);
       this.scene.add(lamp);
-      const shade = new T.Mesh(
-        new T.ConeGeometry(0.16, 0.16, 24, 1, true),
-        new T.MeshStandardMaterial({ color: '#1c2530', side: T.DoubleSide, metalness: 0.6, roughness: 0.4 })
-      );
-      shade.position.set(x, 1.62, 0);
-      this.scene.add(shade);
     }
   };
 
@@ -476,54 +481,65 @@
 
   // ------------------------------------------------------------- camera rig
   PoolScene.prototype.updateCamera = function (sim, dt) {
-    const tgt = this.cam.target;
-    // Aim mode is a STABLE, near-top-down view of the whole table — it does
-    // not swing around as you aim (that made aiming disorienting). You rotate
-    // the cue by dragging; the camera stays put. Free mode orbits freely.
     if (this.cam.mode === 'aim') {
+      // Flat, static, zero-tilt overhead board. Nothing moves as you aim.
+      this.camera = this.ocamera;
+      this._updateOrtho();
+    } else {
+      // Free perspective orbit.
+      this.camera = this.pcamera;
+      const tgt = this.cam.target;
       tgt.lerp(new T.Vector3(0, 0, 0), Math.min(1, dt * 6));
+      const el = Math.max(0.08, Math.min(1.5, this.cam.el));
+      const d = this.cam.dist;
+      const cx = tgt.x + Math.cos(this.cam.az) * Math.cos(el) * d;
+      const cy = tgt.y + Math.sin(el) * d;
+      const cz = tgt.z + Math.sin(this.cam.az) * Math.cos(el) * d;
+      this.pcamera.up.set(0, 1, 0);
+      this.pcamera.position.lerp(new T.Vector3(cx, cy, cz), Math.min(1, dt * 8));
+      this.pcamera.lookAt(tgt);
     }
-    const el = Math.max(0.08, Math.min(1.5, this.cam.el));
-    const d = this.cam.dist;
-    const cx = tgt.x + Math.cos(this.cam.az) * Math.cos(el) * d;
-    const cy = tgt.y + Math.sin(el) * d;
-    const cz = tgt.z + Math.sin(this.cam.az) * Math.cos(el) * d;
-    this.camera.position.lerp(new T.Vector3(cx, cy, cz), Math.min(1, dt * 8));
-    this.camera.lookAt(tgt);
   };
 
-  // The default aiming view: a STATIC, near-top-down look at the whole table
-  // (like the app-store 8-ball games). Being nearly overhead means the screen
-  // maps almost 1:1 to the cloth, so pointing the cue where you want is easy.
+  // Size the orthographic frustum to frame the whole table for this aspect.
+  PoolScene.prototype._updateOrtho = function () {
+    const aspect = this._aspect || 1.8;
+    const tableHalfX = 1.28, tableHalfZ = 0.70;  // play area + rails + margin
+    let halfH = Math.max(tableHalfZ, tableHalfX / aspect) * 1.03 / this.orthoZoom;
+    let halfW = halfH * aspect;
+    const o = this.ocamera;
+    o.left = -halfW; o.right = halfW; o.top = halfH; o.bottom = -halfH;
+    o.updateProjectionMatrix();
+  };
+
+  // The default view: a fully flat, zero-tilt overhead board (like the
+  // app-store 8-ball games). Screen maps 1:1 to the cloth — easy to aim.
   PoolScene.prototype.setAimView = function () {
     this.cam.mode = 'aim';
-    this.cam.az = -Math.PI / 2;   // long axis runs across the screen
-    this.cam.el = 1.47;           // ~84°: essentially top-down, tiny bit of depth
-    this.cam.dist = this._fitDist();
+    this.orthoZoom = 1;
+    this.camera = this.ocamera;
+    this._updateOrtho();
   };
 
-  PoolScene.prototype._fitDist = function () {
-    // Pull back just enough to frame the whole table for the current aspect.
-    // Near-overhead, the binding constraint is the short axis fitting vertically.
-    const aspect = this.camera.aspect || 1.8;
-    if (aspect >= 2.2) return 1.78;
-    if (aspect >= 2.0) return 1.9;
-    if (aspect >= 1.6) return 2.15;
-    if (aspect >= 1.2) return 2.7;
-    return 3.6;                    // portrait-ish (should be rotated anyway)
-  };
+  PoolScene.prototype.setOverhead = function () { this.setAimView(); };
 
-  PoolScene.prototype.setOverhead = function () {
-    this.cam.mode = 'aim';
-    this.setAimView();
+  // Optional cinematic perspective orbit.
+  PoolScene.prototype.setFreeView = function () {
+    this.cam.mode = 'free';
+    this.cam.az = -Math.PI / 2;
+    this.cam.el = 0.72;
+    this.cam.dist = 2.0;
+    this.camera = this.pcamera;
   };
 
   PoolScene.prototype.resize = function () {
     const w = window.innerWidth || this.canvas.clientWidth;
     const h = window.innerHeight || this.canvas.clientHeight;
     this.renderer.setSize(w, h, false);
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    this._aspect = w / h;
+    this.pcamera.aspect = w / h;
+    this.pcamera.updateProjectionMatrix();
+    this._updateOrtho();
   };
 
   PoolScene.prototype.render = function () {
