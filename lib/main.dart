@@ -82,7 +82,7 @@ class _RootShellState extends State<RootShell> {
   Widget build(BuildContext context) {
     final pages = [
       SearchScreen(onToggleTheme: widget.onToggleTheme),
-      const ShortsScreen(),
+      ShortsScreen(active: _index == 1),
     ];
     return Scaffold(
       body: IndexedStack(index: _index, children: pages),
