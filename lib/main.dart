@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "game/game_home.dart";
 import "search_screen.dart";
 import "shorts_screen.dart";
 
@@ -83,6 +84,7 @@ class _RootShellState extends State<RootShell> {
     final pages = [
       SearchScreen(onToggleTheme: widget.onToggleTheme),
       const ShortsScreen(),
+      const GameHomeScreen(),
     ];
     return Scaffold(
       body: IndexedStack(index: _index, children: pages),
@@ -92,6 +94,7 @@ class _RootShellState extends State<RootShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "Home"),
           NavigationDestination(icon: Icon(Icons.play_circle_outline), selectedIcon: Icon(Icons.play_circle), label: "Shorts"),
+          NavigationDestination(icon: Icon(Icons.sports_esports_outlined), selectedIcon: Icon(Icons.sports_esports), label: "Game"),
         ],
       ),
     );
