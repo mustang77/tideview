@@ -8,6 +8,7 @@ import "controller.dart";
 import "game_home.dart";
 import "models.dart";
 import "painters.dart";
+import "sound.dart";
 import "storage.dart";
 
 /// One floating "+N" popup over the dining area.
@@ -38,6 +39,8 @@ class _KitchenScreenState extends State<KitchenScreen>
   double _hintUntil = 0;
   bool _recorded = false;
 
+  VenueDef get venue => widget.level.venue;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +55,10 @@ class _KitchenScreenState extends State<KitchenScreen>
     super.dispose();
   }
 
+  void _haptic(void Function() f) {
+    if (widget.storage.hapticsOn) f();
+  }
+
   void _onTick(Duration now) {
     final dt = (now - _last).inMicroseconds / 1e6;
     _last = now;
@@ -64,23 +71,38 @@ class _KitchenScreenState extends State<KitchenScreen>
           _popups.add(_Popup(
             e.message,
             const Color(0xFFF7D046),
-            0.12 + 0.22 * max(0, e.customerIndex),
+            0.10 + 0.22 * max(0, e.customerIndex),
             game.elapsed,
           ));
-          HapticFeedback.lightImpact();
+          Sfx.instance.coin();
+          _haptic(HapticFeedback.lightImpact);
+        case "serve":
+          Sfx.instance.serve();
         case "angry":
           _popups.add(_Popup(
-            "Customer lost!",
-            const Color(0xFFE05B5B),
-            0.12 + 0.22 * max(0, e.customerIndex),
+            widget.level.endless ? "-1 life!" : "Customer lost!",
+            kBad,
+            0.10 + 0.22 * max(0, e.customerIndex),
             game.elapsed,
           ));
-          HapticFeedback.heavyImpact();
+          Sfx.instance.angry();
+          _haptic(HapticFeedback.heavyImpact);
         case "burnt":
           _showHint(e.message);
-          HapticFeedback.mediumImpact();
+          Sfx.instance.burnt();
+          _haptic(HapticFeedback.mediumImpact);
+        case "ready":
+          Sfx.instance.ding();
+        case "trash":
+          Sfx.instance.trash();
         case "hint":
           _showHint(e.message);
+        case "over":
+          if (game.phase == GamePhase.won) {
+            Sfx.instance.win();
+          } else {
+            Sfx.instance.lose();
+          }
       }
     }
     _popups.removeWhere((p) => game.elapsed - p.born > 1.4);
@@ -88,10 +110,12 @@ class _KitchenScreenState extends State<KitchenScreen>
     if (game.isOver && !_recorded) {
       _recorded = true;
       widget.storage.recordResult(
+        venue: venue.id,
         levelId: widget.level.id,
         stars: game.stars,
         coins: game.coins,
         served: game.servedCustomers,
+        endless: widget.level.endless,
       );
     }
     if (mounted) setState(() {});
@@ -103,6 +127,7 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 
   void _restart() {
+    Sfx.instance.tap();
     setState(() {
       game.dispose();
       game = KitchenController(widget.level);
@@ -117,7 +142,7 @@ class _KitchenScreenState extends State<KitchenScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF23150C),
+      backgroundColor: venue.kitchenBottom,
       body: SafeArea(
         child: Stack(
           children: [
@@ -129,8 +154,7 @@ class _KitchenScreenState extends State<KitchenScreen>
                 Expanded(flex: 12, child: _kitchen()),
               ],
             ),
-            if (_hint.isNotEmpty && game.elapsed < _hintUntil)
-              _hintBanner(),
+            if (_hint.isNotEmpty && game.elapsed < _hintUntil) _hintBanner(),
             if (game.phase == GamePhase.intro) _introOverlay(),
             if (game.phase == GamePhase.paused) _pauseOverlay(),
             if (game.isOver) _resultsOverlay(),
@@ -141,14 +165,18 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 
   Widget _hud() {
+    final endless = widget.level.endless;
     final goal = widget.level.starCoins;
-    final frac = (game.coins / goal[2]).clamp(0.0, 1.0);
+    final frac = endless
+        ? 1.0
+        : (goal.isEmpty ? 0.0 : (game.coins / goal[2]).clamp(0.0, 1.0));
     return Container(
-      color: const Color(0xFF1A0F08),
+      color: Color.lerp(venue.kitchenBottom, Colors.black, 0.3),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
           _roundButton(Icons.pause_rounded, () {
+            Sfx.instance.tap();
             game.pause();
           }),
           const SizedBox(width: 10),
@@ -169,15 +197,26 @@ class _KitchenScreenState extends State<KitchenScreen>
                           fontSize: 16),
                     ),
                     const Spacer(),
-                    ...List.generate(3, (i) {
-                      return Icon(
-                        Icons.star_rounded,
-                        size: 20,
-                        color: game.coins >= goal[i]
-                            ? kAccent
-                            : Colors.white24,
-                      );
-                    }),
+                    if (endless)
+                      ...List.generate(KitchenController.endlessLives, (i) {
+                        return Icon(
+                          i < game.livesLeft
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          size: 19,
+                          color: i < game.livesLeft ? kBad : Colors.white24,
+                        );
+                      })
+                    else
+                      ...List.generate(3, (i) {
+                        return Icon(
+                          Icons.star_rounded,
+                          size: 20,
+                          color: goal.isNotEmpty && game.coins >= goal[i]
+                              ? venue.accent
+                              : Colors.white24,
+                        );
+                      }),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -195,8 +234,10 @@ class _KitchenScreenState extends State<KitchenScreen>
                       child: Container(
                         height: 8,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                              colors: [kAccentDark, kAccent]),
+                          gradient: LinearGradient(colors: [
+                            Color.lerp(venue.accent, Colors.black, 0.25)!,
+                            venue.accent,
+                          ]),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -211,15 +252,19 @@ class _KitchenScreenState extends State<KitchenScreen>
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "Level ${widget.level.id}",
+                endless
+                    ? "Endless · ${venue.name}"
+                    : "Level ${widget.level.id} · ${venue.name}",
                 style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.w700),
               ),
               Text(
-                "${game.spawned - game.servedCustomers - game.lostCustomers}"
-                " here · ${widget.level.customers - game.spawned} coming",
+                endless
+                    ? "${game.servedCustomers} served"
+                    : "${game.spawned - game.servedCustomers - game.lostCustomers}"
+                        " here · ${widget.level.customers - game.spawned} coming",
                 style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
             ],
@@ -250,53 +295,40 @@ class _KitchenScreenState extends State<KitchenScreen>
     return LayoutBuilder(builder: (context, box) {
       final w = box.maxWidth;
       final slotW = w / 4.4;
-      return Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF9AC4DB), Color(0xFFBFDDE8)],
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: CustomPaint(painter: DiningBackdropPainter(venue)),
           ),
-        ),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Back wall details: window + picture.
-            Positioned(
-              left: w * 0.06,
-              top: 8,
-              child: Container(
-                width: w * 0.2,
-                height: box.maxHeight * 0.28,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDFF1F7),
-                  borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: const Color(0xFF7B5233), width: 3),
+          // Counter along the bottom.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: box.maxHeight * 0.22,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [venue.counterTop, venue.counterBottom],
                 ),
               ),
             ),
-            // Counter along the bottom.
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: box.maxHeight * 0.22,
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF9A6B40), Color(0xFF7B5233)],
-                  ),
-                ),
-              ),
-            ),
-            for (var i = 0; i < game.customers.length; i++)
-              _customerWidget(i, box, slotW),
-            for (final p in _popups) _popupWidget(p, box),
-          ],
-        ),
+          ),
+          // Counter edge highlight.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: box.maxHeight * 0.22 - 3,
+            height: 3,
+            child: Container(color: Colors.white.withValues(alpha: 0.25)),
+          ),
+          for (var i = 0; i < game.customers.length; i++)
+            _customerWidget(i, box, slotW),
+          for (final p in _popups) _popupWidget(p, box),
+        ],
       );
     });
   }
@@ -307,15 +339,15 @@ class _KitchenScreenState extends State<KitchenScreen>
     double x;
     switch (c.phase) {
       case CustomerPhase.walkingIn:
-        x = lerpDouble2(box.maxWidth, slotX, Curves.easeOut.transform(c.walk));
+        x = _lerp(box.maxWidth, slotX, Curves.easeOut.transform(c.walk));
       case CustomerPhase.waiting:
         x = slotX;
       case CustomerPhase.leavingHappy:
       case CustomerPhase.leavingAngry:
-        x = lerpDouble2(slotX, box.maxWidth + slotW,
+        x = _lerp(slotX, box.maxWidth + slotW,
             Curves.easeIn.transform(c.walk));
     }
-    final bodyH = box.maxHeight * 0.52;
+    final bodyH = box.maxHeight * 0.54;
     final bubbleH = box.maxHeight * 0.34;
     final leaving = c.phase == CustomerPhase.leavingHappy ||
         c.phase == CustomerPhase.leavingAngry;
@@ -325,7 +357,7 @@ class _KitchenScreenState extends State<KitchenScreen>
 
     return Positioned(
       left: x,
-      bottom: box.maxHeight * 0.06 - bounce,
+      bottom: box.maxHeight * 0.05 - bounce,
       width: slotW,
       height: bodyH + bubbleH + 8,
       child: Column(
@@ -369,7 +401,6 @@ class _KitchenScreenState extends State<KitchenScreen>
             ),
           ),
           const SizedBox(height: 3),
-          // Patience bar.
           ClipRRect(
             borderRadius: BorderRadius.circular(3),
             child: SizedBox(
@@ -380,8 +411,8 @@ class _KitchenScreenState extends State<KitchenScreen>
                   FractionallySizedBox(
                     widthFactor: c.patienceFrac,
                     child: Container(
-                      color: Color.lerp(const Color(0xFFE05B5B),
-                          const Color(0xFF5FBF6E), c.patienceFrac),
+                      color: Color.lerp(
+                          kBad, kGood, c.patienceFrac),
                     ),
                   ),
                 ],
@@ -394,22 +425,23 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 
   Widget _orderItemIcon(OrderItem item, bool served) {
-    final icon = switch (item.type) {
-      ItemType.burger => CustomPaint(painter: BurgerPainter(item.stack)),
-      ItemType.fries =>
-        const CustomPaint(painter: FriesPainter(CookState.done)),
-      ItemType.drink => const CustomPaint(painter: DrinkPainter()),
+    final painter = switch (item.type) {
+      ItemType.main => mainDishPainter(venue, item.stack, finished: true),
+      ItemType.side => SidePainter(venue.id, CookState.done),
+      ItemType.drink => DrinkPainter(venue.id),
     };
     return Opacity(
       opacity: served ? 0.25 : 1,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Padding(padding: const EdgeInsets.all(1), child: icon),
+          Padding(
+            padding: const EdgeInsets.all(1),
+            child: CustomPaint(painter: painter),
+          ),
           if (served)
             const Center(
-                child:
-                    Icon(Icons.check_circle, color: Color(0xFF5FBF6E), size: 16)),
+                child: Icon(Icons.check_circle, color: kGood, size: 16)),
         ],
       ),
     );
@@ -441,11 +473,14 @@ class _KitchenScreenState extends State<KitchenScreen>
     return Container(
       height: 78,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF5E3A20), Color(0xFF4A2D18)],
+          colors: [
+            Color.lerp(venue.counterBottom, Colors.black, 0.15)!,
+            Color.lerp(venue.counterBottom, Colors.black, 0.35)!,
+          ],
         ),
       ),
       child: Row(
@@ -474,7 +509,7 @@ class _KitchenScreenState extends State<KitchenScreen>
     return GestureDetector(
       onTap: has
           ? () {
-              HapticFeedback.selectionClick();
+              _haptic(HapticFeedback.selectionClick);
               game.serveReady(i);
             }
           : null,
@@ -486,16 +521,17 @@ class _KitchenScreenState extends State<KitchenScreen>
               : Colors.black.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: has ? kAccent : Colors.white10, width: has ? 2 : 1),
+              color: has ? venue.accent : Colors.white10,
+              width: has ? 2 : 1),
         ),
         padding: const EdgeInsets.all(3),
         child: has
             ? CustomPaint(
                 painter: switch (game.ready[i].type) {
-                  ItemType.burger => BurgerPainter(game.ready[i].stack),
-                  ItemType.fries =>
-                    const FriesPainter(CookState.done) as CustomPainter,
-                  ItemType.drink => const DrinkPainter(),
+                  ItemType.main =>
+                    mainDishPainter(venue, game.ready[i].stack, finished: true),
+                  ItemType.side => SidePainter(venue.id, CookState.done),
+                  ItemType.drink => DrinkPainter(venue.id),
                 },
                 child: const SizedBox.expand(),
               )
@@ -510,24 +546,23 @@ class _KitchenScreenState extends State<KitchenScreen>
     final level = widget.level;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFF352112), Color(0xFF23150C)],
+          colors: [venue.kitchenTop, venue.kitchenBottom],
         ),
       ),
       child: Column(
         children: [
-          // Row 1: grill + fryer + drinks.
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(flex: 5, child: _grillStation()),
-                if (level.fries) ...[
+                Expanded(flex: 5, child: _processorStation()),
+                if (level.sides) ...[
                   const SizedBox(width: 8),
-                  Expanded(flex: 2, child: _fryerStation()),
+                  Expanded(flex: 2, child: _sideStation()),
                 ],
                 if (level.drinks) ...[
                   const SizedBox(width: 8),
@@ -537,14 +572,13 @@ class _KitchenScreenState extends State<KitchenScreen>
             ),
           ),
           const SizedBox(height: 8),
-          // Row 2: assembly plates + ingredient trays.
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(flex: 5, child: _assemblyStation()),
                 const SizedBox(width: 8),
-                Expanded(flex: 6, child: _trays()),
+                Expanded(flex: 7, child: _trays()),
               ],
             ),
           ),
@@ -556,9 +590,9 @@ class _KitchenScreenState extends State<KitchenScreen>
   Widget _panel(String label, Widget child) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF4A3322),
+        color: venue.panel,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF6B4A2E), width: 1.5),
+        border: Border.all(color: venue.panelBorder, width: 1.5),
       ),
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
       child: Column(
@@ -578,71 +612,97 @@ class _KitchenScreenState extends State<KitchenScreen>
     );
   }
 
-  Widget _grillStation() {
+  Widget _processorStation() {
+    final isBurger = venue.flow == VenueFlow.cookThenAssemble;
     return _panel(
-      "GRILL",
+      venue.processorLabel,
       Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Raw patty tray.
-          Expanded(
-            child: _tapTile(
-              onTap: game.tapPattyTray,
-              color: const Color(0xFFE8B4A0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: CustomPaint(
-                      painter: const PattyPainter(CookState.cooking, 0),
-                      child: const SizedBox.expand(),
+          if (isBurger) ...[
+            Expanded(
+              child: _tapTile(
+                onTap: () {
+                  if (game.tapRawTray()) Sfx.instance.sizzle();
+                },
+                color: const Color(0xFFE8B4A0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: CustomPaint(
+                        painter: const PattyPainter(CookState.cooking, 0),
+                        child: const SizedBox.expand(),
+                      ),
                     ),
-                  ),
-                  const Text("RAW",
-                      style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF7A4030))),
-                ],
+                    const Text("RAW",
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF7A4030))),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          for (var i = 0; i < game.grill.length; i++) ...[
-            Expanded(child: _grillSlot(i)),
-            if (i < game.grill.length - 1) const SizedBox(width: 6),
+            const SizedBox(width: 6),
+          ],
+          for (var i = 0; i < game.processors.length; i++) ...[
+            Expanded(child: _processorSlot(i)),
+            if (i < game.processors.length - 1) const SizedBox(width: 6),
           ],
         ],
       ),
     );
   }
 
-  Widget _grillSlot(int i) {
-    final s = game.grill[i];
-    final progress = switch (s.state) {
-      CookState.cooking => s.t / KitchenController.grillCookTime,
-      CookState.done => s.t / KitchenController.grillDoneWindow,
+  Widget _processorSlot(int i) {
+    final p = game.processors[i];
+    final progress = switch (p.state) {
+      CookState.cooking => p.t / venue.processTime,
+      CookState.done => venue.processBurnWindow > 0
+          ? p.t / venue.processBurnWindow
+          : 1.0,
       _ => 0.0,
     };
-    final barColor = switch (s.state) {
-      CookState.cooking => kAccent,
-      CookState.done => const Color(0xFF5FBF6E),
-      CookState.burnt => const Color(0xFFE05B5B),
+    final barColor = switch (p.state) {
+      CookState.cooking => venue.accent,
+      CookState.done => kGood,
+      CookState.burnt => kBad,
       CookState.empty => Colors.transparent,
     };
+    final CustomPainter painter = switch (venue.flow) {
+      VenueFlow.cookThenAssemble => PattyPainter(
+          p.state,
+          p.state == CookState.cooking ? (p.t / venue.processTime) : 1),
+      VenueFlow.assembleThenCook => PizzaPainter(p.stack,
+          state: p.state,
+          progress:
+              p.state == CookState.cooking ? p.t / venue.processTime : 1),
+      VenueFlow.assembleThenRoll => p.state == CookState.cooking
+          ? SushiRollingPainter(p.t / venue.processTime)
+          : (p.state == CookState.done
+              ? SushiPlatePainter(p.stack)
+              : const SushiAssemblyPainter([])),
+    };
     return _tapTile(
-      onTap: () => game.tapGrillSlot(i),
-      color: const Color(0xFF2B2B2B),
-      glow: s.state == CookState.done,
+      onTap: () {
+        _haptic(HapticFeedback.selectionClick);
+        final before = p.state;
+        if (game.tapProcessor(i) &&
+            before == CookState.empty &&
+            venue.flow == VenueFlow.assembleThenCook) {
+          Sfx.instance.sizzle();
+        }
+      },
+      color: venue.flow == VenueFlow.assembleThenRoll
+          ? const Color(0xFF31465A)
+          : const Color(0xFF2B2B2B),
+      glow: p.state == CookState.done,
       child: Column(
         children: [
           Expanded(
             child: CustomPaint(
-              painter: PattyPainter(
-                  s.state,
-                  s.state == CookState.cooking
-                      ? (s.t / KitchenController.grillCookTime)
-                      : 1),
+              painter: painter,
               child: const SizedBox.expand(),
             ),
           ),
@@ -663,26 +723,35 @@ class _KitchenScreenState extends State<KitchenScreen>
     );
   }
 
-  Widget _fryerStation() {
-    final f = game.fryer;
-    final progress = switch (f.state) {
-      CookState.cooking => f.t / KitchenController.fryCookTime,
-      CookState.done => f.t / KitchenController.fryDoneWindow,
+  Widget _sideStation() {
+    final s = game.side;
+    final progress = switch (s.state) {
+      CookState.cooking => s.t / venue.sideCookTime,
+      CookState.done =>
+        venue.sideBurnWindow > 0 ? s.t / venue.sideBurnWindow : 1.0,
       _ => 0.0,
     };
     return _panel(
-      "FRYER",
+      venue.sideStationLabel,
       _tapTile(
-        onTap: game.tapFryer,
+        onTap: () {
+          _haptic(HapticFeedback.selectionClick);
+          final before = s.state;
+          if (game.tapSide() && before == CookState.empty) {
+            Sfx.instance.sizzle();
+          }
+        },
         color: const Color(0xFF37474F),
-        glow: f.state == CookState.done,
+        glow: s.state == CookState.done,
         child: Column(
           children: [
             Expanded(
               child: CustomPaint(
-                painter: FriesPainter(
-                    f.state == CookState.empty ? CookState.done : f.state,
-                    progress: f.state == CookState.cooking ? progress : 1),
+                painter: SidePainter(
+                    venue.id,
+                    s.state == CookState.empty ? CookState.done : s.state,
+                    progress:
+                        s.state == CookState.cooking ? progress : 1),
                 child: const SizedBox.expand(),
               ),
             ),
@@ -695,9 +764,9 @@ class _KitchenScreenState extends State<KitchenScreen>
                   FractionallySizedBox(
                     widthFactor: progress.clamp(0.0, 1.0),
                     child: Container(
-                        color: f.state == CookState.done
-                            ? const Color(0xFF5FBF6E)
-                            : kAccent),
+                        color: s.state == CookState.done
+                            ? kGood
+                            : venue.accent),
                   ),
                 ]),
               ),
@@ -711,18 +780,21 @@ class _KitchenScreenState extends State<KitchenScreen>
   Widget _drinkStation() {
     final d = game.drink;
     final fill = switch (d.state) {
-      CookState.cooking => d.t / KitchenController.drinkFillTime,
+      CookState.cooking => d.t / venue.drinkFillTime,
       CookState.done => 1.0,
       _ => 0.0,
     };
     return _panel(
-      "DRINKS",
+      venue.drinkLabel,
       _tapTile(
-        onTap: game.tapDrink,
+        onTap: () {
+          _haptic(HapticFeedback.selectionClick);
+          game.tapDrink();
+        },
         color: const Color(0xFF31465A),
         glow: d.state == CookState.done,
         child: CustomPaint(
-          painter: DrinkPainter(fill: fill),
+          painter: DrinkPainter(venue.id, fill: fill),
           child: const SizedBox.expand(),
         ),
       ),
@@ -748,14 +820,19 @@ class _KitchenScreenState extends State<KitchenScreen>
     final a = game.assemblies[i];
     final selected = game.selectedAssembly == i && a.started;
     return GestureDetector(
-      onTap: () => game.selectAssembly(i),
+      onTap: () {
+        _haptic(HapticFeedback.selectionClick);
+        game.selectAssembly(i);
+      },
       onLongPress: a.started ? () => game.trashAssembly(i) : null,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF6EBD9),
+          color: venue.flow == VenueFlow.assembleThenRoll
+              ? const Color(0xFF3B5560)
+              : const Color(0xFFF6EBD9),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: selected ? kAccent : Colors.black26,
+            color: selected ? venue.accent : Colors.black26,
             width: selected ? 2.5 : 1,
           ),
         ),
@@ -764,21 +841,25 @@ class _KitchenScreenState extends State<KitchenScreen>
             ? Stack(
                 children: [
                   CustomPaint(
-                    painter: BurgerPainter(List.of(a.stack)),
+                    painter: mainDishPainter(venue, List.of(a.stack),
+                        state: CookState.empty),
                     child: const SizedBox.expand(),
                   ),
                   const Positioned(
                     right: 0,
                     top: 0,
                     child: Icon(Icons.delete_outline,
-                        size: 13, color: Colors.black26),
+                        size: 13, color: Colors.black38),
                   ),
                 ],
               )
-            : const Center(
-                child: Text("plate",
+            : Center(
+                child: Text(
+                    venue.flow == VenueFlow.assembleThenRoll ? "mat" : "plate",
                     style: TextStyle(
-                        color: Colors.black26,
+                        color: venue.flow == VenueFlow.assembleThenRoll
+                            ? Colors.white24
+                            : Colors.black26,
                         fontSize: 10,
                         fontWeight: FontWeight.w700)),
               ),
@@ -788,43 +869,45 @@ class _KitchenScreenState extends State<KitchenScreen>
 
   Widget _trays() {
     final level = widget.level;
-    final trayItems = <(String, Ingredient, VoidCallback)>[
-      ("BUN", Ingredient.bunBottom, () => game.tapBunTray()),
-      for (final t in level.toppings)
-        (t.label.toUpperCase(), t, () => game.tapTopping(t)),
-      ("TOP", Ingredient.bunTop, () => game.tapTopBun()),
+    final items = <Ingredient>[
+      ...venue.mandatory,
+      ...level.toppings,
+      if (venue.closer != null) venue.closer!,
     ];
     return _panel(
       "INGREDIENTS",
       Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (var i = 0; i < trayItems.length; i++) ...[
+          for (var i = 0; i < items.length; i++) ...[
             Expanded(
               child: _tapTile(
                 onTap: () {
-                  HapticFeedback.selectionClick();
-                  trayItems[i].$3();
+                  _haptic(HapticFeedback.selectionClick);
+                  Sfx.instance.tap();
+                  game.tapTray(items[i]);
                 },
-                color: const Color(0xFF5A422C),
+                color: Color.lerp(venue.panel, Colors.white, 0.12)!,
                 child: Column(
                   children: [
                     Expanded(
                       child: CustomPaint(
-                        painter: BurgerPainter([trayItems[i].$2]),
+                        painter: TrayIconPainter(items[i]),
                         child: const SizedBox.expand(),
                       ),
                     ),
-                    Text(trayItems[i].$1,
+                    Text(items[i].label.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
                         style: const TextStyle(
                             color: Colors.white54,
-                            fontSize: 8,
+                            fontSize: 7.5,
                             fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
             ),
-            if (i < trayItems.length - 1) const SizedBox(width: 5),
+            if (i < items.length - 1) const SizedBox(width: 4),
           ],
         ],
       ),
@@ -845,7 +928,7 @@ class _KitchenScreenState extends State<KitchenScreen>
         boxShadow: glow
             ? [
                 BoxShadow(
-                    color: const Color(0xFF5FBF6E).withValues(alpha: 0.8),
+                    color: kGood.withValues(alpha: 0.8),
                     blurRadius: 10,
                     spreadRadius: 1)
               ]
@@ -898,26 +981,28 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 
   Widget _card(List<Widget> children) {
-    return Container(
-      width: 320,
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2C3E50),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: kAccent.withValues(alpha: 0.5), width: 2),
+    return SingleChildScrollView(
+      child: Container(
+        width: 320,
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2C3E50),
+          borderRadius: BorderRadius.circular(22),
+          border:
+              Border.all(color: venue.accent.withValues(alpha: 0.5), width: 2),
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: children),
       ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: children),
     );
   }
 
-  Widget _bigButton(String label, VoidCallback onTap,
-      {Color color = kAccent}) {
+  Widget _bigButton(String label, VoidCallback onTap, {Color? color}) {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: color,
+          backgroundColor: color ?? venue.accent,
           foregroundColor: Colors.black87,
           padding: const EdgeInsets.symmetric(vertical: 12),
           textStyle:
@@ -933,8 +1018,9 @@ class _KitchenScreenState extends State<KitchenScreen>
 
   Widget _introOverlay() {
     final level = widget.level;
+    final endless = level.endless;
     return _scrim(_card([
-      Text("LEVEL ${level.id}",
+      Text(endless ? venue.name.toUpperCase() : "LEVEL ${level.id}",
           style: const TextStyle(
               color: Colors.white54,
               fontWeight: FontWeight.w800,
@@ -949,33 +1035,57 @@ class _KitchenScreenState extends State<KitchenScreen>
           textAlign: TextAlign.center,
           style: const TextStyle(color: Colors.white70, fontSize: 14)),
       const SizedBox(height: 14),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (i) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              children: [
-                Icon(Icons.star_rounded, color: kAccent, size: 22 + i * 4.0),
-                Text("${level.starCoins[i]}",
-                    style: const TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12)),
-              ],
-            ),
-          );
-        }),
-      ),
+      if (endless)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.favorite_rounded, color: kBad, size: 22),
+            const Icon(Icons.favorite_rounded, color: kBad, size: 22),
+            const Icon(Icons.favorite_rounded, color: kBad, size: 22),
+            const SizedBox(width: 10),
+            Text("Best: ${widget.storage.endlessBest(venue.id)}",
+                style: const TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.w700)),
+          ],
+        )
+      else
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (i) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                children: [
+                  Icon(Icons.star_rounded,
+                      color: venue.accent, size: 22 + i * 4.0),
+                  Text("${level.starCoins[i]}",
+                      style: const TextStyle(
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12)),
+                ],
+              ),
+            );
+          }),
+        ),
       const SizedBox(height: 6),
-      Text("${level.customers} customers",
-          style: const TextStyle(color: Colors.white38, fontSize: 12)),
+      if (!endless)
+        Text("${level.customers} customers",
+            style: const TextStyle(color: Colors.white38, fontSize: 12)),
       const SizedBox(height: 16),
       _bigButton("START COOKING", () {
-        HapticFeedback.mediumImpact();
+        _haptic(HapticFeedback.mediumImpact);
+        Sfx.instance.tap();
         game.start();
-        if (widget.level.id == 1) {
-          _showHint("Tap the RAW tray to grill a patty, and BUN to start a plate!");
+        if (!endless && widget.level.id == 1) {
+          _showHint(switch (venue.flow) {
+            VenueFlow.cookThenAssemble =>
+              "Tap RAW to grill a patty, and BUN to start a plate!",
+            VenueFlow.assembleThenCook =>
+              "Tap DOUGH, SAUCE and CHEESE, then tap the oven to bake!",
+            VenueFlow.assembleThenRoll =>
+              "Tap NORI, RICE and a filling, then tap a mat to roll!",
+          });
         }
       }),
       const SizedBox(height: 8),
@@ -996,7 +1106,10 @@ class _KitchenScreenState extends State<KitchenScreen>
               fontSize: 24,
               letterSpacing: 2)),
       const SizedBox(height: 18),
-      _bigButton("RESUME", game.resume),
+      _bigButton("RESUME", () {
+        Sfx.instance.tap();
+        game.resume();
+      }),
       const SizedBox(height: 10),
       _bigButton("RESTART", _restart, color: const Color(0xFF8AB4D8)),
       const SizedBox(height: 10),
@@ -1009,52 +1122,75 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 
   Widget _resultsOverlay() {
+    final endless = widget.level.endless;
     final won = game.phase == GamePhase.won;
-    final nextExists = widget.level.id < kLevels.length;
+    final levels = levelsFor(venue.id);
+    final nextExists = !endless && widget.level.id < levels.length;
+    final best = widget.storage.endlessBest(venue.id);
     return _scrim(_card([
-      Text(won ? "LEVEL COMPLETE!" : "OUT OF LUCK...",
+      Text(
+          endless
+              ? "SHIFT OVER!"
+              : (won ? "LEVEL COMPLETE!" : "OUT OF LUCK..."),
           style: TextStyle(
-              color: won ? kAccent : const Color(0xFFE05B5B),
+              color: won || endless ? venue.accent : kBad,
               fontWeight: FontWeight.w900,
               fontSize: 22,
               letterSpacing: 1)),
       const SizedBox(height: 12),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(3, (i) {
-          final earned = i < game.stars;
-          return TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: Duration(milliseconds: 350 + i * 250),
-            curve: Curves.elasticOut,
-            builder: (context, v, child) =>
-                Transform.scale(scale: v, child: child),
-            child: Icon(
-              Icons.star_rounded,
-              size: i == 1 ? 56 : 44,
-              color: earned ? kAccent : Colors.white12,
-            ),
-          );
-        }),
-      ),
+      if (endless) ...[
+        Text("${game.coins}",
+            style: TextStyle(
+                color: venue.accent,
+                fontWeight: FontWeight.w900,
+                fontSize: 44)),
+        Text(
+            game.coins >= best && game.coins > 0
+                ? "NEW BEST!"
+                : "Best: $best",
+            style: const TextStyle(
+                color: Colors.white70, fontWeight: FontWeight.w700)),
+      ] else
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (i) {
+            final earned = i < game.stars;
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: Duration(milliseconds: 350 + i * 250),
+              curve: Curves.elasticOut,
+              builder: (context, v, child) =>
+                  Transform.scale(scale: v, child: child),
+              child: Icon(
+                Icons.star_rounded,
+                size: i == 1 ? 56 : 44,
+                color: earned ? venue.accent : Colors.white12,
+              ),
+            );
+          }),
+        ),
       const SizedBox(height: 10),
       _statLine("Coins earned", "${game.coins}"),
       _statLine("Tips", "${game.tips}"),
-      _statLine("Customers served",
-          "${game.servedCustomers} / ${widget.level.customers}"),
+      _statLine(
+          "Customers served",
+          endless
+              ? "${game.servedCustomers}"
+              : "${game.servedCustomers} / ${widget.level.customers}"),
       if (game.lostCustomers > 0)
         _statLine("Walked out", "${game.lostCustomers}"),
       const SizedBox(height: 16),
       if (won && nextExists)
         _bigButton("NEXT LEVEL", () {
+          Sfx.instance.tap();
           Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: (_) => KitchenScreen(
-                level: kLevels[widget.level.id], storage: widget.storage),
+                level: levels[widget.level.id], storage: widget.storage),
           ));
         }),
       if (won && nextExists) const SizedBox(height: 10),
-      _bigButton(won ? "PLAY AGAIN" : "TRY AGAIN", _restart,
-          color: won ? const Color(0xFF8AB4D8) : kAccent),
+      _bigButton(won || endless ? "PLAY AGAIN" : "TRY AGAIN", _restart,
+          color: won || endless ? const Color(0xFF8AB4D8) : venue.accent),
       const SizedBox(height: 10),
       TextButton(
         onPressed: () => Navigator.of(context).pop(),
@@ -1083,4 +1219,4 @@ class _KitchenScreenState extends State<KitchenScreen>
   }
 }
 
-double lerpDouble2(double a, double b, double t) => a + (b - a) * t;
+double _lerp(double a, double b, double t) => a + (b - a) * t;

@@ -6,38 +6,40 @@ import "models.dart";
 
 enum CookState { empty, cooking, done, burnt }
 
-class GrillSlot {
+/// A processor slot: a grill spot (burger), an oven mouth (pizza) or a
+/// rolling mat (sushi). For assemble-then-process venues it carries the
+/// dish's stack while it cooks.
+class ProcessorSlot {
+  CookState state = CookState.empty;
+  double t = 0;
+  List<Ingredient> stack = const [];
+}
+
+class SideStation {
   CookState state = CookState.empty;
   double t = 0;
 }
 
-class FryerState {
-  CookState state = CookState.empty;
-  double t = 0;
-}
-
-class DrinkState {
+class DrinkStation {
   CookState state = CookState.empty; // cooking = filling
   double t = 0;
 }
 
-/// An in-progress burger on an assembly plate.
+/// An in-progress dish on an assembly plate.
 class Assembly {
   final List<Ingredient> stack = [];
   bool get started => stack.isNotEmpty;
-  bool get complete => stack.isNotEmpty && stack.last == Ingredient.bunTop;
-  bool get hasPatty => stack.contains(Ingredient.patty);
 }
 
 /// A finished item sitting on the pass, waiting to be served.
 class ReadyItem {
   final ItemType type;
   final List<Ingredient> stack;
-  ReadyItem.burger(List<Ingredient> s)
-      : type = ItemType.burger,
+  ReadyItem.main(List<Ingredient> s)
+      : type = ItemType.main,
         stack = List.of(s);
-  ReadyItem.fries()
-      : type = ItemType.fries,
+  ReadyItem.side()
+      : type = ItemType.side,
         stack = const [];
   ReadyItem.drink()
       : type = ItemType.drink,
@@ -46,9 +48,9 @@ class ReadyItem {
 
 enum GamePhase { intro, running, paused, won, lost }
 
-/// A transient event the UI can animate (coin popups, serve flights...).
+/// A transient event the UI can animate or voice (popups, sounds...).
 class GameEvent {
-  final String kind; // serve | coin | angry | burnt | hint
+  final String kind; // serve | coin | angry | burnt | hint | ready | tap
   final String message;
   final int amount;
   final int customerIndex;
@@ -56,29 +58,27 @@ class GameEvent {
       {this.message = "", this.amount = 0, this.customerIndex = -1});
 }
 
-/// All simulation state and rules for one level. UI listens and repaints.
+/// All simulation state and rules for one level (or an endless run).
+/// The UI listens and repaints; it never mutates state directly.
 class KitchenController extends ChangeNotifier {
-  static const double grillCookTime = 5.0;
-  static const double grillDoneWindow = 6.0;
-  static const double fryCookTime = 6.0;
-  static const double fryDoneWindow = 7.0;
-  static const double drinkFillTime = 2.5;
   static const int maxWaiting = 4;
   static const int maxReady = 3;
+  static const int endlessLives = 3;
 
   final LevelDef level;
+  final VenueDef venue;
   final Random _rng;
 
-  final List<GrillSlot> grill;
-  final FryerState fryer = FryerState();
-  final DrinkState drink = DrinkState();
+  final List<ProcessorSlot> processors;
+  final SideStation side = SideStation();
+  final DrinkStation drink = DrinkStation();
   final List<Assembly> assemblies = [Assembly(), Assembly()];
   int selectedAssembly = 0;
   final List<ReadyItem> ready = [];
 
   final List<Customer> customers = [];
   int spawned = 0;
-  double _spawnTimer = 1.5;
+  double _spawnTimer = 2.0;
 
   GamePhase phase = GamePhase.intro;
   int coins = 0;
@@ -91,19 +91,32 @@ class KitchenController extends ChangeNotifier {
   final List<GameEvent> events = [];
 
   KitchenController(this.level, {int? seed})
-      : _rng = Random(seed),
-        grill = List.generate(level.grillSlots, (_) => GrillSlot());
+      : venue = level.venue,
+        _rng = Random(seed),
+        processors =
+            List.generate(level.processorSlots, (_) => ProcessorSlot());
+
+  // ------------------------------------------------------------- scoring
 
   int get stars {
+    if (level.endless || level.starCoins.isEmpty) return 0;
     if (coins >= level.starCoins[2]) return 3;
     if (coins >= level.starCoins[1]) return 2;
     if (coins >= level.starCoins[0]) return 1;
     return 0;
   }
 
-  int get goalCoins => level.starCoins[0];
+  int get livesLeft =>
+      level.endless ? (endlessLives - lostCustomers).clamp(0, endlessLives) : 0;
 
   bool get isOver => phase == GamePhase.won || phase == GamePhase.lost;
+
+  // Endless difficulty ramp: 0 at start -> 1 after ~3.5 minutes.
+  double get _ramp => level.endless ? (elapsed / 210).clamp(0.0, 1.0) : 0;
+
+  double get _spawnGapMin => level.spawnGapMin - 3.6 * _ramp;
+  double get _spawnGapMax => level.spawnGapMax - 4.5 * _ramp;
+  double get _patiencePerItem => level.patiencePerItem - 14 * _ramp;
 
   void start() {
     if (phase == GamePhase.intro) {
@@ -131,7 +144,7 @@ class KitchenController extends ChangeNotifier {
     if (events.length > 24) events.removeAt(0);
   }
 
-  /// Pull pending UI events (popups etc). The UI drains this every frame.
+  /// Pull pending UI events (popups, sounds). The UI drains this every frame.
   List<GameEvent> drainEvents() {
     if (events.isEmpty) return const [];
     final out = List<GameEvent>.of(events);
@@ -145,29 +158,45 @@ class KitchenController extends ChangeNotifier {
     if (phase != GamePhase.running) return;
     elapsed += dt;
 
-    for (final s in grill) {
-      _advanceCook(s.state, s.t + dt, grillCookTime, grillDoneWindow,
-          (st, t) {
-        s.state = st;
-        s.t = t;
-      }, whenBurnt: () => _emit(GameEvent("burnt", message: "A patty burnt!")));
+    for (final p in processors) {
+      _advance(
+        p.state,
+        p.t + dt,
+        venue.processTime,
+        venue.processBurnWindow,
+        (st, t) {
+          p.state = st;
+          p.t = t;
+          if (st == CookState.done && t == 0) {
+            _emit(GameEvent("ready"));
+          }
+        },
+        whenBurnt: () {
+          _emit(GameEvent("burnt",
+              message: "The ${_processedName()} burnt!"));
+        },
+      );
     }
-    if (fryer.state != CookState.empty) {
-      _advanceCook(fryer.state, fryer.t + dt, fryCookTime, fryDoneWindow,
-          (st, t) {
-        fryer.state = st;
-        fryer.t = t;
-      }, whenBurnt: () => _emit(GameEvent("burnt", message: "Fries burnt!")));
+    if (side.state != CookState.empty) {
+      _advance(side.state, side.t + dt, venue.sideCookTime,
+          venue.sideBurnWindow, (st, t) {
+        side.state = st;
+        side.t = t;
+        if (st == CookState.done && t == 0) _emit(GameEvent("ready"));
+      },
+          whenBurnt: () => _emit(GameEvent("burnt",
+              message: "The ${venue.sideLabel.toLowerCase()} burnt!")));
     }
     if (drink.state == CookState.cooking) {
       drink.t += dt;
-      if (drink.t >= drinkFillTime) {
+      if (drink.t >= venue.drinkFillTime) {
         drink.state = CookState.done;
         drink.t = 0;
+        _emit(GameEvent("ready"));
       }
     }
 
-    // Customer walk animations.
+    // Customer walk animations + patience.
     for (final c in customers) {
       switch (c.phase) {
         case CustomerPhase.walkingIn:
@@ -199,31 +228,41 @@ class KitchenController extends ChangeNotifier {
       _spawnTimer -= dt;
       if (_spawnTimer <= 0) {
         _spawnCustomer();
-        _spawnTimer = level.spawnGapMin +
-            _rng.nextDouble() * (level.spawnGapMax - level.spawnGapMin);
+        final gapMin = max(2.5, _spawnGapMin);
+        final gapMax = max(gapMin + 0.5, _spawnGapMax);
+        _spawnTimer = gapMin + _rng.nextDouble() * (gapMax - gapMin);
       }
     }
 
-    // End of level.
-    if (spawned >= level.customers && customers.isEmpty) {
+    // End conditions.
+    if (level.endless) {
+      if (lostCustomers >= endlessLives) {
+        phase = GamePhase.lost;
+        _emit(GameEvent("over"));
+      }
+    } else if (spawned >= level.customers && customers.isEmpty) {
       phase = stars >= 1 ? GamePhase.won : GamePhase.lost;
+      _emit(GameEvent("over"));
     }
 
     notifyListeners();
   }
 
-  void _advanceCook(CookState state, double t, double cookTime,
-      double doneWindow, void Function(CookState, double) set,
+  String _processedName() => switch (venue.flow) {
+        VenueFlow.cookThenAssemble => "patty",
+        VenueFlow.assembleThenCook => venue.mainLabel,
+        VenueFlow.assembleThenRoll => venue.mainLabel,
+      };
+
+  void _advance(CookState state, double t, double cookTime, double burnWindow,
+      void Function(CookState, double) set,
       {required VoidCallback whenBurnt}) {
     switch (state) {
       case CookState.cooking:
-        if (t >= cookTime) {
-          set(CookState.done, 0);
-        } else {
-          set(CookState.cooking, t);
-        }
+        set(t >= cookTime ? CookState.done : CookState.cooking,
+            t >= cookTime ? 0 : t);
       case CookState.done:
-        if (t >= doneWindow) {
+        if (burnWindow > 0 && t >= burnWindow) {
           set(CookState.burnt, 0);
           whenBurnt();
         } else {
@@ -238,23 +277,53 @@ class KitchenController extends ChangeNotifier {
   // ------------------------------------------------------------- customers
 
   void _spawnCustomer() {
-    final items = <OrderItem>[];
-    final patties =
-        _rng.nextDouble() < level.burgerTwoPattyChance ? 2 : 1;
-    final available = List<Ingredient>.of(level.toppings)..shuffle(_rng);
-    final nToppings = level.toppings.isEmpty
-        ? 0
-        : _rng.nextInt(level.maxToppingsPerBurger + 1);
-    final toppings = available.take(nToppings).toList()
-      ..sort((a, b) => a.index - b.index);
-    items.add(OrderItem.burger([
-      Ingredient.bunBottom,
-      for (var i = 0; i < patties; i++) Ingredient.patty,
-      ...toppings,
-      Ingredient.bunTop,
-    ]));
-    if (level.fries && _rng.nextDouble() < level.friesChance) {
-      items.add(const OrderItem.fries());
+    final heavy = _rng.nextDouble() < level.heavyChance;
+    final stack = <Ingredient>[];
+
+    switch (venue.flow) {
+      case VenueFlow.cookThenAssemble: // burger
+        final available = List<Ingredient>.of(level.toppings)..shuffle(_rng);
+        final nTop = level.toppings.isEmpty
+            ? 0
+            : _rng.nextInt(level.maxToppingsPerMain + 1);
+        final toppings = available.take(nTop).toList()
+          ..sort((a, b) => a.index - b.index);
+        stack
+          ..add(Ingredient.bunBottom)
+          ..add(Ingredient.patty);
+        if (heavy) stack.add(Ingredient.patty);
+        stack
+          ..addAll(toppings)
+          ..add(Ingredient.bunTop);
+      case VenueFlow.assembleThenCook: // pizza
+        final available = List<Ingredient>.of(level.toppings)..shuffle(_rng);
+        var nTop = level.toppings.isEmpty
+            ? 0
+            : _rng.nextInt(level.maxToppingsPerMain + 1);
+        if (heavy && level.toppings.isNotEmpty) {
+          nTop = level.maxToppingsPerMain;
+        }
+        final toppings = available.take(nTop).toList()
+          ..sort((a, b) => a.index - b.index);
+        stack
+          ..addAll(venue.mandatory)
+          ..addAll(toppings);
+      case VenueFlow.assembleThenRoll: // sushi
+        final available = List<Ingredient>.of(level.toppings)..shuffle(_rng);
+        final nFill =
+            (heavy && level.maxToppingsPerMain >= 2 && available.length >= 2)
+                ? 2
+                : 1;
+        final fillings = available.take(nFill).toList()
+          ..sort((a, b) => a.index - b.index);
+        stack
+          ..addAll(venue.mandatory)
+          ..addAll(fillings);
+    }
+
+    final items = <OrderItem>[OrderItem.main(stack)];
+    if (level.sides && _rng.nextDouble() < level.sideChance) {
+      items.add(const OrderItem.side());
     }
     if (level.drinks && _rng.nextDouble() < level.drinkChance) {
       items.add(const OrderItem.drink());
@@ -263,107 +332,189 @@ class KitchenController extends ChangeNotifier {
     customers.add(Customer(
       seed: _rng.nextInt(1 << 30),
       items: items,
-      patienceTotal: level.patiencePerItem * items.length,
+      patienceTotal: max(12.0, _patiencePerItem) * items.length,
     ));
     spawned++;
   }
 
   // ---------------------------------------------------------------- inputs
 
-  /// Tap the raw patty tray: put a patty on the first free grill slot.
-  bool tapPattyTray() {
-    if (phase != GamePhase.running) return false;
-    for (final s in grill) {
-      if (s.state == CookState.empty) {
-        s.state = CookState.cooking;
-        s.t = 0;
-        notifyListeners();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /// Tap a grill slot: collect a done patty onto the selected assembly,
-  /// or discard a burnt one.
-  bool tapGrillSlot(int i) {
-    if (phase != GamePhase.running) return false;
-    final s = grill[i];
-    if (s.state == CookState.burnt) {
-      s.state = CookState.empty;
-      s.t = 0;
-      notifyListeners();
-      return true;
-    }
-    if (s.state == CookState.done) {
-      final a = _targetAssembly();
-      if (a == null || !a.started || a.complete) {
-        _emit(GameEvent("hint", message: "Start with a bun first!"));
-        return false;
-      }
-      a.stack.add(Ingredient.patty);
-      s.state = CookState.empty;
-      s.t = 0;
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
+  /// The plate the player is working on: the selected one if it has a
+  /// dish started, otherwise the first started plate.
   Assembly? _targetAssembly() {
-    final sel = assemblies[selectedAssembly];
-    if (sel.started && !sel.complete) return sel;
+    if (assemblies[selectedAssembly].started) {
+      return assemblies[selectedAssembly];
+    }
     for (final a in assemblies) {
-      if (a.started && !a.complete) return a;
+      if (a.started) return a;
     }
     return null;
   }
 
-  /// Tap the bun tray: start a burger on the first empty plate.
-  bool tapBunTray() {
-    if (phase != GamePhase.running) return false;
-    for (var i = 0; i < assemblies.length; i++) {
-      if (!assemblies[i].started) {
-        assemblies[i].stack.add(Ingredient.bunBottom);
-        selectedAssembly = i;
+  /// Burger only: put a raw patty on the first free grill slot.
+  bool tapRawTray() {
+    if (phase != GamePhase.running ||
+        venue.flow != VenueFlow.cookThenAssemble) {
+      return false;
+    }
+    for (final p in processors) {
+      if (p.state == CookState.empty) {
+        p.state = CookState.cooking;
+        p.t = 0;
+        p.stack = const [];
         notifyListeners();
         return true;
       }
     }
-    _emit(GameEvent("hint", message: "Both plates are busy!"));
+    _emit(GameEvent("hint", message: "The grill is full!"));
     return false;
   }
 
-  bool tapTopping(Ingredient topping) {
+  /// Tap a processor slot. Behaviour depends on the venue flow.
+  bool tapProcessor(int i) {
     if (phase != GamePhase.running) return false;
+    final p = processors[i];
+
+    if (p.state == CookState.burnt) {
+      p.state = CookState.empty;
+      p.t = 0;
+      p.stack = const [];
+      notifyListeners();
+      return true;
+    }
+
+    switch (venue.flow) {
+      case VenueFlow.cookThenAssemble:
+        // Collect a done patty onto the working assembly.
+        if (p.state != CookState.done) return false;
+        final a = _targetAssembly();
+        if (a == null) {
+          _emit(GameEvent("hint", message: "Start with a bun first!"));
+          return false;
+        }
+        a.stack.add(venue.cookedComponent!);
+        p.state = CookState.empty;
+        p.t = 0;
+        notifyListeners();
+        return true;
+
+      case VenueFlow.assembleThenCook:
+      case VenueFlow.assembleThenRoll:
+        if (p.state == CookState.done) {
+          if (ready.length >= maxReady) {
+            _emit(GameEvent("hint", message: "The pass is full — serve up!"));
+            return false;
+          }
+          ready.add(ReadyItem.main(p.stack));
+          p.state = CookState.empty;
+          p.t = 0;
+          p.stack = const [];
+          notifyListeners();
+          return true;
+        }
+        if (p.state == CookState.empty) {
+          final a = _targetAssembly();
+          if (a == null || !_assemblyProcessable(a)) {
+            _emit(GameEvent("hint",
+                message: venue.flow == VenueFlow.assembleThenCook
+                    ? "Build dough, sauce and cheese first!"
+                    : "A roll needs nori, rice and a filling!"));
+            return false;
+          }
+          p.stack = List.of(a.stack);
+          p.state = CookState.cooking;
+          p.t = 0;
+          a.stack.clear();
+          notifyListeners();
+          return true;
+        }
+        return false;
+    }
+  }
+
+  bool _assemblyProcessable(Assembly a) =>
+      a.stack.length > venue.mandatory.length ||
+      (a.stack.length == venue.mandatory.length &&
+          venue.flow == VenueFlow.assembleThenCook);
+
+  /// Tap an ingredient tray (any mandatory base, topping, or the closer).
+  bool tapTray(Ingredient ing) {
+    if (phase != GamePhase.running) return false;
+
+    // Closing tray (burger top bun) finishes the dish onto the pass.
+    if (ing == venue.closer) return _tapCloser();
+
+    // Base ingredient that starts a dish.
+    if (ing == venue.mandatory.first) {
+      for (var i = 0; i < assemblies.length; i++) {
+        if (!assemblies[i].started) {
+          assemblies[i].stack.add(ing);
+          selectedAssembly = i;
+          notifyListeners();
+          return true;
+        }
+      }
+      _emit(GameEvent("hint", message: "Both plates are busy!"));
+      return false;
+    }
+
     final a = _targetAssembly();
     if (a == null) {
-      _emit(GameEvent("hint", message: "Start with a bun first!"));
+      _emit(GameEvent("hint",
+          message: "Start with ${venue.mandatory.first.label.toLowerCase()} first!"));
       return false;
     }
-    if (!a.hasPatty) {
-      _emit(GameEvent("hint", message: "Add a grilled patty first!"));
+
+    // Later mandatory ingredients must follow canonical order.
+    final mi = venue.mandatory.indexOf(ing);
+    if (mi > 0) {
+      if (a.stack.length != mi) {
+        _emit(GameEvent("hint",
+            message: "Add ${venue.mandatory[a.stack.length.clamp(0, venue.mandatory.length - 1)].label.toLowerCase()} next!"));
+        return false;
+      }
+      a.stack.add(ing);
+      notifyListeners();
+      return true;
+    }
+
+    // Optional toppings need the full mandatory base (and, for burgers,
+    // a cooked patty) underneath.
+    if (!_baseComplete(a)) {
+      _emit(GameEvent("hint",
+          message: venue.flow == VenueFlow.cookThenAssemble
+              ? "Add a grilled patty first!"
+              : "Finish the base first!"));
       return false;
     }
-    a.stack.add(topping);
+    a.stack.add(ing);
     notifyListeners();
     return true;
   }
 
-  /// Tap the top-bun tray: close the burger and move it to the pass.
-  bool tapTopBun() {
-    if (phase != GamePhase.running) return false;
+  bool _baseComplete(Assembly a) {
+    switch (venue.flow) {
+      case VenueFlow.cookThenAssemble:
+        return a.stack.contains(venue.cookedComponent);
+      case VenueFlow.assembleThenCook:
+      case VenueFlow.assembleThenRoll:
+        return a.stack.length >= venue.mandatory.length;
+    }
+  }
+
+  bool _tapCloser() {
     final a = _targetAssembly();
-    if (a == null || !a.hasPatty) {
-      _emit(GameEvent("hint", message: "The burger needs a patty!"));
+    if (a == null || !_baseComplete(a)) {
+      _emit(GameEvent("hint",
+          message: "The ${venue.mainLabel} needs a patty!"));
       return false;
     }
     if (ready.length >= maxReady) {
-      _emit(GameEvent("hint", message: "The pass is full — serve items!"));
+      _emit(GameEvent("hint", message: "The pass is full — serve up!"));
       return false;
     }
-    a.stack.add(Ingredient.bunTop);
-    ready.add(ReadyItem.burger(a.stack));
+    a.stack.add(venue.closer!);
+    ready.add(ReadyItem.main(a.stack));
     a.stack.clear();
     notifyListeners();
     return true;
@@ -377,30 +528,31 @@ class KitchenController extends ChangeNotifier {
   void trashAssembly(int i) {
     if (phase != GamePhase.running) return;
     assemblies[i].stack.clear();
+    _emit(GameEvent("trash"));
     notifyListeners();
   }
 
-  bool tapFryer() {
+  bool tapSide() {
     if (phase != GamePhase.running) return false;
-    switch (fryer.state) {
+    switch (side.state) {
       case CookState.empty:
-        fryer.state = CookState.cooking;
-        fryer.t = 0;
+        side.state = CookState.cooking;
+        side.t = 0;
         notifyListeners();
         return true;
       case CookState.burnt:
-        fryer.state = CookState.empty;
-        fryer.t = 0;
+        side.state = CookState.empty;
+        side.t = 0;
         notifyListeners();
         return true;
       case CookState.done:
         if (ready.length >= maxReady) {
-          _emit(GameEvent("hint", message: "The pass is full — serve items!"));
+          _emit(GameEvent("hint", message: "The pass is full — serve up!"));
           return false;
         }
-        ready.add(ReadyItem.fries());
-        fryer.state = CookState.empty;
-        fryer.t = 0;
+        ready.add(ReadyItem.side());
+        side.state = CookState.empty;
+        side.t = 0;
         notifyListeners();
         return true;
       case CookState.cooking:
@@ -418,7 +570,7 @@ class KitchenController extends ChangeNotifier {
         return true;
       case CookState.done:
         if (ready.length >= maxReady) {
-          _emit(GameEvent("hint", message: "The pass is full — serve items!"));
+          _emit(GameEvent("hint", message: "The pass is full — serve up!"));
           return false;
         }
         ready.add(ReadyItem.drink());
@@ -440,20 +592,22 @@ class KitchenController extends ChangeNotifier {
     for (var ci = 0; ci < customers.length; ci++) {
       final c = customers[ci];
       if (c.phase != CustomerPhase.waiting) continue;
-      final wi = item.type == ItemType.burger
-          ? c.wantsBurgerIndex(item.stack)
+      final wi = item.type == ItemType.main
+          ? c.wantsMainIndex(item.stack)
           : c.wantsIndex(item.type);
       if (wi < 0) continue;
 
       c.served[wi] = true;
-      final price = c.items[wi].price;
+      final price = c.items[wi].price(venue);
       coins += price;
       _emit(GameEvent("coin",
           amount: price, customerIndex: ci, message: "+$price"));
 
       if (c.complete) {
         combo = min(combo + 1, 5);
-        final tip = c.patienceFrac > 0.55 ? 2 + combo : (c.patienceFrac > 0.25 ? 1 : 0);
+        final tip = c.patienceFrac > 0.55
+            ? 2 + combo
+            : (c.patienceFrac > 0.25 ? 1 : 0);
         if (tip > 0) {
           coins += tip;
           tips += tip;
@@ -476,6 +630,7 @@ class KitchenController extends ChangeNotifier {
   void trashReady(int readyIndex) {
     if (phase != GamePhase.running || readyIndex >= ready.length) return;
     ready.removeAt(readyIndex);
+    _emit(GameEvent("trash"));
     notifyListeners();
   }
 }
