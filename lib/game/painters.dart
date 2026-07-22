@@ -1686,30 +1686,8 @@ class DiningBackdropPainter extends CustomPainter {
             const Radius.circular(3)),
         Paint()..color = venue.accent.withValues(alpha: 0.75));
 
-    // Menu board between window and shelf.
-    final board = Rect.fromLTWH(w * 0.40, h * 0.08, w * 0.22, h * 0.20);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(board.inflate(3), const Radius.circular(6)),
-        Paint()..color = const Color(0xFF5E4030));
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(board, const Radius.circular(4)),
-        Paint()..color = const Color(0xFF2E3830));
-    final chalk = Paint()
-      ..color = Colors.white.withValues(alpha: 0.65)
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-    for (var i = 0; i < 3; i++) {
-      canvas.drawLine(
-          Offset(board.left + board.width * 0.15,
-              board.top + board.height * (0.3 + 0.22 * i)),
-          Offset(board.right - board.width * (0.15 + 0.1 * (i % 2)),
-              board.top + board.height * (0.3 + 0.22 * i)),
-          chalk);
-    }
-    canvas.drawCircle(
-        Offset(board.left + board.width * 0.5, board.top + board.height * 0.14),
-        3,
-        Paint()..color = venue.accent);
+    // Neon wall sign between window and shelf: WORLD CRUISE ACADEMY.
+    _neonSign(canvas, Rect.fromLTWH(w * 0.345, h * 0.06, w * 0.34, h * 0.30));
 
     // String lights across the top.
     final wirePaint = Paint()
@@ -1741,6 +1719,97 @@ class DiningBackdropPainter extends CustomPainter {
             ..color = bulbColors[i]
             ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5));
     }
+  }
+
+  static const Color _neonCyan = Color(0xFF35E0F2);
+  static const Color _neonPink = Color(0xFFFF4FA8);
+
+  /// Wall-mounted neon sign: dark backing board, glowing tube border and
+  /// three stacked glowing words.
+  void _neonSign(Canvas canvas, Rect sign) {
+    // Backing board with mounting screws.
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            sign.inflate(3).translate(0, 3), const Radius.circular(12)),
+        Paint()..color = Colors.black.withValues(alpha: 0.25));
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(sign.inflate(3), const Radius.circular(12)),
+        Paint()..color = const Color(0xFF12151D));
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(sign, const Radius.circular(10)),
+        Paint()
+          ..shader = _vGrad(sign,
+              [const Color(0xFF1B2030), const Color(0xFF11131B)]));
+    final screw = Paint()..color = const Color(0xFF5A616E);
+    for (final corner in [
+      sign.topLeft.translate(6, 6),
+      sign.topRight.translate(-6, 6),
+      sign.bottomLeft.translate(6, -6),
+      sign.bottomRight.translate(-6, -6),
+    ]) {
+      canvas.drawCircle(corner, 1.8, screw);
+    }
+
+    // Neon tube border: soft glow pass, then bright core.
+    final tubeRect = RRect.fromRectAndRadius(
+        sign.deflate(sign.height * 0.045), const Radius.circular(8));
+    canvas.drawRRect(
+        tubeRect,
+        Paint()
+          ..color = _neonCyan.withValues(alpha: 0.55)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sign.height * 0.045
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5));
+    canvas.drawRRect(
+        tubeRect,
+        Paint()
+          ..color = Color.lerp(_neonCyan, Colors.white, 0.55)!
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sign.height * 0.018);
+
+    // Stacked glowing words.
+    final lineH = sign.height * 0.26;
+    final fontSize = sign.height * 0.185;
+    _neonWord(canvas, "WORLD",
+        Offset(sign.center.dx, sign.top + sign.height * 0.26),
+        fontSize, _neonCyan, maxWidth: sign.width * 0.82);
+    _neonWord(canvas, "CRUISE",
+        Offset(sign.center.dx, sign.top + sign.height * 0.26 + lineH),
+        fontSize, _neonPink, maxWidth: sign.width * 0.82);
+    _neonWord(canvas, "ACADEMY",
+        Offset(sign.center.dx, sign.top + sign.height * 0.26 + 2 * lineH),
+        fontSize, _neonCyan, maxWidth: sign.width * 0.82);
+  }
+
+  /// One neon word: layered colored glows behind a near-white core.
+  void _neonWord(Canvas canvas, String text, Offset center, double fontSize,
+      Color color,
+      {required double maxWidth}) {
+    TextPainter layout(double size) => TextPainter(
+          text: TextSpan(
+            text: text,
+            style: TextStyle(
+              color: Color.lerp(color, Colors.white, 0.75),
+              fontSize: size,
+              fontWeight: FontWeight.w900,
+              letterSpacing: size * 0.22,
+              shadows: [
+                Shadow(color: color, blurRadius: size * 0.45),
+                Shadow(color: color, blurRadius: size * 1.0),
+                Shadow(
+                    color: color.withValues(alpha: 0.7),
+                    blurRadius: size * 2.0),
+              ],
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+
+    var tp = layout(fontSize);
+    if (tp.width > maxWidth) {
+      tp = layout(fontSize * maxWidth / tp.width);
+    }
+    tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
   }
 
   @override
