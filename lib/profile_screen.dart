@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
 import "app_state.dart";
+import "info_screen.dart";
 import "prayer_times_screen.dart";
 import "quran_data.dart";
 
@@ -212,13 +213,13 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const Divider(),
-          const ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text("About"),
-            subtitle: Text(
-                "Quran text, translations and audio are provided by the "
-                "AlQuran Cloud API and the Islamic Network CDN. Prayer times "
-                "by the Aladhan API."),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: const Text("Information & privacy"),
+            subtitle: const Text("App info, FAQ, privacy policy, share"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const InfoPrivacyScreen())),
           ),
         ],
       ),
