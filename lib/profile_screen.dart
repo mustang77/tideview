@@ -146,6 +146,15 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const PrayerTimesScreen())),
           ),
+          ListTile(
+            leading: Icon(Icons.privacy_tip, color: scheme.primary),
+            title: const Text("Information & privacy",
+                style: TextStyle(fontWeight: FontWeight.w600)),
+            subtitle: const Text("App info, FAQ, privacy policy, share"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const InfoPrivacyScreen())),
+          ),
           const Divider(),
           _SectionLabel("Reading"),
           ListTile(
@@ -211,15 +220,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text("Information & privacy"),
-            subtitle: const Text("App info, FAQ, privacy policy, share"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => const InfoPrivacyScreen())),
           ),
         ],
       ),
