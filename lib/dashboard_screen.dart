@@ -9,6 +9,7 @@ import "prayer_times_screen.dart";
 import "quran_data.dart";
 import "quran_service.dart";
 import "surah_screen.dart";
+import "tahlil_screen.dart";
 import "tasbih_screen.dart";
 
 /// Dashboard home: hero header with Hijri date, city and next-prayer
@@ -179,15 +180,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: "Surah 56",
                   onTap: () => _openSurah(56)),
               _Action(
-                  icon: Icons.favorite,
-                  label: "Ar-Rahman",
-                  subtitle: "Surah 55",
-                  onTap: () => _openSurah(55)),
-              _Action(
                   icon: Icons.landscape,
                   label: "Al-Kahf",
                   subtitle: "Surah 18",
                   onTap: () => _openSurah(18)),
+              _Action(
+                  icon: Icons.article,
+                  label: "Tahlil",
+                  subtitle: "NU Online",
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const TahlilScreen()))),
               _Action(
                   icon: Icons.pan_tool_alt,
                   label: "Duas",
