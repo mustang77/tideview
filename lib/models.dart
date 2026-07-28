@@ -21,6 +21,9 @@ class Ayah {
   final int numberInSurah;
   final String arabic;
   final String translation;
+
+  /// Second translation shown under the first; empty when disabled.
+  final String translation2;
   final String transliteration;
   final int juz;
 
@@ -29,6 +32,7 @@ class Ayah {
     required this.numberInSurah,
     required this.arabic,
     required this.translation,
+    this.translation2 = "",
     required this.transliteration,
     required this.juz,
   });

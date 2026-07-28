@@ -16,14 +16,24 @@ class QuranService {
   static String audioUrl(String reciterId, int globalAyahNumber) =>
       "$audioBase/$reciterId/$globalAyahNumber.mp3";
 
-  /// Loads a surah with Arabic text, the chosen translation and a Latin
-  /// transliteration in a single request.
-  Future<SurahContent> loadSurah(int surahNumber, String translationId) async {
-    final cacheKey = "$surahNumber|$translationId";
+  /// Loads a surah with Arabic text, one or two translations and a Latin
+  /// transliteration in a single request. Pass an empty [translation2Id]
+  /// to skip the second translation.
+  Future<SurahContent> loadSurah(int surahNumber, String translationId,
+      {String translation2Id = ""}) async {
+    final hasSecond =
+        translation2Id.isNotEmpty && translation2Id != translationId;
+    final cacheKey =
+        "$surahNumber|$translationId|${hasSecond ? translation2Id : ""}";
     final cached = _cache[cacheKey];
     if (cached != null) return cached;
 
-    final editions = "quran-uthmani,$translationId,en.transliteration";
+    final editions = [
+      "quran-uthmani",
+      translationId,
+      if (hasSecond) translation2Id,
+      "en.transliteration",
+    ].join(",");
     final uri = Uri.parse("$_base/surah/$surahNumber/editions/$editions");
     final res = await http.get(uri).timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) {
@@ -31,11 +41,18 @@ class QuranService {
     }
     final body = json.decode(res.body) as Map<String, dynamic>;
     final data = body["data"] as List<dynamic>;
-    if (data.length < 3) throw Exception("Unexpected API response");
+    if (data.length < (hasSecond ? 4 : 3)) {
+      throw Exception("Unexpected API response");
+    }
 
-    final arabicAyahs = (data[0] as Map<String, dynamic>)["ayahs"] as List;
-    final translationAyahs = (data[1] as Map<String, dynamic>)["ayahs"] as List;
-    final translitAyahs = (data[2] as Map<String, dynamic>)["ayahs"] as List;
+    List ayahsOf(int i) => (data[i] as Map<String, dynamic>)["ayahs"] as List;
+    String textAt(List edition, int i) =>
+        ((edition[i] as Map<String, dynamic>)["text"] as String).trim();
+
+    final arabicAyahs = ayahsOf(0);
+    final translationAyahs = ayahsOf(1);
+    final translation2Ayahs = hasSecond ? ayahsOf(2) : null;
+    final translitAyahs = ayahsOf(hasSecond ? 3 : 2);
 
     final ayahs = <Ayah>[];
     for (var i = 0; i < arabicAyahs.length; i++) {
@@ -49,12 +66,10 @@ class QuranService {
         globalNumber: a["number"] as int,
         numberInSurah: numberInSurah,
         arabic: arabic,
-        translation:
-            ((translationAyahs[i] as Map<String, dynamic>)["text"] as String)
-                .trim(),
-        transliteration:
-            ((translitAyahs[i] as Map<String, dynamic>)["text"] as String)
-                .trim(),
+        translation: textAt(translationAyahs, i),
+        translation2:
+            translation2Ayahs == null ? "" : textAt(translation2Ayahs, i),
+        transliteration: textAt(translitAyahs, i),
         juz: a["juz"] as int? ?? 0,
       ));
     }

@@ -14,6 +14,11 @@ class AppState extends ChangeNotifier {
     if (!translationEditions.any((e) => e.id == _translationId)) {
       _translationId = "en.sahih";
     }
+    _translation2Id = _prefs.getString(_kTranslation2) ?? "id.indonesian";
+    if (_translation2Id.isNotEmpty &&
+        !translationEditions.any((e) => e.id == _translation2Id)) {
+      _translation2Id = "id.indonesian";
+    }
     _reciterId = _prefs.getString(_kReciter) ?? "ar.alafasy";
     if (!reciters.any((r) => r.id == _reciterId)) {
       _reciterId = "ar.alafasy";
@@ -32,6 +37,7 @@ class AppState extends ChangeNotifier {
 
   static const _kTheme = "themeMode";
   static const _kTranslation = "translationId";
+  static const _kTranslation2 = "translation2Id";
   static const _kReciter = "reciterId";
   static const _kTranslit = "showTransliteration";
   static const _kArabicSize = "arabicFontSize";
@@ -44,6 +50,7 @@ class AppState extends ChangeNotifier {
 
   late ThemeMode _themeMode;
   late String _translationId;
+  late String _translation2Id;
   late String _reciterId;
   late bool _showTransliteration;
   late double _arabicFontSize;
@@ -57,6 +64,9 @@ class AppState extends ChangeNotifier {
 
   ThemeMode get themeMode => _themeMode;
   String get translationId => _translationId;
+
+  /// Edition id of the second translation, or "" when disabled.
+  String get translation2Id => _translation2Id;
   String get reciterId => _reciterId;
   bool get showTransliteration => _showTransliteration;
   double get arabicFontSize => _arabicFontSize;
@@ -68,6 +78,10 @@ class AppState extends ChangeNotifier {
   String get translationLabel => translationEditions
       .firstWhere((e) => e.id == _translationId)
       .label;
+
+  String get translation2Label => _translation2Id.isEmpty
+      ? "None"
+      : translationEditions.firstWhere((e) => e.id == _translation2Id).label;
 
   String get reciterName =>
       reciters.firstWhere((r) => r.id == _reciterId).name;
@@ -81,6 +95,12 @@ class AppState extends ChangeNotifier {
   void setTranslation(String id) {
     _translationId = id;
     _prefs.setString(_kTranslation, id);
+    notifyListeners();
+  }
+
+  void setTranslation2(String id) {
+    _translation2Id = id;
+    _prefs.setString(_kTranslation2, id);
     notifyListeners();
   }
 

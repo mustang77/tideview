@@ -38,6 +38,12 @@ class MoreScreen extends StatelessWidget {
             subtitle: Text(state.translationLabel),
             onTap: () => _pickTranslation(context, state),
           ),
+          ListTile(
+            leading: const Icon(Icons.g_translate),
+            title: const Text("Second translation"),
+            subtitle: Text(state.translation2Label),
+            onTap: () => _pickTranslation2(context, state),
+          ),
           SwitchListTile(
             secondary: const Icon(Icons.abc),
             title: const Text("Show transliteration"),
@@ -118,6 +124,30 @@ class MoreScreen extends StatelessWidget {
           child: ListView(
             shrinkWrap: true,
             children: [
+              for (final e in translationEditions)
+                RadioListTile<String>(title: Text(e.label), value: e.id),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _pickTranslation2(BuildContext context, AppState state) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: RadioGroup<String>(
+          groupValue: state.translation2Id,
+          onChanged: (id) {
+            state.setTranslation2(id!);
+            Navigator.of(sheetContext).pop();
+          },
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const RadioListTile<String>(title: Text("None"), value: ""),
               for (final e in translationEditions)
                 RadioListTile<String>(title: Text(e.label), value: e.id),
             ],

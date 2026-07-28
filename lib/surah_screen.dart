@@ -35,7 +35,7 @@ class _SurahScreenState extends State<SurahScreen> {
   StreamSubscription<void>? _completeSub;
 
   Future<SurahContent>? _future;
-  String? _loadedTranslationId;
+  String? _loadedTranslationKey;
   SurahContent? _content;
 
   /// numberInSurah of the ayah currently playing, or null when idle.
@@ -59,11 +59,13 @@ class _SurahScreenState extends State<SurahScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final translationId = AppScope.of(context).translationId;
-    if (_loadedTranslationId != translationId) {
-      _loadedTranslationId = translationId;
+    final state = AppScope.of(context);
+    final key = "${state.translationId}|${state.translation2Id}";
+    if (_loadedTranslationKey != key) {
+      _loadedTranslationKey = key;
       _future = widget.service
-          .loadSurah(widget.surahNumber, translationId)
+          .loadSurah(widget.surahNumber, state.translationId,
+              translation2Id: state.translation2Id)
           .then((c) {
         _content = c;
         return c;
@@ -160,8 +162,9 @@ class _SurahScreenState extends State<SurahScreen> {
   void _shareAyah(Ayah ayah) {
     final ref = "${_info.nameEnglish} (${widget.surahNumber}:"
         "${ayah.numberInSurah})";
-    SharePlus.instance.share(
-        ShareParams(text: "${ayah.arabic}\n\n${ayah.translation}\n\n— $ref"));
+    final second = ayah.translation2.isEmpty ? "" : "\n\n${ayah.translation2}";
+    SharePlus.instance.share(ShareParams(
+        text: "${ayah.arabic}\n\n${ayah.translation}$second\n\n— $ref"));
   }
 
   // ---- UI ----------------------------------------------------------------
@@ -203,7 +206,7 @@ class _SurahScreenState extends State<SurahScreen> {
             return _ErrorRetry(
               message: "Couldn't load the surah.\nCheck your connection.",
               onRetry: () => setState(() {
-                _loadedTranslationId = null;
+                _loadedTranslationKey = null;
                 didChangeDependencies();
               }),
             );
@@ -447,6 +450,14 @@ class _AyahCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(ayah.translation,
               style: const TextStyle(fontSize: 15, height: 1.5)),
+          if (ayah.translation2.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              ayah.translation2,
+              style: TextStyle(
+                  fontSize: 14.5, height: 1.5, color: scheme.onSurfaceVariant),
+            ),
+          ],
         ],
       ),
     );

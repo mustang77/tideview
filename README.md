@@ -7,8 +7,9 @@ A complete Al-Quran mobile app built with Flutter.
 - **All 114 surahs** — instant offline index with Arabic names, meanings,
   revelation place and ayah counts, plus quick surah search.
 - **Reading view** — Uthmani Arabic script (Amiri font), your choice of
-  translation, optional Latin transliteration, adjustable Arabic text size,
-  and Bismillah headers.
+  translation plus an optional second translation shown beneath it
+  (English + Indonesian by default), optional Latin transliteration,
+  adjustable Arabic text size, and Bismillah headers.
 - **Audio recitation** — verse-by-verse playback with four reciters
   (Alafasy, Abdul Basit, As-Sudais, Al-Husary), continuous play with
   auto-advance and auto-scroll, and a mini player bar.
