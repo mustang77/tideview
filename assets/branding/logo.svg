@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B8A6B"/>
+      <stop offset="1" stop-color="#0B4437"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2D488"/>
+      <stop offset="1" stop-color="#CFA043"/>
+    </linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDFBF3"/>
+      <stop offset="1" stop-color="#EFE8D2"/>
+    </linearGradient>
+    <mask id="crescentMask">
+      <rect width="1024" height="1024" fill="white"/>
+      <circle cx="590" cy="262" r="150" fill="black"/>
+    </mask>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- subtle 8-point star behind the mark -->
+  <g opacity="0.07" fill="none" stroke="#FFFFFF" stroke-width="10">
+    <rect x="252" y="252" width="520" height="520" transform="rotate(45 512 512)"/>
+    <rect x="252" y="252" width="520" height="520"/>
+  </g>
+
+  <!-- crescent -->
+  <g mask="url(#crescentMask)">
+    <circle cx="512" cy="322" r="160" fill="url(#gold)"/>
+  </g>
+
+  <!-- sparkle star -->
+  <path fill="url(#gold)" d="M668 176 l14 44 44 14 -44 14 -14 44 -14 -44 -44 -14 44 -14 z"/>
+
+  <!-- open book: gold cover -->
+  <path fill="url(#gold)"
+        d="M512 780
+           C 425 736, 322 732, 218 766
+           L 218 528
+           C 322 494, 425 498, 512 542
+           C 599 498, 702 494, 806 528
+           L 806 766
+           C 702 732, 599 736, 512 780 Z"/>
+
+  <!-- pages -->
+  <path fill="url(#page)"
+        d="M512 748
+           C 432 708, 340 704, 248 732
+           L 248 552
+           C 340 524, 432 528, 512 566 Z"/>
+  <path fill="url(#page)"
+        d="M512 748
+           C 592 708, 684 704, 776 732
+           L 776 552
+           C 684 524, 592 528, 512 566 Z"/>
+
+  <!-- spine -->
+  <rect x="506" y="550" width="12" height="212" rx="6" fill="#B98C35"/>
+
+  <!-- page text hints -->
+  <g fill="none" stroke="#C8B98C" stroke-width="10" stroke-linecap="round">
+    <path d="M292 596 C 350 578, 420 580, 470 600"/>
+    <path d="M292 646 C 350 628, 420 630, 470 650"/>
+    <path d="M292 696 C 350 678, 420 680, 470 700"/>
+    <path d="M732 596 C 674 578, 604 580, 554 600"/>
+    <path d="M732 646 C 674 628, 604 630, 554 650"/>
+    <path d="M732 696 C 674 678, 604 680, 554 700"/>
+  </g>
+</svg>
