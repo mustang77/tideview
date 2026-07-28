@@ -90,6 +90,9 @@ flutter:
 
   assets:
     - assets/branding/icon_fg.png
+    # Bundled Google Fonts (Inter, Amiri) so text and Arabic script render
+    # offline without a first-run font download.
+    - google_fonts/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
