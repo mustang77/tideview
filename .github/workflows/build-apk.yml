@@ -7,6 +7,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,3 +34,13 @@ jobs:
         with:
           name: al-quran-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: al-quran-latest
+          name: Al-Quran APK (latest)
+          prerelease: true
+          body: |
+            Latest build of the Al-Quran app.
+            Download **app-release.apk** below and install it on your Android phone.
+          files: build/app/outputs/flutter-apk/app-release.apk
