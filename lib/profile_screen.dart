@@ -4,23 +4,138 @@ import "app_state.dart";
 import "prayer_times_screen.dart";
 import "quran_data.dart";
 
-/// Settings and extras: translation, reciter, text options, theme,
-/// prayer times.
-class MoreScreen extends StatelessWidget {
-  const MoreScreen({super.key});
+/// Profile tab: who you are, your reading stats, and all app settings.
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  Future<void> _editName(BuildContext context, AppState state) async {
+    final controller = TextEditingController(text: state.userName);
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Your name"),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: "e.g. Ahmad"),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text("Cancel")),
+          FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text("Save")),
+        ],
+      ),
+    );
+    if (saved == true) state.setUserName(controller.text);
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final lastRead = state.lastRead;
 
     return Scaffold(
       appBar: AppBar(
-          title:
-              const Text("More", style: TextStyle(fontWeight: FontWeight.w700))),
+          title: const Text("Profile",
+              style: TextStyle(fontWeight: FontWeight.w700))),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          // ---- user card ----
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1B8A6B), Color(0xFF0B4437)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    state.userName.isEmpty
+                        ? "؟"
+                        : state.userName.characters.first.toUpperCase(),
+                    style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0B4437)),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.userName.isEmpty
+                            ? "Assalamu'alaikum"
+                            : state.userName,
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        state.userName.isEmpty
+                            ? "Tap to set your name"
+                            : "May your reading be blessed",
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _editName(context, state),
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // ---- stats ----
+          Row(
+            children: [
+              const SizedBox(width: 16),
+              _Stat(
+                icon: Icons.bookmark,
+                value: "${state.bookmarks.length}",
+                label: "Bookmarks",
+              ),
+              const SizedBox(width: 10),
+              _Stat(
+                icon: Icons.auto_stories,
+                value: lastRead == null
+                    ? "—"
+                    : surahByNumber(lastRead.surah).nameEnglish,
+                label: lastRead == null
+                    ? "Last read"
+                    : "Ayah ${lastRead.ayah}",
+              ),
+              const SizedBox(width: 10),
+              _Stat(
+                icon: Icons.radio_button_checked,
+                value: "${state.tasbihCount}",
+                label: "Dhikr count",
+              ),
+              const SizedBox(width: 16),
+            ],
+          ),
+          const Divider(height: 28),
           ListTile(
             leading: Icon(Icons.schedule, color: scheme.primary),
             title: const Text("Prayer times",
@@ -175,6 +290,43 @@ class MoreScreen extends StatelessWidget {
                 RadioListTile<String>(title: Text(r.name), value: r.id),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  const _Stat({required this.icon, required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: scheme.primary, size: 20),
+            const SizedBox(height: 6),
+            Text(value,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w800, fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            Text(label,
+                style:
+                    TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+          ],
         ),
       ),
     );

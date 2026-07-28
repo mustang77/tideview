@@ -139,8 +139,15 @@ class PrayerTimesService {
     final hijriText = hijri == null
         ? ""
         : "${hijri["day"]} ${(hijri["month"] as Map<String, dynamic>)["en"]} ${hijri["year"]} AH";
+    final weekday = hijri == null
+        ? ""
+        : ((hijri["weekday"] as Map<String, dynamic>?)?["en"] as String? ??
+            "");
     return PrayerTimesResult(
-        timings: timings, gregorianDate: readable, hijriDate: hijriText);
+        timings: timings,
+        gregorianDate: readable,
+        hijriDate: hijriText,
+        hijriWeekday: weekday);
   }
 }
 
@@ -148,8 +155,37 @@ class PrayerTimesResult {
   final Map<String, String> timings;
   final String gregorianDate;
   final String hijriDate;
+  final String hijriWeekday;
   const PrayerTimesResult(
       {required this.timings,
       required this.gregorianDate,
-      required this.hijriDate});
+      required this.hijriDate,
+      this.hijriWeekday = ""});
+
+  static const prayerOrder = [
+    "Fajr",
+    "Sunrise",
+    "Dhuhr",
+    "Asr",
+    "Maghrib",
+    "Isha",
+  ];
+
+  /// The next upcoming prayer today as (name, "HH:MM"), or null when Isha
+  /// has passed (the next prayer is tomorrow's Fajr).
+  (String, String)? nextPrayer(DateTime now) {
+    for (final name in prayerOrder) {
+      if (name == "Sunrise") continue;
+      final t = timings[name];
+      if (t == null) continue;
+      final parts = t.split(":");
+      if (parts.length < 2) continue;
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1].substring(0, 2));
+      if (h == null || m == null) continue;
+      final when = DateTime(now.year, now.month, now.day, h, m);
+      if (when.isAfter(now)) return (name, "${parts[0]}:${parts[1].substring(0, 2)}");
+    }
+    return null;
+  }
 }

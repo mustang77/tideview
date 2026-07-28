@@ -33,6 +33,9 @@ class AppState extends ChangeNotifier {
           .whereType<VerseRef>());
     _prayerCity = _prefs.getString(_kPrayerCity) ?? "";
     _prayerCountry = _prefs.getString(_kPrayerCountry) ?? "";
+    _userName = _prefs.getString(_kUserName) ?? "";
+    _tasbihCount = _prefs.getInt(_kTasbihCount) ?? 0;
+    _tasbihTarget = _prefs.getInt(_kTasbihTarget) ?? 33;
   }
 
   static const _kTheme = "themeMode";
@@ -45,6 +48,9 @@ class AppState extends ChangeNotifier {
   static const _kBookmarks = "bookmarks";
   static const _kPrayerCity = "prayerCity";
   static const _kPrayerCountry = "prayerCountry";
+  static const _kUserName = "userName";
+  static const _kTasbihCount = "tasbihCount";
+  static const _kTasbihTarget = "tasbihTarget";
 
   final SharedPreferences _prefs;
 
@@ -58,6 +64,9 @@ class AppState extends ChangeNotifier {
   final List<VerseRef> _bookmarks = [];
   late String _prayerCity;
   late String _prayerCountry;
+  late String _userName;
+  late int _tasbihCount;
+  late int _tasbihTarget;
 
   static Future<AppState> load() async =>
       AppState(await SharedPreferences.getInstance());
@@ -74,6 +83,9 @@ class AppState extends ChangeNotifier {
   List<VerseRef> get bookmarks => List.unmodifiable(_bookmarks);
   String get prayerCity => _prayerCity;
   String get prayerCountry => _prayerCountry;
+  String get userName => _userName;
+  int get tasbihCount => _tasbihCount;
+  int get tasbihTarget => _tasbihTarget;
 
   String get translationLabel => translationEditions
       .firstWhere((e) => e.id == _translationId)
@@ -141,6 +153,24 @@ class AppState extends ChangeNotifier {
     _prayerCountry = country;
     _prefs.setString(_kPrayerCity, city);
     _prefs.setString(_kPrayerCountry, country);
+    notifyListeners();
+  }
+
+  void setUserName(String name) {
+    _userName = name.trim();
+    _prefs.setString(_kUserName, _userName);
+    notifyListeners();
+  }
+
+  void setTasbihCount(int count) {
+    _tasbihCount = count;
+    _prefs.setInt(_kTasbihCount, count);
+    notifyListeners();
+  }
+
+  void setTasbihTarget(int target) {
+    _tasbihTarget = target;
+    _prefs.setInt(_kTasbihTarget, target);
     notifyListeners();
   }
 }
