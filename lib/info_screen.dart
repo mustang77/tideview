@@ -10,6 +10,7 @@ class InfoPrivacyScreen extends StatelessWidget {
 
   static const _shareText = "Al-Quran — read, listen and search the Holy "
       "Quran with translations, prayer times, tahlil and daily duas.\n\n"
+      "By World Cruise Academy — https://worldcruiseacademy.co.id\n"
       "Download: https://github.com/mustang77/tideview/releases/download/al-quran-latest/app-release.apk";
 
   @override
@@ -41,10 +42,10 @@ class InfoPrivacyScreen extends StatelessWidget {
           _BigTile(
             icon: Icons.apps,
             color: scheme.primary,
-            title: "Other apps",
-            subtitle: "More apps from the developer",
+            title: "Other apps & website",
+            subtitle: "World Cruise Academy — worldcruiseacademy.co.id",
             onTap: () => launchUrl(
-                Uri.parse("https://github.com/mustang77?tab=repositories"),
+                Uri.parse("https://worldcruiseacademy.co.id"),
                 mode: LaunchMode.externalApplication),
           ),
           _BigTile(
@@ -243,9 +244,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
     ),
     (
       "Contact",
-      "Questions about this policy: open an issue at "
-          "github.com/mustang77/tideview/issues. The current policy is "
-          "always published in the app repository as PRIVACY_POLICY.md."
+      "Questions about this policy: contact World Cruise Academy via "
+          "https://worldcruiseacademy.co.id. The current policy is also "
+          "published in the app repository as PRIVACY_POLICY.md."
     ),
   ];
 

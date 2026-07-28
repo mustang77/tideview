@@ -58,5 +58,6 @@ page and shipped with the next app update.
 
 ## Contact
 
-Questions about this policy: open an issue at
-https://github.com/mustang77/tideview/issues
+This app is published by World Cruise Academy. Questions about this
+policy: contact us via https://worldcruiseacademy.co.id, or open an
+issue at https://github.com/mustang77/tideview/issues
