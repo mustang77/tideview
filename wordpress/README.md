@@ -1,7 +1,16 @@
-# TideView WordPress Site
+# WordPress Site
 
-A WordPress site for TideView — landing page + blog — with a custom theme and a
-Docker setup for local development.
+A WordPress site with two custom themes and a Docker setup for local development:
+
+- **World Cruise Academy** (`wp-content/themes/world-cruise-academy`) — landing
+  page + news blog for a cruise ship training school. Light professional design
+  (navy/gold) with hero, training programs, why-us, stats band, and enroll CTA.
+- **TideView** (`wp-content/themes/tideview`) — landing page + blog for the
+  TideView video app. Ocean-dark design.
+
+Both are standard, self-contained WordPress themes — activate whichever fits
+the site (Appearance → Themes). They also work with LocalWP or any WordPress
+host: copy the theme folder into `wp-content/themes/` and activate.
 
 ## What's here
 
