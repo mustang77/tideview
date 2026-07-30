@@ -652,6 +652,190 @@ h1, h2, h3, h4 {
   color: #ffffff;
 }
 
+/* ---------- Inner page hero ---------- */
+
+.wca-page-hero {
+  color: #ffffff;
+  padding: 72px 0 64px;
+  background:
+    radial-gradient(70% 60% at 80% 10%, rgba(18, 115, 181, 0.5) 0%, transparent 70%),
+    linear-gradient(160deg, var(--wca-navy) 0%, var(--wca-navy-2) 100%);
+}
+
+.wca-page-hero h1 {
+  color: #ffffff;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.wca-page-hero p {
+  color: #c8d8e8;
+  font-size: 1.1rem;
+  margin: 0;
+  max-width: 620px;
+}
+
+.wca-page-hero .wca-eyebrow {
+  background: rgba(236, 194, 106, 0.15);
+  color: #ecc26a;
+}
+
+/* ---------- Program detail rows ---------- */
+
+.wca-program-details {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.wca-program-detail {
+  display: flex;
+  gap: 24px;
+  background: #ffffff;
+  border: 1px solid var(--wca-border);
+  border-radius: var(--wca-radius);
+  padding: 32px;
+}
+
+.wca-program-detail .wca-program-icon {
+  flex-shrink: 0;
+}
+
+.wca-program-detail h2 {
+  font-size: 1.35rem;
+  margin-bottom: 10px;
+}
+
+.wca-program-detail p {
+  color: var(--wca-text-dim);
+  margin: 0;
+}
+
+.wca-program-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--wca-blue);
+}
+
+@media (max-width: 560px) {
+  .wca-program-detail {
+    flex-direction: column;
+    padding: 26px 22px;
+  }
+}
+
+/* ---------- About page ---------- */
+
+.wca-about {
+  max-width: 780px;
+}
+
+.wca-about-block {
+  margin-bottom: 44px;
+}
+
+.wca-about-block h2 {
+  font-size: 1.5rem;
+}
+
+.wca-about-block p {
+  color: #33465a;
+  margin: 0;
+}
+
+.wca-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 28px;
+  margin-top: 56px;
+}
+
+/* ---------- Contact / admissions ---------- */
+
+.wca-steps {
+  list-style: none;
+  counter-reset: wca-step;
+  max-width: 680px;
+  margin: 0 auto 64px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.wca-steps li {
+  counter-increment: wca-step;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--wca-border);
+  border-radius: var(--wca-radius);
+  padding: 24px 28px 24px 84px;
+}
+
+.wca-steps li::before {
+  content: counter(wca-step);
+  position: absolute;
+  left: 24px;
+  top: 26px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--wca-gold);
+  color: #ffffff;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wca-steps h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.wca-steps p {
+  color: var(--wca-text-dim);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.wca-contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.wca-contact-card {
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid var(--wca-border);
+  border-radius: var(--wca-radius);
+  padding: 32px 24px;
+}
+
+.wca-contact-card .wca-why-icon {
+  margin: 0 auto 14px;
+}
+
+.wca-contact-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.wca-contact-card p {
+  color: var(--wca-text-dim);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 /* ---------- Utility / a11y ---------- */
 
 .screen-reader-text {
