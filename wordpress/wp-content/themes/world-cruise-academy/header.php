@@ -22,7 +22,13 @@
 			<span class="wca-anchor" aria-hidden="true">&#9875;</span>
 			<?php bloginfo( 'name' ); ?>
 		</a>
-		<nav class="wca-nav" aria-label="<?php esc_attr_e( 'Primary', 'worldcruiseacademy' ); ?>">
+		<button class="wca-nav-toggle" aria-expanded="false" aria-controls="wca-primary-nav">
+			<span class="wca-nav-toggle-bar" aria-hidden="true"></span>
+			<span class="wca-nav-toggle-bar" aria-hidden="true"></span>
+			<span class="wca-nav-toggle-bar" aria-hidden="true"></span>
+			<span class="screen-reader-text"><?php esc_html_e( 'Menu', 'worldcruiseacademy' ); ?></span>
+		</button>
+		<nav id="wca-primary-nav" class="wca-nav" aria-label="<?php esc_attr_e( 'Primary', 'worldcruiseacademy' ); ?>">
 			<?php
 			wp_nav_menu(
 				array(

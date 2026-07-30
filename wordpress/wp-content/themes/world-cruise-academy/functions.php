@@ -33,6 +33,7 @@ add_action( 'after_setup_theme', 'wca_setup' );
 
 function wca_scripts() {
 	wp_enqueue_style( 'wca-style', get_stylesheet_uri(), array(), WCA_VERSION );
+	wp_enqueue_script( 'wca-nav', get_template_directory_uri() . '/assets/js/nav.js', array(), WCA_VERSION, true );
 }
 add_action( 'wp_enqueue_scripts', 'wca_scripts' );
 
