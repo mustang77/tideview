@@ -8,6 +8,7 @@ import "duas_screen.dart";
 import "prayer_times_screen.dart";
 import "quran_data.dart";
 import "quran_service.dart";
+import "sirah_screen.dart";
 import "surah_screen.dart";
 import "tahlil_screen.dart";
 import "tasbih_screen.dart";
@@ -175,10 +176,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   subtitle: "Surah 67",
                   onTap: () => _openSurah(67)),
               _Action(
-                  icon: Icons.waves,
-                  label: "Al-Waqi'ah",
-                  subtitle: "Surah 56",
-                  onTap: () => _openSurah(56)),
+                  icon: Icons.history_edu,
+                  label: "Sirah Nabi",
+                  subtitle: "Kisah Rasulullah ﷺ",
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const SirahScreen()))),
               _Action(
                   icon: Icons.landscape,
                   label: "Al-Kahf",

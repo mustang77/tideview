@@ -41,6 +41,7 @@ As-Sudais, dan Mahmoud Khalil Al-Husary
 (bersumber dari NU Online)
 • Kumpulan doa harian pilihan dengan arti
 • Tasbih digital dengan target 33/99/100 dan getaran
+• Sirah Nabawiyah — ringkasan perjalanan hidup Rasulullah ﷺ
 
 🔖 Nyaman Digunakan
 • Penanda ayat (bookmark) dan lanjutkan dari terakhir dibaca
