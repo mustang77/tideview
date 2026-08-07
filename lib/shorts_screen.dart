@@ -215,6 +215,7 @@ class _ShortPageState extends State<_ShortPage> with AutomaticKeepAliveClientMix
   VideoStats? _stats;
   bool _liked = false;
   bool _following = false;
+  bool _paused = false;
 
   @override
   bool get wantKeepAlive => false;
@@ -226,9 +227,11 @@ class _ShortPageState extends State<_ShortPage> with AutomaticKeepAliveClientMix
       videoId: widget.video.id,
       autoPlay: true,
       params: const YoutubePlayerParams(
-        showControls: true,
+        showControls: false,
         showFullscreenButton: false,
         loop: true,
+        enableCaption: false,
+        strictRelatedVideos: true,
       ),
     );
     _fetchStats();
@@ -273,6 +276,28 @@ class _ShortPageState extends State<_ShortPage> with AutomaticKeepAliveClientMix
         Center(
           child: YoutubePlayer(controller: _controller, aspectRatio: 9 / 16),
         ),
+        // tap anywhere on the video to play / pause
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              setState(() => _paused = !_paused);
+              if (_paused) {
+                _controller.pauseVideo();
+              } else {
+                _controller.playVideo();
+              }
+            },
+          ),
+        ),
+        // paused indicator
+        if (_paused)
+          const IgnorePointer(
+            child: Center(
+              child: Icon(Icons.play_arrow_rounded,
+                  size: 78, color: Colors.white70),
+            ),
+          ),
         // bottom gradient scrim
         const Positioned(
           left: 0,
