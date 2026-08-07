@@ -303,35 +303,40 @@ class _SearchScreenState extends State<SearchScreen> {
     final featured = _results.first;
     final rest = _results.length > 1 ? _results.sublist(1) : <Video>[];
 
-    return CustomScrollView(
-      controller: _scroll,
-      slivers: [
-        SliverToBoxAdapter(child: _heroCard(featured, cs)),
-        SliverToBoxAdapter(child: _sectionTitle(cs)),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 360,
-              childAspectRatio: 0.80,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 18,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => _videoCard(rest[i], cs),
-              childCount: rest.length,
-            ),
-          ),
-        ),
-        if (_loadingMore)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 24),
-              child: Center(child: CircularProgressIndicator()),
+    return RefreshIndicator(
+      color: _kGold,
+      onRefresh: () => _runSearch(_query, chipIndex: _activeChip),
+      child: CustomScrollView(
+        controller: _scroll,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(child: _heroCard(featured, cs)),
+          SliverToBoxAdapter(child: _sectionTitle(cs)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 360,
+                childAspectRatio: 0.80,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 18,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _videoCard(rest[i], cs),
+                childCount: rest.length,
+              ),
             ),
           ),
-        const SliverToBoxAdapter(child: SizedBox(height: 12)),
-      ],
+          if (_loadingMore)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 24),
+                child: Center(child: CircularProgressIndicator(color: _kGold)),
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+        ],
+      ),
     );
   }
 
