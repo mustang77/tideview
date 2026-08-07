@@ -269,232 +269,210 @@ class _ShortPageState extends State<_ShortPage> with AutomaticKeepAliveClientMix
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      fit: StackFit.expand,
+    return Column(
       children: [
-        Container(color: Colors.black),
-        Center(
-          child: YoutubePlayer(controller: _controller, aspectRatio: 9 / 16),
-        ),
-        // tap anywhere on the video to play / pause
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              setState(() => _paused = !_paused);
-              if (_paused) {
-                _controller.pauseVideo();
-              } else {
-                _controller.playVideo();
-              }
-            },
-          ),
-        ),
-        // paused indicator
-        if (_paused)
-          const IgnorePointer(
-            child: Center(
-              child: Icon(Icons.play_arrow_rounded,
-                  size: 78, color: Colors.white70),
-            ),
-          ),
-        // bottom gradient scrim
-        const Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 260,
-          child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black87],
-                  stops: [0.0, 0.9],
-                ),
+        // ---- Video in a clean rounded frame ----
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 56, 10, 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Container(color: Colors.black),
+                  Center(
+                    child: YoutubePlayer(
+                        controller: _controller, aspectRatio: 9 / 16),
+                  ),
+                  // tap the video to play / pause
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _togglePlay,
+                    ),
+                  ),
+                  if (_paused)
+                    const IgnorePointer(
+                      child: Center(
+                        child: Icon(Icons.play_arrow_rounded,
+                            size: 74, color: Colors.white70),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
         ),
-        // right action rail
-        Positioned(
-          right: 8,
-          bottom: 96,
-          child: _actionRail(),
-        ),
-        // bottom-left info
-        Positioned(
-          left: 16,
-          right: 86,
-          bottom: 30,
-          child: _info(),
-        ),
+        // ---- Branded control bar (renders reliably below the player) ----
+        _controlPanel(),
       ],
     );
   }
 
-  Widget _info() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            _avatar(widget.video.channel, 16),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                widget.video.channel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  shadows: [Shadow(color: Colors.black, blurRadius: 6)],
+  void _togglePlay() {
+    setState(() => _paused = !_paused);
+    if (_paused) {
+      _controller.pauseVideo();
+    } else {
+      _controller.playVideo();
+    }
+  }
+
+  Widget _controlPanel() {
+    return Container(
+      width: double.infinity,
+      color: Colors.black,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // channel + follow
+          Row(
+            children: [
+              _avatar(widget.video.channel, 18, ring: true),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.video.channel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (_stats != null)
+                      Text(
+                        "${_stats!.views} views",
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                  ],
                 ),
               ),
+              const SizedBox(width: 10),
+              _followButton(),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // title
+          Text(
+            widget.video.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w600,
+              height: 1.3,
             ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => setState(() => _following = !_following),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  gradient: _following
-                      ? null
-                      : const LinearGradient(colors: [_kGoldLight, _kGold]),
-                  color: _following ? Colors.white24 : null,
-                  borderRadius: BorderRadius.circular(16),
+          ),
+          const SizedBox(height: 14),
+          // action buttons
+          Row(
+            children: [
+              Expanded(
+                child: _actionButton(
+                  icon: _liked ? Icons.favorite : Icons.favorite_border,
+                  label: _liked ? "Liked" : (_stats?.likes ?? "Like"),
+                  active: _liked,
+                  activeColor: const Color(0xFFFF3B5C),
+                  onTap: () => setState(() => _liked = !_liked),
                 ),
-                child: Text(
-                  _following ? "Following" : "Follow",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _actionButton(
+                  icon: Icons.mode_comment_outlined,
+                  label: "Comments",
+                  onTap: _openComments,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _actionButton(
+                  icon: Icons.reply_outlined,
+                  label: "Share",
+                  onTap: _share,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _followButton() {
+    return GestureDetector(
+      onTap: () => setState(() => _following = !_following),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: _following
+              ? null
+              : const LinearGradient(colors: [_kGoldLight, _kGold]),
+          color: _following ? Colors.white24 : null,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Text(
+          _following ? "Following" : "Follow",
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool active = false,
+    Color activeColor = _kGoldLight,
+  }) {
+    final color = active ? activeColor : Colors.white;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        Text(
-          widget.video.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14.5,
-            fontWeight: FontWeight.w600,
-            height: 1.25,
-            shadows: [Shadow(color: Colors.black, blurRadius: 6)],
-          ),
-        ),
-        if (_stats != null) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.visibility_outlined, color: Colors.white70, size: 15),
-              const SizedBox(width: 5),
-              Text(
-                "${_stats!.views} views",
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  shadows: [Shadow(color: Colors.black, blurRadius: 6)],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _actionRail() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // channel avatar with follow badge
-        SizedBox(
-          width: 52,
-          height: 60,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topCenter,
-            children: [
-              _avatar(widget.video.channel, 24, ring: true),
-              Positioned(
-                bottom: 0,
-                child: GestureDetector(
-                  onTap: () => setState(() => _following = !_following),
-                  child: Container(
-                    width: 22,
-                    height: 22,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: [_kGoldLight, _kGold]),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(_following ? Icons.check : Icons.add,
-                        color: Colors.white, size: 15),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        _railButton(
-          icon: _liked ? Icons.favorite : Icons.favorite_border,
-          color: _liked ? const Color(0xFFFF3B5C) : Colors.white,
-          label: _liked ? "Liked" : (_stats?.likes ?? "Like"),
-          onTap: () => setState(() => _liked = !_liked),
-        ),
-        const SizedBox(height: 18),
-        _railButton(
-          icon: Icons.mode_comment_outlined,
-          label: "Comments",
-          onTap: _openComments,
-        ),
-        const SizedBox(height: 18),
-        _railButton(
-          icon: Icons.reply_outlined,
-          label: "Share",
-          onTap: _share,
-        ),
-      ],
-    );
-  }
-
-  Widget _railButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color color = Colors.white,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 33, shadows: const [
-            Shadow(color: Colors.black54, blurRadius: 8),
-          ]),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              shadows: [Shadow(color: Colors.black, blurRadius: 6)],
-            ),
-          ),
-        ],
       ),
     );
   }
