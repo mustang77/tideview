@@ -1,7 +1,12 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:google_fonts/google_fonts.dart";
 import "search_screen.dart";
 import "shorts_screen.dart";
+
+// Brand accent (app seed colour).
+const Color kGold = Color(0xFF9C6B26);
+const Color kGoldLight = Color(0xFFE8C77E);
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,29 +37,71 @@ class _TideViewAppState extends State<TideViewApp> {
     });
   }
 
+  // Apply a clean, modern typeface across the whole app.
+  TextTheme _fonts(TextTheme base) => GoogleFonts.plusJakartaSansTextTheme(base);
+
+  NavigationBarThemeData _navTheme(Color surface, Color onSurface) {
+    return NavigationBarThemeData(
+      height: 64,
+      backgroundColor: surface,
+      elevation: 0,
+      indicatorColor: kGold.withValues(alpha: 0.20),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? kGoldLight : onSurface.withValues(alpha: 0.6),
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          color: selected ? kGoldLight : onSurface.withValues(alpha: 0.6),
+        );
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final lightTheme = ThemeData(
+    final baseLight = ThemeData(
       brightness: Brightness.light,
-      colorSchemeSeed: const Color(0xFF9c6b26),
+      colorSchemeSeed: kGold,
       scaffoldBackgroundColor: const Color(0xFFF3EFE6),
       useMaterial3: true,
     );
+    final lightTheme = baseLight.copyWith(
+      textTheme: _fonts(baseLight.textTheme),
+      navigationBarTheme: _navTheme(const Color(0xFFF3EFE6), const Color(0xFF1A1A1A)),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFFF3EFE6),
+        foregroundColor: Color(0xFF1A1A1A),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+    );
 
     final darkScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF9c6b26),
+      seedColor: kGold,
       brightness: Brightness.dark,
     ).copyWith(surface: const Color(0xFF0F0F0F));
 
-    final darkTheme = ThemeData(
+    final baseDark = ThemeData(
       brightness: Brightness.dark,
       colorScheme: darkScheme,
       scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+      useMaterial3: true,
+    );
+    final darkTheme = baseDark.copyWith(
+      textTheme: _fonts(baseDark.textTheme),
+      navigationBarTheme: _navTheme(const Color(0xFF0D0D0D), Colors.white),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF0F0F0F),
         foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
-      useMaterial3: true,
     );
 
     return MaterialApp(

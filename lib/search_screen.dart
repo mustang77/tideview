@@ -167,7 +167,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 "Life at sea, on demand",
                 style: TextStyle(
                   fontSize: 11.5,
-                  color: cs.onSurface.withOpacity(0.5),
+                  color: cs.onSurface.withValues(alpha:0.5),
                   letterSpacing: 0.2,
                 ),
               ),
@@ -177,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
           IconButton(
             tooltip: "Toggle theme",
             style: IconButton.styleFrom(
-              backgroundColor: cs.onSurface.withOpacity(0.06),
+              backgroundColor: cs.onSurface.withValues(alpha:0.06),
             ),
             icon: Icon(
               Theme.of(context).brightness == Brightness.dark
@@ -198,14 +198,14 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
-          color: cs.onSurface.withOpacity(0.055),
+          color: cs.onSurface.withValues(alpha:0.055),
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: cs.onSurface.withOpacity(0.06)),
+          border: Border.all(color: cs.onSurface.withValues(alpha:0.06)),
         ),
         padding: const EdgeInsets.only(left: 16, right: 6),
         child: Row(
           children: [
-            Icon(Icons.search, size: 20, color: cs.onSurface.withOpacity(0.55)),
+            Icon(Icons.search, size: 20, color: cs.onSurface.withValues(alpha:0.55)),
             const SizedBox(width: 10),
             Expanded(
               child: TextField(
@@ -262,10 +262,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 gradient: active
                     ? const LinearGradient(colors: [_kGoldLight, _kGold])
                     : null,
-                color: active ? null : cs.onSurface.withOpacity(0.055),
+                color: active ? null : cs.onSurface.withValues(alpha:0.055),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: active ? Colors.transparent : cs.onSurface.withOpacity(0.08),
+                  color: active ? Colors.transparent : cs.onSurface.withValues(alpha:0.08),
                 ),
               ),
               child: Text(
@@ -273,7 +273,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? Colors.white : cs.onSurface.withOpacity(0.75),
+                  color: active ? Colors.white : cs.onSurface.withValues(alpha:0.75),
                 ),
               ),
             ),
@@ -291,10 +291,10 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.travel_explore, size: 48, color: cs.onSurface.withOpacity(0.3)),
+            Icon(Icons.travel_explore, size: 48, color: cs.onSurface.withValues(alpha:0.3)),
             const SizedBox(height: 12),
             Text("No videos found",
-                style: TextStyle(color: cs.onSurface.withOpacity(0.6), fontSize: 15)),
+                style: TextStyle(color: cs.onSurface.withValues(alpha:0.6), fontSize: 15)),
           ],
         ),
       );
@@ -473,7 +473,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: _kGold.withOpacity(0.5),
+                              color: _kGold.withValues(alpha:0.5),
                               blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
@@ -513,9 +513,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.42),
+                        color: Colors.black.withValues(alpha:0.42),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.85), width: 1.5),
+                        border: Border.all(color: Colors.white.withValues(alpha:0.85), width: 1.5),
                       ),
                       child: const Icon(Icons.play_arrow_rounded,
                           color: Colors.white, size: 26),
@@ -553,7 +553,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: cs.onSurface.withOpacity(0.55),
+                        color: cs.onSurface.withValues(alpha:0.55),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -601,10 +601,10 @@ class _SearchScreenState extends State<SearchScreen> {
       fit: BoxFit.cover,
       loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
-        return Container(color: Colors.black.withOpacity(0.06));
+        return Container(color: Colors.black.withValues(alpha:0.06));
       },
       errorBuilder: (context, error, stack) => Container(
-        color: Colors.black.withOpacity(0.08),
+        color: Colors.black.withValues(alpha:0.08),
         child: const Center(
           child: Icon(Icons.broken_image_outlined, color: Colors.white54),
         ),
@@ -614,7 +614,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // ---- Shimmering skeleton while the first search loads ----
   Widget _skeleton(ColorScheme cs) {
-    final c = cs.onSurface.withOpacity(0.08);
+    final c = cs.onSurface.withValues(alpha:0.08);
     Widget box(double h, {double? w, double r = 12}) => Container(
           height: h,
           width: w,
