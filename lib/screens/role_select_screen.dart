@@ -108,7 +108,7 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                   _RoleCard(
                     icon: Icons.person,
                     title: 'Saya Pelanggan',
-                    subtitle: 'Pesan layanan laundry, jadwalkan penjemputan, '
+                    subtitle: 'Pesan layanan laundry, antar ke counter, '
                         'dan lacak status cucian',
                     onTap: () => store.setRole('customer'),
                   ),
