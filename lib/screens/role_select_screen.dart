@@ -2,8 +2,52 @@ import 'package:flutter/material.dart';
 
 import '../store.dart';
 
-class RoleSelectScreen extends StatelessWidget {
+class RoleSelectScreen extends StatefulWidget {
   const RoleSelectScreen({super.key});
+
+  @override
+  State<RoleSelectScreen> createState() => _RoleSelectScreenState();
+}
+
+class _RoleSelectScreenState extends State<RoleSelectScreen> {
+  static const _tapsNeeded = 7;
+
+  int _logoTaps = 0;
+  DateTime? _lastTap;
+
+  /// Pintu rahasia mode pemilik: ketuk logo 7x berturut-turut
+  /// (jeda antar ketukan maksimal 2 detik).
+  void _onLogoTap() {
+    final now = DateTime.now();
+    if (_lastTap == null ||
+        now.difference(_lastTap!) > const Duration(seconds: 2)) {
+      _logoTaps = 0;
+    }
+    _lastTap = now;
+    _logoTaps++;
+
+    if (_logoTaps >= _tapsNeeded) {
+      _logoTaps = 0;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+            const SnackBar(content: Text('Mode Pemilik Laundry terbuka')));
+      store.setRole('owner');
+      return;
+    }
+
+    // Beri petunjuk hanya setelah 4 ketukan agar tetap tersembunyi
+    // dari pelanggan biasa.
+    if (_logoTaps >= 4) {
+      final sisa = _tapsNeeded - _logoTaps;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Ketuk $sisa kali lagi untuk Mode Pemilik'),
+          duration: const Duration(seconds: 1),
+        ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,20 +63,23 @@ class RoleSelectScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    width: 88,
-                    height: 88,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  GestureDetector(
+                    onTap: _onLogoTap,
+                    child: Container(
+                      width: 88,
+                      height: 88,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      borderRadius: BorderRadius.circular(24),
+                      child: const Icon(Icons.local_laundry_service,
+                          size: 48, color: Colors.white),
                     ),
-                    child: const Icon(Icons.local_laundry_service,
-                        size: 48, color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -55,21 +102,6 @@ class RoleSelectScreen extends StatelessWidget {
                     subtitle: 'Pesan layanan laundry, jadwalkan penjemputan, '
                         'dan lacak status cucian',
                     onTap: () => store.setRole('customer'),
-                  ),
-                  const SizedBox(height: 14),
-                  _RoleCard(
-                    icon: Icons.storefront,
-                    title: 'Saya Pemilik Laundry',
-                    subtitle: 'Kelola pesanan masuk, perbarui status, '
-                        'atur harga, dan lihat laporan',
-                    onTap: () => store.setRole('owner'),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Mode bisa diganti kapan saja lewat menu Profil / Pengaturan.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.disabledColor),
                   ),
                 ],
               ),
