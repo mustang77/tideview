@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../format.dart';
-import '../store.dart';
 import '../models.dart';
+import '../receipt.dart';
+import '../store.dart';
 import '../widgets.dart';
 
 /// Detail + pelacakan pesanan untuk pelanggan.
@@ -17,7 +18,21 @@ class OrderDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Pesanan ${order.id}')),
+      appBar: AppBar(
+        title: Text('Pesanan ${order.id}'),
+        actions: [
+          IconButton(
+            tooltip: 'Cetak Struk',
+            onPressed: () => printReceipt(order),
+            icon: const Icon(Icons.print_outlined),
+          ),
+          IconButton(
+            tooltip: 'Bagikan Struk (PDF)',
+            onPressed: () => shareReceipt(order),
+            icon: const Icon(Icons.share_outlined),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: store,

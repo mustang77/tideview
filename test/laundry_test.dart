@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tideview/format.dart';
 import 'package:tideview/models.dart';
+import 'package:tideview/receipt.dart';
 import 'package:tideview/store.dart';
 
 void main() {
@@ -102,6 +105,39 @@ void main() {
     await s.deleteService(jaket);
     expect(s.serviceById(jaket.id), isNull);
     expect(s.services.length, before);
+  });
+
+  test('struk PDF terbentuk dari pesanan', () async {
+    final order = Order(
+      id: 'H2O-TEST-001',
+      customerName: 'Budi Santoso',
+      phone: '081234567890',
+      items: [
+        OrderItem(
+            serviceId: 'cuci_setrika',
+            name: 'Cuci + Setrika',
+            unit: 'kg',
+            price: 7000,
+            qty: 3.2),
+        OrderItem(
+            serviceId: 'selimut',
+            name: 'Selimut',
+            unit: 'pcs',
+            price: 20000,
+            qty: 1),
+      ],
+      contents: ['Kaos ×3', 'Kemeja ×2'],
+      scheduledAt: DateTime(2026, 8, 9, 9),
+      notes: 'Pisahkan baju putih',
+      status: OrderStatus.siap,
+      history: [StatusEntry(OrderStatus.menunggu, DateTime(2026, 8, 9, 8))],
+      paid: true,
+      createdAt: DateTime(2026, 8, 9, 8),
+    );
+    final bytes = await buildReceiptPdf(order);
+    expect(bytes.length, greaterThan(1000));
+    final out = Platform.environment['RECEIPT_OUT'];
+    if (out != null) File(out).writeAsBytesSync(bytes);
   });
 
   test('migrasi pesanan lama satu-layanan menjadi item', () {

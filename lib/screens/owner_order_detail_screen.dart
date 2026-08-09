@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../format.dart';
 import '../models.dart';
+import '../receipt.dart';
 import '../store.dart';
 import '../widgets.dart';
 
@@ -81,6 +82,16 @@ class OwnerOrderDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Pesanan ${order.id}'),
         actions: [
+          IconButton(
+            tooltip: 'Cetak Struk',
+            onPressed: () => printReceipt(order),
+            icon: const Icon(Icons.print_outlined),
+          ),
+          IconButton(
+            tooltip: 'Bagikan Struk (PDF)',
+            onPressed: () => shareReceipt(order),
+            icon: const Icon(Icons.share_outlined),
+          ),
           IconButton(
             tooltip: 'Hapus pesanan',
             onPressed: () => _confirmDelete(context),
