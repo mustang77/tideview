@@ -105,6 +105,37 @@ class OrderDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (order.contents.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const SectionTitle('Isi Cucian'),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                for (final c in order.contents)
+                                  Chip(
+                                    label: Text(c),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Barang di luar daftar ini menjadi tanggung '
+                              'jawab pelanggan bila hilang.',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   const SectionTitle('Info Kedatangan'),
                   Card(

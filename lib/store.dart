@@ -92,6 +92,7 @@ class LaundryStore extends ChangeNotifier {
     required String phone,
     required DateTime scheduledAt,
     required String notes,
+    List<String> contents = const [],
   }) {
     final now = DateTime.now();
     final code = 'LK${now.year % 100}${now.month.toString().padLeft(2, '0')}'
@@ -101,6 +102,7 @@ class LaundryStore extends ChangeNotifier {
       customerName: name,
       phone: phone,
       items: items,
+      contents: contents,
       scheduledAt: scheduledAt,
       notes: notes,
       status: OrderStatus.menunggu,

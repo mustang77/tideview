@@ -127,6 +127,7 @@ class Order {
     required this.customerName,
     required this.phone,
     required this.items,
+    required this.contents,
     required this.scheduledAt,
     required this.notes,
     required this.status,
@@ -139,6 +140,11 @@ class Order {
   final String customerName;
   final String phone;
   final List<OrderItem> items;
+
+  /// Jenis pakaian yang dicuci, dideklarasikan pelanggan saat memesan
+  /// (mis. Kaos, Kemeja, Handuk). Item di luar daftar ini menjadi
+  /// tanggung jawab pelanggan bila hilang.
+  final List<String> contents;
 
   /// Rencana pelanggan datang mengantar cucian ke counter.
   final DateTime scheduledAt;
@@ -160,7 +166,7 @@ class Order {
     final more = items.length - 1;
     final qty = first.qty == first.qty.roundToDouble()
         ? first.qty.toInt().toString()
-        : first.qty.toString();
+        : first.qty.toStringAsFixed(1).replaceAll('.', ',');
     return more > 0
         ? '${first.name} ×$qty  +$more item'
         : '${first.name} ×$qty ${first.unit}';
@@ -171,6 +177,7 @@ class Order {
         'customerName': customerName,
         'phone': phone,
         'items': items.map((e) => e.toMap()).toList(),
+        'contents': contents,
         'scheduledAt': scheduledAt.toIso8601String(),
         'notes': notes,
         'status': status.name,
@@ -200,6 +207,8 @@ class Order {
       customerName: m['customerName'] as String,
       phone: m['phone'] as String,
       items: items,
+      contents:
+          (m['contents'] as List? ?? []).map((e) => e as String).toList(),
       scheduledAt: DateTime.parse(m['scheduledAt'] as String),
       notes: m['notes'] as String? ?? '',
       status: statusFromName(m['status'] as String),

@@ -6,6 +6,21 @@ import '../store.dart';
 import '../widgets.dart';
 import 'order_detail_screen.dart';
 
+/// Pilihan jenis cucian yang dideklarasikan pelanggan.
+const laundryContents = [
+  'Kaos',
+  'Kemeja',
+  'Celana',
+  'Rok / Dress',
+  'Jilbab',
+  'Pakaian Dalam',
+  'Handuk',
+  'Sprei',
+  'Jaket / Sweater',
+  'Kaos Kaki',
+  'Lainnya',
+];
+
 class NewOrderScreen extends StatefulWidget {
   const NewOrderScreen({super.key, this.initialService});
 
@@ -16,8 +31,14 @@ class NewOrderScreen extends StatefulWidget {
 }
 
 class _NewOrderScreenState extends State<NewOrderScreen> {
+  /// Berat minimal untuk item kiloan.
+  static const double minKg = 3;
+
   /// Jumlah per item katalog (0 = tidak dipesan).
   final Map<String, double> _qty = {};
+
+  final Set<String> _contents = {};
+  bool _agree = false;
 
   late DateTime _date = DateTime.now();
   TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);
@@ -30,7 +51,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
   void initState() {
     super.initState();
     final init = widget.initialService;
-    if (init != null) _qty[init.id] = 1;
+    if (init != null) _qty[init.id] = init.perKg ? minKg : 1;
   }
 
   @override
@@ -41,15 +62,73 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     super.dispose();
   }
 
-  double _stepOf(ServiceType s) => s.perKg ? 0.5 : 1;
+  double _minOf(ServiceType s) => s.perKg ? minKg : 1;
+  double _stepOf(ServiceType s) => s.perKg ? 0.1 : 1;
+
+  double _round1(double v) => (v * 10).roundToDouble() / 10;
 
   void _change(ServiceType s, double delta) {
     setState(() {
-      final next = (_qty[s.id] ?? 0) + delta;
-      if (next <= 0) {
+      final current = _qty[s.id] ?? 0;
+      if (current == 0 && delta > 0) {
+        // Mulai langsung dari batas minimal (3 kg untuk kiloan).
+        _qty[s.id] = _minOf(s);
+        return;
+      }
+      final next = _round1(current + delta);
+      if (next < _minOf(s)) {
         _qty.remove(s.id);
       } else {
         _qty[s.id] = next;
+      }
+    });
+  }
+
+  Future<void> _typeQty(ServiceType s) async {
+    final current = _qty[s.id] ?? _minOf(s);
+    final controller = TextEditingController(
+        text: current == current.roundToDouble()
+            ? current.toInt().toString()
+            : current.toStringAsFixed(1));
+    final result = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(s.name),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: s.perKg ? 'Perkiraan berat' : 'Jumlah',
+            suffixText: s.unit,
+            helperText: s.perKg ? 'Minimal $minKg kg' : null,
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal')),
+          FilledButton(
+            onPressed: () => Navigator.pop(context,
+                double.tryParse(controller.text.replaceAll(',', '.'))),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+    if (result == null) return;
+    setState(() {
+      if (result < _minOf(s)) {
+        _qty.remove(s.id);
+        if (result > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(s.perKg
+                  ? 'Minimal ${qtyText(minKg, 'kg')} untuk item kiloan.'
+                  : 'Jumlah tidak valid.')));
+        }
+      } else {
+        _qty[s.id] = _round1(result);
       }
     });
   }
@@ -99,6 +178,17 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           content: Text('Pilih minimal satu item dulu ya.')));
       return;
     }
+    if (_contents.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Pilih isi cucian Anda dulu ya (bagian Isi Cucian).')));
+      return;
+    }
+    if (!_agree) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text('Centang pernyataan isi cucian dulu sebelum memesan.')));
+      return;
+    }
     if (name.isEmpty || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Lengkapi nama dan no. HP dulu ya.')));
@@ -107,6 +197,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     store.saveProfile(name, phone, store.profile.address);
     final order = store.createOrder(
       items: items,
+      contents: _contents.toList(),
       name: name,
       phone: phone,
       scheduledAt: DateTime(
@@ -139,10 +230,11 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                         _ItemRow(
                           service: store.services[i],
                           qty: _qty[store.services[i].id] ?? 0,
-                          onAdd: () =>
-                              _change(store.services[i], _stepOf(store.services[i])),
+                          onAdd: () => _change(
+                              store.services[i], _stepOf(store.services[i])),
                           onRemove: () => _change(
                               store.services[i], -_stepOf(store.services[i])),
+                          onTypeQty: () => _typeQty(store.services[i]),
                         ),
                       ],
                     ],
@@ -151,9 +243,60 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 6, left: 4),
                   child: Text(
-                    'Item kiloan bersifat perkiraan — berat final '
-                    'ditimbang di counter.',
+                    'Item kiloan minimal ${qtyText(minKg, 'kg')} dan bersifat '
+                    'perkiraan — berat final ditimbang di counter. '
+                    'Ketuk angka untuk mengetik berat.',
                     style: theme.textTheme.bodySmall,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const SectionTitle('Isi Cucian'),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Pilih jenis pakaian yang Anda cuci. Sebutkan '
+                          'jumlah/detail tambahan di kolom catatan.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final c in laundryContents)
+                              FilterChip(
+                                label: Text(c),
+                                selected: _contents.contains(c),
+                                onSelected: (v) => setState(() {
+                                  if (v) {
+                                    _contents.add(c);
+                                  } else {
+                                    _contents.remove(c);
+                                  }
+                                }),
+                              ),
+                          ],
+                        ),
+                        const Divider(height: 24),
+                        CheckboxListTile(
+                          value: _agree,
+                          onChanged: (v) =>
+                              setState(() => _agree = v ?? false),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            'Saya memastikan daftar isi cucian di atas sudah '
+                            'benar. Barang yang tidak dicantumkan menjadi '
+                            'tanggung jawab saya bila hilang.',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -202,7 +345,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                   maxLines: 2,
                   decoration: const InputDecoration(
                       labelText: 'Catatan (opsional)',
-                      hintText: 'Contoh: pisahkan baju putih',
+                      hintText: 'Contoh: 5 kemeja, 3 celana; pisahkan putih',
                       prefixIcon: Icon(Icons.sticky_note_2_outlined)),
                 ),
                 if (items.isNotEmpty) ...[
@@ -279,12 +422,14 @@ class _ItemRow extends StatelessWidget {
     required this.qty,
     required this.onAdd,
     required this.onRemove,
+    required this.onTypeQty,
   });
 
   final ServiceType service;
   final double qty;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
+  final VoidCallback onTypeQty;
 
   @override
   Widget build(BuildContext context) {
@@ -320,6 +465,7 @@ class _ItemRow extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 Text(
                   '${rupiah(service.price)}/${service.unit}'
+                  '${service.perKg ? ' • min 3 kg' : ''}'
                   ' • ${service.estimasiHari} hari',
                   style: theme.textTheme.bodySmall,
                 ),
@@ -333,12 +479,22 @@ class _ItemRow extends StatelessWidget {
               onPressed: onRemove,
               icon: const Icon(Icons.remove, size: 18),
             ),
-            SizedBox(
-              width: 52,
-              child: Text(
-                qtyText(qty, service.unit),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: onTypeQty,
+              child: Container(
+                width: 60,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  qtyText(qty, service.unit),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                    decorationStyle: TextDecorationStyle.dotted,
+                    decorationColor: theme.colorScheme.primary,
+                  ),
+                ),
               ),
             ),
           ],

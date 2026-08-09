@@ -38,6 +38,7 @@ void main() {
             price: selimut.price,
             qty: 1),
       ],
+      contents: ['Kaos', 'Kemeja', 'Handuk'],
       name: 'Budi',
       phone: '0812',
       scheduledAt: DateTime.now(),
@@ -45,6 +46,7 @@ void main() {
     );
 
     expect(order.total, kiloan.price * 3 + selimut.price);
+    expect(order.contents, ['Kaos', 'Kemeja', 'Handuk']);
     expect(order.status, OrderStatus.menunggu);
     expect(s.activeOrders.length, 1);
 
@@ -72,6 +74,7 @@ void main() {
     expect(s2.orders.length, 1);
     expect(s2.orders.first.id, order.id);
     expect(s2.orders.first.items.length, 2);
+    expect(s2.orders.first.contents, ['Kaos', 'Kemeja', 'Handuk']);
     expect(s2.orders.first.status, OrderStatus.selesai);
     expect(s2.orders.first.paid, true);
   });

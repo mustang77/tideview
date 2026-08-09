@@ -129,6 +129,15 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                             subtitle:
                                 const Text('Rencana datang ke counter'),
                           ),
+                          if (order.contents.isNotEmpty) ...[
+                            const Divider(height: 1),
+                            ListTile(
+                              leading: const Icon(Icons.checkroom),
+                              title: Text(order.contents.join(', ')),
+                              subtitle: const Text(
+                                  'Isi cucian (deklarasi pelanggan)'),
+                            ),
+                          ],
                           if (order.notes.isNotEmpty) ...[
                             const Divider(height: 1),
                             ListTile(
