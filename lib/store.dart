@@ -11,7 +11,6 @@ import 'models.dart';
 /// membaca data yang sama.
 class LaundryStore extends ChangeNotifier {
   static const _storageKey = 'laundryku_state_v1';
-  static const double biayaAntarJemput = 5000;
 
   final List<Order> orders = [];
   final List<ServiceType> services = [];
@@ -88,12 +87,9 @@ class LaundryStore extends ChangeNotifier {
   // ---- Pesanan ----
 
   Order createOrder({
-    required ServiceType service,
-    required double qty,
-    required bool antarJemput,
+    required List<OrderItem> items,
     required String name,
     required String phone,
-    required String address,
     required DateTime scheduledAt,
     required String notes,
   }) {
@@ -104,14 +100,7 @@ class LaundryStore extends ChangeNotifier {
       id: code,
       customerName: name,
       phone: phone,
-      address: address,
-      serviceId: service.id,
-      serviceName: service.name,
-      unit: service.unit,
-      pricePerUnit: service.price,
-      qty: qty,
-      antarJemput: antarJemput,
-      deliveryFee: antarJemput ? biayaAntarJemput : 0,
+      items: items,
       scheduledAt: scheduledAt,
       notes: notes,
       status: OrderStatus.menunggu,
@@ -138,9 +127,9 @@ class LaundryStore extends ChangeNotifier {
     await _save();
   }
 
-  /// Perbarui berat/jumlah setelah ditimbang ulang di laundry.
-  Future<void> updateQty(Order order, double qty) async {
-    order.qty = qty;
+  /// Perbarui berat/jumlah satu item setelah ditimbang di counter.
+  Future<void> updateItemQty(Order order, OrderItem item, double qty) async {
+    item.qty = qty;
     await _save();
   }
 
@@ -149,8 +138,44 @@ class LaundryStore extends ChangeNotifier {
     await _save();
   }
 
-  Future<void> updateServicePrice(ServiceType service, double price) async {
-    service.price = price;
+  // ---- Katalog item (dikelola pemilik) ----
+
+  Future<ServiceType> addService({
+    required String name,
+    required String unit,
+    required double price,
+    int estimasiHari = 2,
+  }) async {
+    final s = ServiceType(
+      id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
+      name: name,
+      unit: unit,
+      price: price,
+      estimasiHari: estimasiHari,
+    );
+    services.add(s);
+    await _save();
+    return s;
+  }
+
+  Future<void> updateService(
+    ServiceType service, {
+    String? name,
+    String? unit,
+    double? price,
+    int? estimasiHari,
+  }) async {
+    if (name != null && name.isNotEmpty) service.name = name;
+    if (unit != null) service.unit = unit;
+    if (price != null && price > 0) service.price = price;
+    if (estimasiHari != null && estimasiHari > 0) {
+      service.estimasiHari = estimasiHari;
+    }
+    await _save();
+  }
+
+  Future<void> deleteService(ServiceType service) async {
+    services.remove(service);
     await _save();
   }
 

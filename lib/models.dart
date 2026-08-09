@@ -1,44 +1,51 @@
 /// Model data untuk aplikasi LaundryKu.
 library;
 
-/// Urutan status mengikuti alur pesanan dari dibuat sampai selesai.
-enum OrderStatus { menunggu, dijemput, diproses, siap, selesai }
+/// Alur pesanan layanan di gerai (pelanggan datang ke counter):
+/// menunggu diantar → diterima → diproses → siap diambil → selesai.
+enum OrderStatus { menunggu, diterima, diproses, siap, selesai }
 
-/// Label status yang menyesuaikan apakah pesanan pakai antar-jemput
-/// atau pelanggan antar/ambil sendiri.
-String statusLabel(OrderStatus status, {required bool antarJemput}) {
+OrderStatus statusFromName(String s) {
+  // Data lama memakai nama 'dijemput' untuk status kedua.
+  if (s == 'dijemput') return OrderStatus.diterima;
+  return OrderStatus.values.byName(s);
+}
+
+String statusLabel(OrderStatus status) {
   switch (status) {
     case OrderStatus.menunggu:
-      return antarJemput ? 'Menunggu Penjemputan' : 'Menunggu Diantar';
-    case OrderStatus.dijemput:
-      return antarJemput ? 'Dijemput Kurir' : 'Diterima di Laundry';
+      return 'Menunggu Diantar';
+    case OrderStatus.diterima:
+      return 'Diterima di Laundry';
     case OrderStatus.diproses:
       return 'Sedang Diproses';
     case OrderStatus.siap:
-      return antarJemput ? 'Siap Diantar' : 'Siap Diambil';
+      return 'Siap Diambil';
     case OrderStatus.selesai:
       return 'Selesai';
   }
 }
 
+/// Item katalog layanan/cucian. Pemilik bisa menambah, mengubah,
+/// dan menghapus item lewat tab "Item & Harga".
 class ServiceType {
   ServiceType({
     required this.id,
     required this.name,
     required this.unit,
     required this.price,
-    required this.description,
-    required this.estimasiHari,
+    this.description = '',
+    this.estimasiHari = 2,
   });
 
   final String id;
-  final String name;
+  String name;
 
   /// Satuan tagihan: 'kg', 'pcs', atau 'pasang'.
-  final String unit;
+  String unit;
   double price;
-  final String description;
-  final int estimasiHari;
+  String description;
+  int estimasiHari;
 
   bool get perKg => unit == 'kg';
 
@@ -71,8 +78,46 @@ class StatusEntry {
       {'status': status.name, 'at': at.toIso8601String()};
 
   factory StatusEntry.fromMap(Map<String, dynamic> m) => StatusEntry(
-        OrderStatus.values.byName(m['status'] as String),
+        statusFromName(m['status'] as String),
         DateTime.parse(m['at'] as String),
+      );
+}
+
+/// Satu baris item dalam pesanan, mis. "Baju Atasan × 3".
+class OrderItem {
+  OrderItem({
+    required this.serviceId,
+    required this.name,
+    required this.unit,
+    required this.price,
+    required this.qty,
+  });
+
+  final String serviceId;
+  final String name;
+  final String unit;
+  final double price;
+
+  /// Jumlah/berat; untuk item kiloan ini perkiraan yang bisa
+  /// diperbarui pemilik setelah ditimbang di counter.
+  double qty;
+
+  double get subtotal => price * qty;
+
+  Map<String, dynamic> toMap() => {
+        'serviceId': serviceId,
+        'name': name,
+        'unit': unit,
+        'price': price,
+        'qty': qty,
+      };
+
+  factory OrderItem.fromMap(Map<String, dynamic> m) => OrderItem(
+        serviceId: m['serviceId'] as String,
+        name: m['name'] as String,
+        unit: m['unit'] as String,
+        price: (m['price'] as num).toDouble(),
+        qty: (m['qty'] as num).toDouble(),
       );
 }
 
@@ -81,14 +126,7 @@ class Order {
     required this.id,
     required this.customerName,
     required this.phone,
-    required this.address,
-    required this.serviceId,
-    required this.serviceName,
-    required this.unit,
-    required this.pricePerUnit,
-    required this.qty,
-    required this.antarJemput,
-    required this.deliveryFee,
+    required this.items,
     required this.scheduledAt,
     required this.notes,
     required this.status,
@@ -100,17 +138,9 @@ class Order {
   final String id;
   final String customerName;
   final String phone;
-  final String address;
-  final String serviceId;
-  final String serviceName;
-  final String unit;
-  final double pricePerUnit;
+  final List<OrderItem> items;
 
-  /// Berat/jumlah. Saat dibuat pelanggan ini perkiraan;
-  /// pemilik bisa memperbarui setelah ditimbang ulang.
-  double qty;
-  final bool antarJemput;
-  final double deliveryFee;
+  /// Rencana pelanggan datang mengantar cucian ke counter.
   final DateTime scheduledAt;
   final String notes;
   OrderStatus status;
@@ -118,24 +148,29 @@ class Order {
   bool paid;
   final DateTime createdAt;
 
-  double get subtotal => pricePerUnit * qty;
-  double get total => subtotal + deliveryFee;
+  double get total =>
+      items.fold(0, (sum, item) => sum + item.subtotal);
   bool get selesai => status == OrderStatus.selesai;
+  String get statusText => statusLabel(status);
 
-  String get statusText => statusLabel(status, antarJemput: antarJemput);
+  /// Ringkasan singkat isi pesanan, mis. "Baju Atasan ×3 +2 item".
+  String get itemsBrief {
+    if (items.isEmpty) return '-';
+    final first = items.first;
+    final more = items.length - 1;
+    final qty = first.qty == first.qty.roundToDouble()
+        ? first.qty.toInt().toString()
+        : first.qty.toString();
+    return more > 0
+        ? '${first.name} ×$qty  +$more item'
+        : '${first.name} ×$qty ${first.unit}';
+  }
 
   Map<String, dynamic> toMap() => {
         'id': id,
         'customerName': customerName,
         'phone': phone,
-        'address': address,
-        'serviceId': serviceId,
-        'serviceName': serviceName,
-        'unit': unit,
-        'pricePerUnit': pricePerUnit,
-        'qty': qty,
-        'antarJemput': antarJemput,
-        'deliveryFee': deliveryFee,
+        'items': items.map((e) => e.toMap()).toList(),
         'scheduledAt': scheduledAt.toIso8601String(),
         'notes': notes,
         'status': status.name,
@@ -144,27 +179,38 @@ class Order {
         'createdAt': createdAt.toIso8601String(),
       };
 
-  factory Order.fromMap(Map<String, dynamic> m) => Order(
-        id: m['id'] as String,
-        customerName: m['customerName'] as String,
-        phone: m['phone'] as String,
-        address: m['address'] as String,
-        serviceId: m['serviceId'] as String,
-        serviceName: m['serviceName'] as String,
-        unit: m['unit'] as String,
-        pricePerUnit: (m['pricePerUnit'] as num).toDouble(),
-        qty: (m['qty'] as num).toDouble(),
-        antarJemput: m['antarJemput'] as bool,
-        deliveryFee: (m['deliveryFee'] as num).toDouble(),
-        scheduledAt: DateTime.parse(m['scheduledAt'] as String),
-        notes: m['notes'] as String? ?? '',
-        status: OrderStatus.values.byName(m['status'] as String),
-        history: (m['history'] as List)
-            .map((e) => StatusEntry.fromMap((e as Map).cast<String, dynamic>()))
-            .toList(),
-        paid: m['paid'] as bool? ?? false,
-        createdAt: DateTime.parse(m['createdAt'] as String),
-      );
+  factory Order.fromMap(Map<String, dynamic> m) {
+    // Migrasi data lama: pesanan satu-layanan menjadi satu item.
+    final items = m['items'] != null
+        ? (m['items'] as List)
+            .map((e) =>
+                OrderItem.fromMap((e as Map).cast<String, dynamic>()))
+            .toList()
+        : [
+            OrderItem(
+              serviceId: m['serviceId'] as String? ?? '',
+              name: m['serviceName'] as String? ?? 'Layanan',
+              unit: m['unit'] as String? ?? 'kg',
+              price: (m['pricePerUnit'] as num? ?? 0).toDouble(),
+              qty: (m['qty'] as num? ?? 1).toDouble(),
+            ),
+          ];
+    return Order(
+      id: m['id'] as String,
+      customerName: m['customerName'] as String,
+      phone: m['phone'] as String,
+      items: items,
+      scheduledAt: DateTime.parse(m['scheduledAt'] as String),
+      notes: m['notes'] as String? ?? '',
+      status: statusFromName(m['status'] as String),
+      history: (m['history'] as List)
+          .map((e) =>
+              StatusEntry.fromMap((e as Map).cast<String, dynamic>()))
+          .toList(),
+      paid: m['paid'] as bool? ?? false,
+      createdAt: DateTime.parse(m['createdAt'] as String),
+    );
+  }
 }
 
 class CustomerProfile {
@@ -220,11 +266,35 @@ List<ServiceType> defaultServices() => [
         estimasiHari: 1,
       ),
       ServiceType(
+        id: 'baju_atasan',
+        name: 'Baju Atasan',
+        unit: 'pcs',
+        price: 7000,
+        description: 'Kemeja, kaos, blus — cuci & setrika per potong',
+        estimasiHari: 2,
+      ),
+      ServiceType(
+        id: 'baju_bawahan',
+        name: 'Baju Bawahan',
+        unit: 'pcs',
+        price: 8000,
+        description: 'Celana, rok — cuci & setrika per potong',
+        estimasiHari: 2,
+      ),
+      ServiceType(
+        id: 'selimut',
+        name: 'Selimut',
+        unit: 'pcs',
+        price: 20000,
+        description: 'Cuci selimut bersih dan wangi',
+        estimasiHari: 3,
+      ),
+      ServiceType(
         id: 'bedcover',
-        name: 'Bed Cover / Selimut',
+        name: 'Bed Cover',
         unit: 'pcs',
         price: 25000,
-        description: 'Cuci bed cover, selimut, atau sprei tebal',
+        description: 'Cuci bed cover atau sprei tebal',
         estimasiHari: 3,
       ),
       ServiceType(

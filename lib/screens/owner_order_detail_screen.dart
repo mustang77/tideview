@@ -5,22 +5,22 @@ import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
 
-/// Detail pesanan untuk pemilik: perbarui status, timbang ulang,
+/// Detail pesanan untuk pemilik: perbarui status, timbang ulang per item,
 /// tandai lunas, atau hapus pesanan.
 class OwnerOrderDetailScreen extends StatelessWidget {
   const OwnerOrderDetailScreen({super.key, required this.order});
 
   final Order order;
 
-  Future<void> _editQty(BuildContext context) async {
+  Future<void> _editItemQty(BuildContext context, OrderItem item) async {
     final controller = TextEditingController(
-        text: order.qty == order.qty.roundToDouble()
-            ? order.qty.toInt().toString()
-            : order.qty.toString());
+        text: item.qty == item.qty.roundToDouble()
+            ? item.qty.toInt().toString()
+            : item.qty.toString());
     final result = await showDialog<double>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Timbang Ulang'),
+        title: Text(item.name),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -28,7 +28,7 @@ class OwnerOrderDetailScreen extends StatelessWidget {
               const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: 'Berat/jumlah aktual',
-            suffixText: order.unit,
+            suffixText: item.unit,
           ),
         ),
         actions: [
@@ -36,15 +36,15 @@ class OwnerOrderDetailScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: const Text('Batal')),
           FilledButton(
-            onPressed: () => Navigator.pop(
-                context, double.tryParse(controller.text.replaceAll(',', '.'))),
+            onPressed: () => Navigator.pop(context,
+                double.tryParse(controller.text.replaceAll(',', '.'))),
             child: const Text('Simpan'),
           ),
         ],
       ),
     );
     if (result != null && result > 0) {
-      await store.updateQty(order, result);
+      await store.updateItemQty(order, item, result);
     }
   }
 
@@ -124,18 +124,10 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                           ),
                           const Divider(height: 1),
                           ListTile(
-                            leading:
-                                const Icon(Icons.location_on_outlined),
-                            title: Text(order.address),
-                            subtitle: const Text('Alamat'),
-                          ),
-                          const Divider(height: 1),
-                          ListTile(
                             leading: const Icon(Icons.event),
                             title: Text(dateTimeText(order.scheduledAt)),
-                            subtitle: Text(order.antarJemput
-                                ? 'Jadwal penjemputan (antar jemput)'
-                                : 'Pelanggan antar/ambil sendiri'),
+                            subtitle:
+                                const Text('Rencana datang ke counter'),
                           ),
                           if (order.notes.isNotEmpty) ...[
                             const Divider(height: 1),
@@ -150,35 +142,51 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    SectionTitle(
-                      'Rincian',
-                      trailing: TextButton.icon(
-                        onPressed: () => _editQty(context),
-                        icon: const Icon(Icons.scale, size: 18),
-                        label: const Text('Timbang Ulang'),
+                    const SectionTitle('Item Pesanan'),
+                    Card(
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < order.items.length; i++) ...[
+                            if (i > 0) const Divider(height: 1),
+                            ListTile(
+                              leading: Icon(
+                                  serviceIcon(order.items[i].serviceId)),
+                              title: Text(order.items[i].name),
+                              subtitle: Text(
+                                '${qtyText(order.items[i].qty, order.items[i].unit)}'
+                                ' × ${rupiah(order.items[i].price)}',
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    rupiah(order.items[i].subtotal),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(Icons.scale, size: 18),
+                                ],
+                              ),
+                              onTap: () =>
+                                  _editItemQty(context, order.items[i]),
+                            ),
+                          ],
+                          const Divider(height: 1),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: DetailRow('Total', rupiah(order.total),
+                                bold: true),
+                          ),
+                        ],
                       ),
                     ),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            DetailRow('Layanan', order.serviceName),
-                            DetailRow('Berat/Jumlah',
-                                qtyText(order.qty, order.unit)),
-                            DetailRow('Harga satuan',
-                                '${rupiah(order.pricePerUnit)}/${order.unit}'),
-                            DetailRow('Subtotal', rupiah(order.subtotal)),
-                            DetailRow(
-                                'Antar jemput',
-                                order.antarJemput
-                                    ? rupiah(order.deliveryFee)
-                                    : '-'),
-                            const Divider(),
-                            DetailRow('Total', rupiah(order.total),
-                                bold: true),
-                          ],
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6, left: 4),
+                      child: Text(
+                        'Ketuk item untuk memperbarui berat/jumlah '
+                        'setelah ditimbang.',
+                        style: theme.textTheme.bodySmall,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -213,8 +221,7 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                       FilledButton.icon(
                         onPressed: () => store.advanceStatus(order),
                         icon: const Icon(Icons.arrow_forward),
-                        label: Text(
-                            'Tandai: ${statusLabel(next, antarJemput: order.antarJemput)}'),
+                        label: Text('Tandai: ${statusLabel(next)}'),
                         style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 16)),

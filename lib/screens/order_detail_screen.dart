@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../format.dart';
-import '../models.dart';
 import '../store.dart';
+import '../models.dart';
 import '../widgets.dart';
 
 /// Detail + pelacakan pesanan untuk pelanggan.
@@ -39,8 +39,8 @@ class OrderDetailScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Pesanan berhasil dibuat! Kami akan segera '
-                                'memproses pesanan Anda.',
+                                'Pesanan dibuat! Silakan antar cucian Anda '
+                                'ke counter LaundryKu sesuai jadwal.',
                                 style: TextStyle(
                                     color: theme
                                         .colorScheme.onPrimaryContainer),
@@ -55,7 +55,7 @@ class OrderDetailScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          order.serviceName,
+                          order.itemsBrief,
                           style: theme.textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
@@ -78,16 +78,11 @@ class OrderDetailScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          DetailRow(
-                            '${order.serviceName} '
-                            '(${qtyText(order.qty, order.unit)} × ${rupiah(order.pricePerUnit)})',
-                            rupiah(order.subtotal),
-                          ),
-                          DetailRow(
-                              'Antar jemput',
-                              order.antarJemput
-                                  ? rupiah(order.deliveryFee)
-                                  : '-'),
+                          for (final item in order.items)
+                            DetailRow(
+                              '${item.name} (${qtyText(item.qty, item.unit)} × ${rupiah(item.price)})',
+                              rupiah(item.subtotal),
+                            ),
                           const Divider(),
                           DetailRow('Total', rupiah(order.total), bold: true),
                           const SizedBox(height: 6),
@@ -96,7 +91,7 @@ class OrderDetailScreen extends StatelessWidget {
                             child: Text(
                               order.paid
                                   ? '✓ Sudah dibayar'
-                                  : 'Bayar tunai/transfer saat cucian diterima',
+                                  : 'Bayar di counter saat pengambilan',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: order.paid
                                     ? const Color(0xFF16A34A)
@@ -111,23 +106,21 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const SectionTitle('Info Penjemputan'),
+                  const SectionTitle('Info Kedatangan'),
                   Card(
                     child: Column(
                       children: [
                         ListTile(
                           leading: const Icon(Icons.event),
                           title: Text(dateTimeText(order.scheduledAt)),
-                          subtitle: Text(order.antarJemput
-                              ? 'Jadwal penjemputan'
-                              : 'Jadwal antar sendiri'),
+                          subtitle:
+                              const Text('Rencana antar ke counter'),
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(Icons.location_on_outlined),
-                          title: Text(order.address),
-                          subtitle: Text(
-                              '${order.customerName} • ${order.phone}'),
+                          leading: const Icon(Icons.person_outline),
+                          title: Text(order.customerName),
+                          subtitle: Text(order.phone),
                         ),
                         if (order.notes.isNotEmpty) ...[
                           const Divider(height: 1),

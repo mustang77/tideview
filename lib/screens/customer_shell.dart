@@ -109,13 +109,12 @@ class _HomeTab extends StatelessWidget {
         const SizedBox(height: 16),
         Card(
           child: ListTile(
-            leading: Icon(Icons.delivery_dining,
+            leading: Icon(Icons.storefront,
                 color: theme.colorScheme.primary),
-            title: const Text('Antar Jemput',
+            title: const Text('Langsung di Counter',
                 style: TextStyle(fontWeight: FontWeight.w700)),
-            subtitle: Text(
-                'Kurir kami jemput dan antar cucian Anda, hanya '
-                '${rupiah(LaundryStore.biayaAntarJemput)}'),
+            subtitle: const Text(
+                'Antar dan ambil cucian Anda langsung di counter LaundryKu.'),
           ),
         ),
       ],
@@ -155,7 +154,7 @@ class _PromoBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pesan sekarang, kami jemput sesuai jadwal Anda.',
+                  'Pesan sekarang, bawa ke counter, kami kerjakan cepat.',
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13),
@@ -202,7 +201,7 @@ class _ActiveOrderCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${order.serviceName} • ${qtyText(order.qty, order.unit)}',
+                order.itemsBrief,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),

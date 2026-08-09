@@ -5,9 +5,12 @@ import 'models.dart';
 
 const serviceIcons = <String, IconData>{
   'cuci_setrika': Icons.local_laundry_service,
-  'cuci_kering': Icons.dry_cleaning,
+  'cuci_kering': Icons.wash,
   'setrika': Icons.iron,
   'express': Icons.bolt,
+  'baju_atasan': Icons.checkroom,
+  'baju_bawahan': Icons.dry_cleaning,
+  'selimut': Icons.airline_seat_individual_suite,
   'bedcover': Icons.bed,
   'sepatu': Icons.ice_skating,
 };
@@ -19,7 +22,7 @@ Color statusColor(OrderStatus status) {
   switch (status) {
     case OrderStatus.menunggu:
       return const Color(0xFFD97706); // amber
-    case OrderStatus.dijemput:
+    case OrderStatus.diterima:
       return const Color(0xFF2563EB); // blue
     case OrderStatus.diproses:
       return const Color(0xFF7C3AED); // violet
@@ -91,7 +94,9 @@ class OrderCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
-                      serviceIcon(order.serviceId),
+                      serviceIcon(order.items.isEmpty
+                          ? ''
+                          : order.items.first.serviceId),
                       color: theme.colorScheme.onPrimaryContainer,
                     ),
                   ),
@@ -101,14 +106,14 @@ class OrderCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          showCustomer ? order.customerName : order.serviceName,
+                          showCustomer ? order.customerName : order.itemsBrief,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           showCustomer
-                              ? '${order.serviceName} • ${qtyText(order.qty, order.unit)}'
-                              : '${order.id} • ${qtyText(order.qty, order.unit)}',
+                              ? '${order.id} • ${order.itemsBrief}'
+                              : order.id,
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
@@ -191,7 +196,7 @@ class OrderTimeline extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    statusLabel(status, antarJemput: order.antarJemput),
+                    statusLabel(status),
                     style: TextStyle(
                       fontWeight:
                           isCurrent ? FontWeight.w700 : FontWeight.w500,

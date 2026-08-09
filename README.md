@@ -6,16 +6,19 @@ Dibangun dengan Flutter — satu codebase untuk **Android, iOS, dan Web**.
 ## Fitur
 
 ### Mode Pelanggan
-- Pilih layanan: Cuci + Setrika, Cuci Kering, Setrika Saja, Express 1 Hari, Bed Cover, Cuci Sepatu
-- Buat pesanan dengan perkiraan berat, jadwal penjemputan, dan antar jemput
+- Pesan multi-item: layanan kiloan (Cuci + Setrika, Cuci Kering, Setrika Saja,
+  Express) dan item satuan (Baju Atasan, Baju Bawahan, Selimut, Bed Cover,
+  Cuci Sepatu, dll.)
+- Pelanggan mengantar cucian langsung ke counter sesuai jadwal yang dipilih
 - Estimasi harga langsung saat memesan
-- Lacak status pesanan lewat linimasa (menunggu → dijemput → diproses → siap → selesai)
+- Lacak status lewat linimasa (menunggu diantar → diterima → diproses →
+  siap diambil → selesai)
 - Riwayat pesanan dan profil tersimpan
 
-### Mode Pemilik
-- Dashboard: pesanan baru, sedang diproses, siap diantar, pendapatan hari ini
-- Kelola pesanan: majukan status, timbang ulang berat aktual, tandai lunas, hapus
-- Atur harga tiap layanan
+### Mode Pemilik (tersembunyi: ketuk logo 7x di layar pembuka)
+- Dashboard: pesanan baru, sedang diproses, siap diambil, pendapatan hari ini
+- Kelola pesanan: majukan status, timbang ulang per item, tandai lunas, hapus
+- Kelola katalog item: tambah, ubah harga/satuan, hapus item
 - Laporan pendapatan 7 hari terakhir dan bulan berjalan
 
 Data disimpan lokal di perangkat (`shared_preferences`), jadi aplikasi berfungsi

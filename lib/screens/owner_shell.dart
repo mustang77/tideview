@@ -75,7 +75,7 @@ class _DashboardTab extends StatelessWidget {
         .length;
     final proses = store.orders
         .where((o) =>
-            o.status == OrderStatus.dijemput ||
+            o.status == OrderStatus.diterima ||
             o.status == OrderStatus.diproses)
         .length;
     final siap =
@@ -126,7 +126,7 @@ class _DashboardTab extends StatelessWidget {
                 icon: Icons.local_laundry_service,
                 color: statusColor(OrderStatus.diproses)),
             StatTile(
-                label: 'Siap Diantar',
+                label: 'Siap Diambil',
                 value: '$siap',
                 icon: Icons.inventory_2,
                 color: statusColor(OrderStatus.siap)),
@@ -202,7 +202,7 @@ class _OwnerOrdersTabState extends State<_OwnerOrdersTab> {
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: Text(statusLabel(s, antarJemput: true)),
+                    label: Text(statusLabel(s)),
                     selected: _filter == s,
                     onSelected: (_) => setState(
                         () => _filter = _filter == s ? null : s),
@@ -353,45 +353,116 @@ class _ReportTab extends StatelessWidget {
   }
 }
 
-// -------------------------------------------------------------- Harga
+// -------------------------------------------------------------- Item & Harga
 
 class _PricingTab extends StatelessWidget {
   const _PricingTab();
 
-  Future<void> _editPrice(BuildContext context, ServiceType s) async {
-    final controller =
-        TextEditingController(text: s.price.round().toString());
-    final result = await showDialog<double>(
+  /// Dialog tambah/ubah item. [service] null berarti membuat item baru.
+  Future<void> _editService(BuildContext context,
+      {ServiceType? service}) async {
+    final name = TextEditingController(text: service?.name ?? '');
+    final price = TextEditingController(
+        text: service == null ? '' : service.price.round().toString());
+    final hari = TextEditingController(
+        text: (service?.estimasiHari ?? 2).toString());
+    var unit = service?.unit ?? 'pcs';
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(service == null ? 'Tambah Item' : 'Ubah Item'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: name,
+                  autofocus: service == null,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: const InputDecoration(
+                      labelText: 'Nama item',
+                      hintText: 'Contoh: Jaket, Gorden, Boneka'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: price,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      labelText: 'Harga', prefixText: 'Rp '),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: unit,
+                  decoration: const InputDecoration(labelText: 'Satuan'),
+                  items: const [
+                    DropdownMenuItem(value: 'pcs', child: Text('per pcs')),
+                    DropdownMenuItem(value: 'kg', child: Text('per kg')),
+                    DropdownMenuItem(
+                        value: 'pasang', child: Text('per pasang')),
+                  ],
+                  onChanged: (v) => setState(() => unit = v ?? 'pcs'),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: hari,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      labelText: 'Estimasi pengerjaan (hari)'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (saved != true) return;
+    final nm = name.text.trim();
+    final pr = double.tryParse(
+        price.text.replaceAll('.', '').replaceAll(',', ''));
+    final hr = int.tryParse(hari.text) ?? 2;
+    if (nm.isEmpty || pr == null || pr <= 0) return;
+    if (service == null) {
+      await store.addService(
+          name: nm, unit: unit, price: pr, estimasiHari: hr);
+    } else {
+      await store.updateService(service,
+          name: nm, unit: unit, price: pr, estimasiHari: hr);
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, ServiceType s) async {
+    final yes = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(s.name),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: 'Harga per ${s.unit}',
-            prefixText: 'Rp ',
-          ),
-        ),
+        title: const Text('Hapus item?'),
+        content: Text('"${s.name}" akan dihapus dari daftar. '
+            'Pesanan lama tidak berubah.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: const Text('Batal')),
           FilledButton(
-            onPressed: () {
-              final v = double.tryParse(
-                  controller.text.replaceAll('.', '').replaceAll(',', ''));
-              Navigator.pop(context, v);
-            },
-            child: const Text('Simpan'),
+            style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Hapus'),
           ),
         ],
       ),
     );
-    if (result != null && result > 0) {
-      await store.updateServicePrice(s, result);
-    }
+    if (yes == true) await store.deleteService(s);
   }
 
   @override
@@ -400,12 +471,27 @@ class _PricingTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Daftar Harga',
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 4),
-        Text('Ketuk layanan untuk mengubah harga.',
-            style: theme.textTheme.bodySmall),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Item & Harga',
+                      style: theme.textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  Text('Ketuk item untuk mengubah, atau tambah item baru.',
+                      style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+            FilledButton.icon(
+              onPressed: () => _editService(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah'),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         for (final s in store.services)
           Card(
@@ -433,11 +519,14 @@ class _PricingTab extends StatelessWidget {
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w800),
                   ),
-                  const SizedBox(width: 6),
-                  const Icon(Icons.edit_outlined, size: 18),
+                  IconButton(
+                    tooltip: 'Hapus ${s.name}',
+                    onPressed: () => _confirmDelete(context, s),
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                  ),
                 ],
               ),
-              onTap: () => _editPrice(context, s),
+              onTap: () => _editService(context, service: s),
             ),
           ),
       ],
