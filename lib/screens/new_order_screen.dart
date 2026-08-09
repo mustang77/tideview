@@ -37,7 +37,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
   /// Jumlah per item katalog (0 = tidak dipesan).
   final Map<String, double> _qty = {};
 
-  final Set<String> _contents = {};
+  /// Jumlah per jenis cucian yang dideklarasikan (0 = tidak dipilih).
+  final Map<String, int> _contents = {};
   bool _agree = false;
 
   late DateTime _date = DateTime.now();
@@ -197,7 +198,10 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     store.saveProfile(name, phone, store.profile.address);
     final order = store.createOrder(
       items: items,
-      contents: _contents.toList(),
+      contents: [
+        for (final e in _contents.entries)
+          if (e.value > 0) '${e.key} ×${e.value}',
+      ],
       name: name,
       phone: phone,
       scheduledAt: DateTime(
@@ -258,8 +262,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Pilih jenis pakaian yang Anda cuci. Sebutkan '
-                          'jumlah/detail tambahan di kolom catatan.',
+                          'Pilih jenis pakaian dan jumlahnya. Detail '
+                          'tambahan bisa ditulis di kolom catatan.',
                           style: theme.textTheme.bodySmall,
                         ),
                         const SizedBox(height: 10),
@@ -268,14 +272,17 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                           runSpacing: 8,
                           children: [
                             for (final c in laundryContents)
-                              FilterChip(
-                                label: Text(c),
-                                selected: _contents.contains(c),
-                                onSelected: (v) => setState(() {
-                                  if (v) {
-                                    _contents.add(c);
-                                  } else {
+                              _ContentCounter(
+                                label: c,
+                                count: _contents[c] ?? 0,
+                                onAdd: () => setState(() => _contents[c] =
+                                    (_contents[c] ?? 0) + 1),
+                                onRemove: () => setState(() {
+                                  final next = (_contents[c] ?? 0) - 1;
+                                  if (next <= 0) {
                                     _contents.remove(c);
+                                  } else {
+                                    _contents[c] = next;
                                   }
                                 }),
                               ),
@@ -503,6 +510,86 @@ class _ItemRow extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             onPressed: onAdd,
             icon: const Icon(Icons.add, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Chip penghitung untuk deklarasi isi cucian: belum dipilih tampil
+/// sebagai "Kaos +", setelah dipilih menjadi "− Kaos 3 +".
+class _ContentCounter extends StatelessWidget {
+  const _ContentCounter({
+    required this.label,
+    required this.count,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  final String label;
+  final int count;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final selected = count > 0;
+    return Container(
+      decoration: BoxDecoration(
+        color: selected
+            ? theme.colorScheme.primaryContainer
+            : Colors.transparent,
+        border: Border.all(
+          color: selected
+              ? theme.colorScheme.primary
+              : theme.dividerColor,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (selected)
+            InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: onRemove,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
+                child: Icon(Icons.remove,
+                    size: 16, color: theme.colorScheme.primary),
+              ),
+            ),
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: onAdd,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(selected ? 2 : 12, 8, 2, 8),
+              child: Text(
+                selected ? '$label $count' : label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight:
+                      selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected
+                      ? theme.colorScheme.onPrimaryContainer
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: onAdd,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(6, 8, 10, 8),
+              child: Icon(Icons.add,
+                  size: 16,
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurfaceVariant),
+            ),
           ),
         ],
       ),
