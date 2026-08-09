@@ -69,17 +69,42 @@ class ServiceType {
 }
 
 class StatusEntry {
-  StatusEntry(this.status, this.at);
+  StatusEntry(this.status, this.at, {this.by});
 
   final OrderStatus status;
   final DateTime at;
 
-  Map<String, dynamic> toMap() =>
-      {'status': status.name, 'at': at.toIso8601String()};
+  /// Nama admin yang mengubah status ini (null bila tidak diketahui).
+  final String? by;
+
+  Map<String, dynamic> toMap() => {
+        'status': status.name,
+        'at': at.toIso8601String(),
+        if (by != null) 'by': by,
+      };
 
   factory StatusEntry.fromMap(Map<String, dynamic> m) => StatusEntry(
         statusFromName(m['status'] as String),
         DateTime.parse(m['at'] as String),
+        by: m['by'] as String?,
+      );
+}
+
+/// Admin yang boleh masuk Mode Pemilik. Selama belum ada admin
+/// terdaftar, pintu 7-ketukan terbuka tanpa PIN.
+class AdminUser {
+  AdminUser({required this.id, required this.name, required this.pin});
+
+  final String id;
+  String name;
+  String pin;
+
+  Map<String, dynamic> toMap() => {'id': id, 'name': name, 'pin': pin};
+
+  factory AdminUser.fromMap(Map<String, dynamic> m) => AdminUser(
+        id: m['id'] as String,
+        name: m['name'] as String,
+        pin: m['pin'] as String,
       );
 }
 

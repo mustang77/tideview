@@ -16,9 +16,13 @@ Dibangun dengan Flutter — satu codebase untuk **Android, iOS, dan Web**.
 - Riwayat pesanan dan profil tersimpan
 
 ### Mode Pemilik (tersembunyi: ketuk logo 7x di layar pembuka)
+- Multi-admin: daftarkan Admin 1, Admin 2, dst. dengan PIN masing-masing;
+  setelah ada admin, masuk Mode Pemilik wajib memilih admin + PIN, dan
+  setiap perubahan status pesanan dicatat atas nama admin yang masuk
 - Dashboard: pesanan baru, sedang diproses, siap diambil, pendapatan hari ini
 - Kelola pesanan: majukan status, timbang ulang per item, tandai lunas, hapus
-- Kelola katalog item: tambah, ubah harga/satuan, hapus item
+- Kelola katalog item (Layanan Kami): tambah, ubah nama/harga/satuan/
+  deskripsi/estimasi, hapus item
 - Laporan pendapatan 7 hari terakhir dan bulan berjalan
 
 Data disimpan lokal di perangkat (`shared_preferences`), jadi aplikasi berfungsi

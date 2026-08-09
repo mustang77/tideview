@@ -14,10 +14,22 @@ class LaundryStore extends ChangeNotifier {
 
   final List<Order> orders = [];
   final List<ServiceType> services = [];
+  final List<AdminUser> admins = [];
   CustomerProfile profile = CustomerProfile();
 
   /// 'customer' | 'owner' | null (belum memilih mode).
   String? role;
+
+  /// Admin yang sedang masuk di Mode Pemilik (null bila belum ada
+  /// admin terdaftar / mode pemilik lama).
+  String? currentAdminId;
+
+  AdminUser? get currentAdmin {
+    for (final a in admins) {
+      if (a.id == currentAdminId) return a;
+    }
+    return null;
+  }
 
   bool _loaded = false;
   SharedPreferences? _prefs;
@@ -37,9 +49,14 @@ class LaundryStore extends ChangeNotifier {
           ..clear()
           ..addAll((m['services'] as List? ?? []).map((e) =>
               ServiceType.fromMap((e as Map).cast<String, dynamic>())));
+        admins
+          ..clear()
+          ..addAll((m['admins'] as List? ?? []).map((e) =>
+              AdminUser.fromMap((e as Map).cast<String, dynamic>())));
         profile = CustomerProfile.fromMap(
             ((m['profile'] as Map?) ?? {}).cast<String, dynamic>());
         role = m['role'] as String?;
+        currentAdminId = m['currentAdminId'] as String?;
       } catch (_) {
         // Data korup: mulai bersih daripada crash saat startup.
         orders.clear();
@@ -56,8 +73,10 @@ class LaundryStore extends ChangeNotifier {
     final m = {
       'orders': orders.map((o) => o.toMap()).toList(),
       'services': services.map((s) => s.toMap()).toList(),
+      'admins': admins.map((a) => a.toMap()).toList(),
       'profile': profile.toMap(),
       'role': role,
+      'currentAdminId': currentAdminId,
     };
     await _prefs?.setString(_storageKey, jsonEncode(m));
   }
@@ -73,6 +92,14 @@ class LaundryStore extends ChangeNotifier {
 
   Future<void> setRole(String? value) async {
     role = value;
+    if (value != 'owner') currentAdminId = null;
+    await _save();
+  }
+
+  /// Masuk Mode Pemilik sebagai admin tertentu (setelah PIN cocok).
+  Future<void> loginOwner(AdminUser? admin) async {
+    currentAdminId = admin?.id;
+    role = 'owner';
     await _save();
   }
 
@@ -121,7 +148,8 @@ class LaundryStore extends ChangeNotifier {
     final i = order.status.index;
     if (i >= OrderStatus.values.length - 1) return;
     order.status = OrderStatus.values[i + 1];
-    order.history.add(StatusEntry(order.status, DateTime.now()));
+    order.history
+        .add(StatusEntry(order.status, DateTime.now(), by: currentAdmin?.name));
     await _save();
   }
 
@@ -148,6 +176,7 @@ class LaundryStore extends ChangeNotifier {
     required String unit,
     required double price,
     int estimasiHari = 2,
+    String description = '',
   }) async {
     final s = ServiceType(
       id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
@@ -155,6 +184,7 @@ class LaundryStore extends ChangeNotifier {
       unit: unit,
       price: price,
       estimasiHari: estimasiHari,
+      description: description,
     );
     services.add(s);
     await _save();
@@ -167,6 +197,7 @@ class LaundryStore extends ChangeNotifier {
     String? unit,
     double? price,
     int? estimasiHari,
+    String? description,
   }) async {
     if (name != null && name.isNotEmpty) service.name = name;
     if (unit != null) service.unit = unit;
@@ -174,6 +205,32 @@ class LaundryStore extends ChangeNotifier {
     if (estimasiHari != null && estimasiHari > 0) {
       service.estimasiHari = estimasiHari;
     }
+    if (description != null) service.description = description;
+    await _save();
+  }
+
+  // ---- Admin (Mode Pemilik) ----
+
+  Future<AdminUser> addAdmin(String name, String pin) async {
+    final a = AdminUser(
+      id: 'admin_${DateTime.now().millisecondsSinceEpoch}',
+      name: name,
+      pin: pin,
+    );
+    admins.add(a);
+    await _save();
+    return a;
+  }
+
+  Future<void> updateAdmin(AdminUser admin, {String? name, String? pin}) async {
+    if (name != null && name.isNotEmpty) admin.name = name;
+    if (pin != null && pin.isNotEmpty) admin.pin = pin;
+    await _save();
+  }
+
+  Future<void> deleteAdmin(AdminUser admin) async {
+    admins.remove(admin);
+    if (currentAdminId == admin.id) currentAdminId = null;
     await _save();
   }
 

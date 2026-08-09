@@ -264,8 +264,12 @@ class OrderTimeline extends StatelessWidget {
                     ),
                   ),
                   if (entry != null)
-                    Text(dateTimeText(entry.at),
-                        style: theme.textTheme.bodySmall),
+                    Text(
+                      entry.by == null
+                          ? dateTimeText(entry.at)
+                          : '${dateTimeText(entry.at)} • oleh ${entry.by}',
+                      style: theme.textTheme.bodySmall,
+                    ),
                 ],
               ),
             ),

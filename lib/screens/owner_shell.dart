@@ -4,6 +4,7 @@ import '../format.dart';
 import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
+import 'admin_screen.dart';
 import 'owner_order_detail_screen.dart';
 
 class OwnerShell extends StatefulWidget {
@@ -90,15 +91,24 @@ class _DashboardTab extends StatelessWidget {
           children: [
             const Expanded(child: BrandHeader()),
             IconButton.filledTonal(
-              tooltip: 'Ganti Mode',
+              tooltip: 'Kelola Admin',
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const AdminScreen())),
+              icon: const Icon(Icons.manage_accounts_outlined),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              tooltip: 'Keluar Mode Pemilik',
               onPressed: () => store.setRole(null),
-              icon: const Icon(Icons.swap_horiz),
+              icon: const Icon(Icons.logout),
             ),
           ],
         ),
         const SizedBox(height: 14),
-        Text('Dashboard Pemilik • ${fullDate(now)}',
-            style: theme.textTheme.bodySmall),
+        Text(
+          '${store.currentAdmin?.name ?? 'Pemilik'} • ${fullDate(now)}',
+          style: theme.textTheme.bodySmall,
+        ),
         const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: MediaQuery.sizeOf(context).width > 560 ? 4 : 2,
@@ -359,6 +369,7 @@ class _PricingTab extends StatelessWidget {
         text: service == null ? '' : service.price.round().toString());
     final hari = TextEditingController(
         text: (service?.estimasiHari ?? 2).toString());
+    final desc = TextEditingController(text: service?.description ?? '');
     var unit = service?.unit ?? 'pcs';
 
     final saved = await showDialog<bool>(
@@ -404,6 +415,15 @@ class _PricingTab extends StatelessWidget {
                   decoration: const InputDecoration(
                       labelText: 'Estimasi pengerjaan (hari)'),
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: desc,
+                  maxLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                      labelText: 'Deskripsi (opsional)',
+                      hintText: 'Tampil saat pelanggan memesan'),
+                ),
               ],
             ),
           ),
@@ -428,10 +448,18 @@ class _PricingTab extends StatelessWidget {
     if (nm.isEmpty || pr == null || pr <= 0) return;
     if (service == null) {
       await store.addService(
-          name: nm, unit: unit, price: pr, estimasiHari: hr);
+          name: nm,
+          unit: unit,
+          price: pr,
+          estimasiHari: hr,
+          description: desc.text.trim());
     } else {
       await store.updateService(service,
-          name: nm, unit: unit, price: pr, estimasiHari: hr);
+          name: nm,
+          unit: unit,
+          price: pr,
+          estimasiHari: hr,
+          description: desc.text.trim());
     }
   }
 

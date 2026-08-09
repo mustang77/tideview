@@ -107,6 +107,58 @@ void main() {
     expect(s.services.length, before);
   });
 
+  test('kelola admin: tambah, masuk, catat status, hapus', () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = LaundryStore();
+    await s.init();
+    expect(s.admins, isEmpty);
+
+    final a1 = await s.addAdmin('Admin 1', '1234');
+    final a2 = await s.addAdmin('Admin 2', '5678');
+    expect(s.admins.length, 2);
+
+    await s.loginOwner(a1);
+    expect(s.role, 'owner');
+    expect(s.currentAdmin?.name, 'Admin 1');
+
+    // Perubahan status tercatat atas nama admin yang masuk.
+    final svc = s.serviceById('cuci_setrika')!;
+    final order = s.createOrder(
+      items: [
+        OrderItem(
+            serviceId: svc.id,
+            name: svc.name,
+            unit: svc.unit,
+            price: svc.price,
+            qty: 3),
+      ],
+      name: 'Budi',
+      phone: '0812',
+      scheduledAt: DateTime.now(),
+      notes: '',
+    );
+    await s.advanceStatus(order);
+    expect(order.history.last.by, 'Admin 1');
+
+    // Ganti PIN dan nama.
+    await s.updateAdmin(a2, name: 'Kasir Sore', pin: '9999');
+    expect(a2.name, 'Kasir Sore');
+    expect(a2.pin, '9999');
+
+    // Keluar mode pemilik menghapus sesi admin.
+    await s.setRole(null);
+    expect(s.currentAdmin, isNull);
+
+    // Tersimpan lintas instance.
+    final s2 = LaundryStore();
+    await s2.init();
+    expect(s2.admins.length, 2);
+    expect(s2.admins.last.name, 'Kasir Sore');
+
+    await s.deleteAdmin(a1);
+    expect(s.admins.length, 1);
+  });
+
   test('struk PDF terbentuk dari pesanan', () async {
     final order = Order(
       id: 'H2O-TEST-001',
