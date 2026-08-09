@@ -49,8 +49,15 @@ Future<Uint8List> buildReceiptPdf(Order order) async {
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         mainAxisSize: pw.MainAxisSize.min,
         children: [
-          pw.Center(child: pw.Text('H2O LAUNDRY PARAKAN', style: title)),
-          pw.SizedBox(height: 2),
+          pw.Center(child: pw.Text('H2O LAUNDRY', style: title)),
+          pw.Center(
+            child: pw.Text(
+              'PARAKAN',
+              style: pw.TextStyle(
+                  font: bold, fontSize: 9, letterSpacing: 3),
+            ),
+          ),
+          pw.SizedBox(height: 3),
           pw.Center(
               child: pw.Text('Laundry bersih, wangi, dan rapi',
                   style: small)),

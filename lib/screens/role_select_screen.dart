@@ -83,14 +83,23 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'H2O Laundry',
+                    'H2O LAUNDRY',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
+                  Text(
+                    'PARAKAN',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 6,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Text(
-                    'Parakan • Laundry bersih, wangi, dan rapi.\nAntar & ambil langsung di counter kami.',
+                    'Laundry bersih, wangi, dan rapi.\nAntar & ambil langsung di counter kami.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
