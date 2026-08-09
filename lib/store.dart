@@ -95,7 +95,8 @@ class LaundryStore extends ChangeNotifier {
     List<String> contents = const [],
   }) {
     final now = DateTime.now();
-    final code = 'LK${now.year % 100}${now.month.toString().padLeft(2, '0')}'
+    final code =
+        'H2O-${now.year % 100}${now.month.toString().padLeft(2, '0')}'
         '-${(now.millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
     final order = Order(
       id: code,

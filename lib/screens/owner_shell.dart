@@ -88,17 +88,7 @@ class _DashboardTab extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Dashboard',
-                      style: theme.textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w800)),
-                  Text(fullDate(now), style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
+            const Expanded(child: BrandHeader()),
             IconButton.filledTonal(
               tooltip: 'Ganti Mode',
               onPressed: () => store.setRole(null),
@@ -106,7 +96,10 @@ class _DashboardTab extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
+        Text('Dashboard Pemilik • ${fullDate(now)}',
+            style: theme.textTheme.bodySmall),
+        const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: MediaQuery.sizeOf(context).width > 560 ? 4 : 2,
           shrinkWrap: true,

@@ -77,12 +77,14 @@ class _HomeTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        const BrandHeader(),
+        const SizedBox(height: 18),
         Text(
           name.isEmpty ? 'Halo! 👋' : 'Halo, ${name.split(' ').first}! 👋',
-          style: theme.textTheme.headlineSmall
+          style: theme.textTheme.titleLarge
               ?.copyWith(fontWeight: FontWeight.w800),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text('Mau cuci apa hari ini?',
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),

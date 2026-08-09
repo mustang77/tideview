@@ -18,6 +18,64 @@ const serviceIcons = <String, IconData>{
 IconData serviceIcon(String id) =>
     serviceIcons[id] ?? Icons.local_laundry_service;
 
+/// Kop merek "H2O LAUNDRY / PARAKAN" dengan logo, dipakai di
+/// beranda pelanggan, dashboard pemilik, dan layar pembuka.
+class BrandHeader extends StatelessWidget {
+  const BrandHeader({super.key, this.compact = true});
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final logoSize = compact ? 44.0 : 88.0;
+    return Row(
+      mainAxisAlignment:
+          compact ? MainAxisAlignment.start : MainAxisAlignment.center,
+      children: [
+        Container(
+          width: logoSize,
+          height: logoSize,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(compact ? 12 : 24),
+          ),
+          child: Icon(Icons.local_laundry_service,
+              size: compact ? 26 : 48, color: Colors.white),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'H2O LAUNDRY',
+              style: TextStyle(
+                fontSize: compact ? 17 : 24,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
+              ),
+            ),
+            Text(
+              'PARAKAN',
+              style: TextStyle(
+                fontSize: compact ? 11 : 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: compact ? 4 : 6,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 Color statusColor(OrderStatus status) {
   switch (status) {
     case OrderStatus.menunggu:
