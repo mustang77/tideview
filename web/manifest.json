@@ -1,11 +1,11 @@
 {
-    "name": "LaundryKu",
-    "short_name": "LaundryKu",
+    "name": "H2O Laundry Parakan",
+    "short_name": "H2O Laundry",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0891B2",
     "theme_color": "#0891B2",
-    "description": "LaundryKu - laundry antar jemput, lacak status cucian Anda.",
+    "description": "H2O Laundry Parakan - lacak status cucian Anda.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

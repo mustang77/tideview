@@ -114,7 +114,7 @@ class _HomeTab extends StatelessWidget {
             title: const Text('Langsung di Counter',
                 style: TextStyle(fontWeight: FontWeight.w700)),
             subtitle: const Text(
-                'Antar dan ambil cucian Anda langsung di counter LaundryKu.'),
+                'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
       ],
@@ -427,7 +427,7 @@ class _ProfileTabState extends State<_ProfileTab> {
         ),
         const SizedBox(height: 8),
         Center(
-          child: Text('LaundryKu v1.0',
+          child: Text('H2O Laundry Parakan v1.0',
               style: Theme.of(context).textTheme.bodySmall),
         ),
       ],

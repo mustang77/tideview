@@ -1,4 +1,4 @@
-/// Model data untuk aplikasi LaundryKu.
+/// Model data untuk aplikasi H2O Laundry Parakan.
 library;
 
 /// Alur pesanan layanan di gerai (pelanggan datang ke counter):

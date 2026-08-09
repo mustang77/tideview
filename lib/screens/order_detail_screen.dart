@@ -40,7 +40,7 @@ class OrderDetailScreen extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 'Pesanan dibuat! Silakan antar cucian Anda '
-                                'ke counter LaundryKu sesuai jadwal.',
+                                'ke counter H2O Laundry Parakan sesuai jadwal.',
                                 style: TextStyle(
                                     color: theme
                                         .colorScheme.onPrimaryContainer),

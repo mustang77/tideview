@@ -8,17 +8,17 @@ import 'store.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await store.init();
-  runApp(const LaundryKuApp());
+  runApp(const H2OLaundryApp());
 }
 
-class LaundryKuApp extends StatelessWidget {
-  const LaundryKuApp({super.key});
+class H2OLaundryApp extends StatelessWidget {
+  const H2OLaundryApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF0891B2));
     return MaterialApp(
-      title: 'LaundryKu',
+      title: 'H2O Laundry Parakan',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: scheme,

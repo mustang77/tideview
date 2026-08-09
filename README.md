@@ -1,4 +1,4 @@
-# LaundryKu 🧺
+# H2O Laundry Parakan 🧺
 
 Aplikasi laundry untuk **pelanggan** dan **pemilik usaha** dalam satu aplikasi.
 Dibangun dengan Flutter — satu codebase untuk **Android, iOS, dan Web**.
