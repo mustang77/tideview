@@ -1,99 +1,79 @@
-import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-import "search_screen.dart";
-import "shorts_screen.dart";
+import 'package:flutter/material.dart';
 
-void main() {
+import 'screens/customer_shell.dart';
+import 'screens/owner_shell.dart';
+import 'screens/role_select_screen.dart';
+import 'store.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Allow all orientations so the player can rotate to landscape in fullscreen.
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
-  runApp(const TideViewApp());
+  await store.init();
+  runApp(const LaundryKuApp());
 }
 
-class TideViewApp extends StatefulWidget {
-  const TideViewApp({super.key});
-  @override
-  State<TideViewApp> createState() => _TideViewAppState();
-}
-
-class _TideViewAppState extends State<TideViewApp> {
-  ThemeMode _mode = ThemeMode.system;
-
-  void _toggle() {
-    setState(() {
-      final isDark = _mode == ThemeMode.dark ||
-          (_mode == ThemeMode.system &&
-              WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark);
-      _mode = isDark ? ThemeMode.light : ThemeMode.dark;
-    });
-  }
+class LaundryKuApp extends StatelessWidget {
+  const LaundryKuApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final lightTheme = ThemeData(
-      brightness: Brightness.light,
-      colorSchemeSeed: const Color(0xFF9c6b26),
-      scaffoldBackgroundColor: const Color(0xFFF3EFE6),
-      useMaterial3: true,
-    );
-
-    final darkScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF9c6b26),
-      brightness: Brightness.dark,
-    ).copyWith(surface: const Color(0xFF0F0F0F));
-
-    final darkTheme = ThemeData(
-      brightness: Brightness.dark,
-      colorScheme: darkScheme,
-      scaffoldBackgroundColor: const Color(0xFF0F0F0F),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0F0F0F),
-        foregroundColor: Colors.white,
-      ),
-      useMaterial3: true,
-    );
-
+    final scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF0891B2));
     return MaterialApp(
-      title: "TideView",
+      title: 'LaundryKu',
       debugShowCheckedModeBanner: false,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: _mode,
-      home: RootShell(onToggleTheme: _toggle),
+      theme: ThemeData(
+        colorScheme: scheme,
+        scaffoldBackgroundColor: const Color(0xFFF5F8FA),
+        fontFamily: 'PlusJakartaSans',
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          color: Colors.white,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: const Color(0xFFF5F8FA),
+          surfaceTintColor: Colors.transparent,
+          centerTitle: false,
+          titleTextStyle: const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+          ),
+        ),
+      ),
+      home: const RootGate(),
     );
   }
 }
 
-class RootShell extends StatefulWidget {
-  final VoidCallback onToggleTheme;
-  const RootShell({super.key, required this.onToggleTheme});
-  @override
-  State<RootShell> createState() => _RootShellState();
-}
-
-class _RootShellState extends State<RootShell> {
-  int _index = 0;
+/// Mengarahkan ke pemilihan mode, mode pelanggan, atau mode pemilik.
+class RootGate extends StatelessWidget {
+  const RootGate({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      SearchScreen(onToggleTheme: widget.onToggleTheme),
-      const ShortsScreen(),
-    ];
-    return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(icon: Icon(Icons.play_circle_outline), selectedIcon: Icon(Icons.play_circle), label: "Shorts"),
-        ],
-      ),
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) {
+        switch (store.role) {
+          case 'customer':
+            return const CustomerShell();
+          case 'owner':
+            return const OwnerShell();
+          default:
+            return const RoleSelectScreen();
+        }
+      },
     );
   }
 }
