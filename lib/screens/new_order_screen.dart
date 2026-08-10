@@ -170,7 +170,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     if (picked != null) setState(() => _time = picked);
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final name = _name.text.trim();
     final phone = _phone.text.trim();
     final items = _items;
@@ -195,8 +195,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           content: Text('Lengkapi nama dan no. HP dulu ya.')));
       return;
     }
-    store.saveProfile(name, phone, store.profile.address);
-    final order = store.createOrder(
+    await store.saveProfile(name, phone, store.profile.address);
+    final order = await store.createOrder(
       items: items,
       contents: [
         for (final e in _contents.entries)
@@ -208,6 +208,13 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           _date.year, _date.month, _date.day, _time.hour, _time.minute),
       notes: _notes.text.trim(),
     );
+    if (!mounted) return;
+    if (order == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Tidak bisa terhubung ke server. '
+              'Periksa koneksi lalu coba lagi.')));
+      return;
+    }
     Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (_) => OrderDetailScreen(order: order, justCreated: true)));
   }

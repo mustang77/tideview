@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'format.dart';
 import 'models.dart';
+import 'store.dart';
 
 const serviceIcons = <String, IconData>{
   'cuci_setrika': Icons.local_laundry_service,
@@ -423,6 +424,39 @@ class DetailRow extends StatelessWidget {
             child: Text(value, style: style, textAlign: TextAlign.end),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Banner peringatan saat mode server aktif tapi server tak terjangkau.
+class ServerOfflineBanner extends StatelessWidget {
+  const ServerOfflineBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!store.online || store.serverOk) return const SizedBox.shrink();
+    return Card(
+      color: const Color(0xFFFEF3C7),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Icon(Icons.cloud_off, color: Color(0xFFB45309), size: 20),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'Tidak terhubung ke server — menampilkan data terakhir.',
+                style: TextStyle(color: Color(0xFF78350F), fontSize: 12.5),
+              ),
+            ),
+            TextButton(
+              onPressed: () => store.refresh(),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
       ),
     );
   }

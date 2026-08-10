@@ -3,14 +3,20 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'api.dart';
 import 'models.dart';
 
-/// Sumber data tunggal aplikasi. Semua data disimpan lokal
-/// (SharedPreferences) sebagai satu blob JSON sehingga aplikasi
-/// berfungsi penuh tanpa backend — mode pelanggan dan pemilik
-/// membaca data yang sama.
+/// Sumber data tunggal aplikasi, dengan dua mode:
+///
+/// - **Mode server** (apiUrl terisi): server menjadi sumber kebenaran.
+///   Pesanan pelanggan dari HP mana pun langsung tampil di counter,
+///   dan status yang diubah admin tampil di HP pelanggan. Data terakhir
+///   tetap disimpan lokal sebagai cache saat offline.
+/// - **Mode lokal** (apiUrl kosong): semua data di perangkat, tanpa
+///   server — perilaku lama, tetap berfungsi penuh.
 class LaundryStore extends ChangeNotifier {
   static const _storageKey = 'laundryku_state_v1';
+  static const _apiUrlKey = 'h2o_api_url';
 
   final List<Order> orders = [];
   final List<ServiceType> services = [];
@@ -20,9 +26,18 @@ class LaundryStore extends ChangeNotifier {
   /// 'customer' | 'owner' | null (belum memilih mode).
   String? role;
 
-  /// Admin yang sedang masuk di Mode Pemilik (null bila belum ada
-  /// admin terdaftar / mode pemilik lama).
+  /// Admin yang sedang masuk di Mode Pemilik.
   String? currentAdminId;
+  String? _adminPin;
+
+  /// URL server (kosong = mode lokal).
+  String apiUrl = '';
+
+  /// false bila panggilan server terakhir gagal (tampilkan banner offline).
+  bool serverOk = true;
+
+  bool get online => apiUrl.isNotEmpty;
+  ApiClient? get api => online ? ApiClient(apiUrl) : null;
 
   AdminUser? get currentAdmin {
     for (final a in admins) {
@@ -37,6 +52,7 @@ class LaundryStore extends ChangeNotifier {
   Future<void> init() async {
     if (_loaded) return;
     _prefs = await SharedPreferences.getInstance();
+    apiUrl = _prefs!.getString(_apiUrlKey) ?? kDefaultApiUrl;
     final raw = _prefs!.getString(_storageKey);
     if (raw != null) {
       try {
@@ -57,15 +73,17 @@ class LaundryStore extends ChangeNotifier {
             ((m['profile'] as Map?) ?? {}).cast<String, dynamic>());
         role = m['role'] as String?;
         currentAdminId = m['currentAdminId'] as String?;
+        _adminPin = m['adminPin'] as String?;
       } catch (_) {
         // Data korup: mulai bersih daripada crash saat startup.
         orders.clear();
         services.clear();
       }
     }
-    if (services.isEmpty) services.addAll(defaultServices());
+    if (services.isEmpty && !online) services.addAll(defaultServices());
     _loaded = true;
     notifyListeners();
+    if (online) await refresh();
   }
 
   Future<void> _save() async {
@@ -77,6 +95,7 @@ class LaundryStore extends ChangeNotifier {
       'profile': profile.toMap(),
       'role': role,
       'currentAdminId': currentAdminId,
+      'adminPin': _adminPin,
     };
     await _prefs?.setString(_storageKey, jsonEncode(m));
   }
@@ -88,19 +107,92 @@ class LaundryStore extends ChangeNotifier {
     return null;
   }
 
+  // ---- Server ----
+
+  Future<void> setApiUrl(String url) async {
+    apiUrl = url.trim().replaceAll(RegExp(r'/+$'), '');
+    await _prefs?.setString(_apiUrlKey, apiUrl);
+    serverOk = true;
+    if (online) {
+      await refresh();
+    } else {
+      if (services.isEmpty) services.addAll(defaultServices());
+      await _save();
+    }
+  }
+
+  /// Ambil data terbaru dari server (katalog, admin, dan pesanan —
+  /// semua pesanan untuk pemilik, atau pesanan milik no. HP pelanggan).
+  Future<bool> refresh() async {
+    final a = api;
+    if (a == null) return true;
+    try {
+      final m = await a.state(
+        phone: role == 'owner' ? null : profile.phone,
+        adminId: currentAdminId,
+        adminPin: _adminPin,
+      );
+      services
+        ..clear()
+        ..addAll((m['services'] as List).map(
+            (e) => ServiceType.fromMap((e as Map).cast<String, dynamic>())));
+      admins
+        ..clear()
+        ..addAll((m['adminNames'] as List).map((e) => AdminUser(
+              id: (e as Map)['id'] as String,
+              name: e['name'] as String,
+              pin: '',
+            )));
+      orders
+        ..clear()
+        ..addAll((m['orders'] as List).map(
+            (e) => Order.fromMap((e as Map).cast<String, dynamic>())));
+      serverOk = true;
+      await _save();
+      return true;
+    } catch (_) {
+      serverOk = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Salin kondisi terbaru dari server ke objek pesanan yang sama,
+  /// supaya layar detail yang memegang referensinya ikut terbarui.
+  void _applyOrder(Order order, Map<String, dynamic> m) {
+    final fresh = Order.fromMap(m);
+    order.status = fresh.status;
+    order.paid = fresh.paid;
+    order.history
+      ..clear()
+      ..addAll(fresh.history);
+    for (var i = 0;
+        i < order.items.length && i < fresh.items.length;
+        i++) {
+      order.items[i].qty = fresh.items[i].qty;
+    }
+  }
+
   // ---- Mode / profil ----
 
   Future<void> setRole(String? value) async {
     role = value;
-    if (value != 'owner') currentAdminId = null;
+    if (value != 'owner') {
+      currentAdminId = null;
+      _adminPin = null;
+    }
     await _save();
+    if (online && value != null) await refresh();
   }
 
-  /// Masuk Mode Pemilik sebagai admin tertentu (setelah PIN cocok).
-  Future<void> loginOwner(AdminUser? admin) async {
+  /// Masuk Mode Pemilik sebagai admin tertentu (PIN sudah diverifikasi
+  /// oleh pemanggil — lokal dibandingkan, server via /api/admin/login).
+  Future<void> loginOwner(AdminUser? admin, {String? pin}) async {
     currentAdminId = admin?.id;
+    _adminPin = pin;
     role = 'owner';
     await _save();
+    if (online) await refresh();
   }
 
   Future<void> saveProfile(String name, String phone, String address) async {
@@ -113,14 +205,39 @@ class LaundryStore extends ChangeNotifier {
 
   // ---- Pesanan ----
 
-  Order createOrder({
+  /// Buat pesanan baru. Mode server: dikirim ke server (ID dibuat
+  /// server); null bila server tidak terjangkau.
+  Future<Order?> createOrder({
     required List<OrderItem> items,
     required String name,
     required String phone,
     required DateTime scheduledAt,
     required String notes,
     List<String> contents = const [],
-  }) {
+  }) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.createOrder({
+          'customerName': name,
+          'phone': phone,
+          'items': items.map((e) => e.toMap()).toList(),
+          'contents': contents,
+          'scheduledAt': scheduledAt.toIso8601String(),
+          'notes': notes,
+        });
+        final order = Order.fromMap(m);
+        orders.insert(0, order);
+        serverOk = true;
+        await _save();
+        return order;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return null;
+      }
+    }
+
     final now = DateTime.now();
     final code =
         'H2O-${now.year % 100}${now.month.toString().padLeft(2, '0')}'
@@ -139,45 +256,120 @@ class LaundryStore extends ChangeNotifier {
       createdAt: now,
     );
     orders.insert(0, order);
-    _save();
+    await _save();
     return order;
   }
 
   /// Majukan pesanan ke status berikutnya (dipakai mode pemilik).
   Future<void> advanceStatus(Order order) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.advanceOrder(order.id,
+            adminId: currentAdminId, adminPin: _adminPin);
+        _applyOrder(order, m);
+        serverOk = true;
+        await _save();
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+      }
+      return;
+    }
     final i = order.status.index;
     if (i >= OrderStatus.values.length - 1) return;
     order.status = OrderStatus.values[i + 1];
-    order.history
-        .add(StatusEntry(order.status, DateTime.now(), by: currentAdmin?.name));
+    order.history.add(
+        StatusEntry(order.status, DateTime.now(), by: currentAdmin?.name));
     await _save();
   }
 
   Future<void> setPaid(Order order, bool value) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.setOrderPaid(order.id, value,
+            adminId: currentAdminId, adminPin: _adminPin);
+        _applyOrder(order, m);
+        serverOk = true;
+        await _save();
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+      }
+      return;
+    }
     order.paid = value;
     await _save();
   }
 
   /// Perbarui berat/jumlah satu item setelah ditimbang di counter.
   Future<void> updateItemQty(Order order, OrderItem item, double qty) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.setItemQty(order.id, order.items.indexOf(item), qty,
+            adminId: currentAdminId, adminPin: _adminPin);
+        _applyOrder(order, m);
+        serverOk = true;
+        await _save();
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+      }
+      return;
+    }
     item.qty = qty;
     await _save();
   }
 
   Future<void> deleteOrder(Order order) async {
+    final a = api;
+    if (a != null) {
+      try {
+        await a.deleteOrder(order.id,
+            adminId: currentAdminId, adminPin: _adminPin);
+        serverOk = true;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return;
+      }
+    }
     orders.remove(order);
     await _save();
   }
 
   // ---- Katalog item (dikelola pemilik) ----
 
-  Future<ServiceType> addService({
+  Future<ServiceType?> addService({
     required String name,
     required String unit,
     required double price,
     int estimasiHari = 2,
     String description = '',
   }) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.createService({
+          'name': name,
+          'unit': unit,
+          'price': price,
+          'estimasiHari': estimasiHari,
+          'description': description,
+        }, adminId: currentAdminId, adminPin: _adminPin);
+        final s = ServiceType.fromMap(m);
+        services.add(s);
+        serverOk = true;
+        await _save();
+        return s;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return null;
+      }
+    }
     final s = ServiceType(
       id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
       name: name,
@@ -199,6 +391,32 @@ class LaundryStore extends ChangeNotifier {
     int? estimasiHari,
     String? description,
   }) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.updateService(service.id, {
+          if (name != null && name.isNotEmpty) 'name': name,
+          'unit': ?unit,
+          if (price != null && price > 0) 'price': price,
+          if (estimasiHari != null && estimasiHari > 0)
+            'estimasiHari': estimasiHari,
+          'description': ?description,
+        }, adminId: currentAdminId, adminPin: _adminPin);
+        final fresh = ServiceType.fromMap(m);
+        service
+          ..name = fresh.name
+          ..unit = fresh.unit
+          ..price = fresh.price
+          ..estimasiHari = fresh.estimasiHari
+          ..description = fresh.description;
+        serverOk = true;
+        await _save();
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+      }
+      return;
+    }
     if (name != null && name.isNotEmpty) service.name = name;
     if (unit != null) service.unit = unit;
     if (price != null && price > 0) service.price = price;
@@ -209,33 +427,100 @@ class LaundryStore extends ChangeNotifier {
     await _save();
   }
 
+  Future<void> deleteService(ServiceType service) async {
+    final a = api;
+    if (a != null) {
+      try {
+        await a.deleteService(service.id,
+            adminId: currentAdminId, adminPin: _adminPin);
+        serverOk = true;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return;
+      }
+    }
+    services.remove(service);
+    await _save();
+  }
+
   // ---- Admin (Mode Pemilik) ----
 
-  Future<AdminUser> addAdmin(String name, String pin) async {
-    final a = AdminUser(
-      id: 'admin_${DateTime.now().millisecondsSinceEpoch}',
-      name: name,
-      pin: pin,
-    );
-    admins.add(a);
+  Future<AdminUser?> addAdmin(String name, String pin) async {
+    final a = api;
+    AdminUser? created;
+    if (a != null) {
+      try {
+        final m = await a.createAdmin(name, pin,
+            adminId: currentAdminId, adminPin: _adminPin);
+        created =
+            AdminUser(id: m['id'] as String, name: m['name'] as String, pin: '');
+        serverOk = true;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return null;
+      }
+    } else {
+      created = AdminUser(
+        id: 'admin_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        pin: pin,
+      );
+    }
+    admins.add(created);
+    // Admin pertama yang dibuat dari sesi pemilik terbuka langsung
+    // menjadi admin aktif, supaya operasi berikutnya tetap sah.
+    if (role == 'owner' && currentAdminId == null) {
+      currentAdminId = created.id;
+      _adminPin = pin;
+    }
     await _save();
-    return a;
+    return created;
   }
 
   Future<void> updateAdmin(AdminUser admin, {String? name, String? pin}) async {
+    final a = api;
+    if (a != null) {
+      try {
+        await a.updateAdmin(admin.id,
+            name: name,
+            pin: pin,
+            adminId: currentAdminId,
+            adminPin: _adminPin);
+        serverOk = true;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return;
+      }
+    }
     if (name != null && name.isNotEmpty) admin.name = name;
-    if (pin != null && pin.isNotEmpty) admin.pin = pin;
+    if (pin != null && pin.isNotEmpty) {
+      if (api == null) admin.pin = pin;
+      if (admin.id == currentAdminId) _adminPin = pin;
+    }
     await _save();
   }
 
   Future<void> deleteAdmin(AdminUser admin) async {
+    final a = api;
+    if (a != null) {
+      try {
+        await a.deleteAdmin(admin.id,
+            adminId: currentAdminId, adminPin: _adminPin);
+        serverOk = true;
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+        return;
+      }
+    }
     admins.remove(admin);
-    if (currentAdminId == admin.id) currentAdminId = null;
-    await _save();
-  }
-
-  Future<void> deleteService(ServiceType service) async {
-    services.remove(service);
+    if (currentAdminId == admin.id) {
+      currentAdminId = null;
+      _adminPin = null;
+    }
     await _save();
   }
 
@@ -303,8 +588,6 @@ class LaundryStore extends ChangeNotifier {
   }
 }
 
-final store = LaundryStore();
-
 /// Ringkasan satu pelanggan, diagregasi dari riwayat pesanan.
 class CustomerSummary {
   CustomerSummary({
@@ -321,3 +604,5 @@ class CustomerSummary {
   final double totalSpent;
   final DateTime lastOrderAt;
 }
+
+final store = LaundryStore();

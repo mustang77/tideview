@@ -25,9 +25,14 @@ Dibangun dengan Flutter — satu codebase untuk **Android, iOS, dan Web**.
   deskripsi/estimasi, hapus item
 - Laporan pendapatan 7 hari terakhir dan bulan berjalan
 
-Data disimpan lokal di perangkat (`shared_preferences`), jadi aplikasi berfungsi
-penuh tanpa backend — cocok sebagai MVP/demo. Mode pelanggan dan pemilik membaca
-data yang sama, sehingga alurnya bisa dicoba end-to-end di satu perangkat.
+## Mode Server (multi-perangkat)
+
+Folder `server/` berisi backend Node.js (lihat `server/README.md` untuk cara
+pasang di VPS). Saat aplikasi dihubungkan ke server (build dengan
+`--dart-define=API_URL=https://domain-anda.com`, atau dari Mode Pemilik →
+Kelola Admin → Server), pesanan pelanggan dari HP mana pun langsung tampil
+di counter, status tersinkron balik ke pelanggan, dan PIN admin diverifikasi
+server. Tanpa server, aplikasi tetap berfungsi penuh dalam mode lokal.
 
 ## Menjalankan
 

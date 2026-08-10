@@ -26,7 +26,7 @@ void main() {
 
     final kiloan = s.serviceById('cuci_setrika')!;
     final selimut = s.serviceById('selimut')!;
-    final order = s.createOrder(
+    final order = (await s.createOrder(
       items: [
         OrderItem(
             serviceId: kiloan.id,
@@ -46,7 +46,7 @@ void main() {
       phone: '0812',
       scheduledAt: DateTime.now(),
       notes: '',
-    );
+    ))!;
 
     expect(order.total, kiloan.price * 3 + selimut.price);
     expect(order.contents, ['Kaos', 'Kemeja', 'Handuk']);
@@ -88,8 +88,8 @@ void main() {
     await s.init();
     final before = s.services.length;
 
-    final jaket = await s.addService(
-        name: 'Jaket', unit: 'pcs', price: 15000, estimasiHari: 3);
+    final jaket = (await s.addService(
+        name: 'Jaket', unit: 'pcs', price: 15000, estimasiHari: 3))!;
     expect(s.services.length, before + 1);
     expect(jaket.name, 'Jaket');
 
@@ -126,19 +126,19 @@ void main() {
         price: svc.price,
         qty: qty);
 
-    s.createOrder(
+    await s.createOrder(
         items: [item(3)],
         name: 'Budi',
         phone: '0812-1111',
         scheduledAt: DateTime.now(),
         notes: '');
-    s.createOrder(
+    await s.createOrder(
         items: [item(4)],
         name: 'Budi Santoso', // nama terbaru menang
         phone: '08121111', // nomor sama walau format beda
         scheduledAt: DateTime.now(),
         notes: '');
-    s.createOrder(
+    await s.createOrder(
         items: [item(5)],
         name: 'Cindy',
         phone: '08222222',
@@ -160,8 +160,8 @@ void main() {
     await s.init();
     expect(s.admins, isEmpty);
 
-    final a1 = await s.addAdmin('Admin 1', '1234');
-    final a2 = await s.addAdmin('Admin 2', '5678');
+    final a1 = (await s.addAdmin('Admin 1', '1234'))!;
+    final a2 = (await s.addAdmin('Admin 2', '5678'))!;
     expect(s.admins.length, 2);
 
     await s.loginOwner(a1);
@@ -170,7 +170,7 @@ void main() {
 
     // Perubahan status tercatat atas nama admin yang masuk.
     final svc = s.serviceById('cuci_setrika')!;
-    final order = s.createOrder(
+    final order = (await s.createOrder(
       items: [
         OrderItem(
             serviceId: svc.id,
@@ -183,7 +183,7 @@ void main() {
       phone: '0812',
       scheduledAt: DateTime.now(),
       notes: '',
-    );
+    ))!;
     await s.advanceStatus(order);
     expect(order.history.last.by, 'Admin 1');
 

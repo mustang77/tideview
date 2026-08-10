@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../api.dart';
 import '../models.dart';
 import '../store.dart';
 
@@ -100,6 +101,70 @@ class AdminScreen extends StatelessWidget {
     if (yes == true) await store.deleteAdmin(a);
   }
 
+  Future<void> _editServer(BuildContext context) async {
+    final url = TextEditingController(text: store.apiUrl);
+    String? error;
+    bool busy = false;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Server'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: url,
+                autofocus: true,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(
+                  labelText: 'Alamat server',
+                  hintText: 'https://domain-anda.com',
+                  helperText: 'Kosongkan untuk mode lokal (tanpa server)',
+                  errorText: error,
+                  prefixIcon: const Icon(Icons.cloud_outlined),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: busy ? null : () => Navigator.pop(context),
+                child: const Text('Batal')),
+            FilledButton(
+              onPressed: busy
+                  ? null
+                  : () async {
+                      final u = url.text.trim();
+                      if (u.isEmpty) {
+                        await store.setApiUrl('');
+                        if (context.mounted) Navigator.pop(context);
+                        return;
+                      }
+                      setState(() {
+                        busy = true;
+                        error = null;
+                      });
+                      try {
+                        await ApiClient(u).health();
+                        await store.setApiUrl(u);
+                        if (context.mounted) Navigator.pop(context);
+                      } catch (_) {
+                        setState(() {
+                          busy = false;
+                          error = 'Tidak bisa terhubung. Periksa alamatnya.';
+                        });
+                      }
+                    },
+              child: Text(busy ? 'Menghubungkan...' : 'Uji & Simpan'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -114,6 +179,31 @@ class AdminScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        store.online
+                            ? (store.serverOk
+                                ? Icons.cloud_done_outlined
+                                : Icons.cloud_off)
+                            : Icons.cloud_outlined,
+                        color: store.online
+                            ? (store.serverOk
+                                ? const Color(0xFF16A34A)
+                                : theme.colorScheme.error)
+                            : null,
+                      ),
+                      title: const Text('Server',
+                          style: TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: Text(store.online
+                          ? '${store.apiUrl}'
+                              '${store.serverOk ? '' : ' — tidak terjangkau'}'
+                          : 'Mode lokal (tanpa server)'),
+                      trailing: const Icon(Icons.edit_outlined, size: 20),
+                      onTap: () => _editServer(context),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Card(
                     color: theme.colorScheme.primaryContainer,
                     child: Padding(

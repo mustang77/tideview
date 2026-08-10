@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../format.dart';
@@ -17,6 +19,21 @@ class CustomerShell extends StatefulWidget {
 
 class _CustomerShellState extends State<CustomerShell> {
   int _index = 0;
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    store.refresh();
+    _poll = Timer.periodic(
+        const Duration(seconds: 30), (_) => store.refresh());
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +108,7 @@ class _HomeTabState extends State<_HomeTab> {
           },
         ),
         const SizedBox(height: 18),
+        const ServerOfflineBanner(),
         Text(
           name.isEmpty ? 'Halo! 👋' : 'Halo, ${name.split(' ').first}! 👋',
           style: theme.textTheme.titleLarge

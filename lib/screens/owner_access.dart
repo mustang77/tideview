@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../api.dart';
 import '../models.dart';
 import '../store.dart';
 
 /// Pintu masuk Mode Pemilik. Tanpa admin terdaftar langsung masuk;
 /// bila sudah ada admin, wajib memilih admin dan memasukkan PIN.
 Future<void> enterOwnerMode(BuildContext context) async {
+  if (store.online) await store.refresh();
+  if (!context.mounted) return;
   if (store.admins.isEmpty) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -19,8 +22,11 @@ Future<void> enterOwnerMode(BuildContext context) async {
     context: context,
     builder: (context) => const _AdminLoginDialog(),
   );
-  if (admin != null) await store.loginOwner(admin);
+  if (admin != null) await store.loginOwner(admin, pin: pinOf[admin.id]);
 }
+
+/// PIN yang berhasil dipakai login, untuk header autentikasi berikutnya.
+final pinOf = <String, String>{};
 
 /// Hitung ketukan rahasia pada logo (7x, jeda maksimal 2 detik).
 /// Mengembalikan true bila ambang tercapai; petunjuk sisa ketukan
@@ -76,11 +82,35 @@ class _AdminLoginDialogState extends State<_AdminLoginDialog> {
     super.dispose();
   }
 
-  void _submit() {
-    if (_pin.text == _selected.pin) {
-      Navigator.pop(context, _selected);
-    } else {
-      setState(() => _error = 'PIN salah, coba lagi.');
+  bool _busy = false;
+
+  Future<void> _submit() async {
+    if (_busy) return;
+    if (!store.online) {
+      if (_pin.text == _selected.pin) {
+        pinOf[_selected.id] = _pin.text;
+        Navigator.pop(context, _selected);
+      } else {
+        setState(() => _error = 'PIN salah, coba lagi.');
+      }
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await store.api!.adminLogin(_selected.id, _pin.text);
+      pinOf[_selected.id] = _pin.text;
+      if (mounted) Navigator.pop(context, _selected);
+    } on ApiException {
+      if (mounted) setState(() => _error = 'PIN salah, coba lagi.');
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Tidak bisa terhubung ke server.');
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 

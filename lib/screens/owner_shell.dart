@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +20,21 @@ class OwnerShell extends StatefulWidget {
 
 class _OwnerShellState extends State<OwnerShell> {
   int _index = 0;
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    store.refresh();
+    _poll = Timer.periodic(
+        const Duration(seconds: 20), (_) => store.refresh());
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,6 +134,7 @@ class _DashboardTab extends StatelessWidget {
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
+        const ServerOfflineBanner(),
         GridView.count(
           crossAxisCount: MediaQuery.sizeOf(context).width > 560 ? 4 : 2,
           shrinkWrap: true,
