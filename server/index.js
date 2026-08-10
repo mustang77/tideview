@@ -7,6 +7,7 @@
 
 const express = require('express');
 const fs = require('fs');
+const https = require('https');
 const path = require('path');
 
 const PORT = process.env.PORT || 8080;
@@ -298,7 +299,26 @@ app.delete('/api/admins/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`H2O Laundry API berjalan di port ${PORT}`);
-  console.log(`Data tersimpan di ${DATA_FILE}`);
-});
+// Dengan SSL_CERT + SSL_KEY (path file sertifikat, mis. Let's Encrypt),
+// server melayani HTTPS langsung — berguna bila reverse proxy web server
+// (LiteSpeed/Apache) sulit dikonfigurasi. Tanpa keduanya: HTTP biasa
+// (di belakang reverse proxy).
+if (process.env.SSL_CERT && process.env.SSL_KEY) {
+  https
+    .createServer(
+      {
+        cert: fs.readFileSync(process.env.SSL_CERT),
+        key: fs.readFileSync(process.env.SSL_KEY),
+      },
+      app,
+    )
+    .listen(PORT, () => {
+      console.log(`H2O Laundry API (HTTPS) berjalan di port ${PORT}`);
+      console.log(`Data tersimpan di ${DATA_FILE}`);
+    });
+} else {
+  app.listen(PORT, () => {
+    console.log(`H2O Laundry API berjalan di port ${PORT}`);
+    console.log(`Data tersimpan di ${DATA_FILE}`);
+  });
+}
