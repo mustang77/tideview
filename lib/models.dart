@@ -247,6 +247,84 @@ class Order {
   }
 }
 
+/// Komentar pada pos Info & Promo.
+class PromoComment {
+  PromoComment({
+    required this.id,
+    required this.name,
+    required this.text,
+    required this.at,
+    this.byAdmin = false,
+    this.mine = false,
+  });
+
+  final String id;
+  final String name;
+  final String text;
+  final DateTime at;
+
+  /// Komentar ditulis admin (ditandai lencana di UI).
+  final bool byAdmin;
+
+  /// Komentar milik pelanggan yang sedang masuk (boleh dihapus).
+  final bool mine;
+
+  factory PromoComment.fromMap(Map<String, dynamic> m) => PromoComment(
+        id: m['id'] as String,
+        name: m['name'] as String? ?? '',
+        text: m['text'] as String? ?? '',
+        at: DateTime.parse(m['at'] as String).toLocal(),
+        byAdmin: m['byAdmin'] as bool? ?? false,
+        mine: m['mine'] as bool? ?? false,
+      );
+}
+
+/// Pos Info & Promo dari pemilik — feed gaya Mingle (wca_app):
+/// teks dengan latar warna atau foto, disukai dan dikomentari pelanggan.
+class PromoPost {
+  PromoPost({
+    required this.id,
+    required this.authorName,
+    required this.caption,
+    required this.bgStyle,
+    required this.imageUrl,
+    required this.createdAt,
+    required this.likeCount,
+    required this.likedByMe,
+    required this.comments,
+  });
+
+  final String id;
+  final String authorName;
+  final String caption;
+
+  /// Kunci latar pos teks berwarna ('' = polos). Lihat PromoBg.
+  final String bgStyle;
+
+  /// Jalur foto relatif server ('/uploads/..'), '' bila tanpa foto.
+  final String imageUrl;
+  final DateTime createdAt;
+
+  int likeCount;
+  bool likedByMe;
+  final List<PromoComment> comments;
+
+  factory PromoPost.fromMap(Map<String, dynamic> m) => PromoPost(
+        id: m['id'] as String,
+        authorName: m['authorName'] as String? ?? 'H2O Laundry',
+        caption: m['caption'] as String? ?? '',
+        bgStyle: m['bgStyle'] as String? ?? '',
+        imageUrl: m['imageUrl'] as String? ?? '',
+        createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
+        likeCount: (m['likeCount'] as num? ?? 0).toInt(),
+        likedByMe: m['likedByMe'] as bool? ?? false,
+        comments: (m['comments'] as List? ?? [])
+            .map((e) =>
+                PromoComment.fromMap((e as Map).cast<String, dynamic>()))
+            .toList(),
+      );
+}
+
 class CustomerProfile {
   CustomerProfile({this.name = '', this.phone = '', this.address = ''});
 

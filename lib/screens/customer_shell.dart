@@ -9,6 +9,7 @@ import '../widgets.dart';
 import 'new_order_screen.dart';
 import 'order_detail_screen.dart';
 import 'owner_access.dart';
+import 'promo.dart';
 
 class CustomerShell extends StatefulWidget {
   const CustomerShell({super.key});
@@ -180,6 +181,11 @@ class _HomeTabState extends State<_HomeTab> {
                 'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
+        if (store.posts.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          const SectionTitle('Info & Promo'),
+          for (final p in store.posts) PromoCard(post: p),
+        ],
       ],
     );
   }

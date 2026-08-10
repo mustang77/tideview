@@ -21,6 +21,9 @@ class LaundryStore extends ChangeNotifier {
   final List<Order> orders = [];
   final List<ServiceType> services = [];
   final List<AdminUser> admins = [];
+
+  /// Feed Info & Promo dari server (kosong di mode lokal).
+  final List<PromoPost> posts = [];
   CustomerProfile profile = CustomerProfile();
 
   /// 'customer' | 'owner' | null (belum memilih mode).
@@ -166,6 +169,10 @@ class LaundryStore extends ChangeNotifier {
         ..clear()
         ..addAll((m['orders'] as List).map(
             (e) => Order.fromMap((e as Map).cast<String, dynamic>())));
+      posts
+        ..clear()
+        ..addAll((m['posts'] as List? ?? []).map(
+            (e) => PromoPost.fromMap((e as Map).cast<String, dynamic>())));
       serverOk = true;
       await _save();
       return true;
@@ -189,6 +196,116 @@ class LaundryStore extends ChangeNotifier {
         i < order.items.length && i < fresh.items.length;
         i++) {
       order.items[i].qty = fresh.items[i].qty;
+    }
+  }
+
+  // ---- Info & Promo ----
+
+  /// URL penuh media server (foto promo) dari jalur relatifnya.
+  String mediaUrl(String path) =>
+      path.isEmpty || path.startsWith('http') ? path : '$apiUrl$path';
+
+  void _replacePost(PromoPost old, Map<String, dynamic> m) {
+    final fresh = PromoPost.fromMap(m);
+    final i = posts.indexOf(old);
+    if (i >= 0) posts[i] = fresh;
+    notifyListeners();
+  }
+
+  /// Buat pos promo baru (admin). Mengembalikan pesan error, null = sukses.
+  Future<String?> createPromo(
+      {required String caption,
+      String bgStyle = '',
+      String? imageBase64,
+      String? imageExt}) async {
+    final a = api;
+    if (a == null) return 'Fitur promo membutuhkan server.';
+    try {
+      final m = await a.createPost(
+          caption: caption,
+          bgStyle: bgStyle,
+          imageData: imageBase64,
+          imageExt: imageExt,
+          adminId: currentAdminId,
+          adminPin: _adminPin);
+      posts.insert(0, PromoPost.fromMap(m));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  Future<void> deletePromo(PromoPost p) async {
+    final a = api;
+    if (a == null) return;
+    try {
+      await a.deletePost(p.id, adminId: currentAdminId, adminPin: _adminPin);
+      posts.remove(p);
+      notifyListeners();
+    } catch (_) {
+      serverOk = false;
+      notifyListeners();
+    }
+  }
+
+  /// Suka/batal suka (pelanggan). Optimistis: UI berubah dulu,
+  /// dikembalikan bila server menolak.
+  Future<void> togglePromoLike(PromoPost p) async {
+    final a = api;
+    if (a == null || _custPin == null) return;
+    p.likedByMe = !p.likedByMe;
+    p.likeCount += p.likedByMe ? 1 : -1;
+    notifyListeners();
+    try {
+      final m = await a.togglePostLike(p.id,
+          custPhone: profile.phone, custPin: _custPin);
+      _replacePost(p, m);
+    } catch (_) {
+      p.likedByMe = !p.likedByMe;
+      p.likeCount += p.likedByMe ? 1 : -1;
+      notifyListeners();
+    }
+  }
+
+  /// Tambah komentar sebagai pelanggan (mode pelanggan) atau admin
+  /// (mode pemilik). Mengembalikan pesan error, null = sukses.
+  Future<String?> addPromoComment(PromoPost p, String text) async {
+    final a = api;
+    if (a == null) return 'Fitur promo membutuhkan server.';
+    try {
+      final asOwner = role == 'owner';
+      final m = await a.addPostComment(p.id, text,
+          adminId: asOwner ? currentAdminId : null,
+          adminPin: asOwner ? _adminPin : null,
+          custPhone: asOwner ? null : profile.phone,
+          custPin: asOwner ? null : _custPin);
+      _replacePost(p, m);
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  Future<void> deletePromoComment(PromoPost p, PromoComment c) async {
+    final a = api;
+    if (a == null) return;
+    try {
+      final asOwner = role == 'owner';
+      await a.deletePostComment(p.id, c.id,
+          adminId: asOwner ? currentAdminId : null,
+          adminPin: asOwner ? _adminPin : null,
+          custPhone: asOwner ? null : profile.phone,
+          custPin: asOwner ? null : _custPin);
+      p.comments.remove(c);
+      notifyListeners();
+    } catch (_) {
+      serverOk = false;
+      notifyListeners();
     }
   }
 

@@ -57,3 +57,14 @@ String waPhone(String phone) {
   if (digits.startsWith('0')) return '62${digits.substring(1)}';
   return '62$digits';
 }
+
+/// Waktu relatif ringkas untuk feed promo: "baru saja", "5 mnt",
+/// "3 jam", "2 hari", lalu tanggal singkat.
+String timeAgo(DateTime t) {
+  final d = DateTime.now().difference(t);
+  if (d.inSeconds < 60) return 'baru saja';
+  if (d.inMinutes < 60) return '${d.inMinutes} mnt';
+  if (d.inHours < 24) return '${d.inHours} jam';
+  if (d.inDays < 7) return '${d.inDays} hari';
+  return shortDate(t);
+}

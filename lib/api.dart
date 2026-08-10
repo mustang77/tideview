@@ -99,10 +99,17 @@ class ApiClient {
   }
 
   Future<void> _delete(String path,
-      {String? adminId, String? adminPin}) async {
+      {String? adminId,
+      String? adminPin,
+      String? custPhone,
+      String? custPin}) async {
     final r = await http
         .delete(Uri.parse('$baseUrl$path'),
-            headers: _headers(adminId: adminId, adminPin: adminPin))
+            headers: _headers(
+                adminId: adminId,
+                adminPin: adminPin,
+                custPhone: custPhone,
+                custPin: custPin))
         .timeout(_timeout);
     _decode(r);
   }
@@ -144,6 +151,52 @@ class ApiClient {
 
   Future<void> deleteOrder(String id, {String? adminId, String? adminPin}) =>
       _delete('/api/orders/$id', adminId: adminId, adminPin: adminPin);
+
+  // ---- Info & Promo ----
+
+  Future<Map<String, dynamic>> createPost(
+          {required String caption,
+          String bgStyle = '',
+          String? imageData,
+          String? imageExt,
+          String? adminId,
+          String? adminPin}) =>
+      _post('/api/posts', {
+        'caption': caption,
+        'bgStyle': bgStyle,
+        'imageData': ?imageData,
+        'imageExt': ?imageExt,
+      }, adminId: adminId, adminPin: adminPin);
+
+  Future<void> deletePost(String id, {String? adminId, String? adminPin}) =>
+      _delete('/api/posts/$id', adminId: adminId, adminPin: adminPin);
+
+  Future<Map<String, dynamic>> togglePostLike(String id,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/posts/$id/like', {},
+          custPhone: custPhone, custPin: custPin);
+
+  Future<Map<String, dynamic>> addPostComment(String id, String text,
+          {String? adminId,
+          String? adminPin,
+          String? custPhone,
+          String? custPin}) =>
+      _post('/api/posts/$id/comments', {'text': text},
+          adminId: adminId,
+          adminPin: adminPin,
+          custPhone: custPhone,
+          custPin: custPin);
+
+  Future<void> deletePostComment(String id, String cid,
+          {String? adminId,
+          String? adminPin,
+          String? custPhone,
+          String? custPin}) =>
+      _delete('/api/posts/$id/comments/$cid',
+          adminId: adminId,
+          adminPin: adminPin,
+          custPhone: custPhone,
+          custPin: custPin);
 
   // ---- Katalog ----
 

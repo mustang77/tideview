@@ -28,7 +28,7 @@ const defaultServices = [
   { id: 'express', name: 'Express 1 Hari', unit: 'kg', price: 12000, description: 'Cuci + setrika kilat, selesai 24 jam', estimasiHari: 1 },
 ];
 
-let db = { seq: 1, services: defaultServices, orders: [], admins: [], customers: [] };
+let db = { seq: 1, services: defaultServices, orders: [], admins: [], customers: [], posts: [] };
 if (fs.existsSync(DATA_FILE)) {
   try {
     db = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -36,6 +36,11 @@ if (fs.existsSync(DATA_FILE)) {
     console.error('data.json tidak bisa dibaca — mulai dari kosong:', e.message);
   }
 }
+db.posts = db.posts || [];
+
+// Folder foto promo (dilayani statis di /uploads).
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 let saveTimer = null;
 function save() {
@@ -122,7 +127,8 @@ async function verifyFirebaseToken(idToken) {
 }
 
 const app = express();
-app.use(express.json({ limit: '1mb' }));
+// 10mb: badan JSON promo bisa memuat foto base64 (maks 5 MB biner).
+app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
@@ -133,6 +139,8 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+// Setelah middleware CORS supaya foto bisa dimuat kanvas Flutter web.
+app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
 
 // Selama belum ada admin terdaftar, akses admin terbuka (bootstrap) —
 // sama seperti perilaku aplikasi. Setelah ada admin, wajib header
@@ -170,6 +178,7 @@ app.get('/api/health', (req, res) =>
 app.get('/api/state', (req, res) => {
   const a = admin(req);
   let orders = [];
+  let custPhone = null;
   if (a) {
     orders = db.orders;
   } else if (req.get('x-cust-phone')) {
@@ -177,12 +186,14 @@ app.get('/api/state', (req, res) => {
     if (!c) {
       return res.status(401).json({ error: 'Sesi pelanggan tidak valid' });
     }
+    custPhone = c.phone;
     orders = db.orders.filter((o) => normPhone(o.phone) === c.phone);
   }
   res.json({
     services: db.services,
     adminNames: db.admins.map(({ id, name }) => ({ id, name })),
     orders,
+    posts: db.posts.map((p) => postView(p, custPhone)),
     isAdmin: !!a,
   });
 });
@@ -332,6 +343,151 @@ app.post('/api/customer/login', (req, res) => {
   const c = db.customers.find((c) => c.phone === np && c.pin === pin);
   if (!c) return res.status(401).json({ error: 'Nomor atau PIN salah' });
   res.json({ ok: true, name: c.name, phone: c.phone });
+});
+
+// ---- Info & Promo (feed gaya Mingle: pemilik memposting, pelanggan
+// menyukai dan berkomentar) ----
+
+// Bentuk pos yang dikirim ke aplikasi: tanpa daftar nomor HP penyuka
+// (privasi), plus penanda likedByMe/mine untuk pelanggan yang masuk.
+function postView(p, custPhone) {
+  return {
+    id: p.id,
+    authorName: p.authorName,
+    caption: p.caption,
+    bgStyle: p.bgStyle || '',
+    imageUrl: p.image ? `/uploads/${p.image}` : '',
+    createdAt: p.createdAt,
+    likeCount: p.likes.length,
+    likedByMe: custPhone ? p.likes.includes(custPhone) : false,
+    comments: p.comments.map((c) => ({
+      id: c.id,
+      name: c.name,
+      text: c.text,
+      at: c.at,
+      byAdmin: !!c.byAdmin,
+      mine: !!(custPhone && c.phone === custPhone),
+    })),
+  };
+}
+
+function findPost(req, res) {
+  const p = db.posts.find((p) => p.id === req.params.id);
+  if (!p) res.status(404).json({ error: 'Promo tidak ditemukan' });
+  return p;
+}
+
+app.get('/api/posts', (req, res) => {
+  const c = customer(req);
+  res.json({ posts: db.posts.map((p) => postView(p, c ? c.phone : null)) });
+});
+
+app.post('/api/posts', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const b = req.body || {};
+  const caption = String(b.caption || '').trim();
+  if (!caption && !b.imageData) {
+    return res.status(400).json({ error: 'Tulis sesuatu atau pilih foto' });
+  }
+  let image = '';
+  if (b.imageData) {
+    let buf;
+    try {
+      buf = Buffer.from(String(b.imageData), 'base64');
+    } catch (e) {
+      buf = Buffer.alloc(0);
+    }
+    if (!buf.length || buf.length > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: 'Foto tidak valid atau lebih dari 5 MB' });
+    }
+    const ext = ['png', 'webp'].includes(b.imageExt) ? b.imageExt : 'jpg';
+    image = `promo_${Date.now()}.${ext}`;
+    fs.writeFileSync(path.join(UPLOAD_DIR, image), buf);
+  }
+  const post = {
+    id: `post_${Date.now()}`,
+    authorName: a.name || 'H2O Laundry',
+    caption,
+    bgStyle: String(b.bgStyle || ''),
+    image,
+    createdAt: now(),
+    likes: [],
+    comments: [],
+  };
+  db.posts.unshift(post);
+  save();
+  res.json(postView(post, null));
+});
+
+app.delete('/api/posts/:id', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const p = findPost(req, res);
+  if (!p) return;
+  if (p.image) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, p.image));
+    } catch (e) {}
+  }
+  db.posts = db.posts.filter((x) => x.id !== p.id);
+  save();
+  res.json({ ok: true });
+});
+
+app.post('/api/posts/:id/like', (req, res) => {
+  const c = customer(req);
+  if (!c) {
+    return res.status(401).json({ error: 'Silakan masuk untuk menyukai' });
+  }
+  const p = findPost(req, res);
+  if (!p) return;
+  const i = p.likes.indexOf(c.phone);
+  if (i >= 0) p.likes.splice(i, 1);
+  else p.likes.push(c.phone);
+  save();
+  res.json(postView(p, c.phone));
+});
+
+app.post('/api/posts/:id/comments', (req, res) => {
+  const text = String((req.body || {}).text || '').trim();
+  if (!text || text.length > 500) {
+    return res.status(400).json({ error: 'Komentar kosong atau terlalu panjang' });
+  }
+  const p = findPost(req, res);
+  if (!p) return;
+  const c = customer(req);
+  const a = c ? null : admin(req);
+  if (!c && !a) {
+    return res.status(401).json({ error: 'Silakan masuk untuk berkomentar' });
+  }
+  p.comments.push({
+    id: `c_${Date.now()}`,
+    phone: c ? c.phone : '',
+    name: c ? c.name : (a.name || 'Admin'),
+    text,
+    at: now(),
+    byAdmin: !c,
+  });
+  save();
+  res.json(postView(p, c ? c.phone : null));
+});
+
+app.delete('/api/posts/:id/comments/:cid', (req, res) => {
+  const p = findPost(req, res);
+  if (!p) return;
+  const idx = p.comments.findIndex((c) => c.id === req.params.cid);
+  if (idx < 0) {
+    return res.status(404).json({ error: 'Komentar tidak ditemukan' });
+  }
+  const c = customer(req);
+  const own = c && p.comments[idx].phone === c.phone;
+  if (!own && !admin(req)) {
+    return res.status(401).json({ error: 'Tidak berhak menghapus komentar ini' });
+  }
+  p.comments.splice(idx, 1);
+  save();
+  res.json(postView(p, c ? c.phone : null));
 });
 
 // ---- Katalog item ----

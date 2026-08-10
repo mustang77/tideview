@@ -10,6 +10,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'admin_screen.dart';
 import 'owner_order_detail_screen.dart';
+import 'promo.dart';
 
 class OwnerShell extends StatefulWidget {
   const OwnerShell({super.key});
@@ -193,6 +194,33 @@ class _DashboardTab extends StatelessWidget {
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => OwnerOrderDetailScreen(order: o))),
             ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            const Expanded(child: SectionTitle('Info & Promo')),
+            FilledButton.tonalIcon(
+              onPressed: store.online
+                  ? () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const PromoComposeScreen()))
+                  : null,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Buat Promo'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (!store.online)
+          const EmptyState(
+              icon: Icons.campaign_outlined,
+              message: 'Fitur promo membutuhkan server (atur di '
+                  'Kelola Admin > Server).')
+        else if (store.posts.isEmpty)
+          const EmptyState(
+              icon: Icons.campaign_outlined,
+              message: 'Belum ada promo. Buat promo pertama untuk '
+                  'pelanggan Anda!')
+        else
+          for (final p in store.posts) PromoCard(post: p, isOwner: true),
       ],
     );
   }
