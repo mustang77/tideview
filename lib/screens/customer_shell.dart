@@ -51,16 +51,16 @@ class _CustomerShellState extends State<CustomerShell> {
               child: switch (_index) {
                 0 => _HomeTab(),
                 1 => _OrdersTab(history: false),
-                2 => _OrdersTab(history: true),
+                2 => _KomunitasTab(),
                 _ => _ProfileTab(),
               },
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          tooltip: 'Buat Pesanan',
+          tooltip: 'Buat Postingan',
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const NewOrderScreen())),
+              builder: (_) => const PromoComposeScreen())),
           shape: const CircleBorder(),
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Colors.white,
@@ -91,9 +91,9 @@ class _CustomerShellState extends State<CustomerShell> {
                   onTap: () => setState(() => _index = 1)),
               const SizedBox(width: 72),
               NavIcon(
-                  icon: Icons.history_outlined,
-                  activeIcon: Icons.history,
-                  label: 'Riwayat',
+                  icon: Icons.groups_outlined,
+                  activeIcon: Icons.groups,
+                  label: 'Komunitas',
                   selected: _index == 2,
                   onTap: () => setState(() => _index = 2)),
               NavIcon(
@@ -184,24 +184,29 @@ class _HomeTabState extends State<_HomeTab> {
                 'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
-        if (store.posts.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              const Expanded(child: SectionTitle('Info & Promo')),
-              TextButton(
-                onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const PromoFeedScreen())),
-                child: const Text('Lihat Semua'),
-              ),
-            ],
-          ),
-          // Reels video (bila ada), lalu hanya promo terbaru —
-          // selengkapnya di layar feed.
-          const ReelsStrip(),
-          PromoCard(post: store.posts.first),
-        ],
+        ...(() {
+          final promos =
+              store.posts.where((p) => p.byAdmin).toList();
+          if (promos.isEmpty) return const <Widget>[];
+          return <Widget>[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Expanded(child: SectionTitle('Info & Promo')),
+                TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const PromoFeedScreen())),
+                  child: const Text('Lihat Semua'),
+                ),
+              ],
+            ),
+            // Reels video (bila ada), lalu hanya promo terbaru —
+            // selengkapnya di layar feed & tab Komunitas.
+            const ReelsStrip(),
+            PromoCard(post: promos.first),
+          ];
+        })(),
       ],
     );
   }
@@ -379,11 +384,25 @@ class _OrdersTab extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(history ? 'Riwayat' : 'Pesanan Saya',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800)),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(history ? 'Riwayat' : 'Pesanan Saya',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+              if (!history)
+                FilledButton.tonalIcon(
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const NewOrderScreen())),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Buat Pesanan'),
+                ),
+            ],
+          ),
         ),
         Expanded(
           child: orders.isEmpty
@@ -393,7 +412,7 @@ class _OrdersTab extends StatelessWidget {
                       : Icons.receipt_long_outlined,
                   message: history
                       ? 'Belum ada pesanan yang selesai.'
-                      : 'Belum ada pesanan aktif.\nKetuk tombol + untuk memesan!',
+                      : 'Belum ada pesanan aktif.\nKetuk "Buat Pesanan" untuk memesan!',
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -409,6 +428,86 @@ class _OrdersTab extends StatelessWidget {
                 ),
         ),
       ],
+    );
+  }
+}
+
+// -------------------------------------------------------------- Komunitas
+
+/// Tab Komunitas: feed semua postingan (promo resmi + kiriman
+/// pelanggan). Foto tampil langsung, video dibuka di layar Reels,
+/// tombol + di tengah untuk menambah foto/video — gaya wca_app.
+class _KomunitasTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 2),
+          child: Text('Komunitas',
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800)),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Bagikan momen cucianmu — ketuk + untuk menambah foto '
+            'atau video.',
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Expanded(
+          child: !store.online
+              ? const EmptyState(
+                  icon: Icons.groups_outlined,
+                  message: 'Komunitas membutuhkan koneksi ke server.')
+              : RefreshIndicator(
+                  onRefresh: () async => store.refresh(),
+                  child: store.posts.isEmpty
+                      ? ListView(
+                          children: const [
+                            SizedBox(height: 100),
+                            EmptyState(
+                                icon: Icons.groups_outlined,
+                                message:
+                                    'Belum ada postingan. Jadilah yang '
+                                    'pertama — ketuk tombol +!'),
+                          ],
+                        )
+                      : ListView.builder(
+                          padding:
+                              const EdgeInsets.fromLTRB(16, 4, 16, 80),
+                          itemCount: store.posts.length + 1,
+                          itemBuilder: (context, i) => i == 0
+                              ? const ReelsStrip()
+                              : PromoCard(post: store.posts[i - 1]),
+                        ),
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Riwayat pesanan selesai — dipindah dari bilah navigasi ke menu
+/// pengaturan di Profil.
+class RiwayatScreen extends StatelessWidget {
+  const RiwayatScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Riwayat Pesanan')),
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: store,
+          builder: (context, _) => _OrdersTab(history: true),
+        ),
+      ),
     );
   }
 }
@@ -645,6 +744,15 @@ class _ProfileTabState extends State<_ProfileTab> {
         Card(
           child: Column(
             children: [
+              ListTile(
+                leading: const Icon(Icons.history_outlined),
+                title: const Text('Riwayat Pesanan'),
+                subtitle: const Text('Pesanan yang sudah selesai'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const RiwayatScreen())),
+              ),
+              const Divider(height: 1, indent: 56),
               ListTile(
                 leading: const Icon(Icons.person_outline),
                 title: const Text('Ubah Profil'),

@@ -164,7 +164,9 @@ class ApiClient {
           String? videoData,
           String? videoExt,
           String? adminId,
-          String? adminPin}) =>
+          String? adminPin,
+          String? custPhone,
+          String? custPin}) =>
       _post('/api/posts', {
         'caption': caption,
         'bgStyle': bgStyle,
@@ -176,11 +178,21 @@ class ApiClient {
       },
           adminId: adminId,
           adminPin: adminPin,
+          custPhone: custPhone,
+          custPin: custPin,
           // Unggah video besar butuh waktu jauh lebih lama.
           timeout: const Duration(minutes: 5));
 
-  Future<void> deletePost(String id, {String? adminId, String? adminPin}) =>
-      _delete('/api/posts/$id', adminId: adminId, adminPin: adminPin);
+  Future<void> deletePost(String id,
+          {String? adminId,
+          String? adminPin,
+          String? custPhone,
+          String? custPin}) =>
+      _delete('/api/posts/$id',
+          adminId: adminId,
+          adminPin: adminPin,
+          custPhone: custPhone,
+          custPin: custPin);
 
   /// Beri/ubah reaksi emoji; emoji kosong = hapus reaksi.
   Future<Map<String, dynamic>> reactPost(String id, String emoji,

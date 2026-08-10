@@ -232,6 +232,10 @@ class LaundryStore extends ChangeNotifier {
       String? videoExt}) async {
     final a = api;
     if (a == null) return 'Fitur promo membutuhkan server.';
+    final asOwner = role == 'owner';
+    if (!asOwner && _custPin == null) {
+      return 'Silakan keluar lalu masuk lagi dengan PIN untuk memposting.';
+    }
     try {
       final m = await a.createPost(
           caption: caption,
@@ -241,8 +245,10 @@ class LaundryStore extends ChangeNotifier {
           imageExt: imageExt,
           videoData: videoBase64,
           videoExt: videoExt,
-          adminId: currentAdminId,
-          adminPin: _adminPin);
+          adminId: asOwner ? currentAdminId : null,
+          adminPin: asOwner ? _adminPin : null,
+          custPhone: asOwner ? null : profile.phone,
+          custPin: asOwner ? null : _custPin);
       posts.insert(0, PromoPost.fromMap(m));
       notifyListeners();
       return null;
@@ -257,7 +263,12 @@ class LaundryStore extends ChangeNotifier {
     final a = api;
     if (a == null) return;
     try {
-      await a.deletePost(p.id, adminId: currentAdminId, adminPin: _adminPin);
+      final asOwner = role == 'owner';
+      await a.deletePost(p.id,
+          adminId: asOwner ? currentAdminId : null,
+          adminPin: asOwner ? _adminPin : null,
+          custPhone: asOwner ? null : profile.phone,
+          custPin: asOwner ? null : _custPin);
       posts.removeWhere((x) => x.id == p.id);
       notifyListeners();
     } catch (_) {

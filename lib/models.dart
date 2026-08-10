@@ -306,10 +306,13 @@ class PromoPost {
   PromoPost({
     required this.id,
     required this.authorName,
+    this.byAdmin = true,
+    this.mine = false,
     required this.caption,
     required this.bgStyle,
     required this.imageUrl,
     this.videoUrl = '',
+    this.videoThumbUrl = '',
     required this.createdAt,
     this.linkUrl = '',
     this.linkTitle = '',
@@ -323,6 +326,12 @@ class PromoPost {
 
   final String id;
   final String authorName;
+
+  /// true = pos resmi H2O (admin); false = pos komunitas pelanggan.
+  final bool byAdmin;
+
+  /// true = pos milik pengguna yang sedang masuk (boleh dihapus).
+  final bool mine;
   final String caption;
 
   /// Kunci latar pos teks berwarna ('' = polos). Lihat PromoBg.
@@ -333,6 +342,9 @@ class PromoPost {
 
   /// Jalur video reel relatif server ('' = bukan pos video).
   final String videoUrl;
+
+  /// Thumbnail video buatan server (ffmpeg); '' bila tidak ada.
+  final String videoThumbUrl;
   final DateTime createdAt;
 
   /// Tautan yang dilampirkan ('' = tanpa tautan). Kartu tautan
@@ -355,10 +367,13 @@ class PromoPost {
   factory PromoPost.fromMap(Map<String, dynamic> m) => PromoPost(
         id: m['id'] as String,
         authorName: m['authorName'] as String? ?? 'H2O Laundry',
+        byAdmin: m['byAdmin'] as bool? ?? true,
+        mine: m['mine'] as bool? ?? false,
         caption: m['caption'] as String? ?? '',
         bgStyle: m['bgStyle'] as String? ?? '',
         imageUrl: m['imageUrl'] as String? ?? '',
         videoUrl: m['videoUrl'] as String? ?? '',
+        videoThumbUrl: m['videoThumbUrl'] as String? ?? '',
         createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
         linkUrl: m['linkUrl'] as String? ?? '',
         linkTitle: m['linkTitle'] as String? ?? '',

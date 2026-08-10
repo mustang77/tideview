@@ -202,21 +202,36 @@ class PromoCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            if (post.byAdmin)
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(999),
                 ),
-                borderRadius: BorderRadius.circular(999),
+                child: const Icon(Icons.local_laundry_service,
+                    color: Colors.white, size: 22),
+              )
+            else
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: const Color(0xFFB3E3F0),
+                child: Text(
+                  post.authorName.isEmpty
+                      ? '?'
+                      : post.authorName[0].toUpperCase(),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0E7490)),
+                ),
               ),
-              child: const Icon(Icons.local_laundry_service,
-                  color: Colors.white, size: 22),
-            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -224,22 +239,24 @@ class PromoCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Flexible(
+                      Flexible(
                         child: Text(
-                          'H2O Laundry',
+                          post.byAdmin ? 'H2O Laundry' : post.authorName,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                               fontWeight: FontWeight.w800, fontSize: 14.5),
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.verified,
-                          size: 15, color: Color(0xFF06B6D4)),
+                      if (post.byAdmin) ...[
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified,
+                            size: 15, color: Color(0xFF06B6D4)),
+                      ],
                       const SizedBox(width: 6),
                       Text('· ${timeAgo(post.createdAt)}',
                           style: TextStyle(color: muted, fontSize: 12.5)),
                       const Spacer(),
-                      if (isOwner)
+                      if (isOwner || post.mine)
                         GestureDetector(
                           onTap: () => _confirmDelete(context),
                           child: Icon(Icons.delete_outline,
@@ -1058,7 +1075,9 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
     final theme = Theme.of(context);
     final colored = _image == null && PromoBg.isColored(_bg);
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Promo')),
+      appBar: AppBar(
+          title: Text(
+              store.role == 'owner' ? 'Buat Promo' : 'Buat Postingan')),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -1237,7 +1256,9 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                       ? (_video != null
                           ? 'Mengunggah video... (bisa 1-2 menit)'
                           : 'Mengunggah...')
-                      : 'Posting Promo'),
+                      : (store.role == 'owner'
+                          ? 'Posting Promo'
+                          : 'Posting')),
                   style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 15)),
                 ),
@@ -1277,16 +1298,26 @@ class _VideoTeaser extends StatelessWidget {
           ),
           child: Stack(
             alignment: Alignment.center,
+            fit: StackFit.expand,
             children: [
-              Container(
-                width: 58,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.22),
-                  shape: BoxShape.circle,
+              if (post.videoThumbUrl.isNotEmpty)
+                Image.network(
+                  store.mediaUrl(post.videoThumbUrl),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, _, _) =>
+                      const SizedBox.shrink(),
                 ),
-                child: const Icon(Icons.play_arrow_rounded,
-                    color: Colors.white, size: 40),
+              Center(
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded,
+                      color: Colors.white, size: 40),
+                ),
               ),
               Positioned(
                 top: 10,
@@ -1346,7 +1377,7 @@ class ReelsStrip extends StatelessWidget {
                 builder: (_) => ReelsScreen(initialPostId: p.id))),
             child: Container(
               width: 104,
-              padding: const EdgeInsets.all(8),
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
@@ -1354,7 +1385,18 @@ class ReelsStrip extends StatelessWidget {
                   colors: [Color(0xFF2C5364), Color(0xFF0F2027)],
                 ),
                 borderRadius: BorderRadius.circular(14),
+                image: p.videoThumbUrl.isNotEmpty
+                    ? DecorationImage(
+                        image:
+                            NetworkImage(store.mediaUrl(p.videoThumbUrl)),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                            Colors.black.withValues(alpha: 0.35),
+                            BlendMode.darken),
+                      )
+                    : null,
               ),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1608,14 +1650,19 @@ class _ReelPageState extends State<_ReelPage> {
                   children: [
                     Row(
                       children: [
-                        const Text('H2O Laundry',
-                            style: TextStyle(
+                        Text(
+                            widget.post.byAdmin
+                                ? 'H2O Laundry'
+                                : widget.post.authorName,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 14)),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified,
-                            size: 14, color: Color(0xFF06B6D4)),
+                        if (widget.post.byAdmin) ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.verified,
+                              size: 14, color: Color(0xFF06B6D4)),
+                        ],
                         const SizedBox(width: 6),
                         Text('· ${timeAgo(widget.post.createdAt)}',
                             style: const TextStyle(

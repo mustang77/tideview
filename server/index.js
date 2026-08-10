@@ -5,6 +5,7 @@
 // Jalankan:  PORT=8080 node index.js
 // Data:      DATA_FILE=/path/data.json (default: ./data.json)
 
+const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 const express = require('express');
 const fs = require('fs');
@@ -47,11 +48,24 @@ db.posts.forEach((p) => {
     (p.likes || []).forEach((ph) => (p.reactions[ph] = '❤️'));
   }
   delete p.likes;
+  // Pos lama semuanya buatan admin (fitur komunitas datang belakangan).
+  if (p.byAdmin === undefined) p.byAdmin = true;
+  if (p.authorPhone === undefined) p.authorPhone = '';
 });
 
 // Folder foto promo (dilayani statis di /uploads).
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+// ffmpeg (bila terpasang: apt install -y ffmpeg) dipakai membuat
+// thumbnail video reel. Tanpa ffmpeg, ubin reel memakai latar polos.
+let HAS_FFMPEG = false;
+try {
+  execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+  HAS_FFMPEG = true;
+} catch (e) {
+  console.log('ffmpeg tidak ditemukan — thumbnail reel dinonaktifkan');
+}
 
 let saveTimer = null;
 function save() {
@@ -374,8 +388,11 @@ function postView(p, custPhone) {
     authorName: p.authorName,
     caption: p.caption,
     bgStyle: p.bgStyle || '',
+    byAdmin: !!p.byAdmin,
+    mine: !!(custPhone && p.authorPhone === custPhone),
     imageUrl: p.image ? `/uploads/${p.image}` : '',
     videoUrl: p.video ? `/uploads/${p.video}` : '',
+    videoThumbUrl: p.videoThumb ? `/uploads/${p.videoThumb}` : '',
     createdAt: p.createdAt,
     linkUrl: p.link ? p.link.url : '',
     linkTitle: p.link ? p.link.title : '',
@@ -535,8 +552,12 @@ app.get('/api/posts', (req, res) => {
 });
 
 app.post('/api/posts', async (req, res) => {
-  const a = requireAdmin(req, res);
-  if (!a) return;
+  // Komunitas: pelanggan juga boleh memposting (foto/video/teks).
+  const c = customer(req);
+  const a = c ? null : admin(req);
+  if (!c && !a) {
+    return res.status(401).json({ error: 'Silakan masuk untuk memposting' });
+  }
   const b = req.body || {};
   const caption = String(b.caption || '').trim();
   // Tautan: dari kolom khusus, atau URL pertama di teks. Tanpa
@@ -564,6 +585,20 @@ app.post('/api/posts', async (req, res) => {
     video = `reel_${Date.now()}.${vext}`;
     fs.writeFileSync(path.join(UPLOAD_DIR, video), vb);
   }
+  let videoThumb = '';
+  if (video && HAS_FFMPEG) {
+    const t = video.replace(/\.\w+$/, '') + '_thumb.jpg';
+    try {
+      execFileSync('ffmpeg', [
+        '-y', '-ss', '0.3', '-i', path.join(UPLOAD_DIR, video),
+        '-frames:v', '1', '-vf', 'scale=480:-2',
+        path.join(UPLOAD_DIR, t),
+      ], { stdio: 'ignore', timeout: 30000 });
+      if (fs.existsSync(path.join(UPLOAD_DIR, t))) videoThumb = t;
+    } catch (e) {
+      console.error('Thumbnail reel gagal:', e.message);
+    }
+  }
   let image = '';
   if (b.imageData) {
     let buf;
@@ -581,11 +616,14 @@ app.post('/api/posts', async (req, res) => {
   }
   const post = {
     id: `post_${Date.now()}`,
-    authorName: a.name || 'H2O Laundry',
+    authorName: c ? c.name : (a.name || 'H2O Laundry'),
+    authorPhone: c ? c.phone : '',
+    byAdmin: !c,
     caption,
     bgStyle: linkUrl ? '' : String(b.bgStyle || ''),
     image,
     video,
+    videoThumb,
     link: linkUrl ? await fetchLinkMeta(linkUrl) : null,
     createdAt: now(),
     reactions: {},
@@ -593,14 +631,17 @@ app.post('/api/posts', async (req, res) => {
   };
   db.posts.unshift(post);
   save();
-  res.json(postView(post, null));
+  res.json(postView(post, c ? c.phone : null));
 });
 
 app.delete('/api/posts/:id', (req, res) => {
-  const a = requireAdmin(req, res);
-  if (!a) return;
   const p = findPost(req, res);
   if (!p) return;
+  const c = customer(req);
+  const own = c && p.authorPhone === c.phone;
+  if (!own && !admin(req)) {
+    return res.status(401).json({ error: 'Tidak berhak menghapus pos ini' });
+  }
   if (p.image) {
     try {
       fs.unlinkSync(path.join(UPLOAD_DIR, p.image));
@@ -609,6 +650,11 @@ app.delete('/api/posts/:id', (req, res) => {
   if (p.video) {
     try {
       fs.unlinkSync(path.join(UPLOAD_DIR, p.video));
+    } catch (e) {}
+  }
+  if (p.videoThumb) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, p.videoThumb));
     } catch (e) {}
   }
   if (p.link && p.link.image) {
