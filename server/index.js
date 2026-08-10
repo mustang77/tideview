@@ -524,9 +524,13 @@ app.post('/api/posts', async (req, res) => {
   if (!a) return;
   const b = req.body || {};
   const caption = String(b.caption || '').trim();
-  // Tautan: dari kolom khusus, atau URL pertama di teks.
-  const linkUrl = String(b.link || '').trim() ||
+  // Tautan: dari kolom khusus, atau URL pertama di teks. Tanpa
+  // skema (mis. "wca.com") dianggap https.
+  let linkUrl = String(b.link || '').trim() ||
       (caption.match(/https?:\/\/\S+/) || [''])[0];
+  if (linkUrl && !/^https?:\/\//i.test(linkUrl)) {
+    linkUrl = 'https://' + linkUrl;
+  }
   if (!caption && !b.imageData && !linkUrl) {
     return res.status(400).json({ error: 'Tulis sesuatu, pilih foto, atau isi tautan' });
   }

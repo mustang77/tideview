@@ -348,8 +348,28 @@ class _LinkCard extends StatelessWidget {
         post.linkImage.isNotEmpty ? post.linkImage : post.imageUrl;
     return InkWell(
       borderRadius: BorderRadius.circular(14),
-      onTap: () => launchUrl(Uri.parse(post.linkUrl),
-          mode: LaunchMode.externalApplication),
+      onTap: () async {
+        // Tautan lama bisa saja tersimpan tanpa skema; lengkapi agar
+        // tetap bisa dibuka.
+        final raw = post.linkUrl.startsWith('http')
+            ? post.linkUrl
+            : 'https://${post.linkUrl}';
+        final uri = Uri.tryParse(raw);
+        if (uri == null) return;
+        var ok = false;
+        try {
+          ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } catch (_) {}
+        if (!ok) {
+          try {
+            ok = await launchUrl(uri);
+          } catch (_) {}
+        }
+        if (!ok && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Tidak bisa membuka $raw')));
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black12),
