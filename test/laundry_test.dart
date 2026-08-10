@@ -25,7 +25,6 @@ void main() {
     expect(s.services, isNotEmpty);
 
     final kiloan = s.serviceById('cuci_setrika')!;
-    final selimut = s.serviceById('selimut')!;
     final order = (await s.createOrder(
       items: [
         OrderItem(
@@ -35,10 +34,10 @@ void main() {
             price: kiloan.price,
             qty: 3),
         OrderItem(
-            serviceId: selimut.id,
-            name: selimut.name,
-            unit: selimut.unit,
-            price: selimut.price,
+            serviceId: 'selimut',
+            name: 'Selimut',
+            unit: 'pcs',
+            price: 20000,
             qty: 1),
       ],
       contents: ['Kaos', 'Kemeja', 'Handuk'],
@@ -48,7 +47,7 @@ void main() {
       notes: '',
     ))!;
 
-    expect(order.total, kiloan.price * 3 + selimut.price);
+    expect(order.total, kiloan.price * 3 + 20000);
     expect(order.contents, ['Kaos', 'Kemeja', 'Handuk']);
     expect(order.status, OrderStatus.menunggu);
     expect(s.activeOrders.length, 1);
@@ -69,7 +68,7 @@ void main() {
 
     // Timbang ulang satu item memperbarui total.
     await s.updateItemQty(order, order.items.first, 4);
-    expect(order.total, kiloan.price * 4 + selimut.price);
+    expect(order.total, kiloan.price * 4 + 20000);
 
     // Data tersimpan dan bisa dimuat ulang oleh instance baru.
     final s2 = LaundryStore();

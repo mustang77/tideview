@@ -20,11 +20,6 @@ const defaultServices = [
   { id: 'cuci_kering', name: 'Cuci Kering', unit: 'kg', price: 5000, description: 'Cuci dan keringkan, lipat tanpa setrika', estimasiHari: 2 },
   { id: 'setrika', name: 'Setrika Saja', unit: 'kg', price: 4000, description: 'Pakaian bersih Anda disetrika rapi', estimasiHari: 1 },
   { id: 'express', name: 'Express 1 Hari', unit: 'kg', price: 12000, description: 'Cuci + setrika kilat, selesai 24 jam', estimasiHari: 1 },
-  { id: 'baju_atasan', name: 'Baju Atasan', unit: 'pcs', price: 7000, description: 'Kemeja, kaos, blus — cuci & setrika per potong', estimasiHari: 2 },
-  { id: 'baju_bawahan', name: 'Baju Bawahan', unit: 'pcs', price: 8000, description: 'Celana, rok — cuci & setrika per potong', estimasiHari: 2 },
-  { id: 'selimut', name: 'Selimut', unit: 'pcs', price: 20000, description: 'Cuci selimut bersih dan wangi', estimasiHari: 3 },
-  { id: 'bedcover', name: 'Bed Cover', unit: 'pcs', price: 25000, description: 'Cuci bed cover atau sprei tebal', estimasiHari: 3 },
-  { id: 'sepatu', name: 'Cuci Sepatu', unit: 'pasang', price: 30000, description: 'Deep clean sepatu sampai seperti baru', estimasiHari: 3 },
 ];
 
 let db = { seq: 1, services: defaultServices, orders: [], admins: [] };
