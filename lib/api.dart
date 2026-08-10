@@ -116,9 +116,13 @@ class ApiClient {
   // ---- Akun pelanggan ----
 
   Future<Map<String, dynamic>> customerRegister(
-          String name, String phone, String pin) =>
-      _post('/api/customer/register',
-          {'name': name, 'phone': phone, 'pin': pin});
+          String name, String phone, String pin, {String? idToken}) =>
+      _post('/api/customer/register', {
+        'name': name,
+        'phone': phone,
+        'pin': pin,
+        'idToken': ?idToken,
+      });
 
   Future<Map<String, dynamic>> customerLogin(String phone, String pin) =>
       _post('/api/customer/login', {'phone': phone, 'pin': pin});

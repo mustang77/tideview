@@ -1,0 +1,350 @@
+{
+  "project_info": {
+    "project_number": "1029538336237",
+    "project_id": "wca-mobile-10a8d",
+    "storage_bucket": "wca-mobile-10a8d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:98a90e582d03fa88d92be4",
+        "android_client_info": {
+          "package_name": "com.example.h2o_laundry"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-sbhc31db6get84fgb9fjgelee21a9j51.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.h2o_laundry",
+            "certificate_hash": "4ff3c8e6e859ebabea0d1c640df2d77bb18e68d7"
+          }
+        },
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:d2e2dc37d8237d7ad92be4",
+        "android_client_info": {
+          "package_name": "com.h2olaundry.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:72933dc0a84ee1ddd92be4",
+        "android_client_info": {
+          "package_name": "com.laundry.laundry_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-npoh8427inmoi8d5b9i1cu7e3m7303mr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundry.laundry_app",
+            "certificate_hash": "4ff3c8e6e859ebabea0d1c640df2d77bb18e68d7"
+          }
+        },
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:648b0ce76427e4b6d92be4",
+        "android_client_info": {
+          "package_name": "com.wca.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:281c9677d7ee7083d92be4",
+        "android_client_info": {
+          "package_name": "com.wca.wca_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-41orlps661fjdobln083f609qrifhr5k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wca.wca_app",
+            "certificate_hash": "ee1bb9c57ce1d77e9fab33092bfd24647b5ad641"
+          }
+        },
+        {
+          "client_id": "1029538336237-79dbps6glf3vmuq4jah9vjbqdmhqb4l4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wca.wca_app",
+            "certificate_hash": "4ff3c8e6e859ebabea0d1c640df2d77bb18e68d7"
+          }
+        },
+        {
+          "client_id": "1029538336237-e84qgfamp8qi807knjraillfci1lgbpo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wca.wca_app",
+            "certificate_hash": "a6bce14fb840ee4acc301978bac8349d8d839a9c"
+          }
+        },
+        {
+          "client_id": "1029538336237-j7ho53jovredkskofnkdt2egptqtfttg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wca.wca_app",
+            "certificate_hash": "751dd0f2a513a4d3216a6a1f35c2f8a57348547f"
+          }
+        },
+        {
+          "client_id": "1029538336237-kknmahtbg0kdhd57kfu7cotb8kcmpa9e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wca.wca_app",
+            "certificate_hash": "0e61193552020d36b086e1ff03e3ad21275eace6"
+          }
+        },
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:f4b0e7a43bdc4c21d92be4",
+        "android_client_info": {
+          "package_name": "com.wcamobile.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-52rjoduk3tkfl7kkuo2meakf9r2itpn8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wcamobile.app",
+            "certificate_hash": "d32c69d7ef1ef54905ec4abea836dbbe43027e25"
+          }
+        },
+        {
+          "client_id": "1029538336237-a7se624eie2s7q2h68ctpm839eh8f0pe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wcamobile.app",
+            "certificate_hash": "87fa509aefd304dfaafa1dac2064a06809fd7114"
+          }
+        },
+        {
+          "client_id": "1029538336237-eut41tif9on4j89qg63tdl1st4s8n6sb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wcamobile.app",
+            "certificate_hash": "8a768000a2433715a70769cb41ec60efd8f2d7ed"
+          }
+        },
+        {
+          "client_id": "1029538336237-qkkn6gl474hbl0107b55dnnj48fvmjdk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wcamobile.app",
+            "certificate_hash": "e64df5b2864815b6f10311993f457cca832ca783"
+          }
+        },
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029538336237:android:94f65efb2e2cb5d2d92be4",
+        "android_client_info": {
+          "package_name": "com.wcamobilemedia.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXjYcfTuqlDvNlO6ArQFghBPdABxKPR5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029538336237-rmsb669iamq1uoqk99d2o8ciuhtujagb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1029538336237-0hrg1hgtg1jf4o45upu73riie1pv7n76.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.laundry.laundryApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

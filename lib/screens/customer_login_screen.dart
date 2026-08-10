@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../format.dart';
+import '../phone_otp.dart';
 import '../store.dart';
 
 /// Daftar / masuk akun pelanggan. Mode server: satu nomor HP = satu
-/// akun dengan PIN (diverifikasi server). Mode lokal: cukup nama + HP.
+/// akun dengan PIN (diverifikasi server); pendaftaran diverifikasi
+/// SMS OTP bila tersedia (Android). Mode lokal: cukup nama + HP.
 class CustomerLoginScreen extends StatefulWidget {
   const CustomerLoginScreen({super.key});
 
@@ -15,6 +18,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   late final _name = TextEditingController(text: store.profile.name);
   late final _phone = TextEditingController(text: store.profile.phone);
   final _pin = TextEditingController();
+  final _code = TextEditingController();
 
   /// true = alur Daftar; false = alur Masuk (hanya relevan mode server).
   late bool _registerMode =
@@ -23,17 +27,26 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   String? _nameError;
   String? _phoneError;
   String? _pinError;
+  String? _codeError;
+
+  /// Bila terisi, SMS OTP sudah dikirim dan layar menunggu kodenya.
+  String? _verificationId;
 
   @override
   void dispose() {
     _name.dispose();
     _phone.dispose();
     _pin.dispose();
+    _code.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (_busy) return;
+    if (_verificationId != null) {
+      await _confirmOtp();
+      return;
+    }
     final name = _name.text.trim();
     final phone = _phone.text.trim();
     final pin = _pin.text.trim();
@@ -51,6 +64,12 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
       return;
     }
 
+    // Pendaftaran (mode server) diverifikasi SMS OTP bila tersedia.
+    if (store.online && _registerMode && PhoneOtp.available) {
+      await _startOtp(phone);
+      return;
+    }
+
     setState(() => _busy = true);
     final String? error;
     if (!store.online || _registerMode) {
@@ -60,7 +79,66 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
     }
     if (!mounted) return;
     setState(() => _busy = false);
+    _handleResult(error);
+  }
 
+  Future<void> _startOtp(String phone) async {
+    setState(() => _busy = true);
+    await PhoneOtp.sendCode(
+      waPhone(phone),
+      onCode: (id) {
+        if (!mounted) return;
+        setState(() {
+          _verificationId = id;
+          _busy = false;
+          _code.clear();
+          _codeError = null;
+        });
+      },
+      onAuto: (token) => _finishRegister(token),
+      onError: (message) {
+        if (!mounted) return;
+        setState(() => _busy = false);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
+      },
+    );
+  }
+
+  Future<void> _confirmOtp() async {
+    final code = _code.text.trim();
+    if (code.length != 6 || int.tryParse(code) == null) {
+      setState(() => _codeError = 'Masukkan 6 digit kode dari SMS');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _codeError = null;
+    });
+    final token = await PhoneOtp.confirmCode(_verificationId!, code);
+    if (!mounted) return;
+    if (token == null) {
+      setState(() {
+        _busy = false;
+        _codeError = 'Kode salah atau kedaluwarsa';
+      });
+      return;
+    }
+    await _finishRegister(token);
+  }
+
+  Future<void> _finishRegister(String idToken) async {
+    if (!mounted) return;
+    setState(() => _busy = true);
+    final error = await store.registerCustomer(
+        _name.text.trim(), _phone.text.trim(), _pin.text.trim(),
+        idToken: idToken);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    _handleResult(error);
+  }
+
+  void _handleResult(String? error) {
     if (error == null) {
       Navigator.of(context).popUntil((r) => r.isFirst);
       return;
@@ -68,6 +146,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
     if (error == 'SUDAH_TERDAFTAR') {
       setState(() {
         _registerMode = false;
+        _verificationId = null;
         _pin.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -83,6 +162,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final daftar = _registerMode || !store.online;
+    final otp = _verificationId != null;
     return Scaffold(
       appBar: AppBar(title: Text(daftar ? 'Daftar' : 'Masuk')),
       body: SafeArea(
@@ -111,79 +191,126 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    daftar
-                        ? 'Selamat datang! 👋'
-                        : 'Selamat datang kembali! 👋',
+                    otp
+                        ? 'Verifikasi nomor HP 📱'
+                        : daftar
+                            ? 'Selamat datang! 👋'
+                            : 'Selamat datang kembali! 👋',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    daftar
-                        ? (store.online
-                            ? 'Buat akun dengan nama, no. HP, dan PIN. '
-                                'Satu nomor HP hanya untuk satu akun.'
-                            : 'Buat akun dengan nama dan no. HP untuk '
-                                'mulai memesan.')
-                        : 'Masuk dengan no. HP dan PIN Anda.',
+                    otp
+                        ? 'Kode 6 digit dikirim lewat SMS ke '
+                            '+${waPhone(_phone.text)}. Masukkan kodenya '
+                            'di bawah ini.'
+                        : daftar
+                            ? (store.online
+                                ? 'Buat akun dengan nama, no. HP, dan PIN. '
+                                    'Satu nomor HP hanya untuk satu akun.'
+                                : 'Buat akun dengan nama dan no. HP untuk '
+                                    'mulai memesan.')
+                            : 'Masuk dengan no. HP dan PIN Anda.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 24),
-                  if (daftar) ...[
+                  if (otp) ...[
                     TextField(
-                      controller: _name,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        labelText: 'Nama',
-                        errorText: _nameError,
-                        prefixIcon: const Icon(Icons.person_outline),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: _phone,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'No. HP / WhatsApp',
-                      errorText: _phoneError,
-                      prefixIcon: const Icon(Icons.phone_outlined),
-                    ),
-                  ),
-                  if (store.online) ...[
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _pin,
-                      obscureText: true,
+                      controller: _code,
+                      autofocus: true,
                       keyboardType: TextInputType.number,
                       maxLength: 6,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 8),
                       onSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
-                        labelText: daftar ? 'Buat PIN (4-6 angka)' : 'PIN',
+                        labelText: 'Kode SMS',
                         counterText: '',
-                        errorText: _pinError,
-                        helperText: daftar
-                            ? 'PIN dipakai untuk masuk dan melindungi '
-                                'pesanan Anda'
-                            : null,
-                        prefixIcon: const Icon(Icons.lock_outline),
+                        errorText: _codeError,
+                        prefixIcon: const Icon(Icons.sms_outlined),
                       ),
                     ),
+                  ] else ...[
+                    if (daftar) ...[
+                      TextField(
+                        controller: _name,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: InputDecoration(
+                          labelText: 'Nama',
+                          errorText: _nameError,
+                          prefixIcon: const Icon(Icons.person_outline),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextField(
+                      controller: _phone,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'No. HP / WhatsApp',
+                        errorText: _phoneError,
+                        prefixIcon: const Icon(Icons.phone_outlined),
+                      ),
+                    ),
+                    if (store.online) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _pin,
+                        obscureText: true,
+                        keyboardType: TextInputType.number,
+                        maxLength: 6,
+                        onSubmitted: (_) => _submit(),
+                        decoration: InputDecoration(
+                          labelText: daftar ? 'Buat PIN (4-6 angka)' : 'PIN',
+                          counterText: '',
+                          errorText: _pinError,
+                          helperText: daftar
+                              ? 'PIN dipakai untuk masuk dan melindungi '
+                                  'pesanan Anda'
+                              : null,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                        ),
+                      ),
+                    ],
                   ],
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: _busy ? null : _submit,
-                    icon: Icon(daftar ? Icons.person_add_alt : Icons.login),
+                    icon: Icon(otp
+                        ? Icons.verified_outlined
+                        : daftar
+                            ? Icons.person_add_alt
+                            : Icons.login),
                     label: Text(_busy
                         ? 'Memproses...'
-                        : (daftar ? 'Daftar & Mulai' : 'Masuk')),
+                        : otp
+                            ? 'Verifikasi & Daftar'
+                            : daftar
+                                ? 'Daftar & Mulai'
+                                : 'Masuk'),
                     style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16)),
                   ),
-                  if (store.online) ...[
+                  if (otp) ...[
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => setState(() {
+                                _verificationId = null;
+                                _code.clear();
+                                _codeError = null;
+                              }),
+                      child: const Text('Ganti nomor / kirim ulang kode'),
+                    ),
+                  ] else if (store.online) ...[
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: _busy

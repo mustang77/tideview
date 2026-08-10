@@ -5,6 +5,7 @@
 // Jalankan:  PORT=8080 node index.js
 // Data:      DATA_FILE=/path/data.json (default: ./data.json)
 
+const crypto = require('crypto');
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
@@ -12,6 +13,11 @@ const path = require('path');
 
 const PORT = process.env.PORT || 8080;
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
+// Proyek Firebase untuk verifikasi OTP nomor HP saat registrasi.
+const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'wca-mobile-10a8d';
+// REQUIRE_OTP=1 → registrasi wajib membawa idToken Firebase yang sah
+// (aktifkan setelah semua platform, termasuk web, punya alur OTP).
+const REQUIRE_OTP = process.env.REQUIRE_OTP === '1';
 
 const STATUS = ['menunggu', 'diterima', 'diproses', 'siap', 'selesai'];
 
@@ -50,6 +56,70 @@ const normPhone = (p) => {
   return d;
 };
 const now = () => new Date().toISOString();
+
+// ---- Verifikasi ID token Firebase (bukti OTP nomor HP) ----
+// Token ditandatangani Google (RS256); sertifikat publiknya diambil dari
+// endpoint securetoken dan di-cache sesuai header Cache-Control.
+
+let fbCerts = { keys: {}, expires: 0 };
+function firebaseCerts() {
+  return new Promise((resolve, reject) => {
+    if (Date.now() < fbCerts.expires) return resolve(fbCerts.keys);
+    https
+      .get(
+        'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com',
+        (r) => {
+          let body = '';
+          r.on('data', (d) => (body += d));
+          r.on('end', () => {
+            try {
+              const keys = JSON.parse(body);
+              const m = String(r.headers['cache-control'] || '').match(/max-age=(\d+)/);
+              fbCerts = { keys, expires: Date.now() + (m ? Number(m[1]) : 3600) * 1000 };
+              resolve(keys);
+            } catch (e) {
+              reject(e);
+            }
+          });
+        }
+      )
+      .on('error', reject);
+  });
+}
+
+const b64uJson = (s) =>
+  JSON.parse(Buffer.from(String(s).replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+
+// Kembalikan { phone } (format 62xxx) bila token sah, selain itu null.
+async function verifyFirebaseToken(idToken) {
+  const parts = String(idToken || '').split('.');
+  if (parts.length !== 3) return null;
+  let header, payload;
+  try {
+    header = b64uJson(parts[0]);
+    payload = b64uJson(parts[1]);
+  } catch (e) {
+    return null;
+  }
+  if (header.alg !== 'RS256' || !header.kid) return null;
+  const certs = await firebaseCerts();
+  const pem = certs[header.kid];
+  if (!pem) return null;
+  const ok = crypto
+    .createVerify('RSA-SHA256')
+    .update(parts[0] + '.' + parts[1])
+    .verify(
+      crypto.createPublicKey(pem),
+      Buffer.from(parts[2].replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+    );
+  if (!ok) return null;
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (payload.aud !== FIREBASE_PROJECT_ID) return null;
+  if (payload.iss !== `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`) return null;
+  if (!(Number(payload.exp) > nowSec)) return null;
+  if (!payload.phone_number) return null;
+  return { phone: normPhone(payload.phone_number) };
+}
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
@@ -210,8 +280,8 @@ app.delete('/api/orders/:id', (req, res) => {
 
 // ---- Akun pelanggan ----
 
-app.post('/api/customer/register', (req, res) => {
-  const { name, phone, pin } = req.body || {};
+app.post('/api/customer/register', async (req, res) => {
+  const { name, phone, pin, idToken } = req.body || {};
   if (!name || !/^[0-9]{4,6}$/.test(String(pin))) {
     return res.status(400).json({ error: 'Nama wajib diisi; PIN 4-6 angka' });
   }
@@ -224,10 +294,32 @@ app.post('/api/customer/register', (req, res) => {
       error: 'Nomor ini sudah terdaftar. Silakan masuk dengan PIN Anda.',
     });
   }
+  // Bukti kepemilikan nomor: idToken Firebase hasil OTP SMS. Nomor di
+  // dalam token harus sama dengan nomor yang didaftarkan.
+  let verified = false;
+  if (idToken) {
+    let v = null;
+    try {
+      v = await verifyFirebaseToken(idToken);
+    } catch (e) {
+      console.error('Verifikasi token Firebase gagal:', e.message);
+    }
+    if (!v || v.phone !== np) {
+      return res
+        .status(401)
+        .json({ error: 'Verifikasi OTP gagal. Silakan coba lagi.' });
+    }
+    verified = true;
+  } else if (REQUIRE_OTP) {
+    return res
+      .status(401)
+      .json({ error: 'Pendaftaran membutuhkan verifikasi OTP.' });
+  }
   db.customers.push({
     phone: np,
     name: String(name),
     pin: String(pin),
+    verified,
     createdAt: now(),
   });
   save();

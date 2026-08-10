@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'phone_otp.dart';
 import 'screens/customer_shell.dart';
 import 'screens/owner_shell.dart';
 import 'screens/role_select_screen.dart';
@@ -8,6 +9,7 @@ import 'store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PhoneOtp.init();
   await store.init();
   runApp(const H2OLaundryApp());
 }

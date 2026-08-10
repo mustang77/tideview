@@ -49,6 +49,16 @@ sudo systemctl enable --now h2o-laundry
 sudo systemctl status h2o-laundry
 ```
 
+## Verifikasi OTP nomor HP (Firebase)
+
+Pendaftaran dari aplikasi Android menyertakan `idToken` Firebase hasil
+OTP SMS; server memverifikasi tanda tangan token dan mencocokkan nomor
+HP-nya. Variabel lingkungan terkait:
+
+- `FIREBASE_PROJECT_ID` — ID proyek Firebase (default `wca-mobile-10a8d`).
+- `REQUIRE_OTP=1` — tolak pendaftaran tanpa OTP. Biarkan mati selama
+  versi web belum punya alur OTP (web mendaftar tanpa token).
+
 ## Sambungkan ke domain HTTPS (nginx)
 
 Tambahkan di blok `server { ... }` domain Anda (yang sudah ber-SSL):

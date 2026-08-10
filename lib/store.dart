@@ -207,8 +207,8 @@ class LaundryStore extends ChangeNotifier {
 
   /// Daftar akun pelanggan baru di server. Mengembalikan pesan error
   /// (null bila sukses). errorCode 409 = nomor sudah terdaftar.
-  Future<String?> registerCustomer(
-      String name, String phone, String pin) async {
+  Future<String?> registerCustomer(String name, String phone, String pin,
+      {String? idToken}) async {
     final a = api;
     if (a == null) {
       await saveProfile(name, phone, profile.address);
@@ -216,7 +216,8 @@ class LaundryStore extends ChangeNotifier {
       return null;
     }
     try {
-      final m = await a.customerRegister(name, phone, pin);
+      final m =
+          await a.customerRegister(name, phone, pin, idToken: idToken);
       profile
         ..name = m['name'] as String
         ..phone = m['phone'] as String;
