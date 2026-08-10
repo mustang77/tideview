@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../format.dart';
 import '../models.dart';
@@ -184,8 +185,9 @@ class PromoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    final bgPost =
-        PromoBg.isColored(post.bgStyle) && post.imageUrl.isEmpty;
+    final bgPost = PromoBg.isColored(post.bgStyle) &&
+        post.imageUrl.isEmpty &&
+        post.linkUrl.isEmpty;
     final canLike = store.role == 'customer' && store.online;
 
     return Card(
@@ -270,7 +272,12 @@ class PromoCard extends StatelessWidget {
                           style:
                               const TextStyle(fontSize: 14.5, height: 1.35)),
                     ],
-                    if (post.imageUrl.isNotEmpty) ...[
+                    // Foto berdiri sendiri hanya bila bukan pos tautan,
+                    // atau tautan sudah punya gambar unggulannya sendiri
+                    // (foto admin dipakai kartu tautan bila og:image absen).
+                    if (post.imageUrl.isNotEmpty &&
+                        (post.linkUrl.isEmpty ||
+                            post.linkImage.isNotEmpty)) ...[
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(14),
@@ -299,6 +306,10 @@ class PromoCard extends StatelessWidget {
                         ),
                       ),
                     ],
+                    if (post.linkUrl.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _LinkCard(post: post),
+                    ],
                   ],
                   const SizedBox(height: 4),
                   Row(
@@ -310,6 +321,83 @@ class PromoCard extends StatelessWidget {
                         color: muted,
                         label: '${post.comments.length}',
                         onTap: () => showPromoComments(context, post.id),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Kartu tautan gaya Mingle: gambar unggulan + judul + domain,
+/// diketuk untuk membuka tautannya.
+class _LinkCard extends StatelessWidget {
+  const _LinkCard({required this.post});
+
+  final PromoPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final featured =
+        post.linkImage.isNotEmpty ? post.linkImage : post.imageUrl;
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => launchUrl(Uri.parse(post.linkUrl),
+          mode: LaunchMode.externalApplication),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (featured.isNotEmpty)
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 180),
+                child: Image.network(
+                  store.mediaUrl(featured),
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, _, _) =>
+                      const SizedBox.shrink(),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post.linkTitle.isNotEmpty
+                        ? post.linkTitle
+                        : post.linkUrl,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 13.5),
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(Icons.link, size: 13, color: muted),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          post.linkHost.isNotEmpty
+                              ? post.linkHost
+                              : post.linkUrl,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 11.5, color: muted),
+                        ),
                       ),
                     ],
                   ),
@@ -827,6 +915,7 @@ class PromoComposeScreen extends StatefulWidget {
 
 class _PromoComposeScreenState extends State<PromoComposeScreen> {
   final _caption = TextEditingController();
+  final _link = TextEditingController();
   String _bg = '';
   XFile? _image;
   bool _busy = false;
@@ -834,6 +923,7 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
   @override
   void dispose() {
     _caption.dispose();
+    _link.dispose();
     super.dispose();
   }
 
@@ -846,7 +936,8 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
   Future<void> _submit() async {
     if (_busy) return;
     final caption = _caption.text.trim();
-    if (caption.isEmpty && _image == null) {
+    final link = _link.text.trim();
+    if (caption.isEmpty && _image == null && link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Tulis sesuatu atau pilih foto dulu.')));
       return;
@@ -867,6 +958,7 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
     final error = await store.createPromo(
         caption: caption,
         bgStyle: _image == null ? _bg : '',
+        link: link,
         imageBase64: imageBase64,
         imageExt: imageExt);
     if (!mounted) return;
@@ -933,6 +1025,18 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                           'Tulis promo atau info untuk pelanggan...',
                     ),
                   ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _link,
+                  keyboardType: TextInputType.url,
+                  decoration: const InputDecoration(
+                    labelText: 'Tautan (opsional)',
+                    hintText: 'https://...',
+                    helperText:
+                        'Kartu tautan dengan gambar & judul otomatis',
+                    prefixIcon: Icon(Icons.link),
+                  ),
+                ),
                 const SizedBox(height: 14),
                 if (_image == null) ...[
                   Text('Latar warna (untuk pos teks)',

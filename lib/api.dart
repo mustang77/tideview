@@ -157,6 +157,7 @@ class ApiClient {
   Future<Map<String, dynamic>> createPost(
           {required String caption,
           String bgStyle = '',
+          String link = '',
           String? imageData,
           String? imageExt,
           String? adminId,
@@ -164,6 +165,7 @@ class ApiClient {
       _post('/api/posts', {
         'caption': caption,
         'bgStyle': bgStyle,
+        if (link.isNotEmpty) 'link': link,
         'imageData': ?imageData,
         'imageExt': ?imageExt,
       }, adminId: adminId, adminPin: adminPin);

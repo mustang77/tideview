@@ -225,6 +225,7 @@ class LaundryStore extends ChangeNotifier {
   Future<String?> createPromo(
       {required String caption,
       String bgStyle = '',
+      String link = '',
       String? imageBase64,
       String? imageExt}) async {
     final a = api;
@@ -233,6 +234,7 @@ class LaundryStore extends ChangeNotifier {
       final m = await a.createPost(
           caption: caption,
           bgStyle: bgStyle,
+          link: link,
           imageData: imageBase64,
           imageExt: imageExt,
           adminId: currentAdminId,

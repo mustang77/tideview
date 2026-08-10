@@ -310,6 +310,10 @@ class PromoPost {
     required this.bgStyle,
     required this.imageUrl,
     required this.createdAt,
+    this.linkUrl = '',
+    this.linkTitle = '',
+    this.linkHost = '',
+    this.linkImage = '',
     required this.reactionCount,
     required this.myReaction,
     required this.reactions,
@@ -327,6 +331,15 @@ class PromoPost {
   final String imageUrl;
   final DateTime createdAt;
 
+  /// Tautan yang dilampirkan ('' = tanpa tautan). Kartu tautan
+  /// menampilkan gambar unggulan + judul dan bisa diketuk.
+  final String linkUrl;
+  final String linkTitle;
+  final String linkHost;
+
+  /// Gambar unggulan tautan (og:image) yang di-cache server.
+  final String linkImage;
+
   /// Total reaksi dan reaksi milik pengguna yang masuk ('' = belum).
   int reactionCount;
   String myReaction;
@@ -342,6 +355,10 @@ class PromoPost {
         bgStyle: m['bgStyle'] as String? ?? '',
         imageUrl: m['imageUrl'] as String? ?? '',
         createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
+        linkUrl: m['linkUrl'] as String? ?? '',
+        linkTitle: m['linkTitle'] as String? ?? '',
+        linkHost: m['linkHost'] as String? ?? '',
+        linkImage: m['linkImage'] as String? ?? '',
         reactionCount:
             (m['reactionCount'] as num? ?? m['likeCount'] as num? ?? 0)
                 .toInt(),

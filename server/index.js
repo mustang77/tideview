@@ -376,6 +376,10 @@ function postView(p, custPhone) {
     bgStyle: p.bgStyle || '',
     imageUrl: p.image ? `/uploads/${p.image}` : '',
     createdAt: p.createdAt,
+    linkUrl: p.link ? p.link.url : '',
+    linkTitle: p.link ? p.link.title : '',
+    linkHost: p.link ? p.link.host : '',
+    linkImage: p.link && p.link.image ? `/uploads/${p.link.image}` : '',
     reactions,
     reactionCount: total,
     myReaction: mine,
@@ -395,6 +399,115 @@ function postView(p, custPhone) {
   };
 }
 
+// ---- Pratinjau tautan (og:title / og:image) ----
+
+// Ambil isi URL http(s) dengan batas ukuran, timeout, dan maksimal 3
+// pengalihan. Alamat privat ditolak (kecuali ALLOW_LOCAL_LINKS=1,
+// untuk pengujian).
+function fetchUrl(url, { maxBytes = 512 * 1024, redirects = 3 } = {}) {
+  return new Promise((resolve, reject) => {
+    let u;
+    try {
+      u = new URL(url);
+    } catch (e) {
+      return reject(new Error('URL tidak valid'));
+    }
+    if (!/^https?:$/.test(u.protocol)) {
+      return reject(new Error('Hanya http/https'));
+    }
+    const h = u.hostname;
+    const privat =
+      /^(localhost|127\.|10\.|0\.|169\.254\.|192\.168\.)/.test(h) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(h);
+    if (privat && process.env.ALLOW_LOCAL_LINKS !== '1') {
+      return reject(new Error('Alamat privat ditolak'));
+    }
+    const mod = u.protocol === 'https:' ? https : require('http');
+    const req = mod.get(
+      u,
+      {
+        headers: { 'user-agent': 'Mozilla/5.0 (compatible; H2OLaundry/1.0)' },
+        timeout: 8000,
+      },
+      (r) => {
+        if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location && redirects > 0) {
+          r.resume();
+          return resolve(fetchUrl(new URL(r.headers.location, u).href, {
+            maxBytes,
+            redirects: redirects - 1,
+          }));
+        }
+        if (r.statusCode !== 200) {
+          r.resume();
+          return reject(new Error('HTTP ' + r.statusCode));
+        }
+        const chunks = [];
+        let size = 0;
+        r.on('data', (d) => {
+          size += d.length;
+          if (size > maxBytes) {
+            req.destroy();
+            return reject(new Error('Terlalu besar'));
+          }
+          chunks.push(d);
+        });
+        r.on('end', () =>
+          resolve({ buffer: Buffer.concat(chunks), type: r.headers['content-type'] || '' }));
+      }
+    );
+    req.on('timeout', () => req.destroy(new Error('Timeout')));
+    req.on('error', reject);
+  });
+}
+
+function metaContent(html, patterns) {
+  for (const p of patterns) {
+    const m = html.match(p);
+    if (m) return m[1].trim();
+  }
+  return '';
+}
+
+const unescapeHtml = (s) =>
+  s.replace(/&(amp|quot|#39|apos|lt|gt);/g, (x) =>
+    ({ '&amp;': '&', '&quot;': '"', '&#39;': "'", '&apos;': "'", '&lt;': '<', '&gt;': '>' })[x] || x);
+
+// Ambil judul + gambar unggulan sebuah tautan. Gambar diunduh dan
+// disimpan di /uploads agar tampil cepat dan bebas masalah CORS.
+async function fetchLinkMeta(url) {
+  const meta = { url, host: '', title: '', image: '' };
+  try {
+    meta.host = new URL(url).hostname.replace(/^www\./, '');
+  } catch (e) {}
+  try {
+    const { buffer } = await fetchUrl(url);
+    const html = buffer.toString('utf8');
+    meta.title = unescapeHtml(metaContent(html, [
+      /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i,
+      /<title[^>]*>([^<]+)<\/title>/i,
+    ])).slice(0, 160);
+    const img = metaContent(html, [
+      /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+      /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+      /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i,
+    ]);
+    if (img) {
+      const { buffer: ib, type } = await fetchUrl(
+        new URL(unescapeHtml(img), url).href,
+        { maxBytes: 3 * 1024 * 1024 });
+      if (type.startsWith('image/')) {
+        const ext = type.includes('png') ? 'png' : type.includes('webp') ? 'webp' : 'jpg';
+        meta.image = `link_${Date.now()}.${ext}`;
+        fs.writeFileSync(path.join(UPLOAD_DIR, meta.image), ib);
+      }
+    }
+  } catch (e) {
+    console.error('Pratinjau tautan gagal:', url, '-', e.message);
+  }
+  return meta;
+}
+
 function findPost(req, res) {
   const p = db.posts.find((p) => p.id === req.params.id);
   if (!p) res.status(404).json({ error: 'Promo tidak ditemukan' });
@@ -406,13 +519,16 @@ app.get('/api/posts', (req, res) => {
   res.json({ posts: db.posts.map((p) => postView(p, c ? c.phone : null)) });
 });
 
-app.post('/api/posts', (req, res) => {
+app.post('/api/posts', async (req, res) => {
   const a = requireAdmin(req, res);
   if (!a) return;
   const b = req.body || {};
   const caption = String(b.caption || '').trim();
-  if (!caption && !b.imageData) {
-    return res.status(400).json({ error: 'Tulis sesuatu atau pilih foto' });
+  // Tautan: dari kolom khusus, atau URL pertama di teks.
+  const linkUrl = String(b.link || '').trim() ||
+      (caption.match(/https?:\/\/\S+/) || [''])[0];
+  if (!caption && !b.imageData && !linkUrl) {
+    return res.status(400).json({ error: 'Tulis sesuatu, pilih foto, atau isi tautan' });
   }
   let image = '';
   if (b.imageData) {
@@ -433,8 +549,9 @@ app.post('/api/posts', (req, res) => {
     id: `post_${Date.now()}`,
     authorName: a.name || 'H2O Laundry',
     caption,
-    bgStyle: String(b.bgStyle || ''),
+    bgStyle: linkUrl ? '' : String(b.bgStyle || ''),
     image,
+    link: linkUrl ? await fetchLinkMeta(linkUrl) : null,
     createdAt: now(),
     reactions: {},
     comments: [],
@@ -452,6 +569,11 @@ app.delete('/api/posts/:id', (req, res) => {
   if (p.image) {
     try {
       fs.unlinkSync(path.join(UPLOAD_DIR, p.image));
+    } catch (e) {}
+  }
+  if (p.link && p.link.image) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, p.link.image));
     } catch (e) {}
   }
   db.posts = db.posts.filter((x) => x.id !== p.id);
