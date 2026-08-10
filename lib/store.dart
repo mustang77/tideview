@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -90,7 +91,11 @@ class LaundryStore extends ChangeNotifier {
     if (services.isEmpty && !online) services.addAll(defaultServices());
     _loaded = true;
     notifyListeners();
-    if (online) await refresh();
+    // Segarkan dari server TANPA menunggu: aplikasi langsung tampil
+    // dari cache lokal, data server menyusul (banner offline muncul
+    // bila server tidak terjangkau). Menunggu di sini membuat layar
+    // putih selamanya kalau server mati.
+    if (online) unawaited(refresh());
   }
 
   Future<void> _save() async {
