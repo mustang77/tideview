@@ -22,7 +22,7 @@ const defaultServices = [
   { id: 'express', name: 'Express 1 Hari', unit: 'kg', price: 12000, description: 'Cuci + setrika kilat, selesai 24 jam', estimasiHari: 1 },
 ];
 
-let db = { seq: 1, services: defaultServices, orders: [], admins: [] };
+let db = { seq: 1, services: defaultServices, orders: [], admins: [], customers: [] };
 if (fs.existsSync(DATA_FILE)) {
   try {
     db = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -42,6 +42,13 @@ function save() {
 }
 
 const digits = (p) => String(p || '').replace(/[^0-9]/g, '');
+// Normalisasi nomor HP ke format 62xxx supaya 0812/62812/812 dianggap sama.
+const normPhone = (p) => {
+  let d = digits(p);
+  if (d.startsWith('0')) d = '62' + d.slice(1);
+  else if (!d.startsWith('62')) d = '62' + d;
+  return d;
+};
 const now = () => new Date().toISOString();
 
 const app = express();
@@ -49,7 +56,8 @@ app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type,x-admin-id,x-admin-pin',
+    'Access-Control-Allow-Headers':
+        'Content-Type,x-admin-id,x-admin-pin,x-cust-phone,x-cust-pin',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
   });
   if (req.method === 'OPTIONS') return res.sendStatus(204);
@@ -70,6 +78,14 @@ function requireAdmin(req, res) {
   if (!a) res.status(401).json({ error: 'Autentikasi admin tidak valid' });
   return a;
 }
+// Akun pelanggan: satu nomor HP = satu akun, dilindungi PIN.
+function customer(req) {
+  const phone = normPhone(req.get('x-cust-phone') || '');
+  const pin = String(req.get('x-cust-pin') || '');
+  if (!phone || !pin) return null;
+  return db.customers.find((c) => c.phone === phone && c.pin === pin) || null;
+}
+
 function findOrder(req, res) {
   const o = db.orders.find((o) => o.id === req.params.id);
   if (!o) res.status(404).json({ error: 'Pesanan tidak ditemukan' });
@@ -86,9 +102,12 @@ app.get('/api/state', (req, res) => {
   let orders = [];
   if (a) {
     orders = db.orders;
-  } else {
-    const p = digits(req.query.phone);
-    if (p) orders = db.orders.filter((o) => digits(o.phone) === p);
+  } else if (req.get('x-cust-phone')) {
+    const c = customer(req);
+    if (!c) {
+      return res.status(401).json({ error: 'Sesi pelanggan tidak valid' });
+    }
+    orders = db.orders.filter((o) => normPhone(o.phone) === c.phone);
   }
   res.json({
     services: db.services,
@@ -101,16 +120,21 @@ app.get('/api/state', (req, res) => {
 // ---- Pesanan ----
 
 app.post('/api/orders', (req, res) => {
+  const c = customer(req);
+  if (!c) {
+    return res
+        .status(401)
+        .json({ error: 'Silakan masuk dengan nomor HP dan PIN Anda' });
+  }
   const b = req.body || {};
-  if (!b.customerName || !b.phone ||
-      !Array.isArray(b.items) || b.items.length === 0) {
+  if (!Array.isArray(b.items) || b.items.length === 0) {
     return res.status(400).json({ error: 'Data pesanan tidak lengkap' });
   }
   const t = now();
   const order = {
     id: `H2O-${String(db.seq++).padStart(4, '0')}`,
-    customerName: String(b.customerName),
-    phone: String(b.phone),
+    customerName: c.name,
+    phone: c.phone,
     items: b.items.map((i) => ({
       serviceId: String(i.serviceId || ''),
       name: String(i.name || ''),
@@ -182,6 +206,40 @@ app.delete('/api/orders/:id', (req, res) => {
   }
   save();
   res.json({ ok: true });
+});
+
+// ---- Akun pelanggan ----
+
+app.post('/api/customer/register', (req, res) => {
+  const { name, phone, pin } = req.body || {};
+  if (!name || !/^[0-9]{4,6}$/.test(String(pin))) {
+    return res.status(400).json({ error: 'Nama wajib diisi; PIN 4-6 angka' });
+  }
+  const np = normPhone(phone);
+  if (np.length < 10) {
+    return res.status(400).json({ error: 'Nomor HP tidak valid' });
+  }
+  if (db.customers.find((c) => c.phone === np)) {
+    return res.status(409).json({
+      error: 'Nomor ini sudah terdaftar. Silakan masuk dengan PIN Anda.',
+    });
+  }
+  db.customers.push({
+    phone: np,
+    name: String(name),
+    pin: String(pin),
+    createdAt: now(),
+  });
+  save();
+  res.json({ ok: true, name: String(name), phone: np });
+});
+
+app.post('/api/customer/login', (req, res) => {
+  const np = normPhone((req.body || {}).phone);
+  const pin = String((req.body || {}).pin || '');
+  const c = db.customers.find((c) => c.phone === np && c.pin === pin);
+  if (!c) return res.status(401).json({ error: 'Nomor atau PIN salah' });
+  res.json({ ok: true, name: c.name, phone: c.phone });
 });
 
 // ---- Katalog item ----

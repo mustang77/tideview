@@ -30,6 +30,9 @@ class LaundryStore extends ChangeNotifier {
   String? currentAdminId;
   String? _adminPin;
 
+  /// PIN akun pelanggan (mode server) untuk autentikasi pesanan.
+  String? _custPin;
+
   /// URL server (kosong = mode lokal).
   String apiUrl = '';
 
@@ -74,6 +77,7 @@ class LaundryStore extends ChangeNotifier {
         role = m['role'] as String?;
         currentAdminId = m['currentAdminId'] as String?;
         _adminPin = m['adminPin'] as String?;
+        _custPin = m['custPin'] as String?;
       } catch (_) {
         // Data korup: mulai bersih daripada crash saat startup.
         orders.clear();
@@ -96,6 +100,7 @@ class LaundryStore extends ChangeNotifier {
       'role': role,
       'currentAdminId': currentAdminId,
       'adminPin': _adminPin,
+      'custPin': _custPin,
     };
     await _prefs?.setString(_storageKey, jsonEncode(m));
   }
@@ -127,11 +132,25 @@ class LaundryStore extends ChangeNotifier {
     final a = api;
     if (a == null) return true;
     try {
-      final m = await a.state(
-        phone: role == 'owner' ? null : profile.phone,
-        adminId: currentAdminId,
-        adminPin: _adminPin,
-      );
+      final Map<String, dynamic> m;
+      try {
+        m = await a.state(
+          adminId: role == 'owner' ? currentAdminId : null,
+          adminPin: role == 'owner' ? _adminPin : null,
+          custPhone:
+              role == 'customer' && _custPin != null ? profile.phone : null,
+          custPin: role == 'customer' ? _custPin : null,
+        );
+      } on ApiException catch (e) {
+        // Sesi pelanggan tidak valid (mis. PIN diganti): keluar paksa.
+        if (e.statusCode == 401 && role == 'customer') {
+          _custPin = null;
+          role = null;
+          await _save();
+          return false;
+        }
+        rethrow;
+      }
       services
         ..clear()
         ..addAll((m['services'] as List).map(
@@ -181,8 +200,53 @@ class LaundryStore extends ChangeNotifier {
       currentAdminId = null;
       _adminPin = null;
     }
+    if (value != 'customer') _custPin = null;
     await _save();
     if (online && value != null) await refresh();
+  }
+
+  /// Daftar akun pelanggan baru di server. Mengembalikan pesan error
+  /// (null bila sukses). errorCode 409 = nomor sudah terdaftar.
+  Future<String?> registerCustomer(
+      String name, String phone, String pin) async {
+    final a = api;
+    if (a == null) {
+      await saveProfile(name, phone, profile.address);
+      await setRole('customer');
+      return null;
+    }
+    try {
+      final m = await a.customerRegister(name, phone, pin);
+      profile
+        ..name = m['name'] as String
+        ..phone = m['phone'] as String;
+      _custPin = pin;
+      await setRole('customer');
+      return null;
+    } on ApiException catch (e) {
+      return e.statusCode == 409 ? 'SUDAH_TERDAFTAR' : e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  /// Masuk dengan akun pelanggan yang sudah ada.
+  Future<String?> loginCustomer(String phone, String pin) async {
+    final a = api;
+    if (a == null) return null;
+    try {
+      final m = await a.customerLogin(phone, pin);
+      profile
+        ..name = m['name'] as String
+        ..phone = m['phone'] as String;
+      _custPin = pin;
+      await setRole('customer');
+      return null;
+    } on ApiException catch (e) {
+      return e.statusCode == 401 ? 'Nomor atau PIN salah.' : e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
   }
 
   /// Masuk Mode Pemilik sebagai admin tertentu (PIN sudah diverifikasi
@@ -219,13 +283,11 @@ class LaundryStore extends ChangeNotifier {
     if (a != null) {
       try {
         final m = await a.createOrder({
-          'customerName': name,
-          'phone': phone,
           'items': items.map((e) => e.toMap()).toList(),
           'contents': contents,
           'scheduledAt': scheduledAt.toIso8601String(),
           'notes': notes,
-        });
+        }, custPhone: profile.phone, custPin: _custPin);
         final order = Order.fromMap(m);
         orders.insert(0, order);
         serverOk = true;

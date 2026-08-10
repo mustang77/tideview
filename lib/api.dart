@@ -24,10 +24,17 @@ class ApiClient {
   final String baseUrl;
   static const _timeout = Duration(seconds: 10);
 
-  Map<String, String> _headers({String? adminId, String? adminPin}) => {
+  Map<String, String> _headers(
+          {String? adminId,
+          String? adminPin,
+          String? custPhone,
+          String? custPin}) =>
+      {
         'Content-Type': 'application/json',
         'x-admin-id': ?adminId,
         'x-admin-pin': ?adminPin,
+        'x-cust-phone': ?custPhone,
+        'x-cust-pin': ?custPin,
       };
 
   dynamic _decode(http.Response r) {
@@ -49,21 +56,33 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> state(
-      {String? phone, String? adminId, String? adminPin}) async {
-    final uri = Uri.parse('$baseUrl/api/state').replace(queryParameters: {
-      if (phone != null && phone.isNotEmpty) 'phone': phone,
-    });
+      {String? adminId,
+      String? adminPin,
+      String? custPhone,
+      String? custPin}) async {
     final r = await http
-        .get(uri, headers: _headers(adminId: adminId, adminPin: adminPin))
+        .get(Uri.parse('$baseUrl/api/state'),
+            headers: _headers(
+                adminId: adminId,
+                adminPin: adminPin,
+                custPhone: custPhone,
+                custPin: custPin))
         .timeout(_timeout);
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
   Future<Map<String, dynamic>> _post(String path, Map<String, dynamic> body,
-      {String? adminId, String? adminPin}) async {
+      {String? adminId,
+      String? adminPin,
+      String? custPhone,
+      String? custPin}) async {
     final r = await http
         .post(Uri.parse('$baseUrl$path'),
-            headers: _headers(adminId: adminId, adminPin: adminPin),
+            headers: _headers(
+                adminId: adminId,
+                adminPin: adminPin,
+                custPhone: custPhone,
+                custPin: custPin),
             body: jsonEncode(body))
         .timeout(_timeout);
     return (_decode(r) as Map).cast<String, dynamic>();
@@ -90,8 +109,19 @@ class ApiClient {
 
   // ---- Pesanan ----
 
-  Future<Map<String, dynamic>> createOrder(Map<String, dynamic> order) =>
-      _post('/api/orders', order);
+  Future<Map<String, dynamic>> createOrder(Map<String, dynamic> order,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/orders', order, custPhone: custPhone, custPin: custPin);
+
+  // ---- Akun pelanggan ----
+
+  Future<Map<String, dynamic>> customerRegister(
+          String name, String phone, String pin) =>
+      _post('/api/customer/register',
+          {'name': name, 'phone': phone, 'pin': pin});
+
+  Future<Map<String, dynamic>> customerLogin(String phone, String pin) =>
+      _post('/api/customer/login', {'phone': phone, 'pin': pin});
 
   Future<Map<String, dynamic>> advanceOrder(String id,
           {String? adminId, String? adminPin}) =>
