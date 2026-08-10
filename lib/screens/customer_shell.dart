@@ -375,6 +375,27 @@ class _ProfileTabState extends State<_ProfileTab> {
   late final _phone = TextEditingController(text: store.profile.phone);
   late final _address = TextEditingController(text: store.profile.address);
 
+  Future<void> _confirmLogout(BuildContext context) async {
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar?'),
+        content: const Text('Anda akan keluar dari akun pelanggan. '
+            'Riwayat pesanan tetap tersimpan di perangkat ini.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal')),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
+    if (yes == true) await store.setRole(null);
+  }
+
   @override
   void dispose() {
     _name.dispose();
@@ -430,6 +451,17 @@ class _ProfileTabState extends State<_ProfileTab> {
           label: const Text('Simpan Profil'),
         ),
         const SizedBox(height: 28),
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.logout,
+                color: Theme.of(context).colorScheme.error),
+            title: const Text('Keluar'),
+            subtitle: const Text('Keluar dari akun di perangkat ini'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _confirmLogout(context),
+          ),
+        ),
+        const SizedBox(height: 8),
         Center(
           child: Text('H2O Laundry Parakan v1.0',
               style: Theme.of(context).textTheme.bodySmall),

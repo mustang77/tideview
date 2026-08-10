@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/customer_shell.dart';
 import 'screens/owner_shell.dart';
 import 'screens/role_select_screen.dart';
+import 'screens/splash_screen.dart';
 import 'store.dart';
 
 Future<void> main() async {
@@ -51,7 +52,30 @@ class H2OLaundryApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const RootGate(),
+      home: const SplashGate(),
+    );
+  }
+}
+
+/// Tampilkan splash bergelembung dulu, lalu masuk ke aplikasi.
+class SplashGate extends StatefulWidget {
+  const SplashGate({super.key});
+
+  @override
+  State<SplashGate> createState() => _SplashGateState();
+}
+
+class _SplashGateState extends State<SplashGate> {
+  bool _showSplash = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 450),
+      child: _showSplash
+          ? SplashScreen(
+              onFinished: () => setState(() => _showSplash = false))
+          : const RootGate(),
     );
   }
 }

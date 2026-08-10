@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../store.dart';
+import 'customer_login_screen.dart';
 import 'owner_access.dart';
 
 class RoleSelectScreen extends StatefulWidget {
@@ -76,9 +76,11 @@ class _RoleSelectScreenState extends State<RoleSelectScreen> {
                   _RoleCard(
                     icon: Icons.person,
                     title: 'Saya Pelanggan',
-                    subtitle: 'Pesan layanan laundry, antar ke counter, '
-                        'dan lacak status cucian',
-                    onTap: () => store.setRole('customer'),
+                    subtitle: 'Masuk dengan nama & no. HP untuk memesan '
+                        'dan melacak cucian',
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const CustomerLoginScreen())),
                   ),
                 ],
               ),
