@@ -6,6 +6,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'new_order_screen.dart';
 import 'order_detail_screen.dart';
+import 'owner_access.dart';
 
 class CustomerShell extends StatefulWidget {
   const CustomerShell({super.key});
@@ -59,8 +60,15 @@ class _CustomerShellState extends State<CustomerShell> {
 
 // ---------------------------------------------------------------- Beranda
 
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  final _secretTaps = SecretTapCounter();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +85,11 @@ class _HomeTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const BrandHeader(),
+        BrandHeader(
+          onLogoTap: () {
+            if (_secretTaps.registerTap(context)) enterOwnerMode(context);
+          },
+        ),
         const SizedBox(height: 18),
         Text(
           name.isEmpty ? 'Halo! 👋' : 'Halo, ${name.split(' ').first}! 👋',
@@ -418,16 +430,6 @@ class _ProfileTabState extends State<_ProfileTab> {
           label: const Text('Simpan Profil'),
         ),
         const SizedBox(height: 28),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.swap_horiz),
-            title: const Text('Ganti Mode'),
-            subtitle: const Text('Kembali ke pemilihan Pelanggan / Pemilik'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => store.setRole(null),
-          ),
-        ),
-        const SizedBox(height: 8),
         Center(
           child: Text('H2O Laundry Parakan v1.0',
               style: Theme.of(context).textTheme.bodySmall),

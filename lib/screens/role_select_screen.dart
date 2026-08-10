@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models.dart';
 import '../store.dart';
+import 'owner_access.dart';
 
 class RoleSelectScreen extends StatefulWidget {
   const RoleSelectScreen({super.key});
@@ -11,58 +11,10 @@ class RoleSelectScreen extends StatefulWidget {
 }
 
 class _RoleSelectScreenState extends State<RoleSelectScreen> {
-  static const _tapsNeeded = 7;
+  final _secretTaps = SecretTapCounter();
 
-  int _logoTaps = 0;
-  DateTime? _lastTap;
-
-  /// Pintu rahasia mode pemilik: ketuk logo 7x berturut-turut
-  /// (jeda antar ketukan maksimal 2 detik).
   void _onLogoTap() {
-    final now = DateTime.now();
-    if (_lastTap == null ||
-        now.difference(_lastTap!) > const Duration(seconds: 2)) {
-      _logoTaps = 0;
-    }
-    _lastTap = now;
-    _logoTaps++;
-
-    if (_logoTaps >= _tapsNeeded) {
-      _logoTaps = 0;
-      _enterOwnerMode();
-      return;
-    }
-
-    // Beri petunjuk hanya setelah 4 ketukan agar tetap tersembunyi
-    // dari pelanggan biasa.
-    if (_logoTaps >= 4) {
-      final sisa = _tapsNeeded - _logoTaps;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text('Ketuk $sisa kali lagi untuk Mode Pemilik'),
-          duration: const Duration(seconds: 1),
-        ));
-    }
-  }
-
-  /// Tanpa admin terdaftar, langsung masuk. Bila sudah ada admin,
-  /// wajib memilih admin dan memasukkan PIN.
-  Future<void> _enterOwnerMode() async {
-    if (store.admins.isEmpty) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(
-            content: Text('Mode Pemilik terbuka. Tambahkan admin & PIN '
-                'lewat menu Kelola Admin untuk mengamankannya.')));
-      await store.setRole('owner');
-      return;
-    }
-    final admin = await showDialog<AdminUser>(
-      context: context,
-      builder: (context) => const _AdminLoginDialog(),
-    );
-    if (admin != null) await store.loginOwner(admin);
+    if (_secretTaps.registerTap(context)) enterOwnerMode(context);
   }
 
   @override
@@ -191,79 +143,6 @@ class _RoleCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// Dialog pilih admin + PIN untuk masuk Mode Pemilik.
-class _AdminLoginDialog extends StatefulWidget {
-  const _AdminLoginDialog();
-
-  @override
-  State<_AdminLoginDialog> createState() => _AdminLoginDialogState();
-}
-
-class _AdminLoginDialogState extends State<_AdminLoginDialog> {
-  late AdminUser _selected = store.admins.first;
-  final _pin = TextEditingController();
-  String? _error;
-
-  @override
-  void dispose() {
-    _pin.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (_pin.text == _selected.pin) {
-      Navigator.pop(context, _selected);
-    } else {
-      setState(() => _error = 'PIN salah, coba lagi.');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Masuk Mode Pemilik'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DropdownButtonFormField<AdminUser>(
-            initialValue: _selected,
-            decoration: const InputDecoration(labelText: 'Admin'),
-            items: [
-              for (final a in store.admins)
-                DropdownMenuItem(value: a, child: Text(a.name)),
-            ],
-            onChanged: (a) => setState(() {
-              if (a != null) _selected = a;
-              _error = null;
-            }),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _pin,
-            autofocus: true,
-            obscureText: true,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            onSubmitted: (_) => _submit(),
-            decoration: InputDecoration(
-              labelText: 'PIN',
-              counterText: '',
-              errorText: _error,
-              prefixIcon: const Icon(Icons.lock_outline),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal')),
-        FilledButton(onPressed: _submit, child: const Text('Masuk')),
-      ],
     );
   }
 }

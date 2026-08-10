@@ -21,9 +21,12 @@ IconData serviceIcon(String id) =>
 /// Kop merek "H2O LAUNDRY / PARAKAN" dengan logo, dipakai di
 /// beranda pelanggan, dashboard pemilik, dan layar pembuka.
 class BrandHeader extends StatelessWidget {
-  const BrandHeader({super.key, this.compact = true});
+  const BrandHeader({super.key, this.compact = true, this.onLogoTap});
 
   final bool compact;
+
+  /// Aksi ketukan pada logo (dipakai untuk pintu rahasia Mode Pemilik).
+  final VoidCallback? onLogoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +36,23 @@ class BrandHeader extends StatelessWidget {
       mainAxisAlignment:
           compact ? MainAxisAlignment.start : MainAxisAlignment.center,
       children: [
-        Container(
-          width: logoSize,
-          height: logoSize,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        GestureDetector(
+          onTap: onLogoTap,
+          child: Container(
+            width: logoSize,
+            height: logoSize,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF06B6D4), Color(0xFF0E7490)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(compact ? 12 : 24),
             ),
-            borderRadius: BorderRadius.circular(compact ? 12 : 24),
+            child: Icon(Icons.local_laundry_service,
+                size: compact ? 26 : 48, color: Colors.white),
           ),
-          child: Icon(Icons.local_laundry_service,
-              size: compact ? 26 : 48, color: Colors.white),
         ),
         const SizedBox(width: 12),
         Column(
