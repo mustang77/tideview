@@ -25,6 +25,11 @@ class LaundryStore extends ChangeNotifier {
 
   /// Feed Info & Promo dari server (kosong di mode lokal).
   final List<PromoPost> posts = [];
+
+  /// Notifikasi pelanggan dari server, terbaru dulu.
+  final List<AppNotif> notifs = [];
+
+  int get unreadNotifs => notifs.where((n) => !n.read).length;
   CustomerProfile profile = CustomerProfile();
 
   /// 'customer' | 'owner' | null (belum memilih mode).
@@ -178,6 +183,10 @@ class LaundryStore extends ChangeNotifier {
         ..clear()
         ..addAll((m['posts'] as List? ?? []).map(
             (e) => PromoPost.fromMap((e as Map).cast<String, dynamic>())));
+      notifs
+        ..clear()
+        ..addAll((m['notifs'] as List? ?? []).map(
+            (e) => AppNotif.fromMap((e as Map).cast<String, dynamic>())));
       serverOk = true;
       await _save();
       return true;
@@ -357,6 +366,22 @@ class LaundryStore extends ChangeNotifier {
       serverOk = false;
       notifyListeners();
     }
+  }
+
+  /// Tandai semua notifikasi terbaca (dipanggil saat layar
+  /// notifikasi dibuka).
+  Future<void> markNotifsRead() async {
+    if (unreadNotifs == 0) return;
+    for (final n in notifs) {
+      n.read = true;
+    }
+    notifyListeners();
+    final a = api;
+    if (a == null || _custPin == null) return;
+    try {
+      await a.markNotifsRead(
+          custPhone: profile.phone, custPin: _custPin);
+    } catch (_) {}
   }
 
   // ---- Mode / profil ----

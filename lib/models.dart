@@ -395,6 +395,40 @@ class PromoPost {
       );
 }
 
+/// Notifikasi dalam-aplikasi untuk pelanggan (status pesanan,
+/// reaksi/komentar pada postingan, promo baru).
+class AppNotif {
+  AppNotif({
+    required this.id,
+    required this.type,
+    required this.text,
+    required this.at,
+    required this.read,
+    this.postId = '',
+    this.orderId = '',
+  });
+
+  final String id;
+
+  /// 'order' | 'react' | 'comment' | 'reply' | 'promo'
+  final String type;
+  final String text;
+  final DateTime at;
+  bool read;
+  final String postId;
+  final String orderId;
+
+  factory AppNotif.fromMap(Map<String, dynamic> m) => AppNotif(
+        id: m['id'] as String,
+        type: m['type'] as String? ?? 'order',
+        text: m['text'] as String? ?? '',
+        at: DateTime.parse(m['at'] as String).toLocal(),
+        read: m['read'] as bool? ?? false,
+        postId: m['postId'] as String? ?? '',
+        orderId: m['orderId'] as String? ?? '',
+      );
+}
+
 class CustomerProfile {
   CustomerProfile({this.name = '', this.phone = '', this.address = ''});
 

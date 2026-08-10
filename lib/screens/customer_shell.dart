@@ -137,10 +137,31 @@ class _HomeTabState extends State<_HomeTab> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        BrandHeader(
-          onLogoTap: () {
-            if (_secretTaps.registerTap(context)) enterOwnerMode(context);
-          },
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: BrandHeader(
+                onLogoTap: () {
+                  if (_secretTaps.registerTap(context)) {
+                    enterOwnerMode(context);
+                  }
+                },
+              ),
+            ),
+            if (store.online)
+              Badge.count(
+                count: store.unreadNotifs,
+                isLabelVisible: store.unreadNotifs > 0,
+                child: IconButton.filledTonal(
+                  tooltip: 'Notifikasi',
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationsScreen())),
+                  icon: const Icon(Icons.notifications_outlined),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 18),
         const ServerOfflineBanner(),
@@ -519,6 +540,118 @@ class RiwayatScreen extends StatelessWidget {
         child: ListenableBuilder(
           listenable: store,
           builder: (context, _) => _OrdersTab(history: true),
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------------------------------------------------- Notifikasi
+
+/// Daftar notifikasi pelanggan: status pesanan, reaksi/komentar pada
+/// postingan, dan promo baru. Terbuka = semua ditandai terbaca.
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Tandai terbaca setelah layar tampil (badge langsung bersih).
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => store.markNotifsRead());
+  }
+
+  IconData _iconFor(String type) => switch (type) {
+        'order' => Icons.local_laundry_service,
+        'react' => Icons.favorite,
+        'comment' => Icons.mode_comment,
+        'reply' => Icons.reply,
+        'promo' => Icons.campaign,
+        _ => Icons.notifications,
+      };
+
+  Color _colorFor(String type) => switch (type) {
+        'order' => const Color(0xFF0E7490),
+        'react' => const Color(0xFFE0245E),
+        'comment' || 'reply' => const Color(0xFF2563EB),
+        'promo' => const Color(0xFFD97706),
+        _ => const Color(0xFF64748B),
+      };
+
+  void _open(AppNotif n) {
+    if (n.orderId.isNotEmpty) {
+      for (final o in store.orders) {
+        if (o.id == n.orderId) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => OrderDetailScreen(order: o)));
+          return;
+        }
+      }
+    }
+    if (n.postId.isNotEmpty &&
+        store.posts.any((p) => p.id == n.postId)) {
+      showPromoComments(context, n.postId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Notifikasi')),
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: store,
+          builder: (context, _) => RefreshIndicator(
+            onRefresh: () async => store.refresh(),
+            child: store.notifs.isEmpty
+                ? ListView(
+                    children: const [
+                      SizedBox(height: 120),
+                      EmptyState(
+                          icon: Icons.notifications_none,
+                          message: 'Belum ada notifikasi.'),
+                    ],
+                  )
+                : ListView.separated(
+                    itemCount: store.notifs.length,
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, indent: 68),
+                    itemBuilder: (context, i) {
+                      final n = store.notifs[i];
+                      return ListTile(
+                        tileColor: n.read
+                            ? null
+                            : const Color(0xFFE9F6FA),
+                        leading: CircleAvatar(
+                          radius: 19,
+                          backgroundColor:
+                              _colorFor(n.type).withValues(alpha: 0.12),
+                          child: Icon(_iconFor(n.type),
+                              size: 19, color: _colorFor(n.type)),
+                        ),
+                        title: Text(n.text,
+                            style: TextStyle(
+                                fontSize: 13.5,
+                                height: 1.3,
+                                fontWeight: n.read
+                                    ? FontWeight.w500
+                                    : FontWeight.w700)),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(timeAgo(n.at),
+                              style: theme.textTheme.bodySmall),
+                        ),
+                        onTap: () => _open(n),
+                      );
+                    },
+                  ),
+          ),
         ),
       ),
     );

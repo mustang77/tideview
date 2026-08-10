@@ -226,6 +226,13 @@ class ApiClient {
           custPhone: custPhone,
           custPin: custPin);
 
+  // ---- Notifikasi ----
+
+  Future<Map<String, dynamic>> markNotifsRead(
+          {String? custPhone, String? custPin}) =>
+      _post('/api/notifs/read', {},
+          custPhone: custPhone, custPin: custPin);
+
   // ---- Katalog ----
 
   Future<Map<String, dynamic>> createService(Map<String, dynamic> s,

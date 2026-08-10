@@ -38,6 +38,7 @@ if (fs.existsSync(DATA_FILE)) {
   }
 }
 db.posts = db.posts || [];
+db.notifs = db.notifs || [];
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
@@ -117,6 +118,33 @@ const normPhone = (p) => {
   return d;
 };
 const now = () => new Date().toISOString();
+
+// ---- Notifikasi dalam-aplikasi ----
+// Disimpan per penerima (nomor HP pelanggan) dan diantar lewat
+// /api/state, jadi ikut siklus polling aplikasi.
+let notifSeq = 0;
+function notify(phone, type, text, extra = {}) {
+  if (!phone) return;
+  db.notifs.push({
+    id: `n_${Date.now()}_${notifSeq++}`,
+    phone,
+    type,
+    text,
+    at: now(),
+    read: false,
+    ...extra,
+  });
+  // Jaga ukuran file data: simpan maksimal 800 notifikasi terakhir.
+  if (db.notifs.length > 800) db.notifs = db.notifs.slice(-800);
+  save();
+}
+
+const STATUS_NOTIF = {
+  diterima: 'sudah diterima di laundry',
+  diproses: 'sedang diproses',
+  siap: 'SIAP DIAMBIL! 🎉',
+  selesai: 'selesai — terima kasih! 🙏',
+};
 
 // ---- Verifikasi ID token Firebase (bukti OTP nomor HP) ----
 // Token ditandatangani Google (RS256); sertifikat publiknya diambil dari
@@ -245,13 +273,28 @@ app.get('/api/state', (req, res) => {
     custPhone = c.phone;
     orders = db.orders.filter((o) => normPhone(o.phone) === c.phone);
   }
+  const notifs = custPhone
+      ? db.notifs.filter((n) => n.phone === custPhone).slice(-50).reverse()
+      : [];
   res.json({
     services: db.services,
     adminNames: db.admins.map(({ id, name }) => ({ id, name })),
     orders,
     posts: db.posts.map((p) => postView(p, custPhone)),
+    notifs,
     isAdmin: !!a,
   });
+});
+
+// Tandai semua notifikasi pelanggan sudah dibaca.
+app.post('/api/notifs/read', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  db.notifs.forEach((n) => {
+    if (n.phone === c.phone) n.read = true;
+  });
+  save();
+  res.json({ ok: true });
 });
 
 // ---- Pesanan ----
@@ -303,6 +346,10 @@ app.post('/api/orders/:id/advance', (req, res) => {
     const entry = { status: o.status, at: now() };
     if (a.name) entry.by = a.name;
     o.history.push(entry);
+    if (STATUS_NOTIF[o.status]) {
+      notify(normPhone(o.phone), 'order',
+          `Pesanan ${o.id} ${STATUS_NOTIF[o.status]}`, { orderId: o.id });
+    }
     save();
   }
   res.json(o);
@@ -313,7 +360,13 @@ app.post('/api/orders/:id/paid', (req, res) => {
   if (!a) return;
   const o = findOrder(req, res);
   if (!o) return;
+  const was = o.paid;
   o.paid = !!(req.body || {}).paid;
+  if (o.paid && !was) {
+    notify(normPhone(o.phone), 'order',
+        `Pembayaran pesanan ${o.id} tercatat. Terima kasih! 💧`,
+        { orderId: o.id });
+  }
   save();
   res.json(o);
 });
@@ -655,6 +708,13 @@ app.post('/api/posts', async (req, res) => {
     comments: [],
   };
   db.posts.unshift(post);
+  if (post.byAdmin) {
+    // Kabari semua pelanggan ada promo/info baru.
+    const brief = caption ? `"${caption.slice(0, 60)}"` : 'lihat sekarang!';
+    db.customers.forEach((cu) =>
+        notify(cu.phone, 'promo',
+            `Promo baru dari H2O Laundry: ${brief}`, { postId: post.id }));
+  }
   save();
   res.json(postView(post, c ? c.phone : null));
 });
@@ -704,8 +764,17 @@ app.post('/api/posts/:id/react', (req, res) => {
   if (emoji && !REACTIONS.includes(emoji)) {
     return res.status(400).json({ error: 'Reaksi tidak dikenal' });
   }
-  if (!emoji || p.reactions[c.phone] === emoji) delete p.reactions[c.phone];
-  else p.reactions[c.phone] = emoji;
+  if (!emoji || p.reactions[c.phone] === emoji) {
+    delete p.reactions[c.phone];
+  } else {
+    const first = !p.reactions[c.phone];
+    p.reactions[c.phone] = emoji;
+    if (first && p.authorPhone && p.authorPhone !== c.phone) {
+      notify(p.authorPhone, 'react',
+          `${c.name} memberi reaksi ${emoji} pada postingan Anda`,
+          { postId: p.id });
+    }
+  }
   save();
   res.json(postView(p, c.phone));
 });
@@ -747,16 +816,36 @@ app.post('/api/posts/:id/comments', (req, res) => {
     }
     replyToName = parent.name;
   }
+  const actorPhone = c ? c.phone : '';
+  const actorName = c ? c.name : (a.name || 'Admin H2O');
   p.comments.push({
     id: `c_${Date.now()}`,
-    phone: c ? c.phone : '',
-    name: c ? c.name : (a.name || 'Admin'),
+    phone: actorPhone,
+    name: actorName,
     text,
     at: now(),
     byAdmin: !c,
     replyTo,
     replyToName,
   });
+  // Kabari yang berkepentingan (tanpa menotifikasi diri sendiri,
+  // tanpa dobel bila balasan dan pos milik orang yang sama).
+  const brief = text.slice(0, 60);
+  const notified = new Set([actorPhone]);
+  if (replyTo) {
+    const parent = p.comments.find((x) => x.id === replyTo);
+    if (parent && parent.phone && !notified.has(parent.phone)) {
+      notified.add(parent.phone);
+      notify(parent.phone, 'reply',
+          `${actorName} membalas komentar Anda: "${brief}"`,
+          { postId: p.id });
+    }
+  }
+  if (p.authorPhone && !notified.has(p.authorPhone)) {
+    notify(p.authorPhone, 'comment',
+        `${actorName} mengomentari postingan Anda: "${brief}"`,
+        { postId: p.id });
+  }
   save();
   res.json(postView(p, c ? c.phone : null));
 });
