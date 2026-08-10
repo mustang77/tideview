@@ -404,7 +404,7 @@ function postView(p, custPhone) {
 // Ambil isi URL http(s) dengan batas ukuran, timeout, dan maksimal 3
 // pengalihan. Alamat privat ditolak (kecuali ALLOW_LOCAL_LINKS=1,
 // untuk pengujian).
-function fetchUrl(url, { maxBytes = 512 * 1024, redirects = 3 } = {}) {
+function fetchUrl(url, { maxBytes = 512 * 1024, redirects = 3, allowTruncate = false } = {}) {
   return new Promise((resolve, reject) => {
     let u;
     try {
@@ -435,6 +435,7 @@ function fetchUrl(url, { maxBytes = 512 * 1024, redirects = 3 } = {}) {
           return resolve(fetchUrl(new URL(r.headers.location, u).href, {
             maxBytes,
             redirects: redirects - 1,
+            allowTruncate,
           }));
         }
         if (r.statusCode !== 200) {
@@ -443,16 +444,29 @@ function fetchUrl(url, { maxBytes = 512 * 1024, redirects = 3 } = {}) {
         }
         const chunks = [];
         let size = 0;
+        let settled = false;
         r.on('data', (d) => {
           size += d.length;
-          if (size > maxBytes) {
+          chunks.push(d);
+          if (size > maxBytes && !settled) {
+            settled = true;
             req.destroy();
+            // Halaman HTML raksasa (mis. Instagram): pakai bagian awal
+            // saja — tag og:* ada di <head>.
+            if (allowTruncate) {
+              return resolve({
+                buffer: Buffer.concat(chunks),
+                type: r.headers['content-type'] || '',
+              });
+            }
             return reject(new Error('Terlalu besar'));
           }
-          chunks.push(d);
         });
-        r.on('end', () =>
-          resolve({ buffer: Buffer.concat(chunks), type: r.headers['content-type'] || '' }));
+        r.on('end', () => {
+          if (settled) return;
+          settled = true;
+          resolve({ buffer: Buffer.concat(chunks), type: r.headers['content-type'] || '' });
+        });
       }
     );
     req.on('timeout', () => req.destroy(new Error('Timeout')));
@@ -480,7 +494,7 @@ async function fetchLinkMeta(url) {
     meta.host = new URL(url).hostname.replace(/^www\./, '');
   } catch (e) {}
   try {
-    const { buffer } = await fetchUrl(url);
+    const { buffer } = await fetchUrl(url, { allowTruncate: true });
     const html = buffer.toString('utf8');
     meta.title = unescapeHtml(metaContent(html, [
       /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
