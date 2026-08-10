@@ -53,6 +53,16 @@ db.posts.forEach((p) => {
   if (p.authorPhone === undefined) p.authorPhone = '';
 });
 
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const tmp = DATA_FILE + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(db, null, 1));
+    fs.renameSync(tmp, DATA_FILE);
+  }, 100);
+}
+
 // Folder foto promo (dilayani statis di /uploads).
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -67,14 +77,35 @@ try {
   console.log('ffmpeg tidak ditemukan — thumbnail reel dinonaktifkan');
 }
 
-let saveTimer = null;
-function save() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const tmp = DATA_FILE + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(db, null, 1));
-    fs.renameSync(tmp, DATA_FILE);
-  }, 100);
+function makeThumb(videoFile) {
+  const t = videoFile.replace(/\.\w+$/, '') + '_thumb.jpg';
+  execFileSync('ffmpeg', [
+    '-y', '-ss', '0.3', '-i', path.join(UPLOAD_DIR, videoFile),
+    '-frames:v', '1', '-vf', 'scale=480:-2',
+    path.join(UPLOAD_DIR, t),
+  ], { stdio: 'ignore', timeout: 30000 });
+  return fs.existsSync(path.join(UPLOAD_DIR, t)) ? t : '';
+}
+
+// Isi-ulang: video lama yang belum punya thumbnail dibuatkan saat
+// server mulai (berguna setelah ffmpeg baru dipasang).
+if (HAS_FFMPEG) {
+  let filled = 0;
+  db.posts.forEach((p) => {
+    if (p.video && !p.videoThumb &&
+        fs.existsSync(path.join(UPLOAD_DIR, p.video))) {
+      try {
+        p.videoThumb = makeThumb(p.video);
+        if (p.videoThumb) filled++;
+      } catch (e) {
+        console.error('Backfill thumbnail gagal:', p.video, e.message);
+      }
+    }
+  });
+  if (filled) {
+    console.log(`Thumbnail dibuat untuk ${filled} video lama`);
+    save();
+  }
 }
 
 const digits = (p) => String(p || '').replace(/[^0-9]/g, '');
@@ -587,14 +618,8 @@ app.post('/api/posts', async (req, res) => {
   }
   let videoThumb = '';
   if (video && HAS_FFMPEG) {
-    const t = video.replace(/\.\w+$/, '') + '_thumb.jpg';
     try {
-      execFileSync('ffmpeg', [
-        '-y', '-ss', '0.3', '-i', path.join(UPLOAD_DIR, video),
-        '-frames:v', '1', '-vf', 'scale=480:-2',
-        path.join(UPLOAD_DIR, t),
-      ], { stdio: 'ignore', timeout: 30000 });
-      if (fs.existsSync(path.join(UPLOAD_DIR, t))) videoThumb = t;
+      videoThumb = makeThumb(video);
     } catch (e) {
       console.error('Thumbnail reel gagal:', e.message);
     }

@@ -478,14 +478,27 @@ class _KomunitasTab extends StatelessWidget {
                                     'pertama — ketuk tombol +!'),
                           ],
                         )
-                      : ListView.builder(
-                          padding:
-                              const EdgeInsets.fromLTRB(16, 4, 16, 80),
-                          itemCount: store.posts.length + 1,
-                          itemBuilder: (context, i) => i == 0
-                              ? const ReelsStrip()
-                              : PromoCard(post: store.posts[i - 1]),
-                        ),
+                      : Builder(builder: (context) {
+                          // Susunan gaya Facebook: baris cerita di atas,
+                          // lalu feed cuit dengan blok Reels terselip
+                          // setelah beberapa pos.
+                          final items = <Widget>[const StoriesRow()];
+                          final posts = store.posts;
+                          for (var i = 0; i < posts.length; i++) {
+                            items.add(PromoCard(
+                                post: posts[i], cuit: true));
+                            if (i == 1) items.add(const ReelsBlock());
+                          }
+                          if (posts.length == 1) {
+                            items.add(const ReelsBlock());
+                          }
+                          return ListView.builder(
+                            padding:
+                                const EdgeInsets.only(top: 4, bottom: 80),
+                            itemCount: items.length,
+                            itemBuilder: (context, i) => items[i],
+                          );
+                        }),
                 ),
         ),
       ],

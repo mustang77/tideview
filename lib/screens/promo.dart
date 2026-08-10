@@ -22,30 +22,42 @@ class PromoFeedScreen extends StatelessWidget {
       body: SafeArea(
         child: ListenableBuilder(
           listenable: store,
-          builder: (context, _) => RefreshIndicator(
-            onRefresh: () async => store.refresh(),
-            child: store.posts.isEmpty
-                ? ListView(
-                    children: const [
-                      SizedBox(height: 120),
-                      EmptyState(
-                          icon: Icons.campaign_outlined,
-                          message: 'Belum ada info atau promo.'),
-                    ],
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: store.posts.length + 1,
-                    itemBuilder: (context, i) => Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 560),
-                        child: i == 0
-                            ? const ReelsStrip()
-                            : PromoCard(post: store.posts[i - 1]),
+          builder: (context, _) {
+            // Layar ini khusus pos resmi H2O; kiriman komunitas ada di
+            // tab Komunitas.
+            final promos =
+                store.posts.where((p) => p.byAdmin).toList();
+            return RefreshIndicator(
+              onRefresh: () async => store.refresh(),
+              child: promos.isEmpty
+                  ? ListView(
+                      children: const [
+                        SizedBox(height: 120),
+                        EmptyState(
+                            icon: Icons.campaign_outlined,
+                            message: 'Belum ada info atau promo.'),
+                      ],
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      itemCount: promos.length + 1,
+                      itemBuilder: (context, i) => Center(
+                        child: ConstrainedBox(
+                          constraints:
+                              const BoxConstraints(maxWidth: 560),
+                          child: i == 0
+                              ? const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14),
+                                  child: ReelsStrip(),
+                                )
+                              : PromoCard(
+                                  post: promos[i - 1], cuit: true),
+                        ),
                       ),
                     ),
-                  ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -159,10 +171,18 @@ class PromoBg {
 /// Kartu pos promo bergaya Mingle (cuit): avatar kiri, nama + waktu,
 /// isi, lalu baris aksi tipis di bawah.
 class PromoCard extends StatelessWidget {
-  const PromoCard({super.key, required this.post, this.isOwner = false});
+  const PromoCard(
+      {super.key,
+      required this.post,
+      this.isOwner = false,
+      this.cuit = false});
 
   final PromoPost post;
   final bool isOwner;
+
+  /// true = gaya cuit datar (tanpa kartu, garis tipis di bawah) —
+  /// dipakai di feed Komunitas, meniru MingleCuitCard wca_app.
+  final bool cuit;
 
   Future<void> _confirmDelete(BuildContext context) async {
     final yes = await showDialog<bool>(
@@ -195,9 +215,7 @@ class PromoCard extends StatelessWidget {
         post.linkUrl.isEmpty;
     final canLike = store.role == 'customer' && store.online;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
+    final body = Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -355,7 +373,20 @@ class PromoCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      );
+    if (cuit) {
+      return Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+              bottom: BorderSide(color: Color(0x14000000), width: 1)),
+        ),
+        child: body,
+      );
+    }
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: body,
     );
   }
 }
@@ -1103,10 +1134,14 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                             fontSize: 21,
                             fontWeight: FontWeight.w800),
                         cursorColor: Colors.white,
-                        decoration: const InputDecoration(
-                          hintText: 'Tulis promo Anda...',
-                          hintStyle: TextStyle(color: Colors.white70),
-                          counterStyle: TextStyle(color: Colors.white70),
+                        decoration: InputDecoration(
+                          hintText: store.role == 'owner'
+                              ? 'Tulis promo Anda...'
+                              : 'Tulis ceritamu...',
+                          hintStyle:
+                              const TextStyle(color: Colors.white70),
+                          counterStyle:
+                              const TextStyle(color: Colors.white70),
                           filled: false,
                           border: InputBorder.none,
                         ),
@@ -1121,24 +1156,27 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                     maxLines: 8,
                     maxLength: 300,
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Tulis promo atau info untuk pelanggan...',
+                    decoration: InputDecoration(
+                      hintText: store.role == 'owner'
+                          ? 'Tulis promo atau info untuk pelanggan...'
+                          : 'Bagikan momen atau cerita cucianmu...',
                     ),
                   ),
                 const SizedBox(height: 14),
-                TextField(
-                  controller: _link,
-                  keyboardType: TextInputType.url,
-                  decoration: const InputDecoration(
-                    labelText: 'Tautan (opsional)',
-                    hintText: 'https://...',
-                    helperText:
-                        'Kartu tautan dengan gambar & judul otomatis',
-                    prefixIcon: Icon(Icons.link),
+                if (store.role == 'owner') ...[
+                  TextField(
+                    controller: _link,
+                    keyboardType: TextInputType.url,
+                    decoration: const InputDecoration(
+                      labelText: 'Tautan (opsional)',
+                      hintText: 'https://...',
+                      helperText:
+                          'Kartu tautan dengan gambar & judul otomatis',
+                      prefixIcon: Icon(Icons.link),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 14),
+                  const SizedBox(height: 14),
+                ],
                 if (_image == null && _video == null) ...[
                   Text('Latar warna (untuk pos teks)',
                       style: theme.textTheme.bodySmall
@@ -1715,6 +1753,315 @@ class _ReelPageState extends State<_ReelPage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Baris cerita (stories) gaya wca_app/Facebook: lingkaran bercincin
+/// gradasi untuk tiap akun yang memposting dalam 24 jam terakhir.
+/// Diketuk untuk melihat kiriman terbarunya di layar penuh.
+class StoriesRow extends StatelessWidget {
+  const StoriesRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cutoff = DateTime.now().subtract(const Duration(hours: 24));
+    final recent =
+        store.posts.where((p) => p.createdAt.isAfter(cutoff)).toList();
+    if (recent.isEmpty) return const SizedBox.shrink();
+    // Kelompokkan per penulis, urut kiriman terbaru dulu.
+    final seen = <String>{};
+    final authors = <PromoPost>[];
+    for (final p in recent) {
+      final key = p.byAdmin ? '@admin' : p.authorName;
+      if (seen.add(key)) authors.add(p);
+    }
+    return Container(
+      height: 96,
+      margin: const EdgeInsets.only(bottom: 4),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        itemCount: authors.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (context, i) {
+          final p = authors[i];
+          return InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => StoryViewerScreen(
+                    authorName: p.authorName, byAdmin: p.byAdmin))),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 62,
+                  height: 62,
+                  padding: const EdgeInsets.all(2.5),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFFF6A00),
+                        Color(0xFFEE0979),
+                        Color(0xFFA18CD1),
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                        color: Colors.white, shape: BoxShape.circle),
+                    child: p.byAdmin
+                        ? Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFF06B6D4),
+                                  Color(0xFF0E7490)
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.local_laundry_service,
+                                color: Colors.white, size: 26),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: const Color(0xFFB3E3F0),
+                            child: Text(
+                              p.authorName.isEmpty
+                                  ? '?'
+                                  : p.authorName[0].toUpperCase(),
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF0E7490)),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: 64,
+                  child: Text(
+                    p.byAdmin
+                        ? 'H2O Laundry'
+                        : p.authorName.split(' ').first,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Penampil cerita: kiriman 24 jam terakhir milik satu akun,
+/// digeser mendatar, latar hitam layar penuh.
+class StoryViewerScreen extends StatefulWidget {
+  const StoryViewerScreen(
+      {super.key, required this.authorName, required this.byAdmin});
+
+  final String authorName;
+  final bool byAdmin;
+
+  @override
+  State<StoryViewerScreen> createState() => _StoryViewerScreenState();
+}
+
+class _StoryViewerScreenState extends State<StoryViewerScreen> {
+  int _current = 0;
+
+  List<PromoPost> get _items {
+    final cutoff = DateTime.now().subtract(const Duration(hours: 24));
+    return store.posts
+        .where((p) =>
+            p.createdAt.isAfter(cutoff) &&
+            p.byAdmin == widget.byAdmin &&
+            (p.byAdmin || p.authorName == widget.authorName))
+        .toList()
+        .reversed
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = _items;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          if (items.isEmpty)
+            const Center(
+                child: Text('Cerita sudah berakhir.',
+                    style: TextStyle(color: Colors.white70)))
+          else
+            PageView.builder(
+              onPageChanged: (i) => setState(() => _current = i),
+              itemCount: items.length,
+              itemBuilder: (context, i) {
+                final p = items[i];
+                if (p.videoUrl.isNotEmpty) {
+                  return _ReelPage(
+                      key: ValueKey(p.id), post: p, active: i == _current);
+                }
+                return _StoryPage(post: p);
+              },
+            ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Icon(
+                      widget.byAdmin
+                          ? Icons.local_laundry_service
+                          : Icons.person,
+                      color: Colors.white,
+                      size: 18),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      widget.byAdmin ? 'H2O Laundry' : widget.authorName,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  if (items.length > 1)
+                    Text('${_current + 1}/${items.length}',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Satu halaman cerita non-video: foto, teks berlatar warna, atau
+/// teks polos di latar gelap; keterangan di bawah.
+class _StoryPage extends StatelessWidget {
+  const _StoryPage({required this.post});
+
+  final PromoPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget media;
+    if (post.imageUrl.isNotEmpty) {
+      media = Image.network(store.mediaUrl(post.imageUrl),
+          fit: BoxFit.contain);
+    } else if (PromoBg.isColored(post.bgStyle)) {
+      media = Container(
+        decoration: PromoBg.decorationFor(post.bgStyle),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          post.caption,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              height: 1.3),
+        ),
+      );
+    } else {
+      media = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            post.caption,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                height: 1.35),
+          ),
+        ),
+      );
+    }
+    final showCaption =
+        post.imageUrl.isNotEmpty && post.caption.isNotEmpty;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Center(child: media),
+        if (showCaption)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 40, 16, 24),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black87],
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Text(post.caption,
+                    style: const TextStyle(
+                        color: Colors.white, fontSize: 14, height: 1.3)),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Blok Reels di tengah feed (gaya Facebook): judul + ubin video
+/// yang digulir mendatar.
+class ReelsBlock extends StatelessWidget {
+  const ReelsBlock({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasReels = store.posts.any((p) => p.videoUrl.isNotEmpty);
+    if (!hasReels) return const SizedBox.shrink();
+    return Container(
+      color: const Color(0xFFF0F5F8),
+      padding: const EdgeInsets.fromLTRB(14, 12, 0, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.movie_outlined,
+                  size: 18, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 6),
+              const Text('Reels',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w800, fontSize: 15)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const ReelsStrip(),
         ],
       ),
     );
