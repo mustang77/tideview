@@ -85,7 +85,7 @@ class StatusEntry {
 
   factory StatusEntry.fromMap(Map<String, dynamic> m) => StatusEntry(
         statusFromName(m['status'] as String),
-        DateTime.parse(m['at'] as String),
+        DateTime.parse(m['at'] as String).toLocal(),
         by: m['by'] as String?,
       );
 }
@@ -234,7 +234,7 @@ class Order {
       items: items,
       contents:
           (m['contents'] as List? ?? []).map((e) => e as String).toList(),
-      scheduledAt: DateTime.parse(m['scheduledAt'] as String),
+      scheduledAt: DateTime.parse(m['scheduledAt'] as String).toLocal(),
       notes: m['notes'] as String? ?? '',
       status: statusFromName(m['status'] as String),
       history: (m['history'] as List)
@@ -242,7 +242,7 @@ class Order {
               StatusEntry.fromMap((e as Map).cast<String, dynamic>()))
           .toList(),
       paid: m['paid'] as bool? ?? false,
-      createdAt: DateTime.parse(m['createdAt'] as String),
+      createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
     );
   }
 }
