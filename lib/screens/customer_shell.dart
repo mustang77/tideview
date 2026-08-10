@@ -73,80 +73,31 @@ class _CustomerShellState extends State<CustomerShell> {
           padding: EdgeInsets.zero,
           child: Row(
             children: [
-              _NavIcon(
+              NavIcon(
                   icon: Icons.home_outlined,
                   activeIcon: Icons.home,
                   label: 'Beranda',
                   selected: _index == 0,
                   onTap: () => setState(() => _index = 0)),
-              _NavIcon(
+              NavIcon(
                   icon: Icons.receipt_long_outlined,
                   activeIcon: Icons.receipt_long,
                   label: 'Pesanan',
                   selected: _index == 1,
                   onTap: () => setState(() => _index = 1)),
               const SizedBox(width: 72),
-              _NavIcon(
+              NavIcon(
                   icon: Icons.history_outlined,
                   activeIcon: Icons.history,
                   label: 'Riwayat',
                   selected: _index == 2,
                   onTap: () => setState(() => _index = 2)),
-              _NavIcon(
+              NavIcon(
                   icon: Icons.person_outline,
                   activeIcon: Icons.person,
                   label: 'Profil',
                   selected: _index == 3,
                   onTap: () => setState(() => _index = 3)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Ikon navigasi bergaya garis tipis; berwarna saat aktif.
-class _NavIcon extends StatelessWidget {
-  const _NavIcon({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurfaceVariant;
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Tooltip(
-          message: label,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(selected ? activeIcon : icon, size: 26, color: color),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight:
-                      selected ? FontWeight.w700 : FontWeight.w500,
-                  color: color,
-                ),
-              ),
             ],
           ),
         ),

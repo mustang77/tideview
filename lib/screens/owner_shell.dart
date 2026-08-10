@@ -55,31 +55,45 @@ class _OwnerShellState extends State<OwnerShell> {
             ),
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: const [
-            NavigationDestination(
-                icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard),
-                label: 'Dashboard'),
-            NavigationDestination(
-                icon: Icon(Icons.receipt_long_outlined),
-                selectedIcon: Icon(Icons.receipt_long),
-                label: 'Pesanan'),
-            NavigationDestination(
-                icon: Icon(Icons.people_outline),
-                selectedIcon: Icon(Icons.people),
-                label: 'Pelanggan'),
-            NavigationDestination(
-                icon: Icon(Icons.bar_chart_outlined),
-                selectedIcon: Icon(Icons.bar_chart),
-                label: 'Laporan'),
-            NavigationDestination(
-                icon: Icon(Icons.sell_outlined),
-                selectedIcon: Icon(Icons.sell),
-                label: 'Harga'),
-          ],
+        bottomNavigationBar: BottomAppBar(
+          color: Colors.white,
+          elevation: 12,
+          height: 62,
+          padding: EdgeInsets.zero,
+          child: Row(
+            children: [
+              NavIcon(
+                  icon: Icons.dashboard_outlined,
+                  activeIcon: Icons.dashboard,
+                  label: 'Dashboard',
+                  selected: _index == 0,
+                  onTap: () => setState(() => _index = 0)),
+              NavIcon(
+                  icon: Icons.receipt_long_outlined,
+                  activeIcon: Icons.receipt_long,
+                  label: 'Pesanan',
+                  selected: _index == 1,
+                  onTap: () => setState(() => _index = 1)),
+              NavIcon(
+                  icon: Icons.people_outline,
+                  activeIcon: Icons.people,
+                  label: 'Pelanggan',
+                  selected: _index == 2,
+                  onTap: () => setState(() => _index = 2)),
+              NavIcon(
+                  icon: Icons.bar_chart_outlined,
+                  activeIcon: Icons.bar_chart,
+                  label: 'Laporan',
+                  selected: _index == 3,
+                  onTap: () => setState(() => _index = 3)),
+              NavIcon(
+                  icon: Icons.sell_outlined,
+                  activeIcon: Icons.sell,
+                  label: 'Harga',
+                  selected: _index == 4,
+                  onTap: () => setState(() => _index = 4)),
+            ],
+          ),
         ),
       ),
     );
