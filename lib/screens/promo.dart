@@ -409,7 +409,13 @@ class _ReactionChipState extends State<_ReactionChip> {
   Widget build(BuildContext context) {
     final post = widget.post;
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
-    final summary = post.reactions.take(3).map((r) => r.emoji).join();
+    // Emoji milik sendiri sudah tampil sebagai ikon tombol — jangan
+    // diulang di ringkasan (mencegah "🔥 🔥 1").
+    final summary = post.reactions
+        .where((r) => r.emoji != post.myReaction)
+        .take(3)
+        .map((r) => r.emoji)
+        .join();
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: widget.enabled ? _pick : null,
@@ -425,7 +431,9 @@ class _ReactionChipState extends State<_ReactionChip> {
             Text(
               post.reactionCount == 0
                   ? '0'
-                  : '$summary ${post.reactionCount}',
+                  : summary.isEmpty
+                      ? '${post.reactionCount}'
+                      : '$summary ${post.reactionCount}',
               style: TextStyle(color: muted, fontSize: 12.5),
             ),
           ],
