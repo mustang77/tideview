@@ -107,6 +107,53 @@ void main() {
     expect(s.services.length, before);
   });
 
+  test('normalisasi nomor WhatsApp', () {
+    expect(waPhone('081234567890'), '6281234567890');
+    expect(waPhone('0812-3456-7890'), '6281234567890');
+    expect(waPhone('6281234567890'), '6281234567890');
+    expect(waPhone('81234567890'), '6281234567890');
+  });
+
+  test('daftar pelanggan diagregasi dari pesanan', () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = LaundryStore();
+    await s.init();
+    final svc = s.serviceById('cuci_setrika')!;
+    OrderItem item(double qty) => OrderItem(
+        serviceId: svc.id,
+        name: svc.name,
+        unit: svc.unit,
+        price: svc.price,
+        qty: qty);
+
+    s.createOrder(
+        items: [item(3)],
+        name: 'Budi',
+        phone: '0812-1111',
+        scheduledAt: DateTime.now(),
+        notes: '');
+    s.createOrder(
+        items: [item(4)],
+        name: 'Budi Santoso', // nama terbaru menang
+        phone: '08121111', // nomor sama walau format beda
+        scheduledAt: DateTime.now(),
+        notes: '');
+    s.createOrder(
+        items: [item(5)],
+        name: 'Cindy',
+        phone: '08222222',
+        scheduledAt: DateTime.now(),
+        notes: '');
+
+    final customers = s.customers;
+    expect(customers.length, 2);
+    final budi = customers.firstWhere((c) => c.name == 'Budi Santoso');
+    expect(budi.orderCount, 2);
+    expect(budi.totalSpent, svc.price * 7);
+    final cindy = customers.firstWhere((c) => c.name == 'Cindy');
+    expect(cindy.orderCount, 1);
+  });
+
   test('kelola admin: tambah, masuk, catat status, hapus', () async {
     SharedPreferences.setMockInitialValues({});
     final s = LaundryStore();

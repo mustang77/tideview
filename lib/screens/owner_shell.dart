@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../format.dart';
 import '../models.dart';
@@ -29,7 +31,8 @@ class _OwnerShellState extends State<OwnerShell> {
               child: switch (_index) {
                 0 => const _DashboardTab(),
                 1 => const _OwnerOrdersTab(),
-                2 => const _ReportTab(),
+                2 => const _CustomersTab(),
+                3 => const _ReportTab(),
                 _ => const _PricingTab(),
               },
             ),
@@ -47,6 +50,10 @@ class _OwnerShellState extends State<OwnerShell> {
                 icon: Icon(Icons.receipt_long_outlined),
                 selectedIcon: Icon(Icons.receipt_long),
                 label: 'Pesanan'),
+            NavigationDestination(
+                icon: Icon(Icons.people_outline),
+                selectedIcon: Icon(Icons.people),
+                label: 'Pelanggan'),
             NavigationDestination(
                 icon: Icon(Icons.bar_chart_outlined),
                 selectedIcon: Icon(Icons.bar_chart),
@@ -550,6 +557,154 @@ class _PricingTab extends StatelessWidget {
               onTap: () => _editService(context, service: s),
             ),
           ),
+      ],
+    );
+  }
+}
+
+// -------------------------------------------------------------- Pelanggan
+
+class _CustomersTab extends StatelessWidget {
+  const _CustomersTab();
+
+  Future<void> _broadcast(BuildContext context) async {
+    final customers = store.customers;
+    final message = TextEditingController(
+        text: 'Halo pelanggan setia H2O Laundry Parakan! ');
+    final sent = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Broadcast WhatsApp'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: message,
+              autofocus: true,
+              maxLines: 5,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Isi pesan',
+                hintText: 'Contoh: promo cuci 5 kg gratis 1 kg minggu ini!',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'WhatsApp akan terbuka dengan pesan ini — pilih penerima '
+                'atau daftar broadcast Anda di sana.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final numbers =
+                  customers.map((c) => waPhone(c.phone)).join(', ');
+              await Clipboard.setData(ClipboardData(text: numbers));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                        '${customers.length} nomor pelanggan disalin')));
+              }
+            },
+            child: const Text('Salin Nomor'),
+          ),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal')),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, message.text.trim()),
+            icon: const Icon(Icons.send, size: 18),
+            label: const Text('Buka WhatsApp'),
+          ),
+        ],
+      ),
+    );
+    if (sent == null || sent.isEmpty) return;
+    final uri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(sent)}');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _chat(CustomerSummary c) async {
+    final text = Uri.encodeComponent('Halo ${c.name}, ini H2O Laundry Parakan. ');
+    final uri = Uri.parse('https://wa.me/${waPhone(c.phone)}?text=$text');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final customers = store.customers;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Pelanggan',
+                      style: theme.textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  Text('${customers.length} pelanggan dari riwayat pesanan',
+                      style: theme.textTheme.bodySmall),
+                ],
+              ),
+            ),
+            FilledButton.icon(
+              onPressed:
+                  customers.isEmpty ? null : () => _broadcast(context),
+              icon: const Icon(Icons.campaign_outlined),
+              label: const Text('Broadcast'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (customers.isEmpty)
+          const EmptyState(
+              icon: Icons.people_outline,
+              message: 'Belum ada pelanggan.\nPelanggan muncul otomatis '
+                  'dari pesanan yang masuk.')
+        else
+          for (final c in customers)
+            Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              child: ListTile(
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(21),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    c.name.isEmpty ? '?' : c.name[0].toUpperCase(),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onPrimaryContainer),
+                  ),
+                ),
+                title: Text(c.name,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                subtitle: Text(
+                  '${c.phone}\n${c.orderCount} pesanan • ${rupiah(c.totalSpent)}'
+                  ' • terakhir ${shortDate(c.lastOrderAt)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                isThreeLine: true,
+                trailing: IconButton.filledTonal(
+                  tooltip: 'Chat WhatsApp ${c.name}',
+                  onPressed: () => _chat(c),
+                  icon: const Icon(Icons.chat_outlined, size: 20),
+                ),
+              ),
+            ),
       ],
     );
   }

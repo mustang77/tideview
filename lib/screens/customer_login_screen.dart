@@ -18,6 +18,11 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   String? _nameError;
   String? _phoneError;
 
+  /// Pengguna baru (belum pernah mengisi profil di perangkat ini)
+  /// melihat alur "Daftar"; pengguna lama melihat "Masuk".
+  late final bool _isNew =
+      store.profile.name.isEmpty && store.profile.phone.isEmpty;
+
   @override
   void dispose() {
     _name.dispose();
@@ -42,7 +47,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Masuk')),
+      appBar: AppBar(title: Text(_isNew ? 'Daftar' : 'Masuk')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -69,15 +74,19 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    'Selamat datang! 👋',
+                    _isNew
+                        ? 'Selamat datang! 👋'
+                        : 'Selamat datang kembali! 👋',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge
                         ?.copyWith(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Masukkan nama dan no. HP untuk mulai memesan '
-                    'dan melacak cucian Anda.',
+                    _isNew
+                        ? 'Buat akun dengan nama dan no. HP untuk mulai '
+                            'memesan dan melacak cucian Anda.'
+                        : 'Periksa nama dan no. HP Anda, lalu masuk.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -106,8 +115,8 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                   const SizedBox(height: 20),
                   FilledButton.icon(
                     onPressed: _submit,
-                    icon: const Icon(Icons.login),
-                    label: const Text('Masuk'),
+                    icon: Icon(_isNew ? Icons.person_add_alt : Icons.login),
+                    label: Text(_isNew ? 'Daftar & Mulai' : 'Masuk'),
                     style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16)),
                   ),

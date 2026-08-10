@@ -48,3 +48,12 @@ String dateTimeText(DateTime d) => '${shortDate(d)} • ${timeText(d)}';
 
 bool sameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
+
+/// Normalisasi nomor HP Indonesia ke format internasional WhatsApp
+/// tanpa '+' (mis. "0812-3456" → "628123456").
+String waPhone(String phone) {
+  final digits = phone.replaceAll(RegExp(r'[^0-9]'), '');
+  if (digits.startsWith('62')) return digits;
+  if (digits.startsWith('0')) return '62${digits.substring(1)}';
+  return '62$digits';
+}

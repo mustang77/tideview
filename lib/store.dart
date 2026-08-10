@@ -243,6 +243,30 @@ class LaundryStore extends ChangeNotifier {
 
   List<Order> get activeOrders => orders.where((o) => !o.selesai).toList();
 
+  /// Daftar pelanggan unik (berdasarkan no. HP) dari riwayat pesanan,
+  /// terbaru di atas. Dipakai admin untuk kontak dan broadcast.
+  List<CustomerSummary> get customers {
+    final byPhone = <String, List<Order>>{};
+    for (final o in orders) {
+      final key = o.phone.replaceAll(RegExp(r'[^0-9]'), '');
+      if (key.isEmpty) continue;
+      byPhone.putIfAbsent(key, () => []).add(o);
+    }
+    final result = <CustomerSummary>[];
+    for (final list in byPhone.values) {
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      result.add(CustomerSummary(
+        name: list.first.customerName,
+        phone: list.first.phone,
+        orderCount: list.length,
+        totalSpent: list.fold(0, (sum, o) => sum + o.total),
+        lastOrderAt: list.first.createdAt,
+      ));
+    }
+    result.sort((a, b) => b.lastOrderAt.compareTo(a.lastOrderAt));
+    return result;
+  }
+
   DateTime? completedAt(Order o) {
     for (final e in o.history.reversed) {
       if (e.status == OrderStatus.selesai) return e.at;
@@ -280,3 +304,20 @@ class LaundryStore extends ChangeNotifier {
 }
 
 final store = LaundryStore();
+
+/// Ringkasan satu pelanggan, diagregasi dari riwayat pesanan.
+class CustomerSummary {
+  CustomerSummary({
+    required this.name,
+    required this.phone,
+    required this.orderCount,
+    required this.totalSpent,
+    required this.lastOrderAt,
+  });
+
+  final String name;
+  final String phone;
+  final int orderCount;
+  final double totalSpent;
+  final DateTime lastOrderAt;
+}
