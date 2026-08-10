@@ -183,8 +183,19 @@ class _HomeTabState extends State<_HomeTab> {
         ),
         if (store.posts.isNotEmpty) ...[
           const SizedBox(height: 20),
-          const SectionTitle('Info & Promo'),
-          for (final p in store.posts) PromoCard(post: p),
+          Row(
+            children: [
+              const Expanded(child: SectionTitle('Info & Promo')),
+              TextButton(
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const PromoFeedScreen())),
+                child: const Text('Lihat Semua'),
+              ),
+            ],
+          ),
+          // Hanya promo terbaru di Beranda; selengkapnya di layar feed.
+          PromoCard(post: store.posts.first),
         ],
       ],
     );

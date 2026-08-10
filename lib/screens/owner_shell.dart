@@ -195,32 +195,24 @@ class _DashboardTab extends StatelessWidget {
                   builder: (_) => OwnerOrderDetailScreen(order: o))),
             ),
         const SizedBox(height: 20),
-        Row(
-          children: [
-            const Expanded(child: SectionTitle('Info & Promo')),
-            FilledButton.tonalIcon(
-              onPressed: store.online
-                  ? () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const PromoComposeScreen()))
-                  : null,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Buat Promo'),
-            ),
-          ],
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.campaign_outlined,
+                color: theme.colorScheme.primary),
+            title: const Text('Info & Promo',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(!store.online
+                ? 'Butuh server — atur di Kelola Admin'
+                : store.posts.isEmpty
+                    ? 'Belum ada promo — buat yang pertama!'
+                    : '${store.posts.length} promo terpasang'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: store.online
+                ? () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const PromoManageScreen()))
+                : null,
+          ),
         ),
-        const SizedBox(height: 8),
-        if (!store.online)
-          const EmptyState(
-              icon: Icons.campaign_outlined,
-              message: 'Fitur promo membutuhkan server (atur di '
-                  'Kelola Admin > Server).')
-        else if (store.posts.isEmpty)
-          const EmptyState(
-              icon: Icons.campaign_outlined,
-              message: 'Belum ada promo. Buat promo pertama untuk '
-                  'pelanggan Anda!')
-        else
-          for (final p in store.posts) PromoCard(post: p, isOwner: true),
       ],
     );
   }

@@ -6,6 +6,93 @@ import 'package:image_picker/image_picker.dart';
 import '../format.dart';
 import '../models.dart';
 import '../store.dart';
+import '../widgets.dart';
+
+/// Layar feed Info & Promo untuk pelanggan (semua pos).
+class PromoFeedScreen extends StatelessWidget {
+  const PromoFeedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Info & Promo')),
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: store,
+          builder: (context, _) => RefreshIndicator(
+            onRefresh: () async => store.refresh(),
+            child: store.posts.isEmpty
+                ? ListView(
+                    children: const [
+                      SizedBox(height: 120),
+                      EmptyState(
+                          icon: Icons.campaign_outlined,
+                          message: 'Belum ada info atau promo.'),
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: store.posts.length,
+                    itemBuilder: (context, i) => Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 560),
+                        child: PromoCard(post: store.posts[i]),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Layar pemilik: kelola semua pos promo (buat & hapus).
+class PromoManageScreen extends StatelessWidget {
+  const PromoManageScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Info & Promo')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => const PromoComposeScreen())),
+        icon: const Icon(Icons.add),
+        label: const Text('Buat Promo'),
+      ),
+      body: SafeArea(
+        child: ListenableBuilder(
+          listenable: store,
+          builder: (context, _) => RefreshIndicator(
+            onRefresh: () async => store.refresh(),
+            child: store.posts.isEmpty
+                ? ListView(
+                    children: const [
+                      SizedBox(height: 120),
+                      EmptyState(
+                          icon: Icons.campaign_outlined,
+                          message: 'Belum ada promo. Ketuk "Buat Promo" '
+                              'untuk membuat yang pertama!'),
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                    itemCount: store.posts.length,
+                    itemBuilder: (context, i) => Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 560),
+                        child:
+                            PromoCard(post: store.posts[i], isOwner: true),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /// Feed "Info & Promo" — versi laundry dari Mingle di wca_app:
 /// pemilik memposting promo (teks berlatar warna atau foto),
