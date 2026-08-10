@@ -197,7 +197,9 @@ class _HomeTabState extends State<_HomeTab> {
               ),
             ],
           ),
-          // Hanya promo terbaru di Beranda; selengkapnya di layar feed.
+          // Reels video (bila ada), lalu hanya promo terbaru —
+          // selengkapnya di layar feed.
+          const ReelsStrip(),
           PromoCard(post: store.posts.first),
         ],
       ],

@@ -227,7 +227,9 @@ class LaundryStore extends ChangeNotifier {
       String bgStyle = '',
       String link = '',
       String? imageBase64,
-      String? imageExt}) async {
+      String? imageExt,
+      String? videoBase64,
+      String? videoExt}) async {
     final a = api;
     if (a == null) return 'Fitur promo membutuhkan server.';
     try {
@@ -237,6 +239,8 @@ class LaundryStore extends ChangeNotifier {
           link: link,
           imageData: imageBase64,
           imageExt: imageExt,
+          videoData: videoBase64,
+          videoExt: videoExt,
           adminId: currentAdminId,
           adminPin: _adminPin);
       posts.insert(0, PromoPost.fromMap(m));

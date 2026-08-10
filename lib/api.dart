@@ -75,7 +75,8 @@ class ApiClient {
       {String? adminId,
       String? adminPin,
       String? custPhone,
-      String? custPin}) async {
+      String? custPin,
+      Duration? timeout}) async {
     final r = await http
         .post(Uri.parse('$baseUrl$path'),
             headers: _headers(
@@ -84,7 +85,7 @@ class ApiClient {
                 custPhone: custPhone,
                 custPin: custPin),
             body: jsonEncode(body))
-        .timeout(_timeout);
+        .timeout(timeout ?? _timeout);
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
@@ -160,6 +161,8 @@ class ApiClient {
           String link = '',
           String? imageData,
           String? imageExt,
+          String? videoData,
+          String? videoExt,
           String? adminId,
           String? adminPin}) =>
       _post('/api/posts', {
@@ -168,7 +171,13 @@ class ApiClient {
         if (link.isNotEmpty) 'link': link,
         'imageData': ?imageData,
         'imageExt': ?imageExt,
-      }, adminId: adminId, adminPin: adminPin);
+        'videoData': ?videoData,
+        'videoExt': ?videoExt,
+      },
+          adminId: adminId,
+          adminPin: adminPin,
+          // Unggah video besar butuh waktu jauh lebih lama.
+          timeout: const Duration(minutes: 5));
 
   Future<void> deletePost(String id, {String? adminId, String? adminPin}) =>
       _delete('/api/posts/$id', adminId: adminId, adminPin: adminPin);

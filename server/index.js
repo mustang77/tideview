@@ -138,8 +138,8 @@ async function verifyFirebaseToken(idToken) {
 }
 
 const app = express();
-// 10mb: badan JSON promo bisa memuat foto base64 (maks 5 MB biner).
-app.use(express.json({ limit: '10mb' }));
+// 60mb: badan JSON promo bisa memuat video reel base64 (maks 30 MB biner).
+app.use(express.json({ limit: '60mb' }));
 app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
@@ -375,6 +375,7 @@ function postView(p, custPhone) {
     caption: p.caption,
     bgStyle: p.bgStyle || '',
     imageUrl: p.image ? `/uploads/${p.image}` : '',
+    videoUrl: p.video ? `/uploads/${p.video}` : '',
     createdAt: p.createdAt,
     linkUrl: p.link ? p.link.url : '',
     linkTitle: p.link ? p.link.title : '',
@@ -545,8 +546,23 @@ app.post('/api/posts', async (req, res) => {
   if (linkUrl && !/^https?:\/\//i.test(linkUrl)) {
     linkUrl = 'https://' + linkUrl;
   }
-  if (!caption && !b.imageData && !linkUrl) {
-    return res.status(400).json({ error: 'Tulis sesuatu, pilih foto, atau isi tautan' });
+  if (!caption && !b.imageData && !b.videoData && !linkUrl) {
+    return res.status(400).json({ error: 'Tulis sesuatu, pilih foto/video, atau isi tautan' });
+  }
+  let video = '';
+  if (b.videoData) {
+    let vb;
+    try {
+      vb = Buffer.from(String(b.videoData), 'base64');
+    } catch (e) {
+      vb = Buffer.alloc(0);
+    }
+    if (!vb.length || vb.length > 30 * 1024 * 1024) {
+      return res.status(400).json({ error: 'Video tidak valid atau lebih dari 30 MB' });
+    }
+    const vext = ['webm', 'mov', 'm4v'].includes(b.videoExt) ? b.videoExt : 'mp4';
+    video = `reel_${Date.now()}.${vext}`;
+    fs.writeFileSync(path.join(UPLOAD_DIR, video), vb);
   }
   let image = '';
   if (b.imageData) {
@@ -569,6 +585,7 @@ app.post('/api/posts', async (req, res) => {
     caption,
     bgStyle: linkUrl ? '' : String(b.bgStyle || ''),
     image,
+    video,
     link: linkUrl ? await fetchLinkMeta(linkUrl) : null,
     createdAt: now(),
     reactions: {},
@@ -587,6 +604,11 @@ app.delete('/api/posts/:id', (req, res) => {
   if (p.image) {
     try {
       fs.unlinkSync(path.join(UPLOAD_DIR, p.image));
+    } catch (e) {}
+  }
+  if (p.video) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, p.video));
     } catch (e) {}
   }
   if (p.link && p.link.image) {

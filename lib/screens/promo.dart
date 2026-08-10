@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:video_player/video_player.dart';
 
 import '../format.dart';
 import '../models.dart';
@@ -33,11 +35,13 @@ class PromoFeedScreen extends StatelessWidget {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: store.posts.length,
+                    itemCount: store.posts.length + 1,
                     itemBuilder: (context, i) => Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 560),
-                        child: PromoCard(post: store.posts[i]),
+                        child: i == 0
+                            ? const ReelsStrip()
+                            : PromoCard(post: store.posts[i - 1]),
                       ),
                     ),
                   ),
@@ -187,6 +191,7 @@ class PromoCard extends StatelessWidget {
     final muted = theme.colorScheme.onSurfaceVariant;
     final bgPost = PromoBg.isColored(post.bgStyle) &&
         post.imageUrl.isEmpty &&
+        post.videoUrl.isEmpty &&
         post.linkUrl.isEmpty;
     final canLike = store.role == 'customer' && store.online;
 
@@ -305,6 +310,10 @@ class PromoCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ],
+                    if (post.videoUrl.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _VideoTeaser(post: post),
                     ],
                     if (post.linkUrl.isNotEmpty) ...[
                       const SizedBox(height: 8),
@@ -437,10 +446,14 @@ const kReactionEmojis = ['❤️', '👍', '🔥', '🎉', '😂', '😮'];
 /// Tombol reaksi pos: ketuk untuk memilih emoji (bukan hanya hati).
 /// Menampilkan reaksi milik sendiri + ringkasan emoji terbanyak.
 class _ReactionChip extends StatefulWidget {
-  const _ReactionChip({required this.post, required this.enabled});
+  const _ReactionChip(
+      {required this.post, required this.enabled, this.light = false});
 
   final PromoPost post;
   final bool enabled;
+
+  /// true = teks/ikon putih (overlay video reels).
+  final bool light;
 
   @override
   State<_ReactionChip> createState() => _ReactionChipState();
@@ -516,7 +529,9 @@ class _ReactionChipState extends State<_ReactionChip> {
   @override
   Widget build(BuildContext context) {
     final post = widget.post;
-    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final muted = widget.light
+        ? Colors.white
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     // Emoji milik sendiri sudah tampil sebagai ikon tombol — jangan
     // diulang di ringkasan (mencegah "🔥 🔥 1").
     final summary = post.reactions
@@ -938,6 +953,8 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
   final _link = TextEditingController();
   String _bg = '';
   XFile? _image;
+  XFile? _video;
+  int _videoBytes = 0;
   bool _busy = false;
 
   @override
@@ -950,16 +967,45 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
   Future<void> _pickImage() async {
     final x = await ImagePicker().pickImage(
         source: ImageSource.gallery, maxWidth: 1280, imageQuality: 78);
-    if (x != null) setState(() => _image = x);
+    if (x != null) {
+      setState(() {
+        _image = x;
+        _video = null;
+      });
+    }
+  }
+
+  Future<void> _pickVideo() async {
+    final x = await ImagePicker().pickVideo(
+        source: ImageSource.gallery,
+        maxDuration: const Duration(seconds: 90));
+    if (x == null) return;
+    final len = await x.length();
+    if (len > 30 * 1024 * 1024) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Video maksimal 30 MB (kira-kira 60-90 '
+                'detik). Pilih video yang lebih pendek.')));
+      }
+      return;
+    }
+    setState(() {
+      _video = x;
+      _videoBytes = len;
+      _image = null;
+    });
   }
 
   Future<void> _submit() async {
     if (_busy) return;
     final caption = _caption.text.trim();
     final link = _link.text.trim();
-    if (caption.isEmpty && _image == null && link.isEmpty) {
+    if (caption.isEmpty &&
+        _image == null &&
+        _video == null &&
+        link.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Tulis sesuatu atau pilih foto dulu.')));
+          content: Text('Tulis sesuatu atau pilih foto/video dulu.')));
       return;
     }
     setState(() => _busy = true);
@@ -975,12 +1021,28 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
               ? 'webp'
               : 'jpg';
     }
+    String? videoBase64;
+    String? videoExt;
+    if (_video != null) {
+      final bytes = await _video!.readAsBytes();
+      videoBase64 = base64Encode(bytes);
+      final name = _video!.name.toLowerCase();
+      videoExt = name.endsWith('.webm')
+          ? 'webm'
+          : name.endsWith('.mov')
+              ? 'mov'
+              : name.endsWith('.m4v')
+                  ? 'm4v'
+                  : 'mp4';
+    }
     final error = await store.createPromo(
         caption: caption,
-        bgStyle: _image == null ? _bg : '',
+        bgStyle: _image == null && _video == null ? _bg : '',
         link: link,
         imageBase64: imageBase64,
-        imageExt: imageExt);
+        imageExt: imageExt,
+        videoBase64: videoBase64,
+        videoExt: videoExt);
     if (!mounted) return;
     setState(() => _busy = false);
     if (error != null) {
@@ -1058,7 +1120,7 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                if (_image == null) ...[
+                if (_image == null && _video == null) ...[
                   Text('Latar warna (untuk pos teks)',
                       style: theme.textTheme.bodySmall
                           ?.copyWith(fontWeight: FontWeight.w700)),
@@ -1130,17 +1192,52 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                   ),
                   const SizedBox(height: 14),
                 ],
-                OutlinedButton.icon(
-                  onPressed: _busy ? null : _pickImage,
-                  icon: const Icon(Icons.photo_library_outlined),
-                  label: Text(
-                      _image == null ? 'Tambahkan Foto' : 'Ganti Foto'),
+                if (_video != null) ...[
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.movie_outlined),
+                      title: Text(_video!.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                          '${(_videoBytes / (1024 * 1024)).toStringAsFixed(1)} MB — tampil di Reels'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => setState(() => _video = null),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _busy ? null : _pickImage,
+                        icon: const Icon(Icons.photo_library_outlined),
+                        label: Text(
+                            _image == null ? 'Foto' : 'Ganti Foto'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _busy ? null : _pickVideo,
+                        icon: const Icon(Icons.video_library_outlined),
+                        label: Text(
+                            _video == null ? 'Video Reel' : 'Ganti Video'),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 18),
                 FilledButton.icon(
                   onPressed: _busy ? null : _submit,
                   icon: const Icon(Icons.campaign_outlined),
-                  label: Text(_busy ? 'Mengunggah...' : 'Posting Promo'),
+                  label: Text(_busy
+                      ? (_video != null
+                          ? 'Mengunggah video... (bisa 1-2 menit)'
+                          : 'Mengunggah...')
+                      : 'Posting Promo'),
                   style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 15)),
                 ),
@@ -1148,6 +1245,430 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Pratinjau video di kartu feed: kotak gelap dengan tombol putar —
+/// diketuk untuk menonton di layar Reels.
+class _VideoTeaser extends StatelessWidget {
+  const _VideoTeaser({required this.post});
+
+  final PromoPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ReelsScreen(initialPostId: post.id))),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          height: 190,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF203A43), Color(0xFF0F2027)],
+            ),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.22),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.play_arrow_rounded,
+                    color: Colors.white, size: 40),
+              ),
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black45,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.movie_outlined,
+                          size: 13, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text('Reel',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Strip Reels: ubin video yang bisa digulir mendatar, tampil di
+/// bawah judul Info & Promo. Diketuk untuk membuka layar Reels.
+class ReelsStrip extends StatelessWidget {
+  const ReelsStrip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final reels =
+        store.posts.where((p) => p.videoUrl.isNotEmpty).toList();
+    if (reels.isEmpty) return const SizedBox.shrink();
+    return Container(
+      height: 150,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: reels.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (context, i) {
+          final p = reels[i];
+          return InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ReelsScreen(initialPostId: p.id))),
+            child: Container(
+              width: 104,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF2C5364), Color(0xFF0F2027)],
+                ),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.22),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 24),
+                  ),
+                  const Spacer(),
+                  Text(
+                    p.caption.isEmpty ? 'Reel H2O' : p.caption,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        height: 1.25),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Layar Reels: video vertikal layar penuh, geser atas/bawah untuk
+/// ganti video — gaya reels wca_app.
+class ReelsScreen extends StatefulWidget {
+  const ReelsScreen({super.key, this.initialPostId = ''});
+
+  final String initialPostId;
+
+  @override
+  State<ReelsScreen> createState() => _ReelsScreenState();
+}
+
+class _ReelsScreenState extends State<ReelsScreen> {
+  PageController? _page;
+  int _current = 0;
+
+  List<PromoPost> get _reels =>
+      store.posts.where((p) => p.videoUrl.isNotEmpty).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    final reels = _reels;
+    final i = reels.indexWhere((p) => p.id == widget.initialPostId);
+    _current = i < 0 ? 0 : i;
+    _page = PageController(initialPage: _current);
+  }
+
+  @override
+  void dispose() {
+    _page?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: ListenableBuilder(
+        listenable: store,
+        builder: (context, _) {
+          final reels = _reels;
+          return Stack(
+            children: [
+              if (reels.isEmpty)
+                const Center(
+                  child: Text('Belum ada video reel.',
+                      style: TextStyle(color: Colors.white70)),
+                )
+              else
+                PageView.builder(
+                  controller: _page,
+                  scrollDirection: Axis.vertical,
+                  onPageChanged: (i) => setState(() => _current = i),
+                  itemCount: reels.length,
+                  itemBuilder: (context, i) => _ReelPage(
+                    key: ValueKey(reels[i].id),
+                    post: reels[i],
+                    active: i == _current,
+                  ),
+                ),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back,
+                            color: Colors.white),
+                        style: IconButton.styleFrom(
+                            backgroundColor: Colors.black38),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text('Reels',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ReelPage extends StatefulWidget {
+  const _ReelPage({super.key, required this.post, required this.active});
+
+  final PromoPost post;
+  final bool active;
+
+  @override
+  State<_ReelPage> createState() => _ReelPageState();
+}
+
+class _ReelPageState extends State<_ReelPage> {
+  VideoPlayerController? _c;
+
+  /// Web memblokir autoplay bersuara — mulai bisu di web, ada tombol
+  /// pengeras suara untuk menyalakannya.
+  bool _muted = kIsWeb;
+
+  @override
+  void initState() {
+    super.initState();
+    final c = VideoPlayerController.networkUrl(
+        Uri.parse(store.mediaUrl(widget.post.videoUrl)));
+    _c = c;
+    c.setLooping(true);
+    c.initialize().then((_) {
+      if (!mounted) return;
+      c.setVolume(_muted ? 0 : 1);
+      if (widget.active) c.play();
+      setState(() {});
+    }).catchError((Object e) {
+      debugPrint('REEL ERROR: $e');
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReelPage old) {
+    super.didUpdateWidget(old);
+    final c = _c;
+    if (c == null || !c.value.isInitialized) return;
+    if (widget.active && !old.active) {
+      c.seekTo(Duration.zero);
+      c.play();
+    } else if (!widget.active && old.active) {
+      c.pause();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    final c = _c;
+    if (c == null || !c.value.isInitialized) return;
+    setState(() {
+      c.value.isPlaying ? c.pause() : c.play();
+    });
+  }
+
+  void _toggleMute() {
+    final c = _c;
+    if (c == null) return;
+    setState(() {
+      _muted = !_muted;
+      c.setVolume(_muted ? 0 : 1);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = _c;
+    final ready = c != null && c.value.isInitialized;
+    final canLike = store.role == 'customer' && store.online;
+    return GestureDetector(
+      onTap: _togglePlay,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (ready)
+            Center(
+              child: AspectRatio(
+                aspectRatio: c.value.aspectRatio == 0
+                    ? 9 / 16
+                    : c.value.aspectRatio,
+                child: VideoPlayer(c),
+              ),
+            )
+          else
+            const Center(
+                child: CircularProgressIndicator(color: Colors.white)),
+          if (ready && !c.value.isPlaying)
+            Center(
+              child: Container(
+                width: 74,
+                height: 74,
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.play_arrow_rounded,
+                    color: Colors.white, size: 52),
+              ),
+            ),
+          // Overlay bawah: keterangan + aksi.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 40, 16, 18),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black87],
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Text('H2O Laundry',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified,
+                            size: 14, color: Color(0xFF06B6D4)),
+                        const SizedBox(width: 6),
+                        Text('· ${timeAgo(widget.post.createdAt)}',
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12)),
+                      ],
+                    ),
+                    if (widget.post.caption.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.post.caption,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13.5,
+                            height: 1.3),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        _ReactionChip(
+                            post: widget.post,
+                            enabled: canLike,
+                            light: true),
+                        const SizedBox(width: 18),
+                        _ActionChip(
+                          icon: Icons.mode_comment_outlined,
+                          color: Colors.white,
+                          label: '${widget.post.comments.length}',
+                          onTap: () => showPromoComments(
+                              context, widget.post.id),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: _toggleMute,
+                          icon: Icon(
+                            _muted
+                                ? Icons.volume_off
+                                : Icons.volume_up,
+                            color: Colors.white,
+                          ),
+                          style: IconButton.styleFrom(
+                              backgroundColor: Colors.black38),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

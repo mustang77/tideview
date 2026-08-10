@@ -309,6 +309,7 @@ class PromoPost {
     required this.caption,
     required this.bgStyle,
     required this.imageUrl,
+    this.videoUrl = '',
     required this.createdAt,
     this.linkUrl = '',
     this.linkTitle = '',
@@ -329,6 +330,9 @@ class PromoPost {
 
   /// Jalur foto relatif server ('/uploads/..'), '' bila tanpa foto.
   final String imageUrl;
+
+  /// Jalur video reel relatif server ('' = bukan pos video).
+  final String videoUrl;
   final DateTime createdAt;
 
   /// Tautan yang dilampirkan ('' = tanpa tautan). Kartu tautan
@@ -354,6 +358,7 @@ class PromoPost {
         caption: m['caption'] as String? ?? '',
         bgStyle: m['bgStyle'] as String? ?? '',
         imageUrl: m['imageUrl'] as String? ?? '',
+        videoUrl: m['videoUrl'] as String? ?? '',
         createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
         linkUrl: m['linkUrl'] as String? ?? '',
         linkTitle: m['linkTitle'] as String? ?? '',
