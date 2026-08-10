@@ -212,8 +212,12 @@ class LaundryStore extends ChangeNotifier {
 
   void _replacePost(PromoPost old, Map<String, dynamic> m) {
     final fresh = PromoPost.fromMap(m);
-    final i = posts.indexOf(old);
-    if (i >= 0) posts[i] = fresh;
+    // Cari berdasarkan id, bukan instance: polling refresh bisa saja
+    // mengganti isi daftar saat permintaan masih berjalan.
+    final i = posts.indexWhere((x) => x.id == fresh.id);
+    if (i >= 0) {
+      posts[i] = fresh;
+    }
     notifyListeners();
   }
 
@@ -248,7 +252,7 @@ class LaundryStore extends ChangeNotifier {
     if (a == null) return;
     try {
       await a.deletePost(p.id, adminId: currentAdminId, adminPin: _adminPin);
-      posts.remove(p);
+      posts.removeWhere((x) => x.id == p.id);
       notifyListeners();
     } catch (_) {
       serverOk = false;
@@ -259,9 +263,15 @@ class LaundryStore extends ChangeNotifier {
   /// Beri reaksi emoji (pelanggan). Emoji sama dengan reaksi saat ini
   /// = hapus reaksi. Optimistis: UI berubah dulu, dikembalikan bila
   /// server menolak.
-  Future<void> reactPromo(PromoPost p, String emoji) async {
+  Future<String?> reactPromo(PromoPost p, String emoji) async {
     final a = api;
-    if (a == null || _custPin == null) return;
+    if (a == null) return 'Fitur promo membutuhkan server.';
+    if (_custPin == null) {
+      // Sesi pelanggan lama (dibuat sebelum mode server aktif) tidak
+      // punya PIN server — harus masuk ulang.
+      return 'Silakan keluar lalu masuk lagi dengan PIN untuk '
+          'memberi reaksi.';
+    }
     final prevMine = p.myReaction;
     final prevCount = p.reactionCount;
     final removing = prevMine == emoji || emoji.isEmpty;
@@ -273,10 +283,17 @@ class LaundryStore extends ChangeNotifier {
       final m = await a.reactPost(p.id, removing ? '' : emoji,
           custPhone: profile.phone, custPin: _custPin);
       _replacePost(p, m);
+      return null;
+    } on ApiException catch (e) {
+      p.myReaction = prevMine;
+      p.reactionCount = prevCount;
+      notifyListeners();
+      return e.message;
     } catch (_) {
       p.myReaction = prevMine;
       p.reactionCount = prevCount;
       notifyListeners();
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
     }
   }
 
@@ -313,7 +330,11 @@ class LaundryStore extends ChangeNotifier {
           adminPin: asOwner ? _adminPin : null,
           custPhone: asOwner ? null : profile.phone,
           custPin: asOwner ? null : _custPin);
-      p.comments.remove(c);
+      for (final post in posts) {
+        if (post.id == p.id) {
+          post.comments.removeWhere((x) => x.id == c.id);
+        }
+      }
       notifyListeners();
     } catch (_) {
       serverOk = false;

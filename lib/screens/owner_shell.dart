@@ -46,12 +46,15 @@ class _OwnerShellState extends State<OwnerShell> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 720),
+              // Sengaja TANPA const: instance const dianggap identik oleh
+              // Flutter sehingga tab tidak ikut rebuild saat data store
+              // berubah.
               child: switch (_index) {
-                0 => const _DashboardTab(),
-                1 => const _OwnerOrdersTab(),
-                2 => const _CustomersTab(),
-                3 => const _ReportTab(),
-                _ => const _PricingTab(),
+                0 => _DashboardTab(),
+                1 => _OwnerOrdersTab(),
+                2 => _CustomersTab(),
+                3 => _ReportTab(),
+                _ => _PricingTab(),
               },
             ),
           ),

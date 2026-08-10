@@ -339,50 +339,70 @@ class _ReactionChip extends StatefulWidget {
 }
 
 class _ReactionChipState extends State<_ReactionChip> {
-  Offset _tapPos = Offset.zero;
-
   Future<void> _pick() async {
-    final overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final chosen = await showMenu<String>(
+    // Jangkarkan gelembung emoji tepat di atas tombol ini.
+    final box = context.findRenderObject() as RenderBox;
+    final anchor = box.localToGlobal(Offset(box.size.width / 2, 0));
+    final chosen = await showDialog<String>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        _tapPos.dx,
-        _tapPos.dy - 64,
-        overlay.size.width - _tapPos.dx,
-        overlay.size.height - _tapPos.dy,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      color: Colors.white,
-      items: [
-        PopupMenuItem<String>(
-          enabled: false,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final e in kReactionEmojis)
-                InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: () => Navigator.pop(context, e),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: widget.post.myReaction == e
-                        ? BoxDecoration(
-                            color: const Color(0xFFE0F5FA),
-                            borderRadius: BorderRadius.circular(999))
-                        : null,
-                    child: Text(e, style: const TextStyle(fontSize: 24)),
+      barrierColor: Colors.transparent,
+      builder: (dialog) {
+        final size = MediaQuery.of(dialog).size;
+        const bubbleWidth = 6 * 44.0 + 16;
+        final left =
+            (anchor.dx - bubbleWidth / 2).clamp(8.0, size.width - bubbleWidth - 8.0);
+        var top = anchor.dy - 68;
+        if (top < 8) top = anchor.dy + 24;
+        return Stack(
+          children: [
+            Positioned(
+              left: left,
+              top: top,
+              child: Material(
+                elevation: 10,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (final e in kReactionEmojis)
+                        InkWell(
+                          borderRadius: BorderRadius.circular(999),
+                          onTap: () => Navigator.pop(dialog, e),
+                          child: Container(
+                            width: 44,
+                            height: 44,
+                            alignment: Alignment.center,
+                            decoration: widget.post.myReaction == e
+                                ? BoxDecoration(
+                                    color: const Color(0xFFE0F5FA),
+                                    borderRadius:
+                                        BorderRadius.circular(999))
+                                : null,
+                            child: Text(e,
+                                style: const TextStyle(fontSize: 25)),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
-          ),
-        ),
-      ],
+              ),
+            ),
+          ],
+        );
+      },
     );
     // Memilih emoji yang sama dengan reaksi saat ini = menghapusnya
     // (ditangani reactPromo).
-    if (chosen != null) await store.reactPromo(widget.post, chosen);
+    if (chosen == null || !mounted) return;
+    final error = await store.reactPromo(widget.post, chosen);
+    if (error != null && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
+    }
   }
 
   @override
@@ -392,7 +412,6 @@ class _ReactionChipState extends State<_ReactionChip> {
     final summary = post.reactions.take(3).map((r) => r.emoji).join();
     return InkWell(
       borderRadius: BorderRadius.circular(8),
-      onTapDown: (d) => _tapPos = d.globalPosition,
       onTap: widget.enabled ? _pick : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),

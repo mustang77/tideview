@@ -45,11 +45,14 @@ class _CustomerShellState extends State<CustomerShell> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 720),
+              // Sengaja TANPA const: instance const dianggap identik oleh
+              // Flutter sehingga tab tidak ikut rebuild saat data store
+              // berubah (mis. jumlah reaksi promo).
               child: switch (_index) {
-                0 => const _HomeTab(),
-                1 => const _OrdersTab(history: false),
-                2 => const _OrdersTab(history: true),
-                _ => const _ProfileTab(),
+                0 => _HomeTab(),
+                1 => _OrdersTab(history: false),
+                2 => _OrdersTab(history: true),
+                _ => _ProfileTab(),
               },
             ),
           ),
