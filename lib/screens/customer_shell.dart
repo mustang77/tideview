@@ -401,10 +401,6 @@ class _ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<_ProfileTab> {
-  late final _name = TextEditingController(text: store.profile.name);
-  late final _phone = TextEditingController(text: store.profile.phone);
-  late final _address = TextEditingController(text: store.profile.address);
-
   Future<void> _confirmLogout(BuildContext context) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -426,77 +422,274 @@ class _ProfileTabState extends State<_ProfileTab> {
     if (yes == true) await store.setRole(null);
   }
 
-  @override
-  void dispose() {
-    _name.dispose();
-    _phone.dispose();
-    _address.dispose();
-    super.dispose();
+  /// Lembar ubah profil. Mode server: no. HP terkunci karena menjadi
+  /// identitas akun di server.
+  Future<void> _editProfile(BuildContext context) async {
+    final name = TextEditingController(text: store.profile.name);
+    final phone = TextEditingController(text: store.profile.phone);
+    final address = TextEditingController(text: store.profile.address);
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheet) => Padding(
+        padding: EdgeInsets.fromLTRB(
+            20, 20, 20, 20 + MediaQuery.of(sheet).viewInsets.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Ubah Profil',
+                textAlign: TextAlign.center,
+                style: Theme.of(sheet)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 18),
+            TextField(
+              controller: name,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                  labelText: 'Nama',
+                  prefixIcon: Icon(Icons.person_outline)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: phone,
+              keyboardType: TextInputType.phone,
+              readOnly: store.online,
+              decoration: InputDecoration(
+                labelText: 'No. HP / WhatsApp',
+                prefixIcon: const Icon(Icons.phone_outlined),
+                helperText: store.online
+                    ? 'Nomor terhubung ke akun dan tidak bisa diubah'
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: address,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                  labelText: 'Alamat',
+                  prefixIcon: Icon(Icons.location_on_outlined)),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(sheet, true),
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Simpan'),
+              style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14)),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (saved == true) {
+      await store.saveProfile(
+          name.text.trim(), phone.text.trim(), address.text.trim());
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profil tersimpan')));
+      }
+    }
+  }
+
+  String _initials(String name) {
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return '?';
+    return parts.take(2).map((w) => w[0].toUpperCase()).join();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final p = store.profile;
+    final orders = store.orders;
+    final active = store.activeOrders.length;
+    final spent =
+        orders.fold<double>(0, (sum, o) => sum + o.total);
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text('Profil Saya',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
+            style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.w800)),
         const SizedBox(height: 16),
-        TextField(
-          controller: _name,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-              labelText: 'Nama', prefixIcon: Icon(Icons.person_outline)),
+        // Kartu profil bergradasi gaya wca_app.
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF06B6D4), Color(0xFF0B4F6C)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: Colors.white24,
+                    child: Text(
+                      _initials(p.name),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          p.name.isEmpty ? 'Pelanggan' : p.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          p.phone.isEmpty
+                              ? 'Nomor belum diisi'
+                              : '+${waPhone(p.phone)}',
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 13),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Text(
+                            'Pelanggan H2O',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Ubah Profil',
+                    onPressed: () => _editProfile(context),
+                    icon: const Icon(Icons.edit_outlined,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    _HeaderStat(label: 'Pesanan', value: '${orders.length}'),
+                    _statDivider(),
+                    _HeaderStat(label: 'Aktif', value: '$active'),
+                    _statDivider(),
+                    _HeaderStat(label: 'Total Belanja', value: rupiah(spent)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
-              labelText: 'No. HP / WhatsApp',
-              prefixIcon: Icon(Icons.phone_outlined)),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _address,
-          maxLines: 2,
-          decoration: const InputDecoration(
-              labelText: 'Alamat',
-              prefixIcon: Icon(Icons.location_on_outlined)),
-        ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: () async {
-            await store.saveProfile(
-                _name.text.trim(), _phone.text.trim(), _address.text.trim());
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Profil tersimpan')));
-            }
-          },
-          icon: const Icon(Icons.save_outlined),
-          label: const Text('Simpan Profil'),
-        ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
         Card(
-          child: ListTile(
-            leading: Icon(Icons.logout,
-                color: Theme.of(context).colorScheme.error),
-            title: const Text('Keluar'),
-            subtitle: const Text('Keluar dari akun di perangkat ini'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _confirmLogout(context),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: const Text('Ubah Profil'),
+                subtitle: const Text('Nama, no. HP, dan alamat'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _editProfile(context),
+              ),
+              const Divider(height: 1, indent: 56),
+              ListTile(
+                leading: Icon(Icons.logout, color: theme.colorScheme.error),
+                title: Text('Keluar',
+                    style: TextStyle(color: theme.colorScheme.error)),
+                subtitle: const Text('Keluar dari akun di perangkat ini'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _confirmLogout(context),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
         Center(
           child: Text('H2O Laundry Parakan v1.0',
-              style: Theme.of(context).textTheme.bodySmall),
+              style: theme.textTheme.bodySmall),
         ),
       ],
+    );
+  }
+
+  Widget _statDivider() => Container(
+        width: 1,
+        height: 30,
+        color: Colors.white24,
+      );
+}
+
+/// Satu angka statistik di kartu profil (teks putih di atas gradasi).
+class _HeaderStat extends StatelessWidget {
+  const _HeaderStat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                value,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800),
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white70, fontSize: 11),
+          ),
+        ],
+      ),
     );
   }
 }
