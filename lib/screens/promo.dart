@@ -303,18 +303,7 @@ class PromoCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      _ActionChip(
-                        icon: post.likedByMe
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: post.likedByMe
-                            ? const Color(0xFFE0245E)
-                            : muted,
-                        label: '${post.likeCount}',
-                        onTap: canLike
-                            ? () => store.togglePromoLike(post)
-                            : null,
-                      ),
+                      _ReactionChip(post: post, enabled: canLike),
                       const SizedBox(width: 18),
                       _ActionChip(
                         icon: Icons.mode_comment_outlined,
@@ -326,6 +315,99 @@ class PromoCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pilihan reaksi emoji — harus sama dengan daftar REACTIONS di server.
+const kReactionEmojis = ['❤️', '👍', '🔥', '🎉', '😂', '😮'];
+
+/// Tombol reaksi pos: ketuk untuk memilih emoji (bukan hanya hati).
+/// Menampilkan reaksi milik sendiri + ringkasan emoji terbanyak.
+class _ReactionChip extends StatefulWidget {
+  const _ReactionChip({required this.post, required this.enabled});
+
+  final PromoPost post;
+  final bool enabled;
+
+  @override
+  State<_ReactionChip> createState() => _ReactionChipState();
+}
+
+class _ReactionChipState extends State<_ReactionChip> {
+  Offset _tapPos = Offset.zero;
+
+  Future<void> _pick() async {
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final chosen = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        _tapPos.dx,
+        _tapPos.dy - 64,
+        overlay.size.width - _tapPos.dx,
+        overlay.size.height - _tapPos.dy,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      color: Colors.white,
+      items: [
+        PopupMenuItem<String>(
+          enabled: false,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final e in kReactionEmojis)
+                InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: () => Navigator.pop(context, e),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: widget.post.myReaction == e
+                        ? BoxDecoration(
+                            color: const Color(0xFFE0F5FA),
+                            borderRadius: BorderRadius.circular(999))
+                        : null,
+                    child: Text(e, style: const TextStyle(fontSize: 24)),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+    // Memilih emoji yang sama dengan reaksi saat ini = menghapusnya
+    // (ditangani reactPromo).
+    if (chosen != null) await store.reactPromo(widget.post, chosen);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final post = widget.post;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final summary = post.reactions.take(3).map((r) => r.emoji).join();
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTapDown: (d) => _tapPos = d.globalPosition,
+      onTap: widget.enabled ? _pick : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Row(
+          children: [
+            post.myReaction.isNotEmpty
+                ? Text(post.myReaction,
+                    style: const TextStyle(fontSize: 17))
+                : Icon(Icons.favorite_border, size: 19, color: muted),
+            const SizedBox(width: 5),
+            Text(
+              post.reactionCount == 0
+                  ? '0'
+                  : '$summary ${post.reactionCount}',
+              style: TextStyle(color: muted, fontSize: 12.5),
             ),
           ],
         ),
@@ -396,11 +478,22 @@ class _CommentsSheet extends StatefulWidget {
 
 class _CommentsSheetState extends State<_CommentsSheet> {
   final _text = TextEditingController();
+  final _focus = FocusNode();
   bool _busy = false;
+
+  /// Komentar yang sedang dibalas ('' = komentar utama baru).
+  String _replyToId = '';
+  String _replyToName = '';
+
+  /// Emoji cepat untuk kolom komentar.
+  static const _quickEmojis = [
+    '😀', '😂', '🤩', '❤️', '👍', '🙏', '🔥', '🎉', '😍', '😮', '🥳', '✨',
+  ];
 
   @override
   void dispose() {
     _text.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -411,12 +504,29 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     return null;
   }
 
+  void _startReply(PromoComment c) {
+    setState(() {
+      // Balasan selalu menempel ke komentar utama (satu tingkat),
+      // tapi nama yang dibalas tetap nama penulis aslinya.
+      _replyToId = c.replyTo.isEmpty ? c.id : c.replyTo;
+      _replyToName = c.name;
+    });
+    _focus.requestFocus();
+  }
+
+  void _insertEmoji(String e) {
+    _text.text += e;
+    _text.selection = TextSelection.collapsed(offset: _text.text.length);
+    _focus.requestFocus();
+  }
+
   Future<void> _send() async {
     final post = _post;
     final text = _text.text.trim();
     if (post == null || text.isEmpty || _busy) return;
     setState(() => _busy = true);
-    final error = await store.addPromoComment(post, text);
+    final error =
+        await store.addPromoComment(post, text, replyTo: _replyToId);
     if (!mounted) return;
     setState(() => _busy = false);
     if (error != null) {
@@ -425,6 +535,10 @@ class _CommentsSheetState extends State<_CommentsSheet> {
       return;
     }
     _text.clear();
+    setState(() {
+      _replyToId = '';
+      _replyToName = '';
+    });
   }
 
   @override
@@ -436,6 +550,32 @@ class _CommentsSheetState extends State<_CommentsSheet> {
       builder: (context, _) {
         final post = _post;
         final comments = post?.comments ?? const <PromoComment>[];
+
+        // Susun utas: komentar utama diikuti balasannya (menjorok).
+        // Balasan yang induknya sudah dihapus tampil sebagai utama.
+        final parents =
+            comments.where((c) => c.replyTo.isEmpty).toList();
+        final replies = <String, List<PromoComment>>{};
+        final orphans = <PromoComment>[];
+        for (final c in comments) {
+          if (c.replyTo.isEmpty) continue;
+          if (parents.any((p0) => p0.id == c.replyTo)) {
+            replies.putIfAbsent(c.replyTo, () => []).add(c);
+          } else {
+            orphans.add(c);
+          }
+        }
+        final rows = <({PromoComment c, bool isReply})>[];
+        for (final p0 in parents) {
+          rows.add((c: p0, isReply: false));
+          for (final r in replies[p0.id] ?? const <PromoComment>[]) {
+            rows.add((c: r, isReply: true));
+          }
+        }
+        for (final o in orphans) {
+          rows.add((c: o, isReply: false));
+        }
+
         return Column(
           children: [
             const SizedBox(height: 10),
@@ -453,7 +593,7 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const Divider(height: 20),
             Expanded(
-              child: comments.isEmpty
+              child: rows.isEmpty
                   ? Center(
                       child: Text('Belum ada komentar. Jadilah yang pertama!',
                           style: TextStyle(
@@ -462,105 +602,63 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: comments.length,
-                      itemBuilder: (context, i) {
-                        final c = comments[i];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor: c.byAdmin
-                                    ? const Color(0xFF0E7490)
-                                    : const Color(0xFFB3E3F0),
-                                child: c.byAdmin
-                                    ? const Icon(Icons.local_laundry_service,
-                                        size: 16, color: Colors.white)
-                                    : Text(
-                                        c.name.isEmpty
-                                            ? '?'
-                                            : c.name[0].toUpperCase(),
-                                        style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w800,
-                                            color: Color(0xFF0E7490)),
-                                      ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(c.name,
-                                              overflow:
-                                                  TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.w700,
-                                                  fontSize: 13)),
-                                        ),
-                                        if (c.byAdmin) ...[
-                                          const SizedBox(width: 6),
-                                          Container(
-                                            padding: const EdgeInsets
-                                                .symmetric(
-                                                horizontal: 6,
-                                                vertical: 1.5),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  const Color(0xFFE0F5FA),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      999),
-                                            ),
-                                            child: const Text('Admin',
-                                                style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight:
-                                                        FontWeight.w700,
-                                                    color: Color(
-                                                        0xFF0E7490))),
-                                          ),
-                                        ],
-                                        const SizedBox(width: 6),
-                                        Text(timeAgo(c.at),
-                                            style: TextStyle(
-                                                color: theme.colorScheme
-                                                    .onSurfaceVariant,
-                                                fontSize: 11)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(c.text,
-                                        style: const TextStyle(
-                                            fontSize: 13.5, height: 1.3)),
-                                  ],
-                                ),
-                              ),
-                              if (post != null && (c.mine || isOwner))
-                                GestureDetector(
-                                  onTap: () =>
-                                      store.deletePromoComment(post, c),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Icon(Icons.delete_outline,
-                                        size: 17,
-                                        color: theme
-                                            .colorScheme.onSurfaceVariant),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      },
+                      itemCount: rows.length,
+                      itemBuilder: (context, i) => _commentRow(
+                          theme, post, rows[i].c, rows[i].isReply, isOwner),
                     ),
             ),
+            // Baris emoji cepat.
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  for (final e in _quickEmojis)
+                    InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => _insertEmoji(e),
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 6),
+                        child: Center(
+                            child: Text(e,
+                                style: const TextStyle(fontSize: 22))),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (_replyToId.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.reply,
+                        size: 15,
+                        color: theme.colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Membalas $_replyToName',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.primary),
+                      ),
+                    ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.close, size: 16),
+                      onPressed: () => setState(() {
+                        _replyToId = '';
+                        _replyToName = '';
+                      }),
+                    ),
+                  ],
+                ),
+              ),
             SafeArea(
               top: false,
               child: Padding(
@@ -570,11 +668,14 @@ class _CommentsSheetState extends State<_CommentsSheet> {
                     Expanded(
                       child: TextField(
                         controller: _text,
+                        focusNode: _focus,
                         minLines: 1,
                         maxLines: 3,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          hintText: 'Tulis komentar...',
+                        decoration: InputDecoration(
+                          hintText: _replyToId.isEmpty
+                              ? 'Tulis komentar...'
+                              : 'Tulis balasan...',
                           isDense: true,
                         ),
                         onSubmitted: (_) => _send(),
@@ -592,6 +693,98 @@ class _CommentsSheetState extends State<_CommentsSheet> {
           ],
         );
       },
+    );
+  }
+
+  Widget _commentRow(ThemeData theme, PromoPost? post, PromoComment c,
+      bool isReply, bool isOwner) {
+    final muted = theme.colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12, left: isReply ? 36 : 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: isReply ? 13 : 16,
+            backgroundColor: c.byAdmin
+                ? const Color(0xFF0E7490)
+                : const Color(0xFFB3E3F0),
+            child: c.byAdmin
+                ? Icon(Icons.local_laundry_service,
+                    size: isReply ? 13 : 16, color: Colors.white)
+                : Text(
+                    c.name.isEmpty ? '?' : c.name[0].toUpperCase(),
+                    style: TextStyle(
+                        fontSize: isReply ? 11 : 13,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0E7490)),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(c.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 13)),
+                    ),
+                    if (c.byAdmin) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F5FA),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text('Admin',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF0E7490))),
+                      ),
+                    ],
+                    const SizedBox(width: 6),
+                    Text(timeAgo(c.at),
+                        style: TextStyle(color: muted, fontSize: 11)),
+                  ],
+                ),
+                if (isReply && c.replyToName.isNotEmpty)
+                  Text('membalas ${c.replyToName}',
+                      style: TextStyle(color: muted, fontSize: 11)),
+                const SizedBox(height: 2),
+                Text(c.text,
+                    style: const TextStyle(fontSize: 13.5, height: 1.3)),
+                if (store.online)
+                  InkWell(
+                    onTap: () => _startReply(c),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text('Balas',
+                          style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.primary)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (post != null && (c.mine || isOwner))
+            GestureDetector(
+              onTap: () => store.deletePromoComment(post, c),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(Icons.delete_outline, size: 17, color: muted),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

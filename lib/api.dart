@@ -171,17 +171,22 @@ class ApiClient {
   Future<void> deletePost(String id, {String? adminId, String? adminPin}) =>
       _delete('/api/posts/$id', adminId: adminId, adminPin: adminPin);
 
-  Future<Map<String, dynamic>> togglePostLike(String id,
+  /// Beri/ubah reaksi emoji; emoji kosong = hapus reaksi.
+  Future<Map<String, dynamic>> reactPost(String id, String emoji,
           {String? custPhone, String? custPin}) =>
-      _post('/api/posts/$id/like', {},
+      _post('/api/posts/$id/react', {'emoji': emoji},
           custPhone: custPhone, custPin: custPin);
 
   Future<Map<String, dynamic>> addPostComment(String id, String text,
-          {String? adminId,
+          {String replyTo = '',
+          String? adminId,
           String? adminPin,
           String? custPhone,
           String? custPin}) =>
-      _post('/api/posts/$id/comments', {'text': text},
+      _post('/api/posts/$id/comments', {
+        'text': text,
+        if (replyTo.isNotEmpty) 'replyTo': replyTo,
+      },
           adminId: adminId,
           adminPin: adminPin,
           custPhone: custPhone,

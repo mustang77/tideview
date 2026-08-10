@@ -38,6 +38,17 @@ if (fs.existsSync(DATA_FILE)) {
 }
 db.posts = db.posts || [];
 
+// Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
+// (array nomor HP) menjadi reaksi hati.
+const REACTIONS = ['❤️', '👍', '🔥', '🎉', '😂', '😮'];
+db.posts.forEach((p) => {
+  if (!p.reactions) {
+    p.reactions = {};
+    (p.likes || []).forEach((ph) => (p.reactions[ph] = '❤️'));
+  }
+  delete p.likes;
+});
+
 // Folder foto promo (dilayani statis di /uploads).
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -351,6 +362,13 @@ app.post('/api/customer/login', (req, res) => {
 // Bentuk pos yang dikirim ke aplikasi: tanpa daftar nomor HP penyuka
 // (privasi), plus penanda likedByMe/mine untuk pelanggan yang masuk.
 function postView(p, custPhone) {
+  const counts = {};
+  Object.values(p.reactions).forEach((e) => (counts[e] = (counts[e] || 0) + 1));
+  const reactions = Object.entries(counts)
+    .map(([emoji, count]) => ({ emoji, count }))
+    .sort((a, b) => b.count - a.count);
+  const total = Object.keys(p.reactions).length;
+  const mine = custPhone ? (p.reactions[custPhone] || '') : '';
   return {
     id: p.id,
     authorName: p.authorName,
@@ -358,8 +376,12 @@ function postView(p, custPhone) {
     bgStyle: p.bgStyle || '',
     imageUrl: p.image ? `/uploads/${p.image}` : '',
     createdAt: p.createdAt,
-    likeCount: p.likes.length,
-    likedByMe: custPhone ? p.likes.includes(custPhone) : false,
+    reactions,
+    reactionCount: total,
+    myReaction: mine,
+    // Kompatibilitas klien lama (masih memakai suka hati saja).
+    likeCount: total,
+    likedByMe: !!mine,
     comments: p.comments.map((c) => ({
       id: c.id,
       name: c.name,
@@ -367,6 +389,8 @@ function postView(p, custPhone) {
       at: c.at,
       byAdmin: !!c.byAdmin,
       mine: !!(custPhone && c.phone === custPhone),
+      replyTo: c.replyTo || '',
+      replyToName: c.replyToName || '',
     })),
   };
 }
@@ -412,7 +436,7 @@ app.post('/api/posts', (req, res) => {
     bgStyle: String(b.bgStyle || ''),
     image,
     createdAt: now(),
-    likes: [],
+    reactions: {},
     comments: [],
   };
   db.posts.unshift(post);
@@ -435,6 +459,25 @@ app.delete('/api/posts/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// Beri/ubah/hapus reaksi emoji. emoji kosong = hapus reaksi.
+app.post('/api/posts/:id/react', (req, res) => {
+  const c = customer(req);
+  if (!c) {
+    return res.status(401).json({ error: 'Silakan masuk untuk memberi reaksi' });
+  }
+  const p = findPost(req, res);
+  if (!p) return;
+  const emoji = String((req.body || {}).emoji || '');
+  if (emoji && !REACTIONS.includes(emoji)) {
+    return res.status(400).json({ error: 'Reaksi tidak dikenal' });
+  }
+  if (!emoji || p.reactions[c.phone] === emoji) delete p.reactions[c.phone];
+  else p.reactions[c.phone] = emoji;
+  save();
+  res.json(postView(p, c.phone));
+});
+
+// Rute lama (klien versi sebelumnya): suka = reaksi hati.
 app.post('/api/posts/:id/like', (req, res) => {
   const c = customer(req);
   if (!c) {
@@ -442,9 +485,8 @@ app.post('/api/posts/:id/like', (req, res) => {
   }
   const p = findPost(req, res);
   if (!p) return;
-  const i = p.likes.indexOf(c.phone);
-  if (i >= 0) p.likes.splice(i, 1);
-  else p.likes.push(c.phone);
+  if (p.reactions[c.phone]) delete p.reactions[c.phone];
+  else p.reactions[c.phone] = '❤️';
   save();
   res.json(postView(p, c.phone));
 });
@@ -461,6 +503,17 @@ app.post('/api/posts/:id/comments', (req, res) => {
   if (!c && !a) {
     return res.status(401).json({ error: 'Silakan masuk untuk berkomentar' });
   }
+  // Balasan: replyTo menunjuk komentar induk; nama induk disimpan
+  // sebagai snapshot agar tetap tampil walau induk dihapus.
+  const replyTo = String((req.body || {}).replyTo || '');
+  let replyToName = '';
+  if (replyTo) {
+    const parent = p.comments.find((x) => x.id === replyTo);
+    if (!parent) {
+      return res.status(400).json({ error: 'Komentar induk tidak ditemukan' });
+    }
+    replyToName = parent.name;
+  }
   p.comments.push({
     id: `c_${Date.now()}`,
     phone: c ? c.phone : '',
@@ -468,6 +521,8 @@ app.post('/api/posts/:id/comments', (req, res) => {
     text,
     at: now(),
     byAdmin: !c,
+    replyTo,
+    replyToName,
   });
   save();
   res.json(postView(p, c ? c.phone : null));

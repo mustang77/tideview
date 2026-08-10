@@ -256,6 +256,8 @@ class PromoComment {
     required this.at,
     this.byAdmin = false,
     this.mine = false,
+    this.replyTo = '',
+    this.replyToName = '',
   });
 
   final String id;
@@ -269,6 +271,12 @@ class PromoComment {
   /// Komentar milik pelanggan yang sedang masuk (boleh dihapus).
   final bool mine;
 
+  /// Id komentar induk bila ini balasan ('' = komentar utama).
+  final String replyTo;
+
+  /// Nama penulis komentar yang dibalas.
+  final String replyToName;
+
   factory PromoComment.fromMap(Map<String, dynamic> m) => PromoComment(
         id: m['id'] as String,
         name: m['name'] as String? ?? '',
@@ -276,7 +284,20 @@ class PromoComment {
         at: DateTime.parse(m['at'] as String).toLocal(),
         byAdmin: m['byAdmin'] as bool? ?? false,
         mine: m['mine'] as bool? ?? false,
+        replyTo: m['replyTo'] as String? ?? '',
+        replyToName: m['replyToName'] as String? ?? '',
       );
+}
+
+/// Jumlah reaksi per emoji pada satu pos, terurut terbanyak.
+class ReactionCount {
+  ReactionCount(this.emoji, this.count);
+
+  final String emoji;
+  final int count;
+
+  factory ReactionCount.fromMap(Map<String, dynamic> m) =>
+      ReactionCount(m['emoji'] as String, (m['count'] as num).toInt());
 }
 
 /// Pos Info & Promo dari pemilik — feed gaya Mingle (wca_app):
@@ -289,8 +310,9 @@ class PromoPost {
     required this.bgStyle,
     required this.imageUrl,
     required this.createdAt,
-    required this.likeCount,
-    required this.likedByMe,
+    required this.reactionCount,
+    required this.myReaction,
+    required this.reactions,
     required this.comments,
   });
 
@@ -305,8 +327,12 @@ class PromoPost {
   final String imageUrl;
   final DateTime createdAt;
 
-  int likeCount;
-  bool likedByMe;
+  /// Total reaksi dan reaksi milik pengguna yang masuk ('' = belum).
+  int reactionCount;
+  String myReaction;
+
+  /// Ringkasan reaksi per emoji, terurut terbanyak.
+  List<ReactionCount> reactions;
   final List<PromoComment> comments;
 
   factory PromoPost.fromMap(Map<String, dynamic> m) => PromoPost(
@@ -316,8 +342,15 @@ class PromoPost {
         bgStyle: m['bgStyle'] as String? ?? '',
         imageUrl: m['imageUrl'] as String? ?? '',
         createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
-        likeCount: (m['likeCount'] as num? ?? 0).toInt(),
-        likedByMe: m['likedByMe'] as bool? ?? false,
+        reactionCount:
+            (m['reactionCount'] as num? ?? m['likeCount'] as num? ?? 0)
+                .toInt(),
+        myReaction: m['myReaction'] as String? ??
+            ((m['likedByMe'] as bool? ?? false) ? '❤️' : ''),
+        reactions: (m['reactions'] as List? ?? [])
+            .map((e) =>
+                ReactionCount.fromMap((e as Map).cast<String, dynamic>()))
+            .toList(),
         comments: (m['comments'] as List? ?? [])
             .map((e) =>
                 PromoComment.fromMap((e as Map).cast<String, dynamic>()))

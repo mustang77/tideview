@@ -256,33 +256,40 @@ class LaundryStore extends ChangeNotifier {
     }
   }
 
-  /// Suka/batal suka (pelanggan). Optimistis: UI berubah dulu,
-  /// dikembalikan bila server menolak.
-  Future<void> togglePromoLike(PromoPost p) async {
+  /// Beri reaksi emoji (pelanggan). Emoji sama dengan reaksi saat ini
+  /// = hapus reaksi. Optimistis: UI berubah dulu, dikembalikan bila
+  /// server menolak.
+  Future<void> reactPromo(PromoPost p, String emoji) async {
     final a = api;
     if (a == null || _custPin == null) return;
-    p.likedByMe = !p.likedByMe;
-    p.likeCount += p.likedByMe ? 1 : -1;
+    final prevMine = p.myReaction;
+    final prevCount = p.reactionCount;
+    final removing = prevMine == emoji || emoji.isEmpty;
+    p.myReaction = removing ? '' : emoji;
+    p.reactionCount = prevCount +
+        (removing ? -1 : (prevMine.isEmpty ? 1 : 0));
     notifyListeners();
     try {
-      final m = await a.togglePostLike(p.id,
+      final m = await a.reactPost(p.id, removing ? '' : emoji,
           custPhone: profile.phone, custPin: _custPin);
       _replacePost(p, m);
     } catch (_) {
-      p.likedByMe = !p.likedByMe;
-      p.likeCount += p.likedByMe ? 1 : -1;
+      p.myReaction = prevMine;
+      p.reactionCount = prevCount;
       notifyListeners();
     }
   }
 
-  /// Tambah komentar sebagai pelanggan (mode pelanggan) atau admin
-  /// (mode pemilik). Mengembalikan pesan error, null = sukses.
-  Future<String?> addPromoComment(PromoPost p, String text) async {
+  /// Tambah komentar (atau balasan bila [replyTo] diisi) sebagai
+  /// pelanggan atau admin. Mengembalikan pesan error, null = sukses.
+  Future<String?> addPromoComment(PromoPost p, String text,
+      {String replyTo = ''}) async {
     final a = api;
     if (a == null) return 'Fitur promo membutuhkan server.';
     try {
       final asOwner = role == 'owner';
       final m = await a.addPostComment(p.id, text,
+          replyTo: replyTo,
           adminId: asOwner ? currentAdminId : null,
           adminPin: asOwner ? _adminPin : null,
           custPhone: asOwner ? null : profile.phone,
