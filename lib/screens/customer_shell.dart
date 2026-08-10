@@ -46,29 +46,109 @@ class _CustomerShellState extends State<CustomerShell> {
               constraints: const BoxConstraints(maxWidth: 720),
               child: switch (_index) {
                 0 => const _HomeTab(),
-                1 => const _OrdersTab(),
+                1 => const _OrdersTab(history: false),
+                2 => const _OrdersTab(history: true),
                 _ => const _ProfileTab(),
               },
             ),
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: const [
-            NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'Beranda'),
-            NavigationDestination(
-                icon: Icon(Icons.receipt_long_outlined),
-                selectedIcon: Icon(Icons.receipt_long),
-                label: 'Pesanan'),
-            NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: 'Profil'),
-          ],
+        floatingActionButton: FloatingActionButton(
+          tooltip: 'Buat Pesanan',
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const NewOrderScreen())),
+          shape: const CircleBorder(),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add, size: 30),
+        ),
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomAppBar(
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8,
+          color: Colors.white,
+          elevation: 12,
+          height: 62,
+          padding: EdgeInsets.zero,
+          child: Row(
+            children: [
+              _NavIcon(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Beranda',
+                  selected: _index == 0,
+                  onTap: () => setState(() => _index = 0)),
+              _NavIcon(
+                  icon: Icons.receipt_long_outlined,
+                  activeIcon: Icons.receipt_long,
+                  label: 'Pesanan',
+                  selected: _index == 1,
+                  onTap: () => setState(() => _index = 1)),
+              const SizedBox(width: 72),
+              _NavIcon(
+                  icon: Icons.history_outlined,
+                  activeIcon: Icons.history,
+                  label: 'Riwayat',
+                  selected: _index == 2,
+                  onTap: () => setState(() => _index = 2)),
+              _NavIcon(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Profil',
+                  selected: _index == 3,
+                  onTap: () => setState(() => _index = 3)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Ikon navigasi bergaya garis tipis; berwarna saat aktif.
+class _NavIcon extends StatelessWidget {
+  const _NavIcon({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = selected
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Tooltip(
+          message: label,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(selected ? activeIcon : icon, size: 26, color: color),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight:
+                      selected ? FontWeight.w700 : FontWeight.w500,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -312,54 +392,35 @@ class _ServiceCard extends StatelessWidget {
 
 // ---------------------------------------------------------------- Pesanan
 
-class _OrdersTab extends StatefulWidget {
-  const _OrdersTab();
+class _OrdersTab extends StatelessWidget {
+  const _OrdersTab({required this.history});
 
-  @override
-  State<_OrdersTab> createState() => _OrdersTabState();
-}
-
-class _OrdersTabState extends State<_OrdersTab> {
-  bool _showHistory = false;
+  final bool history;
 
   @override
   Widget build(BuildContext context) {
-    final orders = store.orders
-        .where((o) => _showHistory ? o.selesai : !o.selesai)
-        .toList();
+    final orders =
+        store.orders.where((o) => history ? o.selesai : !o.selesai).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Pesanan Saya',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 12),
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('Aktif')),
-                  ButtonSegment(value: true, label: Text('Riwayat')),
-                ],
-                selected: {_showHistory},
-                onSelectionChanged: (s) =>
-                    setState(() => _showHistory = s.first),
-              ),
-            ],
-          ),
+          child: Text(history ? 'Riwayat' : 'Pesanan Saya',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800)),
         ),
         Expanded(
           child: orders.isEmpty
               ? EmptyState(
-                  icon: Icons.receipt_long_outlined,
-                  message: _showHistory
+                  icon: history
+                      ? Icons.history_outlined
+                      : Icons.receipt_long_outlined,
+                  message: history
                       ? 'Belum ada pesanan yang selesai.'
-                      : 'Belum ada pesanan aktif.\nPesan layanan dari Beranda, yuk!',
+                      : 'Belum ada pesanan aktif.\nKetuk tombol + untuk memesan!',
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
