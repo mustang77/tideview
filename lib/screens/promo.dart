@@ -189,7 +189,7 @@ class PromoCard extends StatelessWidget {
     final yes = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Hapus promo?'),
+        title: const Text('Hapus postingan?'),
         content: const Text(
             'Pos ini beserta suka dan komentarnya akan dihapus.'),
         actions: [
