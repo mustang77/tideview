@@ -11,6 +11,7 @@ import '../format.dart';
 import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
+import 'banner_maker.dart';
 import 'user_profile_screen.dart';
 
 /// Layar feed Info & Promo untuk pelanggan (semua pos).
@@ -73,7 +74,22 @@ class PromoManageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Info & Promo')),
+      appBar: AppBar(
+        title: const Text('Info & Promo'),
+        actions: [
+          // Pembuat banner satu-ketuk dari template.
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilledButton.tonalIcon(
+              onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const BannerMakerScreen())),
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Buat Banner'),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => const PromoComposeScreen())),
