@@ -444,6 +444,47 @@ class AppNotif {
       );
 }
 
+/// Info toko untuk layar "Tentang H2O Laundry" (diedit pemilik).
+class AboutInfo {
+  AboutInfo({
+    this.name = 'H2O Laundry Parakan',
+    this.tagline = 'Laundry bersih, wangi, dan rapi',
+    this.address = 'Parakan, Temanggung, Jawa Tengah',
+    this.wa = '',
+    this.hours = '',
+    this.maps = '',
+    this.instagram = '',
+  });
+
+  String name;
+  String tagline;
+  String address;
+  String wa;
+  String hours;
+  String maps;
+  String instagram;
+
+  factory AboutInfo.fromMap(Map<String, dynamic> m) => AboutInfo(
+        name: m['name'] as String? ?? 'H2O Laundry Parakan',
+        tagline: m['tagline'] as String? ?? '',
+        address: m['address'] as String? ?? '',
+        wa: m['wa'] as String? ?? '',
+        hours: m['hours'] as String? ?? '',
+        maps: m['maps'] as String? ?? '',
+        instagram: m['instagram'] as String? ?? '',
+      );
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'tagline': tagline,
+        'address': address,
+        'wa': wa,
+        'hours': hours,
+        'maps': maps,
+        'instagram': instagram,
+      };
+}
+
 /// Pesan chat Layanan Pelanggan (pelanggan <-> admin).
 class ChatMessage {
   ChatMessage({

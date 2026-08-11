@@ -18,6 +18,7 @@ import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
 import 'owner_access.dart';
 import 'promo.dart';
+import 'tentang_screen.dart';
 import 'user_profile_screen.dart';
 
 class CustomerShell extends StatefulWidget {
@@ -909,6 +910,18 @@ class _ProfileTabState extends State<_ProfileTab> {
                       Navigator.pop(sheetCtx);
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => const MusicScreen()));
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title:
+                        const Text('Tentang H2O Laundry', style: tStyle),
+                    subtitle: const Text('Alamat, jam buka, dan kontak'),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const TentangScreen()));
                     },
                   ),
                   // Install PWA: banner Chrome sering tidak muncul

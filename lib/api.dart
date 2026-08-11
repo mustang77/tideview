@@ -295,6 +295,12 @@ class ApiClient {
       _post('/api/chat/$phone/read', {},
           adminId: adminId, adminPin: adminPin);
 
+  // ---- Info toko (Tentang) ----
+
+  Future<Map<String, dynamic>> updateAbout(Map<String, dynamic> about,
+          {String? adminId, String? adminPin}) =>
+      _post('/api/about', about, adminId: adminId, adminPin: adminPin);
+
   // ---- Hiburan ----
 
   Future<Map<String, dynamic>> createHiburan(

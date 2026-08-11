@@ -50,6 +50,9 @@ class LaundryStore extends ChangeNotifier {
 
   int get unreadNotifs => notifs.where((n) => !n.read).length;
 
+  /// Info toko untuk layar Tentang (dari server; bawaan bila offline).
+  AboutInfo about = AboutInfo();
+
   /// Lebar kertas struk thermal dalam mm (58 atau 80), per perangkat.
   int receiptWidth = 58;
 
@@ -229,6 +232,9 @@ class LaundryStore extends ChangeNotifier {
         ..addAll((m['chats'] as List? ?? []).map(
             (e) => ChatMessage.fromMap((e as Map).cast<String, dynamic>())));
       chatUnread = (m['chatUnread'] as num? ?? 0).toInt();
+      if (m['about'] != null) {
+        about = AboutInfo.fromMap((m['about'] as Map).cast<String, dynamic>());
+      }
       me = m['me'] == null
           ? null
           : MeInfo.fromMap((m['me'] as Map).cast<String, dynamic>());
@@ -530,6 +536,23 @@ class LaundryStore extends ChangeNotifier {
       return u;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Simpan info toko (mode pemilik). Mengembalikan pesan error/null.
+  Future<String?> saveAbout(AboutInfo a2) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    try {
+      final m = await a.updateAbout(a2.toMap(),
+          adminId: currentAdminId, adminPin: _adminPin);
+      about = AboutInfo.fromMap(m);
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
     }
   }
 

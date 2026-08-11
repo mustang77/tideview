@@ -11,6 +11,7 @@ import '../widgets.dart';
 import 'admin_screen.dart';
 import 'chat_screen.dart';
 import 'hiburan.dart';
+import 'tentang_screen.dart';
 import 'owner_order_detail_screen.dart';
 import 'promo.dart';
 
@@ -144,6 +145,13 @@ class _DashboardTab extends StatelessWidget {
                         builder: (_) => const ChatInboxScreen())),
                 icon: const Icon(Icons.support_agent),
               ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filledTonal(
+              tooltip: 'Info Toko (Tentang)',
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const TentangScreen())),
+              icon: const Icon(Icons.storefront_outlined),
             ),
             const SizedBox(width: 8),
             IconButton.filledTonal(

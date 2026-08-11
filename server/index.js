@@ -43,6 +43,18 @@ db.notifs = db.notifs || [];
 db.hiburan = db.hiburan || [];
 // Chat Layanan Pelanggan: daftar pesan datar {phone, fromAdmin, ...}.
 db.chats = db.chats || [];
+// Info toko (layar "Tentang") — bisa diedit pemilik dari aplikasi.
+db.about = Object.assign(
+    {
+      name: 'H2O Laundry Parakan',
+      tagline: 'Laundry bersih, wangi, dan rapi',
+      address: 'Parakan, Temanggung, Jawa Tengah',
+      wa: '',
+      hours: '',
+      maps: '',
+      instagram: '',
+    },
+    db.about || {});
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
@@ -325,8 +337,23 @@ app.get('/api/state', (req, res) => {
             (x) => x.phone === custPhone && x.fromAdmin && !x.readByCust).length
         : 0,
     chats: a ? db.chats.slice(-400).map(chatView) : [],
+    about: db.about,
     isAdmin: !!a,
   });
+});
+
+// Perbarui info toko (layar Tentang) — hanya admin.
+app.post('/api/about', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const b = req.body || {};
+  for (const k of
+      ['name', 'tagline', 'address', 'wa', 'hours', 'maps', 'instagram']) {
+    if (b[k] !== undefined) db.about[k] = String(b[k]).trim().slice(0, 300);
+  }
+  if (!db.about.name) db.about.name = 'H2O Laundry Parakan';
+  save();
+  res.json(db.about);
 });
 
 // ---- Profil sosial pelanggan ----
