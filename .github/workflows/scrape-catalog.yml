@@ -1,0 +1,105 @@
+name: Scrape catalog
+
+# Runs the Alfagift / Klik Indomaret scraper on a GitHub-hosted machine so you
+# don't need to install anything on your own PC. Trigger it from the GitHub
+# website: Actions tab -> "Scrape catalog" -> "Run workflow". When it finishes,
+# download the "catalog" artifact (a zip with catalog.csv + catalog.json).
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Which store to scrape"
+        type: choice
+        default: alfagift
+        options:
+          - alfagift
+          - klikindomaret
+      mode:
+        description: "How to scrape"
+        type: choice
+        default: search
+        options:
+          - search      # query = comma-separated keywords, e.g. "indomie,beras,gula"
+          - category    # query = a single category id (get ids from list-categories)
+          - all         # walk every category (ignores query)
+          - list-categories  # just print category ids, no catalog file
+      query:
+        description: "Keywords (search) or category id (category). Ignored for all/list-categories."
+        type: string
+        default: "indomie,beras,minyak goreng,gula,telur,kopi,teh,susu,sabun,shampoo"
+      max:
+        description: "Max number of products"
+        type: string
+        default: "300"
+      # Klik Indomaret only: the store whose prices/availability you want.
+      store_code:
+        description: "(Indomaret) store code — set to your city's store"
+        type: string
+        default: "TJKT"
+      lat:
+        description: "(Indomaret) latitude"
+        type: string
+        default: "-6.1763897"
+      lng:
+        description: "(Indomaret) longitude"
+        type: string
+        default: "106.82667"
+      district:
+        description: "(Indomaret) district id"
+        type: string
+        default: "141100100"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Pick tool directory
+        id: pick
+        run: |
+          if [ "${{ inputs.source }}" = "klikindomaret" ]; then
+            echo "dir=tools/klikindomaret_scraper" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=tools/alfagift_scraper" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        working-directory: ${{ steps.pick.outputs.dir }}
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"   # skip postinstall download; next step does it with system deps
+        run: npm install
+
+      - name: Install Chromium (with system libraries)
+        working-directory: ${{ steps.pick.outputs.dir }}
+        run: npx playwright install --with-deps chromium
+
+      - name: Run scraper
+        working-directory: ${{ steps.pick.outputs.dir }}
+        run: |
+          set -e
+          COMMON="--max ${{ inputs.max }}"
+          LOC="--store-code '${{ inputs.store_code }}' --lat '${{ inputs.lat }}' --lng '${{ inputs.lng }}' --district '${{ inputs.district }}'"
+          # Location flags only exist on the Indomaret tool; Alfagift ignores them.
+          if [ "${{ inputs.source }}" != "klikindomaret" ]; then LOC=""; fi
+
+          case "${{ inputs.mode }}" in
+            search)          eval node scrape.js --search \"${{ inputs.query }}\" $COMMON $LOC ;;
+            category)        eval node scrape.js --category \"${{ inputs.query }}\" $COMMON $LOC ;;
+            all)             eval node scrape.js --all $COMMON $LOC ;;
+            list-categories) eval node scrape.js --list-categories $LOC ;;
+          esac
+
+      - name: Upload catalog
+        if: ${{ inputs.mode != 'list-categories' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-${{ inputs.source }}
+          path: ${{ steps.pick.outputs.dir }}/output/*
+          if-no-files-found: warn
