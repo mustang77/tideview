@@ -6,6 +6,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
+import 'hiburan_ext/news_screen.dart';
 import 'hiburan_ext/zodiac_screen.dart';
 
 /// Bagian Hiburan di Beranda: kisi ubin tautan (musik, game, dll)
@@ -57,6 +58,12 @@ class HiburanSection extends StatelessWidget {
               title: 'Zodiak',
               colors: const [Color(0xFF5E35B1), Color(0xFF039BE5)],
               builder: () => const ZodiacScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '📰',
+              title: 'Berita',
+              colors: const [Color(0xFFDC2626), Color(0xFFF97316)],
+              builder: () => const NewsScreen(),
             ),
             for (var i = 0; i < store.hiburan.length; i++)
               _HiburanTileCard(

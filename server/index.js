@@ -627,6 +627,94 @@ app.get('/api/zodiac/:sign', (req, res) => {
   });
 });
 
+// ---- Berita Indonesia (hiburan) ----
+// Agregasi RSS media nasional, di-cache 15 menit. Gambar unggulan
+// dilewatkan lewat proxy /api/newsimg supaya tampil di Flutter web
+// (CDN berita tidak mengirim header CORS).
+
+const NEWS_FEEDS = [
+  { source: 'Antara', url: 'https://www.antaranews.com/rss/terkini.xml' },
+  { source: 'CNN Indonesia',
+    url: 'https://www.cnnindonesia.com/nasional/rss' },
+  { source: 'detikNews', url: 'https://rss.detik.com/index.php/detikcom' },
+];
+let newsCache = { at: 0, items: [], imgs: new Set() };
+let newsBusy = null;
+
+function rssText(block, tag) {
+  const m = block.match(
+      new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'));
+  if (!m) return '';
+  return unescapeHtml(
+      m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1'))
+      .replace(/<[^>]+>/g, '').trim();
+}
+function rssImage(block) {
+  const m = block.match(/<enclosure[^>]+url=["']([^"']+)["']/i) ||
+      block.match(/<media:(?:content|thumbnail)[^>]+url=["']([^"']+)["']/i) ||
+      block.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m ? unescapeHtml(m[1]) : '';
+}
+
+async function refreshNews() {
+  const all = [];
+  const imgs = new Set();
+  await Promise.all(NEWS_FEEDS.map(async (f) => {
+    try {
+      const { buffer } = await fetchUrl(f.url,
+          { maxBytes: 2 * 1024 * 1024, allowTruncate: true });
+      for (const m of buffer.toString('utf8')
+          .matchAll(/<item[\s\S]*?<\/item>/gi)) {
+        const b = m[0];
+        const title = rssText(b, 'title');
+        const link = rssText(b, 'link');
+        if (!title || !link) continue;
+        const img = rssImage(b);
+        if (img) imgs.add(img);
+        const d = new Date(rssText(b, 'pubDate'));
+        all.push({
+          title,
+          link,
+          source: f.source,
+          image: img,
+          at: isNaN(d.getTime()) ? now() : d.toISOString(),
+        });
+      }
+    } catch (e) {
+      console.error('RSS gagal:', f.source, '-', e.message);
+    }
+  }));
+  all.sort((a, b) => b.at.localeCompare(a.at));
+  // Feed gagal semua? Pertahankan cache lama daripada mengosongkan.
+  if (all.length) newsCache = { at: Date.now(), items: all.slice(0, 40), imgs };
+  else newsCache.at = Date.now() - 12 * 60 * 1000; // coba lagi 3 mnt lagi
+}
+
+app.get('/api/news', async (req, res) => {
+  if (Date.now() - newsCache.at > 15 * 60 * 1000) {
+    // Satu penyegaran untuk semua permintaan yang datang bersamaan.
+    newsBusy = newsBusy || refreshNews().finally(() => (newsBusy = null));
+    await newsBusy;
+  }
+  res.json({ items: newsCache.items });
+});
+
+// Proxy gambar berita (hanya URL yang ada di cache — bukan proxy bebas).
+app.get('/api/newsimg', async (req, res) => {
+  const u = String(req.query.u || '');
+  if (!newsCache.imgs.has(u)) {
+    return res.status(404).json({ error: 'Gambar tidak dikenal' });
+  }
+  try {
+    const { buffer, type } = await fetchUrl(u, { maxBytes: 3 * 1024 * 1024 });
+    res.set('Content-Type', type || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.end(buffer);
+  } catch (e) {
+    res.status(502).json({ error: 'Gagal memuat gambar' });
+  }
+});
+
 // ---- Hiburan (ubin tautan yang dikelola admin) ----
 
 app.post('/api/hiburan', (req, res) => {
