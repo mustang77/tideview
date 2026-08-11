@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
+import 'hiburan_ext/games_hub_screen.dart';
+import 'hiburan_ext/music_screen.dart';
 
 /// Bagian Hiburan di Beranda: kisi ubin tautan (musik, game, dll)
 /// yang isinya dikelola admin lewat HiburanManageScreen.
@@ -21,7 +23,6 @@ class HiburanSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (store.hiburan.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -36,14 +37,80 @@ class HiburanSection extends StatelessWidget {
           crossAxisSpacing: 10,
           childAspectRatio: 1.35,
           children: [
+            // Ubin bawaan: layar Game dan Musik di dalam aplikasi
+            // (dibawa dari wca_app).
+            _BuiltinTileCard(
+              emoji: '🎮',
+              title: 'Game',
+              colors: const [Color(0xFF7C3AED), Color(0xFFDB2777)],
+              builder: () => const GamesHubScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '🎵',
+              title: 'Musik',
+              colors: const [Color(0xFF0E7490), Color(0xFF06B6D4)],
+              builder: () => const MusicScreen(),
+            ),
             for (var i = 0; i < store.hiburan.length; i++)
               _HiburanTileCard(
                 tile: store.hiburan[i],
-                colors: _tileColors[i % _tileColors.length],
+                colors: _tileColors[(i + 2) % _tileColors.length],
               ),
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Ubin bawaan yang membuka layar di dalam aplikasi (bukan tautan).
+class _BuiltinTileCard extends StatelessWidget {
+  const _BuiltinTileCard({
+    required this.emoji,
+    required this.title,
+    required this.colors,
+    required this.builder,
+  });
+
+  final String emoji;
+  final String title;
+  final List<Color> colors;
+  final Widget Function() builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => builder())),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: colors,
+          ),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 26)),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
