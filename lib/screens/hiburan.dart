@@ -7,6 +7,7 @@ import '../widgets.dart';
 import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
 import 'hiburan_ext/news_screen.dart';
+import 'hiburan_ext/radio_screen.dart';
 import 'hiburan_ext/tv_screen.dart';
 import 'hiburan_ext/zodiac_screen.dart';
 
@@ -71,6 +72,12 @@ class HiburanSection extends StatelessWidget {
               title: 'TV Live',
               colors: const [Color(0xFF0B1220), Color(0xFF24395E)],
               builder: () => const TvScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '📻',
+              title: 'Radio',
+              colors: const [Color(0xFFB45309), Color(0xFFF6C445)],
+              builder: () => const RadioScreen(),
             ),
             for (var i = 0; i < store.hiburan.length; i++)
               _HiburanTileCard(
