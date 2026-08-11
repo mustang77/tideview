@@ -21,6 +21,8 @@ dependencies:
   firebase_auth: ^6.5.7
   image_picker: ^1.2.3
   video_player: ^2.13.0
+  # Kontrol pemutar live (TV Live): layar penuh, tanpa seek.
+  chewie: ^1.14.0
   audioplayers: ^6.8.1
   flutter_tts: ^4.2.5
   chess: ^0.8.1

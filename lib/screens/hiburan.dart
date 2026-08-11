@@ -7,6 +7,7 @@ import '../widgets.dart';
 import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
 import 'hiburan_ext/news_screen.dart';
+import 'hiburan_ext/tv_screen.dart';
 import 'hiburan_ext/zodiac_screen.dart';
 
 /// Bagian Hiburan di Beranda: kisi ubin tautan (musik, game, dll)
@@ -64,6 +65,12 @@ class HiburanSection extends StatelessWidget {
               title: 'Berita',
               colors: const [Color(0xFFDC2626), Color(0xFFF97316)],
               builder: () => const NewsScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '📺',
+              title: 'TV Live',
+              colors: const [Color(0xFF0B1220), Color(0xFF24395E)],
+              builder: () => const TvScreen(),
             ),
             for (var i = 0; i < store.hiburan.length; i++)
               _HiburanTileCard(
