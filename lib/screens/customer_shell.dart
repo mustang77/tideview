@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert' show base64Encode;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../format.dart';
 import '../models.dart';
+import '../pwa/pwa.dart';
 import '../store.dart';
 import '../widgets.dart';
 import 'new_order_screen.dart';
@@ -909,6 +911,21 @@ class _ProfileTabState extends State<_ProfileTab> {
                           builder: (_) => const MusicScreen()));
                     },
                   ),
+                  // Install PWA: banner Chrome sering tidak muncul
+                  // sendiri, jadi sediakan pemicu manual di sini.
+                  if (kIsWeb && !pwaIsStandalone()) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.install_mobile),
+                      title: const Text('Install Aplikasi', style: tStyle),
+                      subtitle:
+                          const Text('Pasang di layar utama HP Anda'),
+                      onTap: () {
+                        Navigator.pop(sheetCtx);
+                        if (!pwaTriggerInstall()) _showInstallHelp();
+                      },
+                    ),
+                  ],
                   const Divider(height: 1),
                   ListTile(
                     leading: Icon(Icons.logout, color: cs.error),
@@ -927,6 +944,33 @@ class _ProfileTabState extends State<_ProfileTab> {
           ),
         );
       },
+    );
+  }
+
+  /// Panduan install manual saat dialog otomatis tidak tersedia
+  /// (iPhone, atau Chrome belum mengirim event install).
+  void _showInstallHelp() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cara Install Aplikasi'),
+        content: const Text(
+          'Android (Chrome):\n'
+          '1. Ketuk menu ⋮ di kanan atas browser\n'
+          '2. Pilih "Tambahkan ke layar utama" / "Instal aplikasi"\n\n'
+          'iPhone (Safari):\n'
+          '1. Ketuk tombol Bagikan (kotak dengan panah ke atas)\n'
+          '2. Pilih "Tambah ke Layar Utama"\n\n'
+          'Setelah terpasang, H2O Laundry terbuka layar penuh '
+          'seperti aplikasi biasa.',
+          style: TextStyle(fontSize: 13.5, height: 1.45),
+        ),
+        actions: [
+          FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Mengerti')),
+        ],
+      ),
     );
   }
 

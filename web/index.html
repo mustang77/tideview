@@ -31,6 +31,26 @@
 
   <title>H2O Laundry Parakan</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Simpan event install PWA supaya bisa dipicu dari menu aplikasi
+       (banner "Instal aplikasi" Chrome sering tidak muncul sendiri). -->
+  <script>
+    let _h2oInstallEvent = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      _h2oInstallEvent = e;
+    });
+    window.h2oCanInstall = () => !!_h2oInstallEvent;
+    window.h2oIsStandalone = () =>
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+    window.h2oInstall = () => {
+      if (!_h2oInstallEvent) return false;
+      _h2oInstallEvent.prompt();
+      _h2oInstallEvent = null;
+      return true;
+    };
+  </script>
 </head>
 <body>
   <!--
