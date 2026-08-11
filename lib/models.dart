@@ -429,6 +429,29 @@ class AppNotif {
       );
 }
 
+/// Ubin Hiburan (musik, game, dll) — dikelola admin, tampil di
+/// Beranda pelanggan, membuka tautan saat diketuk.
+class HiburanTile {
+  HiburanTile({
+    required this.id,
+    required this.title,
+    required this.emoji,
+    required this.url,
+  });
+
+  final String id;
+  final String title;
+  final String emoji;
+  final String url;
+
+  factory HiburanTile.fromMap(Map<String, dynamic> m) => HiburanTile(
+        id: m['id'] as String,
+        title: m['title'] as String? ?? '',
+        emoji: m['emoji'] as String? ?? '🎮',
+        url: m['url'] as String? ?? '',
+      );
+}
+
 class CustomerProfile {
   CustomerProfile({this.name = '', this.phone = '', this.address = ''});
 

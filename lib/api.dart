@@ -226,6 +226,21 @@ class ApiClient {
           custPhone: custPhone,
           custPin: custPin);
 
+  // ---- Hiburan ----
+
+  Future<Map<String, dynamic>> createHiburan(
+          {required String title,
+          required String emoji,
+          required String url,
+          String? adminId,
+          String? adminPin}) =>
+      _post('/api/hiburan', {'title': title, 'emoji': emoji, 'url': url},
+          adminId: adminId, adminPin: adminPin);
+
+  Future<void> deleteHiburan(String id,
+          {String? adminId, String? adminPin}) =>
+      _delete('/api/hiburan/$id', adminId: adminId, adminPin: adminPin);
+
   // ---- Notifikasi ----
 
   Future<Map<String, dynamic>> markNotifsRead(

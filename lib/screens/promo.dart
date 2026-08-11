@@ -2067,3 +2067,147 @@ class ReelsBlock extends StatelessWidget {
     );
   }
 }
+
+/// Banner Info & Promo di Beranda: korsel pos resmi H2O (khusus
+/// admin), digeser mendatar dengan titik penunjuk. Video membuka
+/// Reels, lainnya membuka layar Info & Promo.
+class PromoBannerCarousel extends StatefulWidget {
+  const PromoBannerCarousel({super.key});
+
+  @override
+  State<PromoBannerCarousel> createState() => _PromoBannerCarouselState();
+}
+
+class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
+  final _page = PageController(viewportFraction: 0.94);
+  int _current = 0;
+
+  @override
+  void dispose() {
+    _page.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final promos =
+        store.posts.where((p) => p.byAdmin).take(6).toList();
+    if (promos.isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        SizedBox(
+          height: 150,
+          child: PageView.builder(
+            controller: _page,
+            onPageChanged: (i) => setState(() => _current = i),
+            itemCount: promos.length,
+            itemBuilder: (context, i) =>
+                _BannerCard(post: promos[i]),
+          ),
+        ),
+        if (promos.length > 1) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (var i = 0; i < promos.length; i++)
+                Container(
+                  width: i == _current ? 16 : 6,
+                  height: 6,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: i == _current
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.black26,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _BannerCard extends StatelessWidget {
+  const _BannerCard({required this.post});
+
+  final PromoPost post;
+
+  @override
+  Widget build(BuildContext context) {
+    final isVideo = post.videoUrl.isNotEmpty;
+    final image = isVideo && post.videoThumbUrl.isNotEmpty
+        ? post.videoThumbUrl
+        : post.imageUrl.isNotEmpty
+            ? post.imageUrl
+            : post.linkImage;
+    final decoration = image.isNotEmpty
+        ? BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            image: DecorationImage(
+              image: NetworkImage(store.mediaUrl(image)),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: 0.25), BlendMode.darken),
+            ),
+          )
+        : (PromoBg.isColored(post.bgStyle)
+                ? PromoBg.decorationFor(post.bgStyle)
+                : const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF06B6D4), Color(0xFF0E4B5E)],
+                    ),
+                  ))
+            .copyWith(borderRadius: BorderRadius.circular(16));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => isVideo
+                ? ReelsScreen(initialPostId: post.id)
+                : const PromoFeedScreen())),
+        child: Container(
+          decoration: decoration,
+          padding: const EdgeInsets.all(14),
+          child: Stack(
+            children: [
+              if (isVideo)
+                Center(
+                  child: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.35),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 32),
+                  ),
+                ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  post.caption.isEmpty ? 'Info H2O Laundry' : post.caption,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    height: 1.25,
+                    shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

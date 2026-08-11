@@ -29,6 +29,9 @@ class LaundryStore extends ChangeNotifier {
   /// Notifikasi pelanggan dari server, terbaru dulu.
   final List<AppNotif> notifs = [];
 
+  /// Ubin Hiburan dari server (dikelola admin).
+  final List<HiburanTile> hiburan = [];
+
   int get unreadNotifs => notifs.where((n) => !n.read).length;
   CustomerProfile profile = CustomerProfile();
 
@@ -187,6 +190,10 @@ class LaundryStore extends ChangeNotifier {
         ..clear()
         ..addAll((m['notifs'] as List? ?? []).map(
             (e) => AppNotif.fromMap((e as Map).cast<String, dynamic>())));
+      hiburan
+        ..clear()
+        ..addAll((m['hiburan'] as List? ?? []).map(
+            (e) => HiburanTile.fromMap((e as Map).cast<String, dynamic>())));
       serverOk = true;
       await _save();
       return true;
@@ -361,6 +368,42 @@ class LaundryStore extends ChangeNotifier {
           post.comments.removeWhere((x) => x.id == c.id);
         }
       }
+      notifyListeners();
+    } catch (_) {
+      serverOk = false;
+      notifyListeners();
+    }
+  }
+
+  /// Tambah ubin Hiburan (admin). Mengembalikan pesan error/null.
+  Future<String?> addHiburan(
+      String title, String emoji, String url) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    try {
+      final m = await a.createHiburan(
+          title: title,
+          emoji: emoji,
+          url: url,
+          adminId: currentAdminId,
+          adminPin: _adminPin);
+      hiburan.add(HiburanTile.fromMap(m));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  Future<void> deleteHiburan(HiburanTile t) async {
+    final a = api;
+    if (a == null) return;
+    try {
+      await a.deleteHiburan(t.id,
+          adminId: currentAdminId, adminPin: _adminPin);
+      hiburan.removeWhere((x) => x.id == t.id);
       notifyListeners();
     } catch (_) {
       serverOk = false;

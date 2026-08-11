@@ -8,6 +8,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'new_order_screen.dart';
 import 'order_detail_screen.dart';
+import 'hiburan.dart';
 import 'owner_access.dart';
 import 'promo.dart';
 
@@ -205,29 +206,24 @@ class _HomeTabState extends State<_HomeTab> {
                 'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
-        ...(() {
-          final promos =
-              store.posts.where((p) => p.byAdmin).toList();
-          if (promos.isEmpty) return const <Widget>[];
-          return <Widget>[
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                const Expanded(child: SectionTitle('Info & Promo')),
-                TextButton(
-                  onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const PromoFeedScreen())),
-                  child: const Text('Lihat Semua'),
-                ),
-              ],
-            ),
-            // Reels video (bila ada), lalu hanya promo terbaru —
-            // selengkapnya di layar feed & tab Komunitas.
-            const ReelsStrip(),
-            PromoCard(post: promos.first),
-          ];
-        })(),
+        // Info & Promo: banner korsel khusus pos resmi (admin).
+        if (store.posts.any((p) => p.byAdmin)) ...[
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              const Expanded(child: SectionTitle('Info & Promo')),
+              TextButton(
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const PromoFeedScreen())),
+                child: const Text('Lihat Semua'),
+              ),
+            ],
+          ),
+          const PromoBannerCarousel(),
+        ],
+        // Hiburan: ubin tautan (musik, game, dll) kelolaan admin.
+        const HiburanSection(),
       ],
     );
   }

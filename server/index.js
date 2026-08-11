@@ -39,6 +39,8 @@ if (fs.existsSync(DATA_FILE)) {
 }
 db.posts = db.posts || [];
 db.notifs = db.notifs || [];
+// Ubin Hiburan (musik, game, dll) yang dikelola admin dari aplikasi.
+db.hiburan = db.hiburan || [];
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
@@ -282,8 +284,44 @@ app.get('/api/state', (req, res) => {
     orders,
     posts: db.posts.map((p) => postView(p, custPhone)),
     notifs,
+    hiburan: db.hiburan,
     isAdmin: !!a,
   });
+});
+
+// ---- Hiburan (ubin tautan yang dikelola admin) ----
+
+app.post('/api/hiburan', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const b = req.body || {};
+  const title = String(b.title || '').trim();
+  let url = String(b.url || '').trim();
+  if (!title || !url) {
+    return res.status(400).json({ error: 'Judul dan URL wajib diisi' });
+  }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  const tile = {
+    id: `h_${Date.now()}`,
+    title,
+    emoji: String(b.emoji || '🎮').slice(0, 8),
+    url,
+  };
+  db.hiburan.push(tile);
+  save();
+  res.json(tile);
+});
+
+app.delete('/api/hiburan/:id', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const before = db.hiburan.length;
+  db.hiburan = db.hiburan.filter((t) => t.id !== req.params.id);
+  if (db.hiburan.length === before) {
+    return res.status(404).json({ error: 'Ubin tidak ditemukan' });
+  }
+  save();
+  res.json({ ok: true });
 });
 
 // Tandai semua notifikasi pelanggan sudah dibaca.

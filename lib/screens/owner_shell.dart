@@ -9,6 +9,7 @@ import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
 import 'admin_screen.dart';
+import 'hiburan.dart';
 import 'owner_order_detail_screen.dart';
 import 'promo.dart';
 
@@ -213,6 +214,25 @@ class _DashboardTab extends StatelessWidget {
             onTap: store.online
                 ? () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => const PromoManageScreen()))
+                : null,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Card(
+          child: ListTile(
+            leading: Icon(Icons.sports_esports_outlined,
+                color: theme.colorScheme.primary),
+            title: const Text('Hiburan',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(!store.online
+                ? 'Butuh server — atur di Kelola Admin'
+                : store.hiburan.isEmpty
+                    ? 'Tambahkan ubin musik/game untuk pelanggan'
+                    : '${store.hiburan.length} ubin terpasang'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: store.online
+                ? () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const HiburanManageScreen()))
                 : null,
           ),
         ),
