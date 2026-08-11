@@ -311,6 +311,16 @@ class ApiClient {
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
+  // ---- Musik Indonesia (netlabel CC via server) ----
+
+  Future<Map<String, dynamic>> getMusikIndonesia() async {
+    // Muat pertama bisa lama: server merangkai katalog archive.org.
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/musik-id'))
+        .timeout(const Duration(seconds: 45));
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
   // ---- Ramalan Zodiak (hiburan) ----
 
   Future<Map<String, dynamic>> getZodiac(String sign) async {

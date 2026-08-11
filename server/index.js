@@ -715,6 +715,95 @@ app.get('/api/newsimg', async (req, res) => {
   }
 });
 
+// ---- Musik Indonesia (netlabel Creative Commons di archive.org) ----
+// Yes No Wave (Yogyakarta), Mindblasting, dan Hujan! Rekords merilis
+// musik Indonesia legal-gratis; arsipnya publik di archive.org.
+// Bentuk balasan meniru kunci Jamendo supaya model Track klien tidak
+// berubah. Cache 6 jam.
+
+const MUSIK_ID_COLLECTIONS = ['yesnowave', 'mindblasting', 'hujanrekords'];
+let musikIdCache = { at: 0, tracks: [] };
+let musikIdBusy = null;
+
+function iaSeconds(len) {
+  const s = String(len || '');
+  if (s.includes(':')) {
+    const parts = s.split(':').map(Number);
+    return parts.reduce((a, b) => a * 60 + b, 0) | 0;
+  }
+  return Math.round(Number(s)) || 0;
+}
+
+async function refreshMusikId() {
+  const albums = [];
+  await Promise.all(MUSIK_ID_COLLECTIONS.map(async (col) => {
+    try {
+      const q = `collection%3A${col}+AND+mediatype%3Aaudio`;
+      const url = `https://archive.org/advancedsearch.php?q=${q}` +
+          '&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator' +
+          '&rows=8&output=json&sort%5B%5D=downloads+desc';
+      const { buffer } = await fetchUrl(url, { maxBytes: 1024 * 1024 });
+      const docs = JSON.parse(buffer.toString('utf8')).response.docs || [];
+      for (const d of docs) albums.push(d);
+    } catch (e) {
+      console.error('Musik ID: pencarian gagal utk', col, '-', e.message);
+    }
+  }));
+  const tracks = [];
+  await Promise.all(albums.map(async (al) => {
+    try {
+      const { buffer } = await fetchUrl(
+          `https://archive.org/metadata/${al.identifier}`,
+          { maxBytes: 4 * 1024 * 1024 });
+      const meta = JSON.parse(buffer.toString('utf8'));
+      const artist = String(
+          (Array.isArray(al.creator) ? al.creator[0] : al.creator) ||
+          meta.metadata && meta.metadata.creator || 'Netlabel Indonesia');
+      const mp3s = (meta.files || [])
+          .filter((f) => String(f.format || '').endsWith('MP3'))
+          .slice(0, 4); // maks 4 lagu per album supaya beragam
+      for (const f of mp3s) {
+        // Rapikan judul: garis bawah, nomor trek, dan nama artis yang
+        // terulang di depan judul.
+        let nm = String(f.title || f.name)
+            .replace(/\.mp3$/i, '').replace(/_/g, ' ')
+            .replace(/^[\s\-–—.]*\d*[\s.\-–—]*/, '').trim();
+        const ai = nm.toLowerCase().indexOf(artist.toLowerCase());
+        if (ai >= 0 && ai <= 2 && artist.length > 2) {
+          nm = nm.slice(ai + artist.length).replace(/^[\s\-–—:()]+/, '');
+        }
+        nm = nm.replace(/\s+/g, ' ').trim();
+        tracks.push({
+          id: `${al.identifier}/${f.name}`,
+          name: nm || f.name.replace(/\.mp3$/i, ''),
+          artist_name: artist,
+          audio: `https://archive.org/download/${al.identifier}/` +
+              encodeURIComponent(f.name),
+          image: `https://archive.org/services/img/${al.identifier}`,
+          duration: iaSeconds(f.length),
+        });
+      }
+    } catch (e) {
+      console.error('Musik ID: metadata gagal utk', al.identifier,
+          '-', e.message);
+    }
+  }));
+  if (tracks.length) {
+    musikIdCache = { at: Date.now(), tracks };
+  } else {
+    musikIdCache.at = Date.now() - 5.5 * 60 * 60 * 1000; // coba lagi nanti
+  }
+}
+
+app.get('/api/musik-id', async (req, res) => {
+  if (Date.now() - musikIdCache.at > 6 * 60 * 60 * 1000) {
+    musikIdBusy =
+        musikIdBusy || refreshMusikId().finally(() => (musikIdBusy = null));
+    await musikIdBusy;
+  }
+  res.json({ results: musikIdCache.tracks });
+});
+
 // ---- Hiburan (ubin tautan yang dikelola admin) ----
 
 app.post('/api/hiburan', (req, res) => {

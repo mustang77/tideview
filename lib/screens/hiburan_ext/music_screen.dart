@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 
+import '../../store.dart';
 import 'luna_visualizer.dart';
 
 /// Musik gratis (Creative Commons) dari Jamendo — mesin yang sama
@@ -82,8 +83,10 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
+  /// '__indo' = katalog netlabel Indonesia dari server (bukan Jamendo).
   static const _chips = <(String, String)>[
     ('', 'Hot'),
+    ('__indo', 'Indonesia 🇮🇩'),
     ('pop', 'Pop'),
     ('chillout lofi', 'Santai'),
     ('acoustic', 'Akustik'),
@@ -120,25 +123,43 @@ class _MusicScreenState extends State<MusicScreen> {
     super.dispose();
   }
 
+  /// Penjaga urutan: pemuatan lama yang baru selesai (mis. Jamendo
+  /// timeout) tidak boleh menimpa hasil chip yang dipilih setelahnya.
+  int _loadSeq = 0;
+
   Future<void> _load() async {
+    final seq = ++_loadSeq;
     setState(() {
       _loading = true;
       _error = '';
     });
     try {
       final q = _searchCtrl.text.trim();
-      final tracks = _searching && q.isNotEmpty
-          ? await _search(q)
-          : _chip.isEmpty
-              ? await _hot()
-              : await _byTag(_chip);
-      if (!mounted) return;
+      final List<Track> tracks;
+      if (_searching && q.isNotEmpty) {
+        tracks = await _search(q);
+      } else if (_chip == '__indo') {
+        // Musik Indonesia: netlabel CC (Yes No Wave dkk) via server.
+        final a = store.api;
+        if (a == null) throw Exception('offline');
+        final m = await a.getMusikIndonesia();
+        tracks = ((m['results'] as List?) ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map(Track.fromJson)
+            .where((t) => t.audioUrl.isNotEmpty)
+            .toList();
+      } else if (_chip.isEmpty) {
+        tracks = await _hot();
+      } else {
+        tracks = await _byTag(_chip);
+      }
+      if (!mounted || seq != _loadSeq) return;
       setState(() {
         _tracks = tracks;
         _loading = false;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _loadSeq) return;
       setState(() {
         _loading = false;
         _error = 'Tidak bisa memuat musik. Periksa koneksi lalu coba lagi.';
