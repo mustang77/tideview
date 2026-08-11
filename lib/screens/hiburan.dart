@@ -6,6 +6,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
+import 'hiburan_ext/zodiac_screen.dart';
 
 /// Bagian Hiburan di Beranda: kisi ubin tautan (musik, game, dll)
 /// yang isinya dikelola admin lewat HiburanManageScreen.
@@ -50,6 +51,12 @@ class HiburanSection extends StatelessWidget {
               title: 'Musik',
               colors: const [Color(0xFF0E7490), Color(0xFF06B6D4)],
               builder: () => const MusicScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '🔮',
+              title: 'Zodiak',
+              colors: const [Color(0xFF5E35B1), Color(0xFF039BE5)],
+              builder: () => const ZodiacScreen(),
             ),
             for (var i = 0; i < store.hiburan.length; i++)
               _HiburanTileCard(

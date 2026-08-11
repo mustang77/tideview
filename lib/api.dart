@@ -302,6 +302,15 @@ class ApiClient {
       _post('/api/chat/$phone/read', {},
           adminId: adminId, adminPin: adminPin);
 
+  // ---- Ramalan Zodiak (hiburan) ----
+
+  Future<Map<String, dynamic>> getZodiac(String sign) async {
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/zodiac/$sign'))
+        .timeout(_timeout);
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
   // ---- Info toko (Tentang) ----
 
   Future<Map<String, dynamic>> updateAbout(Map<String, dynamic> about,

@@ -510,6 +510,123 @@ app.post('/api/posts/:id/bookmark', (req, res) => {
   res.json(postView(p, c.phone));
 });
 
+// ---- Ramalan Zodiak harian (hiburan) ----
+// Dibangkitkan deterministik dari (zodiak + tanggal): semua orang
+// melihat ramalan yang sama sepanjang hari, besok berganti. Murni
+// hiburan — tanpa layanan luar.
+
+const ZODIAC = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+  'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+const Z_UMUM = [
+  'Hari ini energimu sedang bagus untuk memulai hal baru.',
+  'Ada kabar kecil yang bisa mengubah suasana hatimu jadi lebih cerah.',
+  'Jangan terburu-buru mengambil keputusan; pikirkan sekali lagi.',
+  'Orang di sekitarmu lebih memperhatikanmu daripada yang kamu kira.',
+  'Waktu yang pas untuk membereskan urusan yang tertunda.',
+  'Intuisimu tajam hari ini — dengarkan kata hatimu.',
+  'Sedikit istirahat akan membuat harimu jauh lebih produktif.',
+  'Kesabaranmu akan diuji, tapi hasilnya sepadan.',
+  'Hal sederhana bisa membawa kebahagiaan besar hari ini.',
+  'Cobalah keluar dari rutinitas — kejutan menyenangkan menunggu.',
+];
+const Z_ASMARA = [
+  'Komunikasi yang jujur membuat hubungan makin hangat.',
+  'Yang masih sendiri: seseorang diam-diam mengagumimu.',
+  'Luangkan waktu berkualitas dengan pasangan, sekecil apa pun.',
+  'Jangan biarkan gengsi menghalangi permintaan maaf.',
+  'Perhatian kecil hari ini berarti besar bagi orang tersayang.',
+  'Dengarkan dulu sebelum menanggapi — itu kunci harimu.',
+  'Sebuah pesan singkat bisa mencairkan suasana yang kaku.',
+  'Cinta tumbuh dari hal-hal kecil yang konsisten.',
+];
+const Z_KEUANGAN = [
+  'Tahan dulu belanja impulsif; simpan untuk kebutuhan mendesak.',
+  'Ada peluang penghasilan tambahan dari keahlianmu.',
+  'Catat pengeluaranmu hari ini — ada kebocoran kecil.',
+  'Rezeki datang dari arah yang tidak terduga.',
+  'Waktu yang baik untuk mulai menabung, sekecil apa pun.',
+  'Jangan ragu menagih yang menjadi hakmu, dengan sopan.',
+  'Investasi terbaik hari ini adalah menambah ilmu.',
+  'Berbagi sedikit rezeki akan membuka pintu rezeki berikutnya.',
+];
+const Z_KARIER = [
+  'Fokus pada satu tugas penting; jangan terpecah ke banyak hal.',
+  'Ide kecilmu bisa jadi solusi besar untuk tim.',
+  'Atasan atau rekan memperhatikan kerja kerasmu — teruskan.',
+  'Jangan sungkan bertanya; itu mempercepat pekerjaanmu.',
+  'Rapikan daftar tugasmu, prioritas akan terlihat jelas.',
+  'Tantangan hari ini adalah latihan untuk naik level.',
+  'Kolaborasi membawa hasil lebih baik daripada bekerja sendiri.',
+  'Selesaikan yang mudah dulu untuk membangun momentum.',
+];
+const Z_SEHAT = [
+  'Perbanyak minum air putih; tubuhmu butuh cairan lebih.',
+  'Tidur cukup malam ini akan memulihkan energimu.',
+  'Gerakkan badan 15 menit saja, efeknya terasa seharian.',
+  'Kurangi kafein sore ini supaya tidurmu nyenyak.',
+  'Jangan tunda makan; perutmu sudah memberi kode.',
+  'Pikiran tenang dimulai dari napas yang teratur.',
+  'Regangkan punggung dan lehermu di sela kesibukan.',
+  'Udara segar pagi hari adalah vitamin gratis untukmu.',
+];
+const Z_WARNA = ['Biru Laut', 'Hijau Daun', 'Kuning Cerah', 'Merah Marun',
+  'Ungu Lembut', 'Putih Bersih', 'Jingga Senja', 'Toska', 'Merah Muda',
+  'Abu Perak', 'Emas', 'Cokelat Kayu'];
+
+function zSeed(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function zRng(seed) {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// Ambil 2 kalimat berbeda dari bank dan gabungkan.
+function zPick2(rng, bank) {
+  const i = Math.floor(rng() * bank.length);
+  let j = Math.floor(rng() * (bank.length - 1));
+  if (j >= i) j++;
+  return `${bank[i]} ${bank[j]}`;
+}
+
+app.get('/api/zodiac/:sign', (req, res) => {
+  const sign = ZODIAC.find(
+      (s) => s.toLowerCase() === String(req.params.sign).toLowerCase());
+  if (!sign) return res.status(404).json({ error: 'Zodiak tidak dikenal' });
+  const date = new Date().toISOString().slice(0, 10);
+  const rng = zRng(zSeed(`${sign}|${date}|h2o`));
+  const others = ZODIAC.filter((s) => s !== sign);
+  res.json({
+    sign,
+    date,
+    umum: zPick2(rng, Z_UMUM),
+    asmara: zPick2(rng, Z_ASMARA),
+    keuangan: zPick2(rng, Z_KEUANGAN),
+    karier: zPick2(rng, Z_KARIER),
+    kesehatan: zPick2(rng, Z_SEHAT),
+    angka: 1 + Math.floor(rng() * 99),
+    warna: Z_WARNA[Math.floor(rng() * Z_WARNA.length)],
+    pasangan: others[Math.floor(rng() * others.length)],
+    rating: {
+      asmara: 2 + Math.floor(rng() * 4),
+      keuangan: 2 + Math.floor(rng() * 4),
+      karier: 2 + Math.floor(rng() * 4),
+      kesehatan: 2 + Math.floor(rng() * 4),
+    },
+  });
+});
+
 // ---- Hiburan (ubin tautan yang dikelola admin) ----
 
 app.post('/api/hiburan', (req, res) => {
