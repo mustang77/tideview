@@ -3,7 +3,7 @@ name: Scrape catalog
 # Runs the Alfagift / Klik Indomaret scraper on a GitHub-hosted machine so you
 # don't need to install anything on your own PC. Trigger it from the GitHub
 # website: Actions tab -> "Scrape catalog" -> "Run workflow". When it finishes,
-# download the "catalog" artifact (a zip with catalog.csv + catalog.json).
+# download the "catalog-*" artifact (a zip with catalog.csv + catalog.json).
 
 on:
   workflow_dispatch:
@@ -32,7 +32,6 @@ on:
         description: "Max number of products"
         type: string
         default: "300"
-      # Klik Indomaret only: the store whose prices/availability you want.
       store_code:
         description: "(Indomaret) store code — set to your city's store"
         type: string
@@ -49,11 +48,30 @@ on:
         description: "(Indomaret) district id"
         type: string
         default: "141100100"
+  # TEMPORARY: auto-run on pushes to the dev branch so the workflow can be
+  # verified before it reaches the default branch. Remove this block once merged.
+  push:
+    branches:
+      - claude/alfamart-indomaret-api-acpx8f
+    paths:
+      - ".github/workflows/scrape-catalog.yml"
+      - "tools/**"
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Fallbacks make the job work both for manual runs (inputs set) and the
+    # temporary push trigger (inputs empty -> small, fast defaults).
+    env:
+      SOURCE: ${{ inputs.source || 'alfagift' }}
+      MODE: ${{ inputs.mode || 'search' }}
+      QUERY: ${{ inputs.query || 'indomie' }}
+      MAX: ${{ inputs.max || '20' }}
+      STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
+      LAT: ${{ inputs.lat || '-6.1763897' }}
+      LNG: ${{ inputs.lng || '106.82667' }}
+      DISTRICT: ${{ inputs.district || '141100100' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -61,45 +79,37 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Pick tool directory
-        id: pick
-        run: |
-          if [ "${{ inputs.source }}" = "klikindomaret" ]; then
-            echo "dir=tools/klikindomaret_scraper" >> "$GITHUB_OUTPUT"
-          else
-            echo "dir=tools/alfagift_scraper" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Install dependencies
-        working-directory: ${{ steps.pick.outputs.dir }}
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"   # skip postinstall download; next step does it with system deps
-        run: npm install
-
-      - name: Install Chromium (with system libraries)
-        working-directory: ${{ steps.pick.outputs.dir }}
-        run: npx playwright install --with-deps chromium
-
-      - name: Run scraper
-        working-directory: ${{ steps.pick.outputs.dir }}
+      - name: Install and scrape
+        shell: bash
         run: |
           set -e
-          COMMON="--max ${{ inputs.max }}"
-          LOC="--store-code '${{ inputs.store_code }}' --lat '${{ inputs.lat }}' --lng '${{ inputs.lng }}' --district '${{ inputs.district }}'"
-          # Location flags only exist on the Indomaret tool; Alfagift ignores them.
-          if [ "${{ inputs.source }}" != "klikindomaret" ]; then LOC=""; fi
+          if [ "$SOURCE" = "klikindomaret" ]; then
+            DIR=tools/klikindomaret_scraper
+          else
+            DIR=tools/alfagift_scraper
+          fi
+          echo "Scraping $SOURCE (mode=$MODE, max=$MAX) in $DIR"
+          cd "$DIR"
 
-          case "${{ inputs.mode }}" in
-            search)          eval node scrape.js --search \"${{ inputs.query }}\" $COMMON $LOC ;;
-            category)        eval node scrape.js --category \"${{ inputs.query }}\" $COMMON $LOC ;;
-            all)             eval node scrape.js --all $COMMON $LOC ;;
-            list-categories) eval node scrape.js --list-categories $LOC ;;
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install
+          npx playwright install --with-deps chromium
+
+          LOC=()
+          if [ "$SOURCE" = "klikindomaret" ]; then
+            LOC=(--store-code "$STORE_CODE" --lat "$LAT" --lng "$LNG" --district "$DISTRICT")
+          fi
+
+          case "$MODE" in
+            search)          node scrape.js --search "$QUERY" --max "$MAX" "${LOC[@]}" ;;
+            category)        node scrape.js --category "$QUERY" --max "$MAX" "${LOC[@]}" ;;
+            all)             node scrape.js --all --max "$MAX" "${LOC[@]}" ;;
+            list-categories) node scrape.js --list-categories "${LOC[@]}" ;;
           esac
 
       - name: Upload catalog
-        if: ${{ inputs.mode != 'list-categories' }}
+        if: ${{ (inputs.mode || 'search') != 'list-categories' }}
         uses: actions/upload-artifact@v4
         with:
-          name: catalog-${{ inputs.source }}
-          path: ${{ steps.pick.outputs.dir }}/output/*
+          name: catalog-${{ inputs.source || 'alfagift' }}
+          path: tools/*_scraper/output/*
           if-no-files-found: warn
