@@ -41,6 +41,8 @@ db.posts = db.posts || [];
 db.notifs = db.notifs || [];
 // Ubin Hiburan (musik, game, dll) yang dikelola admin dari aplikasi.
 db.hiburan = db.hiburan || [];
+// Chat Layanan Pelanggan: daftar pesan datar {phone, fromAdmin, ...}.
+db.chats = db.chats || [];
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
@@ -311,6 +313,16 @@ app.get('/api/state', (req, res) => {
     posts: db.posts.map((p) => postView(p, custPhone)),
     notifs,
     hiburan: db.hiburan,
+    // Chat Layanan Pelanggan: pelanggan menerima utasnya sendiri,
+    // admin menerima semua pesan (dikelompokkan per pelanggan di klien).
+    chat: custPhone
+        ? db.chats.filter((x) => x.phone === custPhone).slice(-100).map(chatView)
+        : [],
+    chatUnread: custPhone
+        ? db.chats.filter(
+            (x) => x.phone === custPhone && x.fromAdmin && !x.readByCust).length
+        : 0,
+    chats: a ? db.chats.slice(-400).map(chatView) : [],
     isAdmin: !!a,
   });
 });
@@ -429,6 +441,102 @@ app.delete('/api/hiburan/:id', (req, res) => {
   if (db.hiburan.length === before) {
     return res.status(404).json({ error: 'Ubin tidak ditemukan' });
   }
+  save();
+  res.json({ ok: true });
+});
+
+// ---- Layanan Pelanggan (chat pelanggan <-> admin) ----
+
+function chatView(m) {
+  return {
+    id: m.id,
+    phone: m.phone,
+    name: m.name,
+    fromAdmin: !!m.fromAdmin,
+    adminName: m.adminName || '',
+    text: m.text,
+    at: m.at,
+    readByCust: !!m.readByCust,
+    readByAdmin: !!m.readByAdmin,
+  };
+}
+
+let chatSeq = 0;
+function pushChat(msg) {
+  db.chats.push(msg);
+  // Jaga ukuran file data: simpan maksimal 2000 pesan terakhir.
+  if (db.chats.length > 2000) db.chats = db.chats.slice(-2000);
+  save();
+}
+
+// Pelanggan mengirim pesan ke Layanan Pelanggan.
+app.post('/api/chat', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Silakan masuk dulu' });
+  const text = String((req.body || {}).text || '').trim().slice(0, 1000);
+  if (!text) return res.status(400).json({ error: 'Pesan kosong' });
+  const m = {
+    id: `c_${Date.now()}_${chatSeq++}`,
+    phone: c.phone,
+    name: c.name,
+    fromAdmin: false,
+    adminName: '',
+    text,
+    at: now(),
+    readByCust: true,
+    readByAdmin: false,
+  };
+  pushChat(m);
+  res.json(chatView(m));
+});
+
+// Pelanggan menandai balasan admin sudah dibaca.
+// Catatan: rute ini HARUS terdaftar sebelum /api/chat/:phone.
+app.post('/api/chat/read', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  db.chats.forEach((m) => {
+    if (m.phone === c.phone && m.fromAdmin) m.readByCust = true;
+  });
+  save();
+  res.json({ ok: true });
+});
+
+// Admin membalas pesan pelanggan tertentu.
+app.post('/api/chat/:phone', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const phone = normPhone(req.params.phone);
+  const target = custByPhone(phone);
+  const text = String((req.body || {}).text || '').trim().slice(0, 1000);
+  if (!text) return res.status(400).json({ error: 'Pesan kosong' });
+  const m = {
+    id: `c_${Date.now()}_${chatSeq++}`,
+    phone,
+    name: target ? target.name : phone,
+    fromAdmin: true,
+    adminName: a.name || 'Admin',
+    text,
+    at: now(),
+    readByCust: false,
+    readByAdmin: true,
+  };
+  pushChat(m);
+  notify(
+      phone,
+      'chat',
+      `Layanan Pelanggan: ${text.length > 90 ? `${text.slice(0, 90)}…` : text}`);
+  res.json(chatView(m));
+});
+
+// Admin menandai pesan satu pelanggan sudah dibaca.
+app.post('/api/chat/:phone/read', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const phone = normPhone(req.params.phone);
+  db.chats.forEach((m) => {
+    if (m.phone === phone && !m.fromAdmin) m.readByAdmin = true;
+  });
   save();
   res.json({ ok: true });
 });

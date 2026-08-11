@@ -444,6 +444,43 @@ class AppNotif {
       );
 }
 
+/// Pesan chat Layanan Pelanggan (pelanggan <-> admin).
+class ChatMessage {
+  ChatMessage({
+    required this.id,
+    required this.phone,
+    required this.name,
+    required this.fromAdmin,
+    required this.adminName,
+    required this.text,
+    required this.at,
+    required this.readByCust,
+    required this.readByAdmin,
+  });
+
+  final String id;
+  final String phone;
+  final String name;
+  final bool fromAdmin;
+  final String adminName;
+  final String text;
+  final DateTime at;
+  bool readByCust;
+  bool readByAdmin;
+
+  factory ChatMessage.fromMap(Map<String, dynamic> m) => ChatMessage(
+        id: m['id'] as String,
+        phone: m['phone'] as String? ?? '',
+        name: m['name'] as String? ?? '',
+        fromAdmin: m['fromAdmin'] as bool? ?? false,
+        adminName: m['adminName'] as String? ?? '',
+        text: m['text'] as String? ?? '',
+        at: DateTime.parse(m['at'] as String).toLocal(),
+        readByCust: m['readByCust'] as bool? ?? false,
+        readByAdmin: m['readByAdmin'] as bool? ?? false,
+      );
+}
+
 /// Ubin Hiburan (musik, game, dll) — dikelola admin, tampil di
 /// Beranda pelanggan, membuka tautan saat diketuk.
 class HiburanTile {

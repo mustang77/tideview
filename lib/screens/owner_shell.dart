@@ -9,6 +9,7 @@ import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
 import 'admin_screen.dart';
+import 'chat_screen.dart';
 import 'hiburan.dart';
 import 'owner_order_detail_screen.dart';
 import 'promo.dart';
@@ -133,6 +134,18 @@ class _DashboardTab extends StatelessWidget {
         Row(
           children: [
             const Expanded(child: BrandHeader()),
+            Badge.count(
+              count: store.chatUnreadAdmin,
+              isLabelVisible: store.chatUnreadAdmin > 0,
+              child: IconButton.filledTonal(
+                tooltip: 'Layanan Pelanggan',
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const ChatInboxScreen())),
+                icon: const Icon(Icons.support_agent),
+              ),
+            ),
+            const SizedBox(width: 8),
             IconButton.filledTonal(
               tooltip: 'Kelola Admin',
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(

@@ -258,6 +258,27 @@ class ApiClient {
       _post('/api/posts/$id/bookmark', {},
           custPhone: custPhone, custPin: custPin);
 
+  // ---- Layanan Pelanggan (chat) ----
+
+  Future<Map<String, dynamic>> sendChat(String text,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/chat', {'text': text},
+          custPhone: custPhone, custPin: custPin);
+
+  Future<Map<String, dynamic>> markChatRead(
+          {String? custPhone, String? custPin}) =>
+      _post('/api/chat/read', {}, custPhone: custPhone, custPin: custPin);
+
+  Future<Map<String, dynamic>> adminSendChat(String phone, String text,
+          {String? adminId, String? adminPin}) =>
+      _post('/api/chat/$phone', {'text': text},
+          adminId: adminId, adminPin: adminPin);
+
+  Future<Map<String, dynamic>> adminMarkChatRead(String phone,
+          {String? adminId, String? adminPin}) =>
+      _post('/api/chat/$phone/read', {},
+          adminId: adminId, adminPin: adminPin);
+
   // ---- Hiburan ----
 
   Future<Map<String, dynamic>> createHiburan(

@@ -10,6 +10,7 @@ import '../store.dart';
 import '../widgets.dart';
 import 'new_order_screen.dart';
 import 'order_detail_screen.dart';
+import 'chat_screen.dart';
 import 'hiburan.dart';
 import 'hiburan_ext/games_hub_screen.dart';
 import 'hiburan_ext/music_screen.dart';
@@ -157,7 +158,20 @@ class _HomeTabState extends State<_HomeTab> {
                 },
               ),
             ),
-            if (store.online)
+            if (store.online) ...[
+              Badge.count(
+                count: store.chatUnread,
+                isLabelVisible: store.chatUnread > 0,
+                child: IconButton.filledTonal(
+                  tooltip: 'Layanan Pelanggan',
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              const LayananPelangganScreen())),
+                  icon: const Icon(Icons.support_agent),
+                ),
+              ),
+              const SizedBox(width: 8),
               Badge.count(
                 count: store.unreadNotifs,
                 isLabelVisible: store.unreadNotifs > 0,
@@ -169,6 +183,7 @@ class _HomeTabState extends State<_HomeTab> {
                   icon: const Icon(Icons.notifications_outlined),
                 ),
               ),
+            ],
           ],
         ),
         const SizedBox(height: 18),
@@ -213,6 +228,11 @@ class _HomeTabState extends State<_HomeTab> {
                 'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
+        // Pil "Chat Sekarang" — akses cepat ke Layanan Pelanggan.
+        if (store.online) ...[
+          const SizedBox(height: 12),
+          _ChatPelangganBanner(unread: store.chatUnread),
+        ],
         // Info & Promo: banner korsel khusus pos resmi (admin).
         if (store.posts.any((p) => p.byAdmin)) ...[
           const SizedBox(height: 20),
@@ -232,6 +252,72 @@ class _HomeTabState extends State<_HomeTab> {
         // Hiburan: ubin tautan (musik, game, dll) kelolaan admin.
         const HiburanSection(),
       ],
+    );
+  }
+}
+
+/// Pil biru "Chat Layanan Pelanggan Sekarang" bergaya tombol chat
+/// dokter di aplikasi apotek: avatar admin + ajakan chat.
+class _ChatPelangganBanner extends StatelessWidget {
+  const _ChatPelangganBanner({required this.unread});
+
+  final int unread;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const LayananPelangganScreen())),
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: [
+            BoxShadow(
+                color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                blurRadius: 12,
+                offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('CHAT LAYANAN PELANGGAN',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4)),
+                  SizedBox(height: 2),
+                  Text('Ada pertanyaan? Kami siap membantu 👋',
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 11.5)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Badge.count(
+              count: unread,
+              isLabelVisible: unread > 0,
+              child: const CircleAvatar(
+                radius: 23,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.support_agent,
+                    size: 28, color: Color(0xFF2563EB)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -576,6 +662,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         'reply' => Icons.reply,
         'promo' => Icons.campaign,
         'follow' => Icons.person_add_alt,
+        'chat' => Icons.support_agent,
         _ => Icons.notifications,
       };
 
@@ -585,10 +672,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         'comment' || 'reply' => const Color(0xFF2563EB),
         'promo' => const Color(0xFFD97706),
         'follow' => const Color(0xFFDB2777),
+        'chat' => const Color(0xFF2563EB),
         _ => const Color(0xFF64748B),
       };
 
   void _open(AppNotif n) {
+    if (n.type == 'chat') {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const LayananPelangganScreen()));
+      return;
+    }
     if (n.orderId.isNotEmpty) {
       for (final o in store.orders) {
         if (o.id == n.orderId) {
@@ -734,6 +827,20 @@ class _ProfileTabState extends State<_ProfileTab> {
                       ],
                     ),
                   ),
+                  if (store.online) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.support_agent),
+                      title: const Text('Layanan Pelanggan', style: tStyle),
+                      subtitle: const Text('Chat langsung dengan admin'),
+                      onTap: () {
+                        Navigator.pop(sheetCtx);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) =>
+                                const LayananPelangganScreen()));
+                      },
+                    ),
+                  ],
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.history_outlined),

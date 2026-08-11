@@ -35,6 +35,19 @@ class LaundryStore extends ChangeNotifier {
   /// Profil sosial saya (null bila belum masuk / mode lokal).
   MeInfo? me;
 
+  /// Chat Layanan Pelanggan milik pelanggan yang sedang masuk.
+  final List<ChatMessage> chat = [];
+
+  /// Semua chat pelanggan (mode pemilik) untuk kotak masuk.
+  final List<ChatMessage> allChats = [];
+
+  /// Balasan admin yang belum dibaca pelanggan.
+  int chatUnread = 0;
+
+  /// Pesan pelanggan yang belum dibaca admin (mode pemilik).
+  int get chatUnreadAdmin =>
+      allChats.where((m) => !m.fromAdmin && !m.readByAdmin).length;
+
   int get unreadNotifs => notifs.where((n) => !n.read).length;
   CustomerProfile profile = CustomerProfile();
 
@@ -197,6 +210,15 @@ class LaundryStore extends ChangeNotifier {
         ..clear()
         ..addAll((m['hiburan'] as List? ?? []).map(
             (e) => HiburanTile.fromMap((e as Map).cast<String, dynamic>())));
+      chat
+        ..clear()
+        ..addAll((m['chat'] as List? ?? []).map(
+            (e) => ChatMessage.fromMap((e as Map).cast<String, dynamic>())));
+      allChats
+        ..clear()
+        ..addAll((m['chats'] as List? ?? []).map(
+            (e) => ChatMessage.fromMap((e as Map).cast<String, dynamic>())));
+      chatUnread = (m['chatUnread'] as num? ?? 0).toInt();
       me = m['me'] == null
           ? null
           : MeInfo.fromMap((m['me'] as Map).cast<String, dynamic>());
@@ -493,6 +515,79 @@ class LaundryStore extends ChangeNotifier {
       serverOk = false;
       notifyListeners();
     }
+  }
+
+  // ---- Layanan Pelanggan (chat) ----
+
+  /// Kirim pesan chat (pelanggan). Mengembalikan pesan error/null.
+  Future<String?> sendChat(String text) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    if (_custPin == null) {
+      return 'Sesi berakhir. Keluar lalu masuk lagi ya.';
+    }
+    try {
+      final m = await a.sendChat(text,
+          custPhone: profile.phone, custPin: _custPin);
+      chat.add(ChatMessage.fromMap(m));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  /// Tandai balasan admin terbaca (saat layar chat pelanggan dibuka).
+  Future<void> markChatRead() async {
+    if (chatUnread == 0) return;
+    chatUnread = 0;
+    for (final m in chat) {
+      m.readByCust = true;
+    }
+    notifyListeners();
+    final a = api;
+    if (a == null || _custPin == null) return;
+    try {
+      await a.markChatRead(custPhone: profile.phone, custPin: _custPin);
+    } catch (_) {}
+  }
+
+  /// Balas chat satu pelanggan (mode pemilik).
+  Future<String?> adminSendChat(String phone, String text) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    try {
+      final m = await a.adminSendChat(phone, text,
+          adminId: currentAdminId, adminPin: _adminPin);
+      allChats.add(ChatMessage.fromMap(m));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  /// Tandai pesan satu pelanggan terbaca (mode pemilik).
+  Future<void> adminMarkChatRead(String phone) async {
+    var dirty = false;
+    for (final m in allChats) {
+      if (m.phone == phone && !m.fromAdmin && !m.readByAdmin) {
+        m.readByAdmin = true;
+        dirty = true;
+      }
+    }
+    if (!dirty) return;
+    notifyListeners();
+    final a = api;
+    if (a == null) return;
+    try {
+      await a.adminMarkChatRead(phone,
+          adminId: currentAdminId, adminPin: _adminPin);
+    } catch (_) {}
   }
 
   /// Tandai semua notifikasi terbaca (dipanggil saat layar
