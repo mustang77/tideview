@@ -143,24 +143,37 @@ class _MusicScreenState extends State<MusicScreen> {
     }
   }
 
+  /// Nomor urut pemutaran: ketukan lagu baru membatalkan pemutaran
+  /// yang masih menyiapkan diri (anti balapan ketuk beruntun).
+  int _playSeq = 0;
+
   Future<void> _play(int index) async {
     final track = _tracks[index];
-    await _player?.dispose();
-    final c =
-        VideoPlayerController.networkUrl(Uri.parse(track.audioUrl));
+    final seq = ++_playSeq;
+    final old = _player;
+    // Status di-set SEBELUM await pertama supaya layar Now Playing
+    // yang dibuka bersamaan langsung menampilkan lagu yang benar.
     setState(() {
-      _player = c;
+      _player = null;
       _playing = index;
       _buffering = true;
     });
     _tick.value++;
+    await old?.dispose();
+    final c =
+        VideoPlayerController.networkUrl(Uri.parse(track.audioUrl));
+    if (!mounted || seq != _playSeq) {
+      await c.dispose();
+      return;
+    }
+    setState(() => _player = c);
     try {
       await c.initialize();
-      if (!mounted) return;
+      if (!mounted || seq != _playSeq) return;
       setState(() => _buffering = false);
       await c.play();
       c.addListener(() {
-        if (!mounted) return;
+        if (!mounted || seq != _playSeq) return;
         final v = c.value;
         // Lagu selesai → putar berikutnya.
         if (v.isInitialized &&
@@ -174,7 +187,7 @@ class _MusicScreenState extends State<MusicScreen> {
       });
       _tick.value++;
     } catch (_) {
-      if (!mounted) return;
+      if (!mounted || seq != _playSeq) return;
       setState(() => _buffering = false);
       _tick.value++;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -370,7 +383,12 @@ class _MusicScreenState extends State<MusicScreen> {
                                       color: theme.colorScheme.primary)
                                   : Text(_fmt(
                                       Duration(seconds: t.durationSec))),
-                              onTap: () => _play(i),
+                              // Langsung buka Now Playing penuh —
+                              // tanpa mampir ke pemutar mini.
+                              onTap: () {
+                                _play(i);
+                                _openNowPlaying();
+                              },
                             );
                           },
                         );
