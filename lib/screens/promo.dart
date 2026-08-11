@@ -1668,6 +1668,18 @@ class _ReelPageState extends State<_ReelPage> {
     });
   }
 
+  /// Buka profil pembuat reel (pelanggan saja — pos admin tidak punya
+  /// halaman profil). Video dijeda dulu supaya tidak bersuara di balik
+  /// layar profil.
+  void _openAuthorProfile() {
+    if (widget.post.byAdmin || widget.post.authorUid.isEmpty) return;
+    _c?.pause();
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => UserProfileScreen(
+            uid: widget.post.authorUid,
+            name: widget.post.authorName)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = _c;
@@ -1725,14 +1737,50 @@ class _ReelPageState extends State<_ReelPage> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                            widget.post.byAdmin
-                                ? 'H2O Laundry'
-                                : widget.post.authorName,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14)),
+                        // Avatar pembuat: ketuk untuk membuka profilnya
+                        // (pos admin memakai logo H2O, tanpa profil).
+                        GestureDetector(
+                          onTap: _openAuthorProfile,
+                          child: widget.post.byAdmin
+                              ? Container(
+                                  width: 36,
+                                  height: 36,
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFF06B6D4),
+                                        Color(0xFF0E7490)
+                                      ],
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                      Icons.local_laundry_service,
+                                      size: 20,
+                                      color: Colors.white),
+                                )
+                              : UserAvatar(
+                                  name: widget.post.authorName,
+                                  photoUrl: widget.post.authorPhoto,
+                                  radius: 18),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: _openAuthorProfile,
+                            child: Text(
+                                widget.post.byAdmin
+                                    ? 'H2O Laundry'
+                                    : widget.post.authorName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 14)),
+                          ),
+                        ),
                         if (widget.post.byAdmin) ...[
                           const SizedBox(width: 4),
                           const Icon(Icons.verified,
