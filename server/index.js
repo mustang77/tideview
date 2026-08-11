@@ -773,13 +773,17 @@ async function refreshMusikId() {
           nm = nm.slice(ai + artist.length).replace(/^[\s\-–—:()]+/, '');
         }
         nm = nm.replace(/\s+/g, ' ').trim();
+        // Jalur relatif lewat proxy /api/iastream: archive.org
+        // diblokir sebagian ISP Indonesia (klien memakai mediaUrl).
+        const dl = `https://archive.org/download/${al.identifier}/` +
+            encodeURIComponent(f.name);
+        const img = `https://archive.org/services/img/${al.identifier}`;
         tracks.push({
           id: `${al.identifier}/${f.name}`,
           name: nm || f.name.replace(/\.mp3$/i, ''),
           artist_name: artist,
-          audio: `https://archive.org/download/${al.identifier}/` +
-              encodeURIComponent(f.name),
-          image: `https://archive.org/services/img/${al.identifier}`,
+          audio: `/api/iastream?u=${encodeURIComponent(dl)}`,
+          image: `/api/iastream?u=${encodeURIComponent(img)}`,
           duration: iaSeconds(f.length),
         });
       }
@@ -794,6 +798,53 @@ async function refreshMusikId() {
     musikIdCache.at = Date.now() - 5.5 * 60 * 60 * 1000; // coba lagi nanti
   }
 }
+
+// Proxy streaming archive.org — diblokir sebagian ISP Indonesia, jadi
+// audio & sampul dialirkan lewat VPS ini. Mendukung header Range
+// (seek) dan hanya menerima host archive.org.
+const IA_HOST = /(^|\.)archive\.org$/i;
+function pipeIa(u, req, res, redirects) {
+  const headers = { 'user-agent': 'H2OLaundry/1.0' };
+  if (req.headers.range) headers.range = req.headers.range;
+  const r2 = https.get(u, { headers }, (ir) => {
+    if (ir.statusCode >= 300 && ir.statusCode < 400 &&
+        ir.headers.location && redirects > 0) {
+      ir.resume();
+      const next = new URL(ir.headers.location, u);
+      if (!IA_HOST.test(next.hostname)) return res.status(502).end();
+      return pipeIa(next, req, res, redirects - 1);
+    }
+    // archive.org sesekali 5xx di permintaan pertama — coba sekali lagi.
+    if (ir.statusCode >= 500 && redirects > 0) {
+      ir.resume();
+      return setTimeout(() => pipeIa(u, req, res, 0), 400);
+    }
+    res.status(ir.statusCode);
+    for (const h of ['content-type', 'content-length', 'content-range',
+      'accept-ranges', 'cache-control', 'etag', 'last-modified']) {
+      if (ir.headers[h]) res.set(h, ir.headers[h]);
+    }
+    ir.pipe(res);
+  });
+  r2.setTimeout(30000, () => r2.destroy(new Error('timeout')));
+  r2.on('error', () => {
+    if (!res.headersSent) res.status(502);
+    res.end();
+  });
+  req.on('close', () => r2.destroy());
+}
+app.get('/api/iastream', (req, res) => {
+  let u;
+  try {
+    u = new URL(String(req.query.u || ''));
+  } catch (e) {
+    return res.status(400).json({ error: 'URL tidak valid' });
+  }
+  if (u.protocol !== 'https:' || !IA_HOST.test(u.hostname)) {
+    return res.status(400).json({ error: 'Hanya archive.org' });
+  }
+  pipeIa(u, req, res, 5);
+});
 
 app.get('/api/musik-id', async (req, res) => {
   if (Date.now() - musikIdCache.at > 6 * 60 * 60 * 1000) {

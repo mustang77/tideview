@@ -185,7 +185,8 @@ class _MusicScreenState extends State<MusicScreen> {
     _tick.value++;
     await old?.dispose();
     final c =
-        VideoPlayerController.networkUrl(Uri.parse(track.audioUrl));
+        VideoPlayerController.networkUrl(
+        Uri.parse(store.mediaUrl(track.audioUrl)));
     if (!mounted || seq != _playSeq) {
       await c.dispose();
       return;
@@ -367,7 +368,7 @@ class _MusicScreenState extends State<MusicScreen> {
                                             Icons.music_note,
                                             color: Color(0xFF0E7490)),
                                       )
-                                    : Image.network(t.imageUrl,
+                                    : Image.network(store.mediaUrl(t.imageUrl),
                                         width: 46,
                                         height: 46,
                                         fit: BoxFit.cover,
@@ -441,7 +442,7 @@ class _MusicScreenState extends State<MusicScreen> {
                                       color: Colors.white24,
                                       child: const Icon(Icons.music_note,
                                           color: Colors.white))
-                                  : Image.network(playingTrack.imageUrl,
+                                  : Image.network(store.mediaUrl(playingTrack.imageUrl),
                                       width: 42,
                                       height: 42,
                                       fit: BoxFit.cover),
@@ -612,7 +613,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                 // Sampul jadi latar penuh layar.
                 if (track.imageUrl.isNotEmpty)
                   Image.network(
-                    track.imageUrl,
+                    store.mediaUrl(track.imageUrl),
                     fit: BoxFit.cover,
                     gaplessPlayback: true,
                     errorBuilder: (_, _, _) => _bgFallback(),
@@ -653,7 +654,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                           child: LayoutBuilder(
                             builder: (context, box) => LunaVisualizer(
                               seed: track.name,
-                              imageUrl: track.imageUrl,
+                              imageUrl: store.mediaUrl(track.imageUrl),
                               playing: playing,
                               position: pos,
                               size: math.min(
