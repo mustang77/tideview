@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
@@ -528,13 +529,19 @@ const kReactionEmojis = ['❤️', '👍', '🔥', '🎉', '😂', '😮'];
 /// Menampilkan reaksi milik sendiri + ringkasan emoji terbanyak.
 class _ReactionChip extends StatefulWidget {
   const _ReactionChip(
-      {required this.post, required this.enabled, this.light = false});
+      {required this.post,
+      required this.enabled,
+      this.light = false,
+      this.vertical = false});
 
   final PromoPost post;
   final bool enabled;
 
   /// true = teks/ikon putih (overlay video reels).
   final bool light;
+
+  /// true = tata letak rel kanan gaya TikTok: ikon besar di atas angka.
+  final bool vertical;
 
   @override
   State<_ReactionChip> createState() => _ReactionChipState();
@@ -620,6 +627,41 @@ class _ReactionChipState extends State<_ReactionChip> {
         .take(3)
         .map((r) => r.emoji)
         .join();
+    if (widget.vertical) {
+      // Rel kanan gaya TikTok: ikon besar, angka kecil di bawah.
+      return InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: widget.enabled ? _pick : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              post.myReaction.isNotEmpty
+                  ? Text(post.myReaction,
+                      style: const TextStyle(fontSize: 30, shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 6)
+                      ]))
+                  : const Icon(Icons.favorite,
+                      size: 34,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 6)
+                      ]),
+              const SizedBox(height: 2),
+              Text('${post.reactionCount}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 4)
+                      ])),
+            ],
+          ),
+        ),
+      );
+    }
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: widget.enabled ? _pick : null,
@@ -640,6 +682,47 @@ class _ReactionChipState extends State<_ReactionChip> {
                       : '$summary ${post.reactionCount}',
               style: TextStyle(color: muted, fontSize: 12.5),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Tombol rel kanan reels (gaya TikTok): ikon besar + label kecil.
+class _RailButton extends StatelessWidget {
+  const _RailButton(
+      {required this.icon, this.label, this.color = Colors.white, this.onTap});
+
+  final IconData icon;
+  final String? label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: color, shadows: const [
+              Shadow(color: Colors.black54, blurRadius: 6)
+            ]),
+            if (label != null) ...[
+              const SizedBox(height: 2),
+              Text(label!,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      shadows: [
+                        Shadow(color: Colors.black54, blurRadius: 4)
+                      ])),
+            ],
           ],
         ),
       ),
@@ -1668,6 +1751,29 @@ class _ReelPageState extends State<_ReelPage> {
     });
   }
 
+  Future<void> _toggleBookmark() async {
+    final err = await store.toggleBookmark(widget.post);
+    if (!mounted) return;
+    setState(() {});
+    if (err != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(err)));
+    }
+  }
+
+  /// Bagikan lewat lembar bagikan sistem (WA, IG, salin, dll).
+  Future<void> _share() async {
+    final cap = widget.post.caption.trim();
+    final text = cap.isEmpty
+        ? 'Lihat video seru di aplikasi H2O Laundry Parakan! 💧\n'
+            'https://app.h2olaundry.com'
+        : '"$cap"\n\nLihat video ini di aplikasi H2O Laundry '
+            'Parakan 💧\nhttps://app.h2olaundry.com';
+    try {
+      await SharePlus.instance.share(ShareParams(text: text));
+    } catch (_) {}
+  }
+
   /// Buka profil pembuat reel (pelanggan saja — pos admin tidak punya
   /// halaman profil). Video dijeda dulu supaya tidak bersuara di balik
   /// layar profil.
@@ -1715,13 +1821,13 @@ class _ReelPageState extends State<_ReelPage> {
                     color: Colors.white, size: 52),
               ),
             ),
-          // Overlay bawah: keterangan + aksi.
+          // Overlay bawah: pembuat + keterangan (aksi ada di rel kanan).
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 40, 16, 18),
+              padding: const EdgeInsets.fromLTRB(16, 40, 78, 18),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -1804,34 +1910,58 @@ class _ReelPageState extends State<_ReelPage> {
                             height: 1.3),
                       ),
                     ],
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        _ReactionChip(
-                            post: widget.post,
-                            enabled: canLike,
-                            light: true),
-                        const SizedBox(width: 18),
-                        _ActionChip(
-                          icon: Icons.mode_comment_outlined,
-                          color: Colors.white,
-                          label: '${widget.post.comments.length}',
-                          onTap: () => showPromoComments(
-                              context, widget.post.id),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          onPressed: _toggleMute,
-                          icon: Icon(
-                            _muted
-                                ? Icons.volume_off
-                                : Icons.volume_up,
-                            color: Colors.white,
-                          ),
-                          style: IconButton.styleFrom(
-                              backgroundColor: Colors.black38),
-                        ),
-                      ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Rel aksi kanan gaya TikTok: suka, komentar, simpan,
+          // bagikan, suara.
+          Positioned(
+            right: 4,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _ReactionChip(
+                        post: widget.post,
+                        enabled: canLike,
+                        light: true,
+                        vertical: true),
+                    const SizedBox(height: 14),
+                    _RailButton(
+                      icon: Icons.mode_comment,
+                      label: '${widget.post.comments.length}',
+                      onTap: () =>
+                          showPromoComments(context, widget.post.id),
+                    ),
+                    const SizedBox(height: 14),
+                    _RailButton(
+                      icon: widget.post.bookmarkedByMe
+                          ? Icons.bookmark
+                          : Icons.bookmark_border,
+                      color: widget.post.bookmarkedByMe
+                          ? const Color(0xFFF6C445)
+                          : Colors.white,
+                      label: widget.post.bookmarkedByMe
+                          ? 'Tersimpan'
+                          : 'Simpan',
+                      onTap: canLike ? _toggleBookmark : null,
+                    ),
+                    const SizedBox(height: 14),
+                    _RailButton(
+                      icon: Icons.share,
+                      label: 'Bagikan',
+                      onTap: _share,
+                    ),
+                    const SizedBox(height: 14),
+                    _RailButton(
+                      icon: _muted ? Icons.volume_off : Icons.volume_up,
+                      onTap: _toggleMute,
                     ),
                   ],
                 ),

@@ -23,6 +23,8 @@ dependencies:
   video_player: ^2.13.0
   # Kontrol pemutar live (TV Live): layar penuh, tanpa seek.
   chewie: ^1.14.0
+  # Lembar bagikan sistem (tombol Share di reels).
+  share_plus: ^13.3.0
   audioplayers: ^6.8.1
   flutter_tts: ^4.2.5
   chess: ^0.8.1
