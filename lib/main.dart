@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'phone_otp.dart';
@@ -54,6 +55,18 @@ class H2OLaundryApp extends StatelessWidget {
           ),
         ),
       ),
+      // Di web (PWA/browser) huruf terasa lebih kecil daripada di
+      // aplikasi Android — besarkan seluruh teks 12%.
+      builder: (context, child) {
+        if (!kIsWeb || child == null) return child ?? const SizedBox();
+        final mq = MediaQuery.of(context);
+        return MediaQuery(
+          data: mq.copyWith(
+              textScaler: TextScaler.linear(
+                  mq.textScaler.scale(1) * 1.12)),
+          child: child,
+        );
+      },
       home: const SplashGate(),
     );
   }
