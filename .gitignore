@@ -47,3 +47,13 @@ server/uploads/
 server/data.json
 wagateway/node_modules/
 wagateway/session/
+
+# File hasil-generate Flutter per mesin (dibuat ulang tiap build);
+# dilacak git hanya bikin git pull bentrok setiap ada plugin baru.
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.h
+linux/flutter/generated_plugins.cmake
+macos/Flutter/GeneratedPluginRegistrant.swift
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.h
+windows/flutter/generated_plugins.cmake
