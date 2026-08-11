@@ -1,0 +1,25 @@
+# Contoh unit systemd gateway WhatsApp H2O Laundry.
+# Pasang:
+#   sudo cp h2o-wa.service.example /etc/systemd/system/h2o-wa.service
+#   sudo nano /etc/systemd/system/h2o-wa.service   <- isi token
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now h2o-wa
+# Lihat log / kode pairing:
+#   journalctl -u h2o-wa -f
+
+[Unit]
+Description=H2O Laundry WhatsApp Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/h2o/tideview/wagateway
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=5
+Environment=WA_GW_TOKEN=GANTI_DENGAN_TOKEN_RAHASIA
+# Nomor WA pengirim (untuk pairing pertama, boleh dibiarkan):
+Environment=WA_PAIR_NUMBER=62xxxxxxxxxxx
+
+[Install]
+WantedBy=multi-user.target

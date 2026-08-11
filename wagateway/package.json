@@ -1,0 +1,14 @@
+{
+  "name": "h2o-wa-gateway",
+  "private": true,
+  "description": "Gateway WhatsApp mandiri H2O Laundry (kompatibel API Fonnte)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.18",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
