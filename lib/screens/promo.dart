@@ -14,6 +14,20 @@ import '../widgets.dart';
 import 'banner_maker.dart';
 import 'user_profile_screen.dart';
 
+/// Bagikan pos lewat lembar bagikan sistem (WA, IG, salin, dll.).
+Future<void> sharePost(PromoPost post) async {
+  final cap = post.caption.trim();
+  final jenis = post.videoUrl.isNotEmpty ? 'video' : 'postingan';
+  final text = cap.isEmpty
+      ? 'Lihat $jenis seru di aplikasi H2O Laundry Parakan! 💧\n'
+          'https://app.h2olaundry.com'
+      : '"$cap"\n\nLihat $jenis ini di aplikasi H2O Laundry Parakan 💧\n'
+          'https://app.h2olaundry.com';
+  try {
+    await SharePlus.instance.share(ShareParams(text: text));
+  } catch (_) {}
+}
+
 /// Layar feed Info & Promo untuk pelanggan (semua pos).
 class PromoFeedScreen extends StatelessWidget {
   const PromoFeedScreen({super.key});
@@ -382,6 +396,18 @@ class PromoCard extends StatelessWidget {
                         color: muted,
                         label: '${post.comments.length}',
                         onTap: () => showPromoComments(context, post.id),
+                      ),
+                      const SizedBox(width: 18),
+                      // Bagikan lewat lembar bagikan sistem.
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => sharePost(post),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 6),
+                          child:
+                              Icon(Icons.share_outlined, size: 19, color: muted),
+                        ),
                       ),
                       const Spacer(),
                       if (store.role == 'customer' && store.online)
@@ -1777,18 +1803,7 @@ class _ReelPageState extends State<_ReelPage> {
     }
   }
 
-  /// Bagikan lewat lembar bagikan sistem (WA, IG, salin, dll).
-  Future<void> _share() async {
-    final cap = widget.post.caption.trim();
-    final text = cap.isEmpty
-        ? 'Lihat video seru di aplikasi H2O Laundry Parakan! 💧\n'
-            'https://app.h2olaundry.com'
-        : '"$cap"\n\nLihat video ini di aplikasi H2O Laundry '
-            'Parakan 💧\nhttps://app.h2olaundry.com';
-    try {
-      await SharePlus.instance.share(ShareParams(text: text));
-    } catch (_) {}
-  }
+  Future<void> _share() => sharePost(widget.post);
 
   /// Buka profil pembuat reel (pelanggan saja — pos admin tidak punya
   /// halaman profil). Video dijeda dulu supaya tidak bersuara di balik
