@@ -1189,7 +1189,7 @@ class _PromoComposeScreenState extends State<PromoComposeScreen> {
                     decoration: InputDecoration(
                       hintText: store.role == 'owner'
                           ? 'Tulis promo atau info untuk pelanggan...'
-                          : 'Bagikan momen atau cerita cucianmu...',
+                          : 'Tulis sesuatu...',
                     ),
                   ),
                 const SizedBox(height: 14),

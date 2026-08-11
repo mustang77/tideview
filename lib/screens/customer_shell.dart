@@ -561,15 +561,6 @@ class _KomunitasTab extends StatelessWidget {
               style: theme.textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.w800)),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Bagikan momen cucianmu — ketuk + untuk menambah foto '
-            'atau video.',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-        ),
         const SizedBox(height: 10),
         Expanded(
           child: !store.online
