@@ -440,9 +440,16 @@ class _LinkCard extends StatelessWidget {
         final uri = Uri.tryParse(raw);
         if (uri == null) return;
         var ok = false;
+        // Buka di dalam aplikasi (tab browser tertanam, ada tombol
+        // kembali). Di web otomatis membuka tab baru.
         try {
-          ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          ok = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
         } catch (_) {}
+        if (!ok) {
+          try {
+            ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } catch (_) {}
+        }
         if (!ok) {
           try {
             ok = await launchUrl(uri);

@@ -1056,9 +1056,22 @@ function metaContent(html, patterns) {
   return '';
 }
 
+// Termasuk entitas numerik (&#1084; / &#x43c;) — judul og:title situs
+// seperti Facebook sering memakainya.
 const unescapeHtml = (s) =>
-  s.replace(/&(amp|quot|#39|apos|lt|gt);/g, (x) =>
-    ({ '&amp;': '&', '&quot;': '"', '&#39;': "'", '&apos;': "'", '&lt;': '<', '&gt;': '>' })[x] || x);
+  s.replace(/&#x([0-9a-f]{1,6});/gi,
+        (_, h) => safeCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d{1,7});/g, (_, d) => safeCodePoint(Number(d)))
+    .replace(/&(amp|quot|apos|lt|gt|nbsp);/g, (x) =>
+      ({ '&amp;': '&', '&quot;': '"', '&apos;': "'", '&lt;': '<',
+        '&gt;': '>', '&nbsp;': ' ' })[x] || x);
+function safeCodePoint(n) {
+  try {
+    return n >= 32 || n === 10 ? String.fromCodePoint(n) : ' ';
+  } catch (e) {
+    return ' ';
+  }
+}
 
 // Ambil judul + gambar unggulan sebuah tautan. Gambar diunduh dan
 // disimpan di /uploads agar tampil cepat dan bebas masalah CORS.
