@@ -726,10 +726,102 @@ app.delete('/api/orders/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---- OTP WhatsApp ----
+// Kode verifikasi dikirim lewat gateway WA (Fonnte atau yang se-API).
+// Tanpa WA_OTP_TOKEN, endpoint menjawab sent:false dan pendaftaran
+// berjalan tanpa OTP (perilaku lama) — aman dideploy sebelum gateway siap.
+const WA_OTP_TOKEN = process.env.WA_OTP_TOKEN || '';
+const WA_OTP_URL = process.env.WA_OTP_URL || 'https://api.fonnte.com/send';
+const otps = new Map(); // phone -> { code, exp, lastSent, tries }
+
+function sendWa(target, message) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(WA_OTP_URL);
+    const body = JSON.stringify({ target, message });
+    // http hanya untuk pengujian lokal; gateway produksi selalu https.
+    const mod = u.protocol === 'http:' ? require('http') : https;
+    const r = mod.request(
+        {
+          hostname: u.hostname,
+          port: u.port || undefined,
+          path: u.pathname + u.search,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(body),
+            Authorization: WA_OTP_TOKEN,
+          },
+        },
+        (resp) => {
+          let out = '';
+          resp.on('data', (d) => (out += d));
+          resp.on('end', () => {
+            if (resp.statusCode >= 200 && resp.statusCode < 300) {
+              resolve(out);
+            } else {
+              reject(new Error(
+                  `gateway ${resp.statusCode}: ${out.slice(0, 200)}`));
+            }
+          });
+        });
+    r.on('error', reject);
+    r.setTimeout(15000, () => r.destroy(new Error('gateway timeout')));
+    r.end(body);
+  });
+}
+
+app.post('/api/otp/request', async (req, res) => {
+  const np = normPhone((req.body || {}).phone);
+  if (np.length < 10) {
+    return res.status(400).json({ error: 'Nomor HP tidak valid' });
+  }
+  if (!WA_OTP_TOKEN) return res.json({ ok: true, sent: false });
+  const prev = otps.get(np);
+  if (prev && Date.now() - prev.lastSent < 60 * 1000) {
+    return res
+        .status(429)
+        .json({ error: 'Tunggu 1 menit sebelum meminta kode lagi.' });
+  }
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  otps.set(np, {
+    code,
+    exp: Date.now() + 5 * 60 * 1000,
+    lastSent: Date.now(),
+    tries: 0,
+  });
+  try {
+    await sendWa(
+        np,
+        `Kode verifikasi H2O Laundry Parakan: *${code}*\n` +
+            'Berlaku 5 menit. Jangan bagikan kode ini ke siapa pun.');
+  } catch (e) {
+    console.error('Kirim OTP WA gagal:', e.message);
+    otps.delete(np);
+    return res
+        .status(502)
+        .json({ error: 'Gagal mengirim kode WhatsApp. Coba lagi.' });
+  }
+  res.json({ ok: true, sent: true });
+});
+
+// Cocokkan lalu hanguskan kode (sekali pakai, maks 5 percobaan).
+function consumeOtp(phone, code) {
+  const o = otps.get(phone);
+  if (!o) return false;
+  if (Date.now() > o.exp || o.tries >= 5) {
+    otps.delete(phone);
+    return false;
+  }
+  o.tries++;
+  if (o.code !== String(code)) return false;
+  otps.delete(phone);
+  return true;
+}
+
 // ---- Akun pelanggan ----
 
 app.post('/api/customer/register', async (req, res) => {
-  const { name, phone, pin, idToken } = req.body || {};
+  const { name, phone, pin, idToken, otp } = req.body || {};
   if (!name || !/^[0-9]{4,6}$/.test(String(pin))) {
     return res.status(400).json({ error: 'Nama wajib diisi; PIN 4-6 angka' });
   }
@@ -742,10 +834,17 @@ app.post('/api/customer/register', async (req, res) => {
       error: 'Nomor ini sudah terdaftar. Silakan masuk dengan PIN Anda.',
     });
   }
-  // Bukti kepemilikan nomor: idToken Firebase hasil OTP SMS. Nomor di
-  // dalam token harus sama dengan nomor yang didaftarkan.
+  // Bukti kepemilikan nomor: kode OTP WhatsApp (utama) atau idToken
+  // Firebase hasil OTP SMS (jalur lama).
   let verified = false;
-  if (idToken) {
+  if (otp) {
+    if (!consumeOtp(np, otp)) {
+      return res
+          .status(401)
+          .json({ error: 'Kode verifikasi salah atau kedaluwarsa.' });
+    }
+    verified = true;
+  } else if (idToken) {
     let v = null;
     try {
       v = await verifyFirebaseToken(idToken);

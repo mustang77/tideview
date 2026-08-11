@@ -124,13 +124,20 @@ class ApiClient {
   // ---- Akun pelanggan ----
 
   Future<Map<String, dynamic>> customerRegister(
-          String name, String phone, String pin, {String? idToken}) =>
+          String name, String phone, String pin,
+          {String? idToken, String? otp}) =>
       _post('/api/customer/register', {
         'name': name,
         'phone': phone,
         'pin': pin,
         'idToken': ?idToken,
+        'otp': ?otp,
       });
+
+  /// Minta kode verifikasi WhatsApp. sent=false artinya gateway WA
+  /// belum dikonfigurasi di server (daftar tanpa OTP).
+  Future<Map<String, dynamic>> requestOtp(String phone) =>
+      _post('/api/otp/request', {'phone': phone});
 
   Future<Map<String, dynamic>> customerLogin(String phone, String pin) =>
       _post('/api/customer/login', {'phone': phone, 'pin': pin});

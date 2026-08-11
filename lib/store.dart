@@ -697,7 +697,7 @@ class LaundryStore extends ChangeNotifier {
   /// Daftar akun pelanggan baru di server. Mengembalikan pesan error
   /// (null bila sukses). errorCode 409 = nomor sudah terdaftar.
   Future<String?> registerCustomer(String name, String phone, String pin,
-      {String? idToken}) async {
+      {String? idToken, String? otp}) async {
     final a = api;
     if (a == null) {
       await saveProfile(name, phone, profile.address);
@@ -705,8 +705,8 @@ class LaundryStore extends ChangeNotifier {
       return null;
     }
     try {
-      final m =
-          await a.customerRegister(name, phone, pin, idToken: idToken);
+      final m = await a.customerRegister(name, phone, pin,
+          idToken: idToken, otp: otp);
       profile
         ..name = m['name'] as String
         ..phone = m['phone'] as String;
@@ -717,6 +717,24 @@ class LaundryStore extends ChangeNotifier {
       return e.statusCode == 409 ? 'SUDAH_TERDAFTAR' : e.message;
     } catch (_) {
       return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  /// Minta kode OTP WhatsApp untuk pendaftaran.
+  /// sent=false artinya gateway WA belum aktif (daftar tanpa OTP).
+  Future<({bool sent, String? error})> requestWaOtp(String phone) async {
+    final a = api;
+    if (a == null) return (sent: false, error: null);
+    try {
+      final m = await a.requestOtp(phone);
+      return (sent: m['sent'] as bool? ?? false, error: null);
+    } on ApiException catch (e) {
+      return (sent: false, error: e.message);
+    } catch (_) {
+      return (
+        sent: false,
+        error: 'Tidak bisa terhubung ke server. Coba lagi.'
+      );
     }
   }
 

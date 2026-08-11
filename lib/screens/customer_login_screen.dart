@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../format.dart';
-import '../phone_otp.dart';
 import '../store.dart';
 
 /// Daftar / masuk akun pelanggan. Mode server: satu nomor HP = satu
 /// akun dengan PIN (diverifikasi server); pendaftaran diverifikasi
-/// SMS OTP bila tersedia (Android). Mode lokal: cukup nama + HP.
+/// kode OTP WhatsApp bila gateway WA aktif di server. Mode lokal:
+/// cukup nama + HP.
 class CustomerLoginScreen extends StatefulWidget {
   const CustomerLoginScreen({super.key});
 
@@ -29,8 +29,8 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   String? _pinError;
   String? _codeError;
 
-  /// Bila terisi, SMS OTP sudah dikirim dan layar menunggu kodenya.
-  String? _verificationId;
+  /// true = kode OTP WhatsApp sudah dikirim, layar menunggu kodenya.
+  bool _otpMode = false;
 
   @override
   void dispose() {
@@ -43,7 +43,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
 
   Future<void> _submit() async {
     if (_busy) return;
-    if (_verificationId != null) {
+    if (_otpMode) {
       await _confirmOtp();
       return;
     }
@@ -64,8 +64,9 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
       return;
     }
 
-    // Pendaftaran (mode server) diverifikasi SMS OTP bila tersedia.
-    if (store.online && _registerMode && PhoneOtp.available) {
+    // Pendaftaran (mode server): verifikasi kode WhatsApp bila
+    // gateway WA aktif; tanpa gateway langsung daftar.
+    if (store.online && _registerMode) {
       await _startOtp(phone);
       return;
     }
@@ -84,58 +85,63 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
 
   Future<void> _startOtp(String phone) async {
     setState(() => _busy = true);
-    await PhoneOtp.sendCode(
-      waPhone(phone),
-      onCode: (id) {
-        if (!mounted) return;
-        setState(() {
-          _verificationId = id;
-          _busy = false;
-          _code.clear();
-          _codeError = null;
-        });
-      },
-      onAuto: (token) => _finishRegister(token),
-      onError: (message) {
-        if (!mounted) return;
-        setState(() => _busy = false);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(message)));
-      },
-    );
+    final r = await store.requestWaOtp(phone);
+    if (!mounted) return;
+    if (r.error != null) {
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(r.error!)));
+      return;
+    }
+    if (!r.sent) {
+      // Gateway WA belum aktif di server: daftar tanpa OTP.
+      final error = await store.registerCustomer(
+          _name.text.trim(), phone, _pin.text.trim());
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _handleResult(error);
+      return;
+    }
+    setState(() {
+      _otpMode = true;
+      _busy = false;
+      _code.clear();
+      _codeError = null;
+    });
   }
 
   Future<void> _confirmOtp() async {
     final code = _code.text.trim();
     if (code.length != 6 || int.tryParse(code) == null) {
-      setState(() => _codeError = 'Masukkan 6 digit kode dari SMS');
+      setState(() => _codeError = 'Masukkan 6 digit kode dari WhatsApp');
       return;
     }
     setState(() {
       _busy = true;
       _codeError = null;
     });
-    final token = await PhoneOtp.confirmCode(_verificationId!, code);
-    if (!mounted) return;
-    if (token == null) {
-      setState(() {
-        _busy = false;
-        _codeError = 'Kode salah atau kedaluwarsa';
-      });
-      return;
-    }
-    await _finishRegister(token);
-  }
-
-  Future<void> _finishRegister(String idToken) async {
-    if (!mounted) return;
-    setState(() => _busy = true);
     final error = await store.registerCustomer(
         _name.text.trim(), _phone.text.trim(), _pin.text.trim(),
-        idToken: idToken);
+        otp: code);
     if (!mounted) return;
     setState(() => _busy = false);
+    if (error != null && error.contains('Kode verifikasi')) {
+      setState(() => _codeError = 'Kode salah atau kedaluwarsa');
+      return;
+    }
     _handleResult(error);
+  }
+
+  Future<void> _resendOtp() async {
+    setState(() => _busy = true);
+    final r = await store.requestWaOtp(_phone.text.trim());
+    if (!mounted) return;
+    setState(() => _busy = false);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(r.error ??
+            (r.sent
+                ? 'Kode baru dikirim ke WhatsApp Anda.'
+                : 'Verifikasi tidak tersedia saat ini.'))));
   }
 
   void _handleResult(String? error) {
@@ -146,7 +152,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
     if (error == 'SUDAH_TERDAFTAR') {
       setState(() {
         _registerMode = false;
-        _verificationId = null;
+        _otpMode = false;
         _pin.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -162,7 +168,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final daftar = _registerMode || !store.online;
-    final otp = _verificationId != null;
+    final otp = _otpMode;
     return Scaffold(
       appBar: AppBar(title: Text(daftar ? 'Daftar' : 'Masuk')),
       body: SafeArea(
@@ -203,7 +209,7 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                   const SizedBox(height: 4),
                   Text(
                     otp
-                        ? 'Kode 6 digit dikirim lewat SMS ke '
+                        ? 'Kode 6 digit dikirim lewat WhatsApp ke '
                             '+${waPhone(_phone.text)}. Masukkan kodenya '
                             'di bawah ini.'
                         : daftar
@@ -231,10 +237,10 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                           letterSpacing: 8),
                       onSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
-                        labelText: 'Kode SMS',
+                        labelText: 'Kode WhatsApp',
                         counterText: '',
                         errorText: _codeError,
-                        prefixIcon: const Icon(Icons.sms_outlined),
+                        prefixIcon: const Icon(Icons.chat_outlined),
                       ),
                     ),
                   ] else ...[
@@ -301,14 +307,18 @@ class _CustomerLoginScreenState extends State<CustomerLoginScreen> {
                   if (otp) ...[
                     const SizedBox(height: 10),
                     TextButton(
+                      onPressed: _busy ? null : _resendOtp,
+                      child: const Text('Kirim ulang kode'),
+                    ),
+                    TextButton(
                       onPressed: _busy
                           ? null
                           : () => setState(() {
-                                _verificationId = null;
+                                _otpMode = false;
                                 _code.clear();
                                 _codeError = null;
                               }),
-                      child: const Text('Ganti nomor / kirim ulang kode'),
+                      child: const Text('Ganti nomor'),
                     ),
                   ] else if (store.online) ...[
                     const SizedBox(height: 10),
