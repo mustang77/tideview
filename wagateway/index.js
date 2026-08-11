@@ -68,24 +68,28 @@ async function start() {
     });
     sock.ev.on('creds.update', saveCreds);
     sock.ev.on('connection.update', async (u) => {
-      if (u.qr && !state.creds.registered && !pairingShown) {
-        pairingShown = true;
+      if (u.qr && !state.creds.registered) {
         if (PAIR_NUMBER) {
-          try {
-            const code = await sock.requestPairingCode(PAIR_NUMBER);
-            console.log('==========================================');
-            console.log('KODE PAIRING WHATSAPP:', code);
-            console.log('HP nomor pengirim: WhatsApp > Perangkat');
-            console.log('Tertaut > Tautkan dengan nomor telepon.');
-            console.log('==========================================');
-          } catch (e) {
-            console.error('Gagal minta kode pairing:', e.message);
+          // Kode pairing cukup diminta sekali per koneksi.
+          if (!pairingShown) {
+            pairingShown = true;
+            try {
+              const code = await sock.requestPairingCode(PAIR_NUMBER);
+              console.log('==========================================');
+              console.log('KODE PAIRING WHATSAPP:', code);
+              console.log('HP nomor pengirim: WhatsApp > Perangkat');
+              console.log('Tertaut > Tautkan dengan nomor telepon.');
+              console.log('==========================================');
+            } catch (e) {
+              console.error('Gagal minta kode pairing:', e.message);
+            }
           }
         } else {
+          // QR kedaluwarsa ±30 dtk; gambar ulang setiap QR baru.
           try {
-            require('qrcode-terminal')
-                .generate(u.qr, { small: true });
-            console.log('Scan QR di atas: WhatsApp > Perangkat Tertaut.');
+            require('qrcode-terminal').generate(u.qr, { small: true });
+            console.log('Scan QR di atas: WhatsApp > Perangkat Tertaut >'
+                + ' Tautkan Perangkat. (QR diperbarui otomatis)');
           } catch (e) {
             console.log('QR string:', u.qr);
           }
