@@ -1,0 +1,18 @@
+{
+  "name": "klikindomaret-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Import product catalog (name, image, price) from Klik Indomaret for the tideview shop.",
+  "type": "commonjs",
+  "bin": {
+    "klikindomaret-scrape": "scrape.js"
+  },
+  "scripts": {
+    "postinstall": "playwright install chromium",
+    "scrape": "node scrape.js",
+    "categories": "node scrape.js --list-categories"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}

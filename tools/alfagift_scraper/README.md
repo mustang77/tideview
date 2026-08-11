@@ -114,7 +114,7 @@ nothing to untangle.
 
 ## Indomaret
 
-Klik Indomaret works the same way (SPA + private API) but its endpoints and
-auth differ, so this scraper targets Alfagift only. If you want an Indomaret
-importer too, the same browser-driven approach applies — ask and it can be
-added as a sibling tool.
+A sibling tool for Klik Indomaret lives in
+[`../klikindomaret_scraper`](../klikindomaret_scraper). It works the same way but
+that site is behind Cloudflare's bot challenge, so its README has extra notes on
+running from a normal IP and setting your store location.
