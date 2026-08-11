@@ -99,6 +99,10 @@ class _MusicScreenState extends State<MusicScreen> {
   int _playing = -1; // index di _tracks
   bool _buffering = false;
 
+  /// Denyut perubahan pemutar — layar Now Playing yang sedang terbuka
+  /// ikut membangun ulang lewat notifier ini (posisi, ganti lagu, dll).
+  final ValueNotifier<int> _tick = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +113,7 @@ class _MusicScreenState extends State<MusicScreen> {
   void dispose() {
     _searchCtrl.dispose();
     _player?.dispose();
+    _tick.dispose();
     super.dispose();
   }
 
@@ -148,6 +153,7 @@ class _MusicScreenState extends State<MusicScreen> {
       _playing = index;
       _buffering = true;
     });
+    _tick.value++;
     try {
       await c.initialize();
       if (!mounted) return;
@@ -163,14 +169,54 @@ class _MusicScreenState extends State<MusicScreen> {
             v.position >= v.duration - const Duration(milliseconds: 300)) {
           if (_playing < _tracks.length - 1) _play(_playing + 1);
         }
+        _tick.value++;
         setState(() {});
       });
+      _tick.value++;
     } catch (_) {
       if (!mounted) return;
       setState(() => _buffering = false);
+      _tick.value++;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Lagu ini tidak bisa diputar.')));
     }
+  }
+
+  void _toggle() {
+    final p = _player;
+    if (p == null || !p.value.isInitialized) return;
+    setState(() {
+      p.value.isPlaying ? p.pause() : p.play();
+    });
+    _tick.value++;
+  }
+
+  void _next() {
+    if (_playing < _tracks.length - 1) _play(_playing + 1);
+  }
+
+  void _prev() {
+    if (_playing > 0) _play(_playing - 1);
+  }
+
+  /// Layar Now Playing gaya Spotify (dibawa dari wca_app): sampul
+  /// penuh layar, slider geser, kontrol besar, usap atas/bawah untuk
+  /// ganti lagu.
+  void _openNowPlaying() {
+    if (_playing < 0) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => NowPlayingScreen(
+        tick: _tick,
+        trackOf: () => _playing >= 0 && _playing < _tracks.length
+            ? _tracks[_playing]
+            : null,
+        playerOf: () => _player,
+        bufferingOf: () => _buffering,
+        onToggle: _toggle,
+        onNext: _next,
+        onPrev: _prev,
+      ),
+    ));
   }
 
   String _fmt(Duration d) {
@@ -338,37 +384,51 @@ class _MusicScreenState extends State<MusicScreen> {
                 top: false,
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: playingTrack.imageUrl.isEmpty
-                          ? Container(
-                              width: 42,
-                              height: 42,
-                              color: Colors.white24,
-                              child: const Icon(Icons.music_note,
-                                  color: Colors.white))
-                          : Image.network(playingTrack.imageUrl,
-                              width: 42, height: 42, fit: BoxFit.cover),
-                    ),
-                    const SizedBox(width: 10),
+                    // Ketuk sampul/judul untuk membuka Now Playing penuh.
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(playingTrack.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13.5)),
-                          Text(playingTrack.artist,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.white70, fontSize: 11.5)),
-                        ],
+                      child: InkWell(
+                        onTap: _openNowPlaying,
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: playingTrack.imageUrl.isEmpty
+                                  ? Container(
+                                      width: 42,
+                                      height: 42,
+                                      color: Colors.white24,
+                                      child: const Icon(Icons.music_note,
+                                          color: Colors.white))
+                                  : Image.network(playingTrack.imageUrl,
+                                      width: 42,
+                                      height: 42,
+                                      fit: BoxFit.cover),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(playingTrack.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13.5)),
+                                  Text(playingTrack.artist,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 11.5)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     IconButton(
@@ -410,5 +470,276 @@ class _MusicScreenState extends State<MusicScreen> {
                 ),
               ),
             );
+  }
+}
+
+/// Layar Now Playing gaya Spotify (dibawa dari wca_app): sampul lagu
+/// jadi latar penuh layar dengan scrim gelap, slider geser dengan
+/// waktu, kontrol besar, dan usapan vertikal untuk ganti lagu.
+class NowPlayingScreen extends StatefulWidget {
+  const NowPlayingScreen({
+    super.key,
+    required this.tick,
+    required this.trackOf,
+    required this.playerOf,
+    required this.bufferingOf,
+    required this.onToggle,
+    required this.onNext,
+    required this.onPrev,
+  });
+
+  /// Denyut dari layar Musik: setiap perubahan pemutar menaikkan nilai
+  /// ini sehingga layar ini ikut segar (termasuk auto-lanjut lagu).
+  final ValueNotifier<int> tick;
+  final Track? Function() trackOf;
+  final VideoPlayerController? Function() playerOf;
+  final bool Function() bufferingOf;
+  final VoidCallback onToggle;
+  final VoidCallback onNext;
+  final VoidCallback onPrev;
+
+  @override
+  State<NowPlayingScreen> createState() => _NowPlayingScreenState();
+}
+
+class _NowPlayingScreenState extends State<NowPlayingScreen> {
+  /// Posisi jempol saat slider sedang digeser (null = ikuti pemutar).
+  double? _dragValue;
+
+  String _fmt(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
+  /// Latar saat lagu tanpa sampul: gradasi biru laut.
+  Widget _bgFallback() => const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1B4E77),
+              Color(0xFF0A1A2F),
+              Color(0xFF060E18)
+            ],
+            stops: [0.0, 0.55, 1.0],
+          ),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: widget.tick,
+      builder: (context, _, _) {
+        final track = widget.trackOf();
+        final player = widget.playerOf();
+        if (track == null) {
+          return Scaffold(
+              backgroundColor: const Color(0xFF0A1A2F),
+              appBar: AppBar(backgroundColor: Colors.transparent));
+        }
+        final v = player?.value;
+        final pos = v?.position ?? Duration.zero;
+        final dur = (v?.duration ?? Duration.zero) > Duration.zero
+            ? v!.duration
+            : Duration(seconds: track.durationSec);
+        final total = dur.inMilliseconds;
+        final value = total == 0
+            ? 0.0
+            : (pos.inMilliseconds / total).clamp(0.0, 1.0);
+        final playing = v?.isPlaying ?? false;
+        final buffering = widget.bufferingOf();
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF0A1A2F),
+          body: GestureDetector(
+            // Usap ke atas = lagu berikutnya; ke bawah = sebelumnya.
+            onVerticalDragEnd: (d) {
+              final vel = d.primaryVelocity ?? 0;
+              if (vel < -300) {
+                widget.onNext();
+              } else if (vel > 300) {
+                widget.onPrev();
+              }
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Sampul jadi latar penuh layar.
+                if (track.imageUrl.isNotEmpty)
+                  Image.network(
+                    track.imageUrl,
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                    errorBuilder: (_, _, _) => _bgFallback(),
+                  )
+                else
+                  _bgFallback(),
+                // Scrim: gelap di bawah agar teks putih selalu terbaca.
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0x66000000),
+                        Color(0x99060E18),
+                        Color(0xF2060E18),
+                      ],
+                      stops: [0.0, 0.5, 0.86],
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          icon: const Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          onPressed: () =>
+                              Navigator.of(context).maybePop(),
+                        ),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.stretch,
+                          children: [
+                            Text(track.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white)),
+                            const SizedBox(height: 4),
+                            Text(track.artist,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white70)),
+                            const SizedBox(height: 14),
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 3,
+                                activeTrackColor: Colors.white,
+                                inactiveTrackColor: Colors.white24,
+                                thumbColor: Colors.white,
+                                overlayColor: Colors.white24,
+                                thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 6),
+                              ),
+                              child: Slider(
+                                value: _dragValue ?? value,
+                                onChanged: (nv) {
+                                  // Geser jempolnya saja; seek baru
+                                  // dikirim saat geseran selesai.
+                                  setState(() => _dragValue = nv);
+                                },
+                                onChangeEnd: (nv) {
+                                  final ms = (nv * total).round();
+                                  player?.seekTo(
+                                      Duration(milliseconds: ms));
+                                  setState(() => _dragValue = null);
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                      _fmt(_dragValue == null
+                                          ? pos
+                                          : Duration(
+                                              milliseconds: (_dragValue! *
+                                                      total)
+                                                  .round())),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white60)),
+                                  Text(_fmt(dur),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white60)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  iconSize: 40,
+                                  color: Colors.white,
+                                  icon:
+                                      const Icon(Icons.skip_previous),
+                                  onPressed: widget.onPrev,
+                                ),
+                                const SizedBox(width: 20),
+                                buffering
+                                    ? const SizedBox(
+                                        width: 72,
+                                        height: 72,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(18),
+                                          child:
+                                              CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 3),
+                                        ),
+                                      )
+                                    : IconButton(
+                                        iconSize: 72,
+                                        color: Colors.white,
+                                        icon: Icon(playing
+                                            ? Icons.pause_circle_filled
+                                            : Icons
+                                                .play_circle_filled),
+                                        onPressed: widget.onToggle,
+                                      ),
+                                const SizedBox(width: 20),
+                                IconButton(
+                                  iconSize: 40,
+                                  color: Colors.white,
+                                  icon: const Icon(Icons.skip_next),
+                                  onPressed: widget.onNext,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            const Center(
+                              child: Text(
+                                'Usap ke atas: lagu berikutnya',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white38),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
