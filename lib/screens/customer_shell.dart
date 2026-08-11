@@ -237,6 +237,12 @@ class _HomeTabState extends State<_HomeTab> {
           const SizedBox(height: 12),
           _ChatPelangganBanner(unread: store.chatUnread),
         ],
+        // Ajakan pasang aplikasi — hanya di web yang belum terpasang
+        // (di aplikasi Android / PWA terpasang otomatis tersembunyi).
+        if (kIsWeb && !pwaIsStandalone()) ...[
+          const SizedBox(height: 12),
+          const _DownloadAppBanner(),
+        ],
         // Info & Promo: banner korsel khusus pos resmi (admin).
         if (store.posts.any((p) => p.byAdmin)) ...[
           const SizedBox(height: 20),
@@ -258,6 +264,94 @@ class _HomeTabState extends State<_HomeTab> {
       ],
     );
   }
+}
+
+/// Pil ungu "Download Aplikasi": memicu dialog install PWA (atau
+/// panduan manual bila browser belum siap). Kembaran gaya pil chat.
+class _DownloadAppBanner extends StatelessWidget {
+  const _DownloadAppBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (!pwaTriggerInstall()) showInstallHelp(context);
+      },
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF7C3AED), Color(0xFFA855F7)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: [
+            BoxShadow(
+                color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+                blurRadius: 12,
+                offset: const Offset(0, 4)),
+          ],
+        ),
+        child: const Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('DOWNLOAD APLIKASI',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4)),
+                  SizedBox(height: 2),
+                  Text('Pasang di layar utama HP — gratis & ringan 📲',
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 11.5)),
+                ],
+              ),
+            ),
+            SizedBox(width: 10),
+            CircleAvatar(
+              radius: 23,
+              backgroundColor: Colors.white,
+              child: Icon(Icons.install_mobile,
+                  size: 26, color: Color(0xFF7C3AED)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Panduan install manual saat dialog otomatis tidak tersedia
+/// (iPhone, atau Chrome belum mengirim event install).
+void showInstallHelp(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Cara Install Aplikasi'),
+      content: const Text(
+        'Android (Chrome):\n'
+        '1. Ketuk menu ⋮ di kanan atas browser\n'
+        '2. Pilih "Tambahkan ke layar utama" / "Instal aplikasi"\n\n'
+        'iPhone (Safari):\n'
+        '1. Ketuk tombol Bagikan (kotak dengan panah ke atas)\n'
+        '2. Pilih "Tambah ke Layar Utama"\n\n'
+        'Setelah terpasang, H2O Laundry terbuka layar penuh '
+        'seperti aplikasi biasa.',
+        style: TextStyle(fontSize: 13.5, height: 1.45),
+      ),
+      actions: [
+        FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Mengerti')),
+      ],
+    ),
+  );
 }
 
 /// Pil biru "Chat Layanan Pelanggan Sekarang" bergaya tombol chat
@@ -960,32 +1054,7 @@ class _ProfileTabState extends State<_ProfileTab> {
     );
   }
 
-  /// Panduan install manual saat dialog otomatis tidak tersedia
-  /// (iPhone, atau Chrome belum mengirim event install).
-  void _showInstallHelp() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cara Install Aplikasi'),
-        content: const Text(
-          'Android (Chrome):\n'
-          '1. Ketuk menu ⋮ di kanan atas browser\n'
-          '2. Pilih "Tambahkan ke layar utama" / "Instal aplikasi"\n\n'
-          'iPhone (Safari):\n'
-          '1. Ketuk tombol Bagikan (kotak dengan panah ke atas)\n'
-          '2. Pilih "Tambah ke Layar Utama"\n\n'
-          'Setelah terpasang, H2O Laundry terbuka layar penuh '
-          'seperti aplikasi biasa.',
-          style: TextStyle(fontSize: 13.5, height: 1.45),
-        ),
-        actions: [
-          FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Mengerti')),
-        ],
-      ),
-    );
-  }
+  void _showInstallHelp() => showInstallHelp(context);
 
   Future<void> _confirmLogout(BuildContext context) async {
     final yes = await showDialog<bool>(
