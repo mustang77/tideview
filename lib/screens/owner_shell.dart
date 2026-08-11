@@ -135,6 +135,8 @@ class _DashboardTab extends StatelessWidget {
         Row(
           children: [
             const Expanded(child: BrandHeader()),
+            // Cukup 2 tombol supaya muat di layar sempit: chat +
+            // menu ⋮ (Info Toko, Kelola Admin, Keluar).
             Badge.count(
               count: store.chatUnreadAdmin,
               isLabelVisible: store.chatUnreadAdmin > 0,
@@ -147,24 +149,47 @@ class _DashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'Info Toko (Tentang)',
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const TentangScreen())),
-              icon: const Icon(Icons.storefront_outlined),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'Kelola Admin',
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const AdminScreen())),
-              icon: const Icon(Icons.manage_accounts_outlined),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'Keluar Mode Pemilik',
-              onPressed: () => store.setRole(null),
-              icon: const Icon(Icons.logout),
+            PopupMenuButton<String>(
+              tooltip: 'Menu',
+              icon: const Icon(Icons.more_vert),
+              onSelected: (v) {
+                switch (v) {
+                  case 'tentang':
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const TentangScreen()));
+                  case 'admin':
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const AdminScreen()));
+                  case 'keluar':
+                    store.setRole(null);
+                }
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'tentang',
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.storefront_outlined),
+                      title: Text('Info Toko (Tentang)')),
+                ),
+                PopupMenuItem(
+                  value: 'admin',
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.manage_accounts_outlined),
+                      title: Text('Kelola Admin')),
+                ),
+                PopupMenuItem(
+                  value: 'keluar',
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.logout),
+                      title: Text('Keluar Mode Pemilik')),
+                ),
+              ],
             ),
           ],
         ),
