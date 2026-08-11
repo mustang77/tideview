@@ -136,7 +136,9 @@ class _HomeTabState extends State<_HomeTab> {
     }
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      // Bawah 96: memberi ruang tombol + tengah agar tidak menutupi
+      // ubin Hiburan di ujung halaman.
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,7 +434,7 @@ class _OrdersTab extends StatelessWidget {
                       : 'Belum ada pesanan aktif.\nKetuk "Buat Pesanan" untuk memesan!',
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
                   itemCount: orders.length,
                   itemBuilder: (context, i) => OrderCard(
                     order: orders[i],
@@ -781,7 +783,7 @@ class _ProfileTabState extends State<_ProfileTab> {
         orders.fold<double>(0, (sum, o) => sum + o.total);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
         Text('Profil Saya',
             style: theme.textTheme.titleLarge

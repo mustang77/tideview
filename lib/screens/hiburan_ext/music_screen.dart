@@ -237,7 +237,17 @@ class _MusicScreenState extends State<MusicScreen> {
                 ),
               ),
             Expanded(
-              child: _loading
+              child: _loadingBody(playingTrack, theme),
+            ),
+            if (playingTrack != null) _miniPlayer(playingTrack),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _loadingBody(Track? playingTrack, ThemeData theme) {
+    return _loading
                   ? const Center(child: CircularProgressIndicator())
                   : _error.isNotEmpty
                       ? Center(
@@ -317,14 +327,11 @@ class _MusicScreenState extends State<MusicScreen> {
                               onTap: () => _play(i),
                             );
                           },
-                        ),
-            ),
-          ],
-        ),
-      ),
-      bottomSheet: playingTrack == null
-          ? null
-          : Container(
+                        );
+  }
+
+  Widget _miniPlayer(Track playingTrack) {
+    return Container(
               color: const Color(0xFF0E2A33),
               padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
               child: SafeArea(
@@ -402,7 +409,6 @@ class _MusicScreenState extends State<MusicScreen> {
                   ],
                 ),
               ),
-            ),
-    );
+            );
   }
 }

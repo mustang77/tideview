@@ -23,6 +23,7 @@ dependencies:
   video_player: ^2.13.0
   audioplayers: ^6.8.1
   flutter_tts: ^4.2.5
+  chess: ^0.8.1
 
 dev_dependencies:
   flutter_test:

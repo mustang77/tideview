@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 
+import 'biliar_screen.dart';
 import 'blackjack_screen.dart';
-import 'tebak_emoji_screen.dart';
+import 'catur_screen.dart';
 import 'ular_tangga_screen.dart';
 
-/// Pusat Game H2O — game dibawa dari wca_app (mandiri, tanpa server):
-/// Tebak Emoji, Ular Tangga, dan Blackjack.
+/// Pusat Game H2O — mandiri, tanpa server: Biliar, Catur,
+/// Ular Tangga, dan Blackjack.
 class GamesHubScreen extends StatelessWidget {
   const GamesHubScreen({super.key});
 
   static final _games = <(String, String, String, List<Color>,
       Widget Function())>[
     (
-      '😀',
-      'Tebak Emoji',
-      'Tebak kata dari deretan emoji',
-      [Color(0xFFF59E0B), Color(0xFFEF4444)],
-      () => const TebakEmojiScreen(),
+      '🎱',
+      'Biliar',
+      'Bola 8 — bidik dan sodok',
+      [Color(0xFF0E7490), Color(0xFF16A34A)],
+      () => const BiliarScreen(),
+    ),
+    (
+      '♟️',
+      'Catur',
+      'Lawan komputer atau teman',
+      [Color(0xFF334155), Color(0xFF0F172A)],
+      () => const CaturScreen(),
     ),
     (
       '🐍',
