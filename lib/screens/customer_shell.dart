@@ -972,7 +972,10 @@ class _ProfileTabState extends State<_ProfileTab> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (sheet) => Padding(
+      // SafeArea: tombol Simpan jangan tertutup bilah navigasi sistem.
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: Padding(
         padding: EdgeInsets.fromLTRB(
             20, 20, 20, 20 + MediaQuery.of(sheet).viewInsets.bottom),
         child: Column(
@@ -1023,6 +1026,7 @@ class _ProfileTabState extends State<_ProfileTab> {
                   padding: const EdgeInsets.symmetric(vertical: 14)),
             ),
           ],
+        ),
         ),
       ),
     );

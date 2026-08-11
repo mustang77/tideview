@@ -680,12 +680,16 @@ void showPromoComments(BuildContext context, String postId) {
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-    builder: (sheet) => Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(sheet).viewInsets.bottom),
-      child: SizedBox(
-        height: MediaQuery.of(sheet).size.height * 0.7,
-        child: _CommentsSheet(postId: postId),
+    // SafeArea: kolom tulis komentar jangan tertutup navigasi sistem.
+    builder: (sheet) => SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheet).viewInsets.bottom),
+        child: SizedBox(
+          height: MediaQuery.of(sheet).size.height * 0.7,
+          child: _CommentsSheet(postId: postId),
+        ),
       ),
     ),
   );
