@@ -32,6 +32,9 @@ class LaundryStore extends ChangeNotifier {
   /// Ubin Hiburan dari server (dikelola admin).
   final List<HiburanTile> hiburan = [];
 
+  /// Profil sosial saya (null bila belum masuk / mode lokal).
+  MeInfo? me;
+
   int get unreadNotifs => notifs.where((n) => !n.read).length;
   CustomerProfile profile = CustomerProfile();
 
@@ -194,6 +197,9 @@ class LaundryStore extends ChangeNotifier {
         ..clear()
         ..addAll((m['hiburan'] as List? ?? []).map(
             (e) => HiburanTile.fromMap((e as Map).cast<String, dynamic>())));
+      me = m['me'] == null
+          ? null
+          : MeInfo.fromMap((m['me'] as Map).cast<String, dynamic>());
       serverOk = true;
       await _save();
       return true;
@@ -372,6 +378,84 @@ class LaundryStore extends ChangeNotifier {
     } catch (_) {
       serverOk = false;
       notifyListeners();
+    }
+  }
+
+  /// Unggah foto profil. Mengembalikan pesan error, null = sukses.
+  Future<String?> uploadProfilePhoto(
+      String imageBase64, String imageExt) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    if (_custPin == null) {
+      return 'Silakan keluar lalu masuk lagi dengan PIN.';
+    }
+    try {
+      final m = await a.uploadProfilePhoto(
+          imageData: imageBase64,
+          imageExt: imageExt,
+          custPhone: profile.phone,
+          custPin: _custPin);
+      me?.photoUrl = m['photoUrl'] as String? ?? '';
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  /// Simpan/hapus simpanan pos (optimistis).
+  Future<String?> toggleBookmark(PromoPost p) async {
+    final a = api;
+    if (a == null) return 'Fitur ini membutuhkan server.';
+    if (_custPin == null) {
+      return 'Silakan keluar lalu masuk lagi dengan PIN.';
+    }
+    p.bookmarkedByMe = !p.bookmarkedByMe;
+    notifyListeners();
+    try {
+      final m = await a.bookmarkPost(p.id,
+          custPhone: profile.phone, custPin: _custPin);
+      _replacePost(p, m);
+      return null;
+    } catch (_) {
+      p.bookmarkedByMe = !p.bookmarkedByMe;
+      notifyListeners();
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
+  Future<UserInfo?> fetchUser(String uid) async {
+    final a = api;
+    if (a == null) return null;
+    try {
+      final m = await a.getUser(uid,
+          custPhone: _custPin != null ? profile.phone : null,
+          custPin: _custPin);
+      return UserInfo.fromMap(m);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Ikuti/berhenti mengikuti; mengembalikan UserInfo terbaru target.
+  Future<UserInfo?> toggleFollow(String uid) async {
+    final a = api;
+    if (a == null || _custPin == null) return null;
+    try {
+      final m = await a.followUser(uid,
+          custPhone: profile.phone, custPin: _custPin);
+      final u = UserInfo.fromMap(m);
+      final f = me?.following;
+      if (f != null) {
+        if (u.followedByMe && !f.contains(uid)) f.add(uid);
+        if (!u.followedByMe) f.remove(uid);
+      }
+      notifyListeners();
+      return u;
+    } catch (_) {
+      return null;
     }
   }
 

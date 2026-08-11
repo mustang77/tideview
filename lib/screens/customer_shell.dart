@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert' show base64Encode;
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../format.dart';
 import '../models.dart';
@@ -11,6 +13,7 @@ import 'order_detail_screen.dart';
 import 'hiburan.dart';
 import 'owner_access.dart';
 import 'promo.dart';
+import 'user_profile_screen.dart';
 
 class CustomerShell extends StatefulWidget {
   const CustomerShell({super.key});
@@ -570,6 +573,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         'comment' => Icons.mode_comment,
         'reply' => Icons.reply,
         'promo' => Icons.campaign,
+        'follow' => Icons.person_add_alt,
         _ => Icons.notifications,
       };
 
@@ -578,6 +582,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         'react' => const Color(0xFFE0245E),
         'comment' || 'reply' => const Color(0xFF2563EB),
         'promo' => const Color(0xFFD97706),
+        'follow' => const Color(0xFFDB2777),
         _ => const Color(0xFF64748B),
       };
 
@@ -666,6 +671,26 @@ class _ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<_ProfileTab> {
+  /// 0 = Video saya, 1 = Disimpan, 2 = Disukai.
+  int _collection = 0;
+
+  Future<void> _changePhoto() async {
+    final x = await ImagePicker().pickImage(
+        source: ImageSource.gallery, maxWidth: 512, imageQuality: 80);
+    if (x == null) return;
+    final b64 = base64Encode(await x.readAsBytes());
+    final name = x.name.toLowerCase();
+    final ext = name.endsWith('.png')
+        ? 'png'
+        : name.endsWith('.webp')
+            ? 'webp'
+            : 'jpg';
+    final err = await store.uploadProfilePhoto(b64, ext);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err ?? 'Foto profil diperbarui ✅')));
+  }
+
   Future<void> _confirmLogout(BuildContext context) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -778,9 +803,6 @@ class _ProfileTabState extends State<_ProfileTab> {
     final theme = Theme.of(context);
     final p = store.profile;
     final orders = store.orders;
-    final active = store.activeOrders.length;
-    final spent =
-        orders.fold<double>(0, (sum, o) => sum + o.total);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
@@ -804,16 +826,46 @@ class _ProfileTabState extends State<_ProfileTab> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundColor: Colors.white24,
-                    child: Text(
-                      _initials(p.name),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800),
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      if (store.me?.photoUrl.isNotEmpty ?? false)
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.white24,
+                          backgroundImage: NetworkImage(
+                              store.mediaUrl(store.me!.photoUrl)),
+                        )
+                      else
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Colors.white24,
+                          child: Text(
+                            _initials(p.name),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      if (store.online)
+                        Positioned(
+                          right: -4,
+                          bottom: -4,
+                          child: InkWell(
+                            onTap: _changePhoto,
+                            borderRadius: BorderRadius.circular(999),
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle),
+                              child: const Icon(Icons.photo_camera,
+                                  size: 14, color: Color(0xFF0E7490)),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -873,17 +925,60 @@ class _ProfileTabState extends State<_ProfileTab> {
                 ),
                 child: Row(
                   children: [
+                    _HeaderStat(
+                        label: 'Pengikut',
+                        value: '${store.me?.followers ?? 0}'),
+                    _statDivider(),
+                    _HeaderStat(
+                        label: 'Mengikuti',
+                        value: '${store.me?.following.length ?? 0}'),
+                    _statDivider(),
                     _HeaderStat(label: 'Pesanan', value: '${orders.length}'),
-                    _statDivider(),
-                    _HeaderStat(label: 'Aktif', value: '$active'),
-                    _statDivider(),
-                    _HeaderStat(label: 'Total Belanja', value: rupiah(spent)),
                   ],
                 ),
               ),
             ],
           ),
         ),
+        if (store.online) ...[
+          const SizedBox(height: 16),
+          SegmentedButton<int>(
+            segments: const [
+              ButtonSegment(
+                  value: 0,
+                  icon: Icon(Icons.movie_outlined, size: 17),
+                  label: Text('Video')),
+              ButtonSegment(
+                  value: 1,
+                  icon: Icon(Icons.bookmark_border, size: 17),
+                  label: Text('Disimpan')),
+              ButtonSegment(
+                  value: 2,
+                  icon: Icon(Icons.favorite_border, size: 17),
+                  label: Text('Disukai')),
+            ],
+            selected: {_collection},
+            onSelectionChanged: (v) =>
+                setState(() => _collection = v.first),
+          ),
+          const SizedBox(height: 10),
+          PostMiniGrid(
+            posts: switch (_collection) {
+              0 => store.posts
+                  .where((x) => x.mine && x.videoUrl.isNotEmpty)
+                  .toList(),
+              1 => store.posts.where((x) => x.bookmarkedByMe).toList(),
+              _ => store.posts
+                  .where((x) => x.myReaction.isNotEmpty)
+                  .toList(),
+            },
+            emptyText: switch (_collection) {
+              0 => 'Belum ada video. Ketuk + lalu pilih Video Reel!',
+              1 => 'Belum ada yang disimpan. Ketuk ikon 🔖 di postingan.',
+              _ => 'Belum ada yang disukai. Beri reaksi di Komunitas!',
+            },
+          ),
+        ],
         const SizedBox(height: 20),
         Card(
           child: Column(

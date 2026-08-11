@@ -10,6 +10,7 @@ import '../format.dart';
 import '../models.dart';
 import '../store.dart';
 import '../widgets.dart';
+import 'user_profile_screen.dart';
 
 /// Layar feed Info & Promo untuk pelanggan (semua pos).
 class PromoFeedScreen extends StatelessWidget {
@@ -237,18 +238,17 @@ class PromoCard extends StatelessWidget {
                     color: Colors.white, size: 22),
               )
             else
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: const Color(0xFFB3E3F0),
-                child: Text(
-                  post.authorName.isEmpty
-                      ? '?'
-                      : post.authorName[0].toUpperCase(),
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0E7490)),
-                ),
+              GestureDetector(
+                onTap: post.authorUid.isEmpty
+                    ? null
+                    : () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => UserProfileScreen(
+                            uid: post.authorUid,
+                            name: post.authorName))),
+                child: UserAvatar(
+                    name: post.authorName,
+                    photoUrl: post.authorPhoto,
+                    radius: 20),
               ),
             const SizedBox(width: 10),
             Expanded(
@@ -366,6 +366,32 @@ class PromoCard extends StatelessWidget {
                         label: '${post.comments.length}',
                         onTap: () => showPromoComments(context, post.id),
                       ),
+                      const Spacer(),
+                      if (store.role == 'customer' && store.online)
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
+                            final err =
+                                await store.toggleBookmark(post);
+                            if (err != null && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(err)));
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4, vertical: 6),
+                            child: Icon(
+                              post.bookmarkedByMe
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
+                              size: 19,
+                              color: post.bookmarkedByMe
+                                  ? theme.colorScheme.primary
+                                  : muted,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ],
@@ -1830,18 +1856,10 @@ class StoriesRow extends StatelessWidget {
                             child: const Icon(Icons.local_laundry_service,
                                 color: Colors.white, size: 26),
                           )
-                        : CircleAvatar(
-                            backgroundColor: const Color(0xFFB3E3F0),
-                            child: Text(
-                              p.authorName.isEmpty
-                                  ? '?'
-                                  : p.authorName[0].toUpperCase(),
-                              style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF0E7490)),
-                            ),
-                          ),
+                        : UserAvatar(
+                            name: p.authorName,
+                            photoUrl: p.authorPhoto,
+                            radius: 27),
                   ),
                 ),
                 const SizedBox(height: 4),

@@ -226,6 +226,38 @@ class ApiClient {
           custPhone: custPhone,
           custPin: custPin);
 
+  // ---- Profil sosial ----
+
+  Future<Map<String, dynamic>> uploadProfilePhoto(
+          {required String imageData,
+          required String imageExt,
+          String? custPhone,
+          String? custPin}) =>
+      _post('/api/customer/photo',
+          {'imageData': imageData, 'imageExt': imageExt},
+          custPhone: custPhone,
+          custPin: custPin,
+          timeout: const Duration(minutes: 2));
+
+  Future<Map<String, dynamic>> getUser(String uid,
+      {String? custPhone, String? custPin}) async {
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/users/$uid'),
+            headers: _headers(custPhone: custPhone, custPin: custPin))
+        .timeout(_timeout);
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> followUser(String uid,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/users/$uid/follow', {},
+          custPhone: custPhone, custPin: custPin);
+
+  Future<Map<String, dynamic>> bookmarkPost(String id,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/posts/$id/bookmark', {},
+          custPhone: custPhone, custPin: custPin);
+
   // ---- Hiburan ----
 
   Future<Map<String, dynamic>> createHiburan(

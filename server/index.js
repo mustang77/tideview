@@ -45,6 +45,17 @@ db.hiburan = db.hiburan || [];
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
 const REACTIONS = ['❤️', '👍', '🔥', '🎉', '😂', '😮'];
+// Profil sosial pelanggan: uid buram (agar nomor HP tidak bocor antar
+// pelanggan), foto profil, dan daftar mengikuti.
+let uidSeq = 0;
+(db.customers || []).forEach((c) => {
+  if (!c.uid) c.uid = `u_${Date.now().toString(36)}_${uidSeq++}`;
+  if (c.photo === undefined) c.photo = '';
+  if (!Array.isArray(c.following)) c.following = [];
+});
+const custByPhone = (ph) => db.customers.find((c) => c.phone === ph);
+const custByUid = (uid) => db.customers.find((c) => c.uid === uid);
+
 db.posts.forEach((p) => {
   if (!p.reactions) {
     p.reactions = {};
@@ -54,6 +65,11 @@ db.posts.forEach((p) => {
   // Pos lama semuanya buatan admin (fitur komunitas datang belakangan).
   if (p.byAdmin === undefined) p.byAdmin = true;
   if (p.authorPhone === undefined) p.authorPhone = '';
+  if (p.authorUid === undefined) {
+    const c = custByPhone(p.authorPhone);
+    p.authorUid = c ? c.uid : '';
+  }
+  if (!p.bookmarks) p.bookmarks = {};
 });
 
 let saveTimer = null;
@@ -278,7 +294,17 @@ app.get('/api/state', (req, res) => {
   const notifs = custPhone
       ? db.notifs.filter((n) => n.phone === custPhone).slice(-50).reverse()
       : [];
+  const meC = custPhone ? custByPhone(custPhone) : null;
   res.json({
+    me: meC
+        ? {
+            uid: meC.uid,
+            photoUrl: meC.photo ? `/uploads/${meC.photo}` : '',
+            following: meC.following,
+            followers: db.customers
+                .filter((x) => x.following.includes(meC.uid)).length,
+          }
+        : null,
     services: db.services,
     adminNames: db.admins.map(({ id, name }) => ({ id, name })),
     orders,
@@ -287,6 +313,89 @@ app.get('/api/state', (req, res) => {
     hiburan: db.hiburan,
     isAdmin: !!a,
   });
+});
+
+// ---- Profil sosial pelanggan ----
+
+function userView(u, me) {
+  return {
+    uid: u.uid,
+    name: u.name,
+    photoUrl: u.photo ? `/uploads/${u.photo}` : '',
+    followers:
+        db.customers.filter((x) => x.following.includes(u.uid)).length,
+    following: u.following.length,
+    followedByMe: !!(me && me.following.includes(u.uid)),
+  };
+}
+
+// Unggah/ganti foto profil (maks 3 MB).
+app.post('/api/customer/photo', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  const b = req.body || {};
+  let buf;
+  try {
+    buf = Buffer.from(String(b.imageData || ''), 'base64');
+  } catch (e) {
+    buf = Buffer.alloc(0);
+  }
+  if (!buf.length || buf.length > 3 * 1024 * 1024) {
+    return res.status(400).json({ error: 'Foto tidak valid atau lebih dari 3 MB' });
+  }
+  if (c.photo) {
+    try {
+      fs.unlinkSync(path.join(UPLOAD_DIR, c.photo));
+    } catch (e) {}
+  }
+  const ext = ['png', 'webp'].includes(b.imageExt) ? b.imageExt : 'jpg';
+  c.photo = `avatar_${c.uid}_${Date.now()}.${ext}`;
+  fs.writeFileSync(path.join(UPLOAD_DIR, c.photo), buf);
+  save();
+  res.json({ ok: true, photoUrl: `/uploads/${c.photo}` });
+});
+
+app.get('/api/users/:uid', (req, res) => {
+  const u = custByUid(req.params.uid);
+  if (!u) return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+  res.json(userView(u, customer(req)));
+});
+
+// Ikuti/berhenti mengikuti pengguna lain.
+app.post('/api/users/:uid/follow', (req, res) => {
+  const me = customer(req);
+  if (!me) return res.status(401).json({ error: 'Silakan masuk dulu' });
+  const target = custByUid(req.params.uid);
+  if (!target) {
+    return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+  }
+  if (target.uid === me.uid) {
+    return res.status(400).json({ error: 'Tidak bisa mengikuti diri sendiri' });
+  }
+  const i = me.following.indexOf(target.uid);
+  if (i >= 0) {
+    me.following.splice(i, 1);
+  } else {
+    me.following.push(target.uid);
+    notify(target.phone, 'follow', `${me.name} mulai mengikuti Anda 🎉`);
+  }
+  save();
+  res.json(userView(target, me));
+});
+
+// Simpan/hapus simpanan pos (bookmark).
+app.post('/api/posts/:id/bookmark', (req, res) => {
+  const c = customer(req);
+  if (!c) {
+    return res.status(401).json({ error: 'Silakan masuk untuk menyimpan' });
+  }
+  const p = findPost(req, res);
+  if (!p) return;
+  p.bookmarks = p.bookmarks || {};
+  if (p.bookmarks[c.uid]) delete p.bookmarks[c.uid];
+  else p.bookmarks[c.uid] = true;
+  save();
+  res.json(postView(p, c.phone));
 });
 
 // ---- Hiburan (ubin tautan yang dikelola admin) ----
@@ -478,6 +587,9 @@ app.post('/api/customer/register', async (req, res) => {
     name: String(name),
     pin: String(pin),
     verified,
+    uid: `u_${Date.now().toString(36)}_${uidSeq++}`,
+    photo: '',
+    following: [],
     createdAt: now(),
   });
   save();
@@ -498,6 +610,8 @@ app.post('/api/customer/login', (req, res) => {
 // Bentuk pos yang dikirim ke aplikasi: tanpa daftar nomor HP penyuka
 // (privasi), plus penanda likedByMe/mine untuk pelanggan yang masuk.
 function postView(p, custPhone) {
+  const me = custPhone ? custByPhone(custPhone) : null;
+  const author = p.authorUid ? custByUid(p.authorUid) : null;
   const counts = {};
   Object.values(p.reactions).forEach((e) => (counts[e] = (counts[e] || 0) + 1));
   const reactions = Object.entries(counts)
@@ -512,6 +626,10 @@ function postView(p, custPhone) {
     bgStyle: p.bgStyle || '',
     byAdmin: !!p.byAdmin,
     mine: !!(custPhone && p.authorPhone === custPhone),
+    authorUid: p.authorUid || '',
+    authorPhoto:
+        author && author.photo ? `/uploads/${author.photo}` : '',
+    bookmarkedByMe: !!(me && p.bookmarks && p.bookmarks[me.uid]),
     imageUrl: p.image ? `/uploads/${p.image}` : '',
     videoUrl: p.video ? `/uploads/${p.video}` : '',
     videoThumbUrl: p.videoThumb ? `/uploads/${p.videoThumb}` : '',
@@ -734,6 +852,7 @@ app.post('/api/posts', async (req, res) => {
     id: `post_${Date.now()}`,
     authorName: c ? c.name : (a.name || 'H2O Laundry'),
     authorPhone: c ? c.phone : '',
+    authorUid: c ? c.uid : '',
     byAdmin: !c,
     caption,
     bgStyle: linkUrl ? '' : String(b.bgStyle || ''),
@@ -743,6 +862,7 @@ app.post('/api/posts', async (req, res) => {
     link: linkUrl ? await fetchLinkMeta(linkUrl) : null,
     createdAt: now(),
     reactions: {},
+    bookmarks: {},
     comments: [],
   };
   db.posts.unshift(post);

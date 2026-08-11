@@ -308,6 +308,8 @@ class PromoPost {
     required this.authorName,
     this.byAdmin = true,
     this.mine = false,
+    this.authorUid = '',
+    this.authorPhoto = '',
     required this.caption,
     required this.bgStyle,
     required this.imageUrl,
@@ -320,6 +322,7 @@ class PromoPost {
     this.linkImage = '',
     required this.reactionCount,
     required this.myReaction,
+    this.bookmarkedByMe = false,
     required this.reactions,
     required this.comments,
   });
@@ -332,6 +335,12 @@ class PromoPost {
 
   /// true = pos milik pengguna yang sedang masuk (boleh dihapus).
   final bool mine;
+
+  /// Uid buram penulis (untuk profil & ikuti); '' bila pos admin.
+  final String authorUid;
+
+  /// Foto profil penulis ('' bila belum ada).
+  final String authorPhoto;
   final String caption;
 
   /// Kunci latar pos teks berwarna ('' = polos). Lihat PromoBg.
@@ -360,6 +369,9 @@ class PromoPost {
   int reactionCount;
   String myReaction;
 
+  /// Pos ini tersimpan (bookmark) oleh pengguna yang masuk.
+  bool bookmarkedByMe;
+
   /// Ringkasan reaksi per emoji, terurut terbanyak.
   List<ReactionCount> reactions;
   final List<PromoComment> comments;
@@ -369,6 +381,8 @@ class PromoPost {
         authorName: m['authorName'] as String? ?? 'H2O Laundry',
         byAdmin: m['byAdmin'] as bool? ?? true,
         mine: m['mine'] as bool? ?? false,
+        authorUid: m['authorUid'] as String? ?? '',
+        authorPhoto: m['authorPhoto'] as String? ?? '',
         caption: m['caption'] as String? ?? '',
         bgStyle: m['bgStyle'] as String? ?? '',
         imageUrl: m['imageUrl'] as String? ?? '',
@@ -384,6 +398,7 @@ class PromoPost {
                 .toInt(),
         myReaction: m['myReaction'] as String? ??
             ((m['likedByMe'] as bool? ?? false) ? '❤️' : ''),
+        bookmarkedByMe: m['bookmarkedByMe'] as bool? ?? false,
         reactions: (m['reactions'] as List? ?? [])
             .map((e) =>
                 ReactionCount.fromMap((e as Map).cast<String, dynamic>()))
@@ -449,6 +464,58 @@ class HiburanTile {
         title: m['title'] as String? ?? '',
         emoji: m['emoji'] as String? ?? '🎮',
         url: m['url'] as String? ?? '',
+      );
+}
+
+/// Profil sosial saya di server (uid, foto, mengikuti/pengikut).
+class MeInfo {
+  MeInfo({
+    required this.uid,
+    required this.photoUrl,
+    required this.following,
+    required this.followers,
+  });
+
+  final String uid;
+  String photoUrl;
+  final List<String> following;
+  int followers;
+
+  factory MeInfo.fromMap(Map<String, dynamic> m) => MeInfo(
+        uid: m['uid'] as String? ?? '',
+        photoUrl: m['photoUrl'] as String? ?? '',
+        following: ((m['following'] as List?) ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        followers: (m['followers'] as num? ?? 0).toInt(),
+      );
+}
+
+/// Profil publik pengguna lain (untuk layar profil & tombol ikuti).
+class UserInfo {
+  UserInfo({
+    required this.uid,
+    required this.name,
+    required this.photoUrl,
+    required this.followers,
+    required this.following,
+    required this.followedByMe,
+  });
+
+  final String uid;
+  final String name;
+  final String photoUrl;
+  int followers;
+  final int following;
+  bool followedByMe;
+
+  factory UserInfo.fromMap(Map<String, dynamic> m) => UserInfo(
+        uid: m['uid'] as String? ?? '',
+        name: m['name'] as String? ?? '',
+        photoUrl: m['photoUrl'] as String? ?? '',
+        followers: (m['followers'] as num? ?? 0).toInt(),
+        following: (m['following'] as num? ?? 0).toInt(),
+        followedByMe: m['followedByMe'] as bool? ?? false,
       );
 }
 
