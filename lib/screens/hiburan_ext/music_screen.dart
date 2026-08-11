@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
+
+import 'luna_visualizer.dart';
 
 /// Musik gratis (Creative Commons) dari Jamendo — mesin yang sama
 /// dengan fitur musik wca_app, dikemas ulang ringkas untuk H2O.
@@ -622,7 +625,24 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                               Navigator.of(context).maybePop(),
                         ),
                       ),
-                      const Spacer(),
+                      // Visualizer LUNA: piringan sampul berputar +
+                      // cincin batang spektrum menari.
+                      Expanded(
+                        child: Center(
+                          child: LayoutBuilder(
+                            builder: (context, box) => LunaVisualizer(
+                              seed: track.name,
+                              imageUrl: track.imageUrl,
+                              playing: playing,
+                              position: pos,
+                              size: math.min(
+                                  math.min(box.maxWidth - 56,
+                                      box.maxHeight - 16),
+                                  340),
+                            ),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding:
                             const EdgeInsets.fromLTRB(24, 0, 24, 12),
