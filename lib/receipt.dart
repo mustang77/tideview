@@ -7,19 +7,27 @@ import 'package:printing/printing.dart';
 
 import 'format.dart';
 import 'models.dart';
+import 'store.dart';
 
-/// Struk pesanan H2O Laundry Parakan dalam format kertas thermal 80mm.
-/// Bisa dicetak lewat dialog print sistem atau dibagikan sebagai PDF.
-Future<Uint8List> buildReceiptPdf(Order order) async {
+/// Struk pesanan H2O Laundry Parakan dalam format kertas thermal.
+/// [width] = lebar kertas dalam mm: 58 (bawaan, printer kasir umum)
+/// atau 80. Bisa dicetak lewat dialog print sistem / RawBT atau
+/// dibagikan sebagai PDF.
+Future<Uint8List> buildReceiptPdf(Order order, {int width = 58}) async {
   final regular = pw.Font.ttf(
       await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
   final bold = pw.Font.ttf(
       await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
 
-  final base = pw.TextStyle(font: regular, fontSize: 8.5);
-  final small = pw.TextStyle(font: regular, fontSize: 7.5);
-  final strong = pw.TextStyle(font: bold, fontSize: 8.5);
-  final title = pw.TextStyle(font: bold, fontSize: 11);
+  // Kertas 58mm punya area cetak ±48mm — font sedikit lebih kecil
+  // dan margin lebih tipis supaya muat tanpa terpotong.
+  final narrow = width != 80;
+  final base =
+      pw.TextStyle(font: regular, fontSize: narrow ? 7.5 : 8.5);
+  final small =
+      pw.TextStyle(font: regular, fontSize: narrow ? 6.5 : 7.5);
+  final strong = pw.TextStyle(font: bold, fontSize: narrow ? 7.5 : 8.5);
+  final title = pw.TextStyle(font: bold, fontSize: narrow ? 10 : 11);
 
   pw.Widget line() => pw.Container(
         margin: const pw.EdgeInsets.symmetric(vertical: 5),
@@ -43,8 +51,10 @@ Future<Uint8List> buildReceiptPdf(Order order) async {
   final doc = pw.Document();
   doc.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat.roll80,
-      margin: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      pageFormat: narrow ? PdfPageFormat.roll57 : PdfPageFormat.roll80,
+      margin: narrow
+          ? const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 10)
+          : const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       build: (context) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.stretch,
         mainAxisSize: pw.MainAxisSize.min,
@@ -119,13 +129,14 @@ Future<Uint8List> buildReceiptPdf(Order order) async {
 }
 
 /// Buka dialog cetak sistem (printer thermal/biasa, atau simpan PDF).
+/// Lebar kertas mengikuti pengaturan perangkat (store.receiptWidth).
 Future<void> printReceipt(Order order) => Printing.layoutPdf(
-      onLayout: (_) => buildReceiptPdf(order),
+      onLayout: (_) => buildReceiptPdf(order, width: store.receiptWidth),
       name: 'Struk ${order.id}',
     );
 
 /// Bagikan struk sebagai file PDF (WhatsApp, email, dll.).
 Future<void> shareReceipt(Order order) async => Printing.sharePdf(
-      bytes: await buildReceiptPdf(order),
+      bytes: await buildReceiptPdf(order, width: store.receiptWidth),
       filename: 'struk-${order.id}.pdf',
     );

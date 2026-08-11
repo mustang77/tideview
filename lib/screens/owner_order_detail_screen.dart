@@ -82,6 +82,24 @@ class OwnerOrderDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Pesanan ${order.id}'),
         actions: [
+          // Pilih lebar kertas struk (58/80 mm) — disimpan per perangkat.
+          PopupMenuButton<int>(
+            tooltip: 'Lebar kertas struk',
+            icon: const Icon(Icons.receipt_long_outlined),
+            initialValue: store.receiptWidth,
+            onSelected: (v) async {
+              await store.setReceiptWidth(v);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Struk memakai kertas $v mm')));
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                  value: 58, child: Text('Kertas 58 mm (umum)')),
+              PopupMenuItem(value: 80, child: Text('Kertas 80 mm')),
+            ],
+          ),
           IconButton(
             tooltip: 'Cetak Struk',
             onPressed: () => printReceipt(order),

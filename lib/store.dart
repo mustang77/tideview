@@ -49,6 +49,14 @@ class LaundryStore extends ChangeNotifier {
       allChats.where((m) => !m.fromAdmin && !m.readByAdmin).length;
 
   int get unreadNotifs => notifs.where((n) => !n.read).length;
+
+  /// Lebar kertas struk thermal dalam mm (58 atau 80), per perangkat.
+  int receiptWidth = 58;
+
+  Future<void> setReceiptWidth(int mm) async {
+    receiptWidth = mm == 80 ? 80 : 58;
+    await _save();
+  }
   CustomerProfile profile = CustomerProfile();
 
   /// 'customer' | 'owner' | null (belum memilih mode).
@@ -106,6 +114,7 @@ class LaundryStore extends ChangeNotifier {
         currentAdminId = m['currentAdminId'] as String?;
         _adminPin = m['adminPin'] as String?;
         _custPin = m['custPin'] as String?;
+        receiptWidth = (m['receiptWidth'] as num? ?? 58).toInt();
       } catch (_) {
         // Data korup: mulai bersih daripada crash saat startup.
         orders.clear();
@@ -133,6 +142,7 @@ class LaundryStore extends ChangeNotifier {
       'currentAdminId': currentAdminId,
       'adminPin': _adminPin,
       'custPin': _custPin,
+      'receiptWidth': receiptWidth,
     };
     await _prefs?.setString(_storageKey, jsonEncode(m));
   }
