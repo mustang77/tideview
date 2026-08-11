@@ -179,6 +179,33 @@ const STATUS_NOTIF = {
   selesai: 'selesai — terima kasih! 🙏',
 };
 
+// ---- Notifikasi WhatsApp otomatis ----
+// Dikirim lewat gateway WA yang sama dengan OTP (WA_OTP_TOKEN/URL).
+// Antrean berjarak 1,5 dtk antar pesan supaya tidak dianggap spam.
+// Hanya pesan transaksional pesanan; broadcast promo ke WA sengaja
+// di belakang WA_PROMO_BROADCAST=1 karena berisiko banned.
+let waQueue = Promise.resolve();
+function queueWa(phone, text) {
+  if (!WA_OTP_TOKEN || !phone) return;
+  waQueue = waQueue
+      .then(() => sendWa(normPhone(phone), text))
+      .then(() => new Promise((r) => setTimeout(r, 1500)))
+      .catch((e) =>
+          console.error('Notif WA gagal ke', phone, '-', e.message));
+}
+
+const WA_STATUS_MSG = {
+  diterima: (o) =>
+      `Cucian pesanan *${o.id}* sudah kami terima di counter dan segera ` +
+      'diproses. 💧\n_H2O Laundry Parakan_',
+  siap: (o) =>
+      `Kabar gembira! 🎉\nCucian pesanan *${o.id}* sudah *SIAP DIAMBIL* ` +
+      'di H2O Laundry Parakan.\nSampai jumpa di counter!',
+  selesai: (o) =>
+      `Pesanan *${o.id}* selesai. Terima kasih sudah laundry di H2O ` +
+      'Laundry Parakan! 🙏',
+};
+
 // ---- Verifikasi ID token Firebase (bukti OTP nomor HP) ----
 // Token ditandatangani Google (RS256); sertifikat publiknya diambil dari
 // endpoint securetoken dan di-cache sesuai header Cache-Control.
@@ -660,6 +687,12 @@ app.post('/api/orders', (req, res) => {
   };
   db.orders.unshift(order);
   save();
+  const total = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+  queueWa(order.phone,
+      `Halo ${order.customerName}! Pesanan *${order.id}* berhasil dibuat` +
+      ` dengan perkiraan total *Rp ${total.toLocaleString('id-ID')}*.\n` +
+      'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
+      'statusnya lewat aplikasi ya 💧');
   res.json(order);
 });
 
@@ -677,6 +710,9 @@ app.post('/api/orders/:id/advance', (req, res) => {
     if (STATUS_NOTIF[o.status]) {
       notify(normPhone(o.phone), 'order',
           `Pesanan ${o.id} ${STATUS_NOTIF[o.status]}`, { orderId: o.id });
+    }
+    if (WA_STATUS_MSG[o.status]) {
+      queueWa(o.phone, WA_STATUS_MSG[o.status](o));
     }
     save();
   }
@@ -1152,6 +1188,13 @@ app.post('/api/posts', async (req, res) => {
     db.customers.forEach((cu) =>
         notify(cu.phone, 'promo',
             `Promo baru dari H2O Laundry: ${brief}`, { postId: post.id }));
+    // Broadcast WA massal berisiko nomor kena banned — hanya bila
+    // pemilik menyalakannya secara sadar lewat WA_PROMO_BROADCAST=1.
+    if (process.env.WA_PROMO_BROADCAST === '1') {
+      db.customers.forEach((cu) => queueWa(cu.phone,
+          `📣 *Info & Promo H2O Laundry Parakan*\n\n${caption.slice(0, 500)}` +
+          '\n\nSelengkapnya di aplikasi atau app.h2olaundry.com'));
+    }
   }
   save();
   res.json(postView(post, c ? c.phone : null));
