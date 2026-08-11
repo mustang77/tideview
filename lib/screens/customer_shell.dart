@@ -11,6 +11,8 @@ import '../widgets.dart';
 import 'new_order_screen.dart';
 import 'order_detail_screen.dart';
 import 'hiburan.dart';
+import 'hiburan_ext/games_hub_screen.dart';
+import 'hiburan_ext/music_screen.dart';
 import 'owner_access.dart';
 import 'promo.dart';
 import 'user_profile_screen.dart';
@@ -691,6 +693,120 @@ class _ProfileTabState extends State<_ProfileTab> {
         SnackBar(content: Text(err ?? 'Foto profil diperbarui ✅')));
   }
 
+  /// Menu utama profil (gaya wca_app): lembar bawah berisi pengaturan.
+  void _openMenu() {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        final cs = Theme.of(sheetCtx).colorScheme;
+        // Catatan: jangan pakai ListTileTheme.titleTextStyle di sini —
+        // gaya itu mengganti fontFamily tema dan pada build web tanpa
+        // CDN membuat teks menu tak tergambar.
+        const tStyle =
+            TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700);
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 8, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text('Menu',
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: cs.onSurface)),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: cs.onSurface),
+                          onPressed: () => Navigator.pop(sheetCtx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.history_outlined),
+                    title: const Text('Riwayat Pesanan', style: tStyle),
+                    subtitle: const Text('Pesanan yang sudah selesai'),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const RiwayatScreen()));
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Ubah Profil', style: tStyle),
+                    subtitle: const Text('Nama, no. HP, dan alamat'),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      _editProfile(context);
+                    },
+                  ),
+                  if (store.online) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.photo_camera_outlined),
+                      title: const Text('Ganti Foto Profil', style: tStyle),
+                      onTap: () {
+                        Navigator.pop(sheetCtx);
+                        _changePhoto();
+                      },
+                    ),
+                  ],
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.videogame_asset_outlined),
+                    title: const Text('Game', style: tStyle),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const GamesHubScreen()));
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.music_note_outlined),
+                    title: const Text('Musik', style: tStyle),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const MusicScreen()));
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: cs.error),
+                    title: Text('Keluar',
+                        style: tStyle.copyWith(color: cs.error)),
+                    subtitle:
+                        const Text('Keluar dari akun di perangkat ini'),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      _confirmLogout(context);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _confirmLogout(BuildContext context) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -807,10 +923,21 @@ class _ProfileTabState extends State<_ProfileTab> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
-        Text('Profil Saya',
-            style: theme.textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Text('Profil Saya',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w800)),
+            ),
+            IconButton.filledTonal(
+              tooltip: 'Menu',
+              icon: const Icon(Icons.menu),
+              onPressed: _openMenu,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         // Kartu profil bergradasi gaya wca_app.
         Container(
           padding: const EdgeInsets.all(20),
@@ -980,38 +1107,6 @@ class _ProfileTabState extends State<_ProfileTab> {
           ),
         ],
         const SizedBox(height: 20),
-        Card(
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.history_outlined),
-                title: const Text('Riwayat Pesanan'),
-                subtitle: const Text('Pesanan yang sudah selesai'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => const RiwayatScreen())),
-              ),
-              const Divider(height: 1, indent: 56),
-              ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: const Text('Ubah Profil'),
-                subtitle: const Text('Nama, no. HP, dan alamat'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _editProfile(context),
-              ),
-              const Divider(height: 1, indent: 56),
-              ListTile(
-                leading: Icon(Icons.logout, color: theme.colorScheme.error),
-                title: Text('Keluar',
-                    style: TextStyle(color: theme.colorScheme.error)),
-                subtitle: const Text('Keluar dari akun di perangkat ini'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _confirmLogout(context),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
         Center(
           child: Text('H2O Laundry Parakan v1.0',
               style: theme.textTheme.bodySmall),
