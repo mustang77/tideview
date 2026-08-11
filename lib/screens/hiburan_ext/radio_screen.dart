@@ -123,6 +123,15 @@ class _RadioScreenState extends State<RadioScreen> {
   VideoPlayerController? _player;
   RadioStation? _nowPlaying;
   bool _connecting = false;
+  bool _lastPlaying = false;
+
+  /// Rebuild hanya saat status putar berubah (bukan tiap tick posisi).
+  void _onPlayerTick() {
+    final p = _player?.value.isPlaying ?? false;
+    if (p != _lastPlaying && mounted) {
+      setState(() => _lastPlaying = p);
+    }
+  }
 
   @override
   void initState() {
@@ -175,6 +184,7 @@ class _RadioScreenState extends State<RadioScreen> {
         await v.dispose();
         return;
       }
+      v.addListener(_onPlayerTick);
       setState(() {
         _player = v;
         _connecting = false;
@@ -264,11 +274,26 @@ class _RadioScreenState extends State<RadioScreen> {
                 letterSpacing: 1)),
       );
 
-  /// Bar "sedang diputar" di dasar layar (di dalam body, aman dari
-  /// bilah navigasi sistem).
+  /// Bar pemutar di dasar layar — SELALU tampil supaya mudah ditemukan;
+  /// saat belum ada stasiun berisi ajakan memilih.
   Widget _nowPlayingBar() {
     final s = _nowPlaying;
-    if (s == null) return const SizedBox.shrink();
+    if (s == null) {
+      return Container(
+        color: const Color(0xFF16233F),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: const Row(
+          children: [
+            Icon(Icons.radio, color: Colors.white38, size: 22),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text('Ketuk stasiun untuk mulai mendengarkan',
+                  style: TextStyle(color: Colors.white54, fontSize: 13)),
+            ),
+          ],
+        ),
+      );
+    }
     final playing = _player?.value.isPlaying ?? false;
     return Container(
       color: const Color(0xFF16233F),
