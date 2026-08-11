@@ -248,6 +248,22 @@ class ApiClient {
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
+  /// Daftar pengikut (followers=true) atau mengikuti (false).
+  Future<Map<String, dynamic>> getFollowList(String uid, bool followers,
+      {String? custPhone, String? custPin}) async {
+    final path = followers ? 'followers' : 'following';
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/users/$uid/$path'),
+            headers: _headers(custPhone: custPhone, custPin: custPin))
+        .timeout(_timeout);
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
+  Future<Map<String, dynamic>> setPrivacy(bool private,
+          {String? custPhone, String? custPin}) =>
+      _post('/api/customer/privacy', {'private': private},
+          custPhone: custPhone, custPin: custPin);
+
   Future<Map<String, dynamic>> followUser(String uid,
           {String? custPhone, String? custPin}) =>
       _post('/api/users/$uid/follow', {},

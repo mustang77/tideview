@@ -59,7 +59,8 @@ class _CustomerShellState extends State<CustomerShell> {
                 0 => _HomeTab(),
                 1 => _OrdersTab(history: false),
                 2 => _KomunitasTab(),
-                _ => _ProfileTab(),
+                _ => _ProfileTab(
+                    onOpenOrders: () => setState(() => _index = 1)),
               },
             ),
           ),
@@ -759,7 +760,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 // ---------------------------------------------------------------- Profil
 
 class _ProfileTab extends StatefulWidget {
-  const _ProfileTab();
+  const _ProfileTab({required this.onOpenOrders});
+
+  /// Pindah ke tab Pesanan (dipanggil saat statistik Pesanan diketuk).
+  final VoidCallback onOpenOrders;
 
   @override
   State<_ProfileTab> createState() => _ProfileTabState();
@@ -871,6 +875,27 @@ class _ProfileTabState extends State<_ProfileTab> {
                         Navigator.pop(sheetCtx);
                         _changePhoto();
                       },
+                    ),
+                    const Divider(height: 1),
+                    // Privasi: profil privat menyembunyikan postingan &
+                    // daftar pengikut dari pelanggan lain.
+                    ListenableBuilder(
+                      listenable: store,
+                      builder: (context, _) => SwitchListTile(
+                        secondary: const Icon(Icons.lock_outline),
+                        title: const Text('Profil Privat', style: tStyle),
+                        subtitle: const Text(
+                            'Sembunyikan postingan & pengikut dari '
+                            'pelanggan lain'),
+                        value: store.me?.isPrivate ?? false,
+                        onChanged: (v) async {
+                          final err = await store.setPrivacy(v);
+                          if (err != null && sheetCtx.mounted) {
+                            ScaffoldMessenger.of(sheetCtx).showSnackBar(
+                                SnackBar(content: Text(err)));
+                          }
+                        },
+                      ),
                     ),
                   ],
                   const Divider(height: 1),
@@ -1009,6 +1034,13 @@ class _ProfileTabState extends State<_ProfileTab> {
             const SnackBar(content: Text('Profil tersimpan')));
       }
     }
+  }
+
+  void _openFollowList(bool followers) {
+    final uid = store.me?.uid ?? '';
+    if (uid.isEmpty) return;
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => FollowListScreen(uid: uid, followers: followers)));
   }
 
   String _initials(String name) {
@@ -1161,13 +1193,18 @@ class _ProfileTabState extends State<_ProfileTab> {
                   children: [
                     _HeaderStat(
                         label: 'Pengikut',
-                        value: '${store.me?.followers ?? 0}'),
+                        value: '${store.me?.followers ?? 0}',
+                        onTap: () => _openFollowList(true)),
                     _statDivider(),
                     _HeaderStat(
                         label: 'Mengikuti',
-                        value: '${store.me?.following.length ?? 0}'),
+                        value: '${store.me?.following.length ?? 0}',
+                        onTap: () => _openFollowList(false)),
                     _statDivider(),
-                    _HeaderStat(label: 'Pesanan', value: '${orders.length}'),
+                    _HeaderStat(
+                        label: 'Pesanan',
+                        value: '${orders.length}',
+                        onTap: widget.onOpenOrders),
                   ],
                 ),
               ),
@@ -1176,20 +1213,23 @@ class _ProfileTabState extends State<_ProfileTab> {
         ),
         if (store.online) ...[
           const SizedBox(height: 16),
+          // Hanya ikon (tanpa teks) supaya tidak terpotong di layar
+          // sempit — gaya strip tab profil TikTok/wca_app.
           SegmentedButton<int>(
+            showSelectedIcon: false,
             segments: const [
               ButtonSegment(
                   value: 0,
-                  icon: Icon(Icons.movie_outlined, size: 17),
-                  label: Text('Video')),
+                  tooltip: 'Video saya',
+                  icon: Icon(Icons.movie_outlined, size: 22)),
               ButtonSegment(
                   value: 1,
-                  icon: Icon(Icons.bookmark_border, size: 17),
-                  label: Text('Disimpan')),
+                  tooltip: 'Disimpan',
+                  icon: Icon(Icons.bookmark_border, size: 22)),
               ButtonSegment(
                   value: 2,
-                  icon: Icon(Icons.favorite_border, size: 17),
-                  label: Text('Disukai')),
+                  tooltip: 'Disukai',
+                  icon: Icon(Icons.favorite_border, size: 22)),
             ],
             selected: {_collection},
             onSelectionChanged: (v) =>
@@ -1230,16 +1270,23 @@ class _ProfileTabState extends State<_ProfileTab> {
 }
 
 /// Satu angka statistik di kartu profil (teks putih di atas gradasi).
+/// Bisa diketuk: Pengikut/Mengikuti membuka daftarnya, Pesanan pindah
+/// ke tab Pesanan.
 class _HeaderStat extends StatelessWidget {
-  const _HeaderStat({required this.label, required this.value});
+  const _HeaderStat(
+      {required this.label, required this.value, this.onTap});
 
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Column(
         children: [
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -1260,6 +1307,7 @@ class _HeaderStat extends StatelessWidget {
             style: const TextStyle(color: Colors.white70, fontSize: 11),
           ),
         ],
+        ),
       ),
     );
   }

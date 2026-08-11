@@ -461,6 +461,48 @@ class LaundryStore extends ChangeNotifier {
     }
   }
 
+  /// Ambil daftar pengikut/mengikuti seorang pengguna.
+  /// Mengembalikan null saat gagal; (private:true, []) bila profil privat.
+  Future<({bool private, List<MiniUser> users})?> fetchFollowList(
+      String uid, bool followers) async {
+    final a = api;
+    if (a == null) return null;
+    try {
+      final m = await a.getFollowList(uid, followers,
+          custPhone: _custPin != null ? profile.phone : null,
+          custPin: _custPin);
+      return (
+        private: m['private'] as bool? ?? false,
+        users: ((m['users'] as List?) ?? [])
+            .map((e) => MiniUser.fromMap((e as Map).cast<String, dynamic>()))
+            .toList(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Ubah profil privat/publik. Mengembalikan pesan error/null.
+  Future<String?> setPrivacy(bool private) async {
+    final a = api;
+    if (a == null || _custPin == null) {
+      return 'Fitur ini membutuhkan server.';
+    }
+    final m = me;
+    final before = m?.isPrivate ?? false;
+    m?.isPrivate = private;
+    notifyListeners();
+    try {
+      await a.setPrivacy(private,
+          custPhone: profile.phone, custPin: _custPin);
+      return null;
+    } catch (_) {
+      m?.isPrivate = before;
+      notifyListeners();
+      return 'Tidak bisa terhubung ke server. Coba lagi.';
+    }
+  }
+
   /// Ikuti/berhenti mengikuti; mengembalikan UserInfo terbaru target.
   Future<UserInfo?> toggleFollow(String uid) async {
     final a = api;

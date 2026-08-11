@@ -54,6 +54,7 @@ let uidSeq = 0;
   if (!c.uid) c.uid = `u_${Date.now().toString(36)}_${uidSeq++}`;
   if (c.photo === undefined) c.photo = '';
   if (!Array.isArray(c.following)) c.following = [];
+  if (c.private === undefined) c.private = false;
 });
 const custByPhone = (ph) => db.customers.find((c) => c.phone === ph);
 const custByUid = (uid) => db.customers.find((c) => c.uid === uid);
@@ -302,6 +303,7 @@ app.get('/api/state', (req, res) => {
         ? {
             uid: meC.uid,
             photoUrl: meC.photo ? `/uploads/${meC.photo}` : '',
+            isPrivate: !!meC.private,
             following: meC.following,
             followers: db.customers
                 .filter((x) => x.following.includes(meC.uid)).length,
@@ -338,6 +340,7 @@ function userView(u, me) {
         db.customers.filter((x) => x.following.includes(u.uid)).length,
     following: u.following.length,
     followedByMe: !!(me && me.following.includes(u.uid)),
+    isPrivate: !!u.private,
   };
 }
 
@@ -367,10 +370,53 @@ app.post('/api/customer/photo', (req, res) => {
   res.json({ ok: true, photoUrl: `/uploads/${c.photo}` });
 });
 
+// Atur privasi profil: privat = postingan & daftar pengikut hanya
+// terlihat oleh pemilik profil.
+app.post('/api/customer/privacy', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  c.private = !!(req.body || {}).private;
+  save();
+  res.json({ ok: true, isPrivate: c.private });
+});
+
 app.get('/api/users/:uid', (req, res) => {
   const u = custByUid(req.params.uid);
   if (!u) return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
   res.json(userView(u, customer(req)));
+});
+
+// Daftar pengikut / mengikuti. Profil privat hanya bisa dilihat
+// pemiliknya sendiri — selain itu balas {private:true} tanpa daftar.
+const miniUser = (u) => ({
+  uid: u.uid,
+  name: u.name,
+  photoUrl: u.photo ? `/uploads/${u.photo}` : '',
+});
+app.get('/api/users/:uid/followers', (req, res) => {
+  const u = custByUid(req.params.uid);
+  if (!u) return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+  const me = customer(req);
+  if (u.private && (!me || me.uid !== u.uid)) {
+    return res.json({ private: true, users: [] });
+  }
+  res.json({
+    private: false,
+    users: db.customers
+        .filter((x) => x.following.includes(u.uid)).map(miniUser),
+  });
+});
+app.get('/api/users/:uid/following', (req, res) => {
+  const u = custByUid(req.params.uid);
+  if (!u) return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+  const me = customer(req);
+  if (u.private && (!me || me.uid !== u.uid)) {
+    return res.json({ private: true, users: [] });
+  }
+  res.json({
+    private: false,
+    users: u.following.map(custByUid).filter(Boolean).map(miniUser),
+  });
 });
 
 // Ikuti/berhenti mengikuti pengguna lain.

@@ -511,12 +511,14 @@ class MeInfo {
     required this.photoUrl,
     required this.following,
     required this.followers,
+    required this.isPrivate,
   });
 
   final String uid;
   String photoUrl;
   final List<String> following;
   int followers;
+  bool isPrivate;
 
   factory MeInfo.fromMap(Map<String, dynamic> m) => MeInfo(
         uid: m['uid'] as String? ?? '',
@@ -525,6 +527,7 @@ class MeInfo {
             .map((e) => e.toString())
             .toList(),
         followers: (m['followers'] as num? ?? 0).toInt(),
+        isPrivate: m['isPrivate'] as bool? ?? false,
       );
 }
 
@@ -537,6 +540,7 @@ class UserInfo {
     required this.followers,
     required this.following,
     required this.followedByMe,
+    required this.isPrivate,
   });
 
   final String uid;
@@ -545,6 +549,7 @@ class UserInfo {
   int followers;
   final int following;
   bool followedByMe;
+  final bool isPrivate;
 
   factory UserInfo.fromMap(Map<String, dynamic> m) => UserInfo(
         uid: m['uid'] as String? ?? '',
@@ -553,6 +558,22 @@ class UserInfo {
         followers: (m['followers'] as num? ?? 0).toInt(),
         following: (m['following'] as num? ?? 0).toInt(),
         followedByMe: m['followedByMe'] as bool? ?? false,
+        isPrivate: m['isPrivate'] as bool? ?? false,
+      );
+}
+
+/// Ringkasan pengguna untuk daftar pengikut/mengikuti.
+class MiniUser {
+  MiniUser({required this.uid, required this.name, required this.photoUrl});
+
+  final String uid;
+  final String name;
+  final String photoUrl;
+
+  factory MiniUser.fromMap(Map<String, dynamic> m) => MiniUser(
+        uid: m['uid'] as String? ?? '',
+        name: m['name'] as String? ?? '',
+        photoUrl: m['photoUrl'] as String? ?? '',
       );
 }
 
