@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:url_launcher/url_launcher.dart';
@@ -298,7 +299,9 @@ Widget productImage(Product p, {double emojiSize = 40}) {
   final emoji = kCatEmoji[p.cat] ?? '🛍️';
   Widget fallback() => Center(child: Text(emoji, style: TextStyle(fontSize: emojiSize)));
   if (p.imageUrl.isEmpty) return fallback();
-  final src = '$kImgProxy${Uri.encodeComponent(p.imageUrl)}';
+  // Web needs the same-origin proxy (canvas CORS); native (Android/iOS) can
+  // load the CDN image directly.
+  final src = kIsWeb ? '$kImgProxy${Uri.encodeComponent(p.imageUrl)}' : p.imageUrl;
   return Image.network(
     src,
     fit: BoxFit.contain,

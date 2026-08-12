@@ -1,0 +1,41 @@
+name: Build Android APK
+
+# Builds a release APK of the Paramall Flutter app on a GitHub runner.
+# Download the "paramall-android-apk" artifact, transfer app-release.apk to an
+# Android phone, and install it (enable "install unknown apps" for your browser
+# / file manager). It's signed with Flutter's debug key — fine for trying it,
+# not for the Play Store.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/alfamart-indomaret-api-acpx8f
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'assets/**'
+      - 'android/**'
+      - '.github/workflows/build-android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paramall-android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
