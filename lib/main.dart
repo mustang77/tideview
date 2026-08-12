@@ -501,14 +501,7 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   void _help() {
-    if (kWaNumber.isNotEmpty) {
-      launchUrl(Uri.parse('https://wa.me/$kWaNumber?text=${Uri.encodeComponent('Halo Paramall, saya mau tanya.')}'),
-          mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Bantuan: hubungi tim Paramall lewat WhatsApp (nomor menyusul).')));
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportChatPage()));
   }
 
   Widget _catChips() {
@@ -1192,6 +1185,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  void _openSupport() => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportChatPage()));
+
   void _about() {
     showDialog(context: context, builder: (_) => AlertDialog(
       title: const Text('Tentang Paramall'),
@@ -1241,7 +1236,7 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 16),
           _label('BANTUAN & INFO'),
           _card([
-            _tile(Icons.headset_mic_outlined, 'Pusat Bantuan', 'Hubungi tim Paramall', () => _snack('Bantuan lewat WhatsApp menyusul.')),
+            _tile(Icons.headset_mic_outlined, 'Pusat Bantuan', 'Chat dengan tim Paramall', _openSupport),
             _sep(),
             _tile(Icons.info_outline, 'Tentang Paramall', 'Versi 1.0.0', _about),
           ]),
@@ -1308,7 +1303,7 @@ class _ProfilePageState extends State<ProfilePage> {
       _drawerTile(Icons.receipt_long_outlined, 'Pesanan Saya', () { Navigator.pop(context); widget.onGoOrders(); }),
       _drawerTile(Icons.location_on_outlined, 'Alamat Pengantaran', () { Navigator.pop(context); _openEdit(); }),
       _drawerTile(Icons.person_outline, 'Ubah Data Akun', () { Navigator.pop(context); _openEdit(); }),
-      _drawerTile(Icons.headset_mic_outlined, 'Pusat Bantuan', () { Navigator.pop(context); _snack('Bantuan lewat WhatsApp menyusul.'); }),
+      _drawerTile(Icons.headset_mic_outlined, 'Pusat Bantuan', () { Navigator.pop(context); _openSupport(); }),
       _drawerTile(Icons.info_outline, 'Tentang Paramall', () { Navigator.pop(context); _about(); }),
       const Divider(),
       _drawerTile(Icons.logout, 'Keluar', () { Navigator.pop(context); _confirmLogout(); }, danger: true),
@@ -1659,5 +1654,206 @@ class GuestGate extends StatelessWidget {
         ),
       ),
     ]);
+  }
+}
+
+// ---------- in-app support chat ----------
+class _ChatMsg {
+  final bool user;
+  final String text;
+  _ChatMsg(this.user, this.text);
+}
+
+class SupportChatPage extends StatefulWidget {
+  const SupportChatPage({super.key});
+  @override
+  State<SupportChatPage> createState() => _SupportChatPageState();
+}
+
+class _SupportChatPageState extends State<SupportChatPage> {
+  final _input = TextEditingController();
+  final _scroll = ScrollController();
+  final List<_ChatMsg> _msgs = [];
+  bool _typing = false;
+
+  static const _quick = ['Cara pesan', 'Ongkir', 'Pembayaran', 'Lacak pesanan', 'Chat CS'];
+
+  @override
+  void initState() {
+    super.initState();
+    _msgs.add(_ChatMsg(false, 'Halo! 👋 Aku asisten Paramall. Ada yang bisa dibantu? Pilih topik di bawah atau ketik pesanmu.'));
+  }
+
+  @override
+  void dispose() {
+    _input.dispose();
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _scrollDown() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      }
+    });
+  }
+
+  void _send(String text) {
+    text = text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _msgs.add(_ChatMsg(true, text));
+      _typing = true;
+    });
+    _input.clear();
+    _scrollDown();
+    Future.delayed(const Duration(milliseconds: 650), () {
+      if (!mounted) return;
+      final reply = _botReply(text);
+      setState(() => _typing = false);
+      if (reply == '__WA__') {
+        setState(() => _msgs.add(_ChatMsg(false, 'Oke, aku hubungkan ke tim kami lewat WhatsApp ya 👇')));
+        _openWa();
+      } else {
+        setState(() => _msgs.add(_ChatMsg(false, reply)));
+      }
+      _scrollDown();
+    });
+  }
+
+  String _botReply(String q) {
+    final s = q.toLowerCase();
+    if (RegExp(r'pesan|order|beli|cara|belanja').hasMatch(s)) {
+      return 'Cara pesan: pilih produk → Keranjang → Checkout → isi alamat → Buat Pesanan. Tim Paramall yang belanjakan & antar ke rumahmu. 🛵';
+    }
+    if (RegExp(r'ongkir|antar|kirim|area|jauh').hasMatch(s)) {
+      return 'Ongkir Rp10.000 — GRATIS untuk belanja di atas Rp100.000. Kami antar ke area kotamu.';
+    }
+    if (RegExp(r'bayar|pembayaran|cod|transfer|qris').hasMatch(s)) {
+      return 'Pembayaran bisa Bayar di Tempat (COD) atau Transfer Bank. QRIS menyusul ya.';
+    }
+    if (RegExp(r'lacak|status|track|pesanan saya|driver').hasMatch(s)) {
+      return 'Lacak pesanan: buka tab Pesanan → pilih pesananmu untuk lihat status & driver. 📦';
+    }
+    if (RegExp(r'jam|buka|operasional|kapan').hasMatch(s)) {
+      return 'Kami melayani setiap hari. Pesanan yang masuk langsung diproses tim kami.';
+    }
+    if (RegExp(r'cs|admin|manusia|orang|whatsapp|komplain|refund|batal').hasMatch(s)) {
+      return '__WA__';
+    }
+    return 'Maaf, aku belum paham 🙏. Untuk bantuan lebih lanjut, chat langsung tim kami lewat WhatsApp (ikon di kanan atas).';
+  }
+
+  void _openWa() {
+    if (kWaNumber.isEmpty) {
+      setState(() => _msgs.add(_ChatMsg(false, 'Nomor WhatsApp tim kami segera hadir ya 🙏. Sementara ini aku bantu jawab di sini.')));
+      _scrollDown();
+      return;
+    }
+    launchUrl(Uri.parse('https://wa.me/$kWaNumber?text=${Uri.encodeComponent('Halo Paramall, saya mau tanya.')}'), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kGround,
+      appBar: AppBar(
+        backgroundColor: kGreen,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        titleSpacing: 0,
+        title: Row(children: [
+          Container(width: 36, height: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Center(child: Text('🛒', style: TextStyle(fontSize: 18)))),
+          const SizedBox(width: 10),
+          const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+            Text('Pusat Bantuan', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            Text('Paramall Assistant • online', style: TextStyle(fontSize: 11, color: Colors.white70)),
+          ]),
+        ]),
+        actions: [IconButton(onPressed: _openWa, icon: const Icon(Icons.chat_bubble_outline), tooltip: 'Chat WhatsApp')],
+      ),
+      body: Column(children: [
+        Expanded(
+          child: ListView.builder(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+            itemCount: _msgs.length + (_typing ? 1 : 0),
+            itemBuilder: (_, i) {
+              if (_typing && i == _msgs.length) return _bubble(_ChatMsg(false, 'sedang mengetik…'), typing: true);
+              return _bubble(_msgs[i]);
+            },
+          ),
+        ),
+        SizedBox(
+          height: 46,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            children: _quick
+                .map((q) => Padding(
+                      padding: const EdgeInsets.only(right: 8, top: 6, bottom: 6),
+                      child: ActionChip(
+                        label: Text(q),
+                        backgroundColor: kGreenSoft,
+                        labelStyle: const TextStyle(color: kGreenInk, fontWeight: FontWeight.w600, fontSize: 12.5),
+                        side: BorderSide.none,
+                        onPressed: () => _send(q),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + MediaQuery.of(context).padding.bottom),
+          decoration: const BoxDecoration(color: kSurface, border: Border(top: BorderSide(color: kLine))),
+          child: Row(children: [
+            Expanded(
+              child: TextField(
+                controller: _input,
+                textInputAction: TextInputAction.send,
+                onSubmitted: _send,
+                decoration: InputDecoration(
+                  hintText: 'Ketik pesan…',
+                  filled: true,
+                  fillColor: kGround,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _send(_input.text),
+              child: Container(width: 44, height: 44, decoration: const BoxDecoration(color: kGreen, shape: BoxShape.circle), child: const Icon(Icons.send, color: Colors.white, size: 20)),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _bubble(_ChatMsg m, {bool typing = false}) {
+    final user = m.user;
+    return Align(
+      alignment: user ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.76),
+        decoration: BoxDecoration(
+          color: user ? kGreen : kSurface,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(user ? 16 : 4),
+            bottomRight: Radius.circular(user ? 4 : 16),
+          ),
+          border: user ? null : Border.all(color: kLine),
+        ),
+        child: Text(m.text, style: TextStyle(color: user ? Colors.white : (typing ? kMuted : kInk), fontSize: 14, fontStyle: typing ? FontStyle.italic : FontStyle.normal, height: 1.35)),
+      ),
+    );
   }
 }
