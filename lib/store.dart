@@ -1,16 +1,22 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Simple on-device persistence for profile + orders (localStorage equivalent).
+String hashPin(String pin) => sha256.convert(utf8.encode('paramall::$pin')).toString();
+
+/// Simple on-device persistence for account + orders (localStorage equivalent).
 class Profile {
   String name;
   String phone;
   String address;
-  Profile({this.name = '', this.phone = '', this.address = ''});
+  String pinHash;
+  Profile({this.name = '', this.phone = '', this.address = '', this.pinHash = ''});
 
-  Map<String, dynamic> toJson() => {'name': name, 'phone': phone, 'address': address};
-  factory Profile.fromJson(Map<String, dynamic> j) =>
-      Profile(name: j['name'] ?? '', phone: j['phone'] ?? '', address: j['address'] ?? '');
+  Map<String, dynamic> toJson() => {'name': name, 'phone': phone, 'address': address, 'pinHash': pinHash};
+  factory Profile.fromJson(Map<String, dynamic> j) => Profile(
+        name: j['name'] ?? '', phone: j['phone'] ?? '', address: j['address'] ?? '', pinHash: j['pinHash'] ?? '',
+      );
+  bool get hasAccount => phone.isNotEmpty && pinHash.isNotEmpty;
 }
 
 class OrderItem {
@@ -55,6 +61,17 @@ class Order {
 class Store {
   static const _kProfile = 'paramall_profile';
   static const _kOrders = 'paramall_orders';
+  static const _kSession = 'paramall_session';
+
+  static Future<bool> loggedIn() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getBool(_kSession) ?? false;
+  }
+
+  static Future<void> setLoggedIn(bool v) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(_kSession, v);
+  }
 
   static Future<Profile> getProfile() async {
     final sp = await SharedPreferences.getInstance();

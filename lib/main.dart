@@ -130,6 +130,7 @@ class _HomeShellState extends State<HomeShell> {
   String _shopCat = 'Semua';
   Profile _profile = Profile();
   List<Order> _orders = [];
+  bool _session = false;
 
   @override
   void initState() {
@@ -142,11 +143,13 @@ class _HomeShellState extends State<HomeShell> {
       final p = await loadCatalog();
       final prof = await Store.getProfile();
       final ords = await Store.getOrders();
+      final sess = await Store.loggedIn();
       if (!mounted) return;
       setState(() {
         _products = p;
         _profile = prof;
         _orders = ords;
+        _session = sess && prof.hasAccount;
         _loading = false;
       });
     } catch (_) {
@@ -226,10 +229,33 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
+  Future<void> _onAuthed(Profile p) async {
+    await Store.saveProfile(p);
+    await Store.setLoggedIn(true);
+    if (!mounted) return;
+    setState(() {
+      _profile = p;
+      _session = true;
+      _tab = 0;
+    });
+  }
+
+  void _logout() async {
+    await Store.setLoggedIn(false);
+    if (!mounted) return;
+    setState(() {
+      _session = false;
+      _tab = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: kGreen)));
+    }
+    if (!_session) {
+      return LoginLanding(account: _profile, onAuthed: _onAuthed);
     }
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
@@ -237,7 +263,7 @@ class _HomeShellState extends State<HomeShell> {
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       OrdersPage(orders: _orders, onOpen: (o) => _openTracking(o)),
-      ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3)),
+      ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3), onLogout: _logout),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
@@ -1117,7 +1143,8 @@ class ProfilePage extends StatefulWidget {
   final Profile profile;
   final void Function(Profile) onSave;
   final VoidCallback onGoOrders;
-  const ProfilePage({super.key, required this.profile, required this.onSave, required this.onGoOrders});
+  final VoidCallback onLogout;
+  const ProfilePage({super.key, required this.profile, required this.onSave, required this.onGoOrders, required this.onLogout});
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -1160,7 +1187,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _field('Alamat', _addr, lines: 3),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              onPressed: () => widget.onSave(Profile(name: _name.text.trim(), phone: _phone.text.trim(), address: _addr.text.trim())),
+              onPressed: () => widget.onSave(Profile(name: _name.text.trim(), phone: _phone.text.trim(), address: _addr.text.trim(), pinHash: widget.profile.pinHash)),
               child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.w800)),
             ),
             const SizedBox(height: 10),
@@ -1168,6 +1195,11 @@ class _ProfilePageState extends State<ProfilePage> {
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
               onPressed: widget.onGoOrders,
               child: const Text('Lihat Pesanan Saya', style: TextStyle(fontWeight: FontWeight.w700, color: kInk)),
+            ),
+            const SizedBox(height: 10),
+            TextButton(
+              onPressed: widget.onLogout,
+              child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.w700, color: kMuted)),
             ),
           ],
         ),
@@ -1200,4 +1232,241 @@ class _BackBtn extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
       onTap: onTap,
       child: Container(width: 30, height: 30, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(999)), child: const Icon(Icons.chevron_left, color: Colors.white)));
+}
+
+// ---------- login / register (H2O-style) ----------
+const kLoginBg = Color(0xFFEDF3F1);
+const kLoginInk = Color(0xFF15241D);
+const kLoginSub = Color(0xFF5C6B64);
+
+BoxDecoration _brandBanner() => BoxDecoration(
+      borderRadius: BorderRadius.circular(30),
+      gradient: const LinearGradient(colors: [Color(0xFF2E9C6E), Color(0xFF12543A)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+    );
+
+class LoginLanding extends StatelessWidget {
+  final Profile account;
+  final Future<void> Function(Profile) onAuthed;
+  const LoginLanding({super.key, required this.account, required this.onAuthed});
+
+  void _go(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => MasukScreen(account: account, onAuthed: onAuthed)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kLoginBg,
+      body: SafeArea(
+        child: Column(children: [
+          const Spacer(flex: 3),
+          Container(margin: const EdgeInsets.symmetric(horizontal: 24), height: 150, decoration: _brandBanner(),
+              child: Center(child: Container(width: 74, height: 74, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+                  child: const Icon(Icons.shopping_cart_rounded, color: kGreen, size: 38)))),
+          const SizedBox(height: 22),
+          const Text('PARAMALL', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: kLoginInk, letterSpacing: 1)),
+          const SizedBox(height: 5),
+          const Text('P A R A K A N', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kGreen, letterSpacing: 4)),
+          const SizedBox(height: 14),
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Text('Belanja Alfamart & Indomaret.\nKami yang belanja & antar ke rumah.', textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15.5, color: kLoginSub, height: 1.4))),
+          const SizedBox(height: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: () => _go(context),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: const Color(0xFFE6ECEA))),
+                child: Row(children: [
+                  Container(width: 56, height: 56, decoration: BoxDecoration(color: const Color(0xFFDCEFE6), borderRadius: BorderRadius.circular(16)), child: const Icon(Icons.person, color: kGreen, size: 28)),
+                  const SizedBox(width: 14),
+                  const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                    Text('Saya Pelanggan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: kLoginInk)),
+                    SizedBox(height: 3),
+                    Text('Masuk dengan nama & no. HP untuk belanja dan melacak pesanan', style: TextStyle(fontSize: 13, color: Color(0xFF6B7A73), height: 1.3)),
+                  ])),
+                  const Icon(Icons.chevron_right, color: Color(0xFF9AA8A1)),
+                ]),
+              ),
+            ),
+          ),
+          const Spacer(flex: 4),
+        ]),
+      ),
+    );
+  }
+}
+
+InputDecoration _authField(String label, IconData icon) => InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: kMuted, size: 20),
+      floatingLabelStyle: const TextStyle(color: kGreen),
+      filled: true,
+      fillColor: Colors.white,
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFD9E1DE))),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: kGreen, width: 1.6)),
+    );
+
+class MasukScreen extends StatefulWidget {
+  final Profile account;
+  final Future<void> Function(Profile) onAuthed;
+  const MasukScreen({super.key, required this.account, required this.onAuthed});
+  @override
+  State<MasukScreen> createState() => _MasukScreenState();
+}
+
+class _MasukScreenState extends State<MasukScreen> {
+  late final TextEditingController _phone = TextEditingController(text: widget.account.phone);
+  final TextEditingController _pin = TextEditingController();
+
+  @override
+  void dispose() {
+    _phone.dispose();
+    _pin.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final phone = _phone.text.trim();
+    final pin = _pin.text.trim();
+    if (phone.isEmpty || pin.isEmpty) {
+      _snack('Isi nomor HP dan PIN');
+      return;
+    }
+    final acc = widget.account;
+    if (!acc.hasAccount || acc.phone != phone || acc.pinHash != hashPin(pin)) {
+      _snack('Nomor HP atau PIN salah. Belum punya akun? Daftar dulu.');
+      return;
+    }
+    await widget.onAuthed(acc);
+    if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+  }
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kLoginBg,
+      appBar: AppBar(backgroundColor: kLoginBg, elevation: 0, foregroundColor: kLoginInk, title: const Text('Masuk', style: TextStyle(fontWeight: FontWeight.w800))),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        children: [
+          const SizedBox(height: 20),
+          Container(height: 96, decoration: _brandBanner(), child: const Center(child: Icon(Icons.person, color: Colors.white, size: 40))),
+          const SizedBox(height: 22),
+          const Text('Selamat datang kembali! 👋', textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kLoginInk)),
+          const SizedBox(height: 6),
+          const Text('Masuk dengan no. HP dan PIN Anda.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: kLoginSub)),
+          const SizedBox(height: 22),
+          TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
+          const SizedBox(height: 14),
+          TextField(controller: _pin, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('PIN', Icons.lock_outline)),
+          const SizedBox(height: 22),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF12543A), minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
+            onPressed: _submit,
+            icon: const Icon(Icons.login, size: 20),
+            label: const Text('Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+          const SizedBox(height: 18),
+          Center(child: GestureDetector(
+            onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DaftarScreen(onAuthed: widget.onAuthed))),
+            child: const Text('Belum punya akun? Daftar', style: TextStyle(color: kGreen, fontWeight: FontWeight.w700, fontSize: 15)),
+          )),
+          const SizedBox(height: 16),
+          const Text('Akunmu tersimpan di perangkat ini.', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF9AA8A1), fontSize: 12.5)),
+        ],
+      ),
+    );
+  }
+}
+
+class DaftarScreen extends StatefulWidget {
+  final Future<void> Function(Profile) onAuthed;
+  const DaftarScreen({super.key, required this.onAuthed});
+  @override
+  State<DaftarScreen> createState() => _DaftarScreenState();
+}
+
+class _DaftarScreenState extends State<DaftarScreen> {
+  final _name = TextEditingController();
+  final _phone = TextEditingController();
+  final _pin = TextEditingController();
+  final _pin2 = TextEditingController();
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    _pin.dispose();
+    _pin2.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final name = _name.text.trim(), phone = _phone.text.trim(), pin = _pin.text.trim();
+    if (name.isEmpty || phone.isEmpty || pin.isEmpty) {
+      _snack('Lengkapi nama, nomor HP, dan PIN');
+      return;
+    }
+    if (pin.length < 4) {
+      _snack('PIN minimal 4 angka');
+      return;
+    }
+    if (pin != _pin2.text.trim()) {
+      _snack('Konfirmasi PIN tidak sama');
+      return;
+    }
+    await widget.onAuthed(Profile(name: name, phone: phone, pinHash: hashPin(pin)));
+    if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+  }
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kLoginBg,
+      appBar: AppBar(backgroundColor: kLoginBg, elevation: 0, foregroundColor: kLoginInk, title: const Text('Daftar', style: TextStyle(fontWeight: FontWeight.w800))),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        children: [
+          const SizedBox(height: 10),
+          Container(height: 96, decoration: _brandBanner(), child: const Center(child: Icon(Icons.person_add_alt_1, color: Colors.white, size: 38))),
+          const SizedBox(height: 20),
+          const Text('Buat akun Paramall', textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: kLoginInk)),
+          const SizedBox(height: 6),
+          const Text('Sekali daftar, belanja jadi cepat.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: kLoginSub)),
+          const SizedBox(height: 22),
+          TextField(controller: _name, textCapitalization: TextCapitalization.words, decoration: _authField('Nama', Icons.person_outline)),
+          const SizedBox(height: 14),
+          TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
+          const SizedBox(height: 14),
+          TextField(controller: _pin, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Buat PIN (min. 4 angka)', Icons.lock_outline)),
+          const SizedBox(height: 14),
+          TextField(controller: _pin2, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Ulangi PIN', Icons.lock_outline)),
+          const SizedBox(height: 22),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF12543A), minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
+            onPressed: _submit,
+            icon: const Icon(Icons.check, size: 20),
+            label: const Text('Daftar & Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+          ),
+          const SizedBox(height: 18),
+          Center(child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: const Text('Sudah punya akun? Masuk', style: TextStyle(color: kGreen, fontWeight: FontWeight.w700, fontSize: 15)),
+          )),
+        ],
+      ),
+    );
+  }
 }
