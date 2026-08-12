@@ -1,0 +1,36 @@
+name: Build Flutter web
+
+# Builds the Paramall Flutter web app on a GitHub runner (Flutter isn't needed
+# locally). Download the "paramall-flutter-web" artifact and upload its contents
+# to the site when you're ready to switch from the HTML version.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/alfamart-indomaret-api-acpx8f
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'assets/**'
+      - 'web/**'
+      - 'analysis_options.yaml'
+      - '.github/workflows/build-flutter.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build web --release --base-href /
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paramall-flutter-web
+          path: build/web/**
+          if-no-files-found: error
