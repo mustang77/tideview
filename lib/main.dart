@@ -193,6 +193,10 @@ class _HomeShellState extends State<HomeShell> {
 
   void _openCheckout() {
     if (cartCount == 0) return;
+    _requireLogin(_pushCheckout);
+  }
+
+  void _pushCheckout() {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
       return CheckoutPage(
         products: _products,
@@ -203,6 +207,20 @@ class _HomeShellState extends State<HomeShell> {
         onPlaced: _placeOrder,
       );
     }));
+  }
+
+  // Browse freely; ask for an account only when buying (Tokopedia-style).
+  void _requireLogin(VoidCallback onOk) {
+    if (_session) {
+      onOk();
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => LoginLanding(account: _profile, onAuthed: _onAuthed)),
+    ).then((_) {
+      if (mounted && _session) onOk();
+    });
   }
 
   Future<void> _placeOrder(Order o) async {
@@ -238,7 +256,6 @@ class _HomeShellState extends State<HomeShell> {
     setState(() {
       _profile = p;
       _session = true;
-      _tab = 0;
     });
   }
 
@@ -256,16 +273,17 @@ class _HomeShellState extends State<HomeShell> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: kGreen)));
     }
-    if (!_session) {
-      return LoginLanding(account: _profile, onAuthed: _onAuthed);
-    }
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
           onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3)),
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
-      OrdersPage(orders: _orders, onOpen: (o) => _openTracking(o)),
-      ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3), onLogout: _logout),
+      _session
+          ? OrdersPage(orders: _orders, onOpen: (o) => _openTracking(o))
+          : GuestGate(title: 'Pesanan', emoji: '🧾', message: 'Masuk dulu untuk melihat & melacak pesananmu.', onLogin: () => _requireLogin(() {})),
+      _session
+          ? ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3), onLogout: _logout)
+          : GuestGate(title: 'Saya', emoji: '😊', message: 'Masuk atau daftar untuk kelola akun & alamatmu.', onLogin: () => _requireLogin(() {})),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
@@ -1261,6 +1279,7 @@ class LoginLanding extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kLoginBg,
+      appBar: AppBar(backgroundColor: kLoginBg, elevation: 0, foregroundColor: kLoginInk, automaticallyImplyLeading: Navigator.canPop(context)),
       body: SafeArea(
         child: Column(children: [
           const Spacer(flex: 3),
@@ -1472,5 +1491,44 @@ class _DaftarScreenState extends State<DaftarScreen> {
         ],
       ),
     );
+  }
+}
+
+// ---------- guest gate (shown on Pesanan/Saya before login) ----------
+class GuestGate extends StatelessWidget {
+  final String title;
+  final String emoji;
+  final String message;
+  final VoidCallback onLogin;
+  const GuestGate({super.key, required this.title, required this.emoji, required this.message, required this.onLogin});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 14, 16, 14),
+        decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
+        child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+      ),
+      Expanded(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(30),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(emoji, style: const TextStyle(fontSize: 52)),
+              const SizedBox(height: 14),
+              Text(message, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14.5, height: 1.4)),
+              const SizedBox(height: 20),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size(200, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: onLogin,
+                child: const Text('Masuk / Daftar', style: TextStyle(fontWeight: FontWeight.w800)),
+              ),
+            ]),
+          ),
+        ),
+      ),
+    ]);
   }
 }
