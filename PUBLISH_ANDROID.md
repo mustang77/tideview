@@ -1,6 +1,6 @@
 # Paramall — develop locally & publish to Google Play
 
-The Flutter package name is now **`com.h2olaundry.paramall`** (Play Store rejects
+The Flutter package name is now **`com.paramall.app`** (Play Store rejects
 the old `com.example.*`).
 
 ## A. Develop / debug on your PC (hot reload)

@@ -1,4 +1,4 @@
-package com.h2olaundry.paramall
+package com.paramall.app
 
 import io.flutter.embedding.android.FlutterActivity
 
