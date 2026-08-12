@@ -19,6 +19,14 @@ class Profile {
   bool get hasAccount => phone.isNotEmpty && pinHash.isNotEmpty;
 }
 
+int _toInt(dynamic v) {
+  if (v is int) return v;
+  if (v is num) return v.round();
+  return int.tryParse('${v ?? ''}') ?? 0;
+}
+
+DateTime _toDate(dynamic v) => DateTime.tryParse('${v ?? ''}')?.toLocal() ?? DateTime.now();
+
 class OrderItem {
   final String name;
   final int price;
@@ -27,7 +35,7 @@ class OrderItem {
   int get sum => price * qty;
   Map<String, dynamic> toJson() => {'name': name, 'price': price, 'qty': qty};
   factory OrderItem.fromJson(Map<String, dynamic> j) =>
-      OrderItem(name: j['name'], price: j['price'], qty: j['qty']);
+      OrderItem(name: (j['name'] ?? '').toString(), price: _toInt(j['price']), qty: _toInt(j['qty']));
 }
 
 class Order {
@@ -36,10 +44,12 @@ class Order {
   final String name, phone, addr, note, pay;
   final List<OrderItem> items;
   final int subtotal, ongkir, total;
+  final String status; // 'Diterima' | 'Diproses' | 'Diantar' | 'Selesai'
   Order({
     required this.id, required this.at, required this.name, required this.phone,
     required this.addr, required this.note, required this.pay, required this.items,
     required this.subtotal, required this.ongkir, required this.total,
+    this.status = 'Diterima',
   });
 
   int get count => items.fold(0, (a, b) => a + b.qty);
@@ -48,13 +58,16 @@ class Order {
         'id': id, 'at': at.toIso8601String(), 'name': name, 'phone': phone,
         'addr': addr, 'note': note, 'pay': pay,
         'items': items.map((e) => e.toJson()).toList(),
-        'subtotal': subtotal, 'ongkir': ongkir, 'total': total,
+        'subtotal': subtotal, 'ongkir': ongkir, 'total': total, 'status': status,
       };
+  // Works for both our local cache and the server's JSON (same shape).
   factory Order.fromJson(Map<String, dynamic> j) => Order(
-        id: j['id'], at: DateTime.parse(j['at']), name: j['name'], phone: j['phone'],
-        addr: j['addr'], note: j['note'] ?? '', pay: j['pay'],
-        items: (j['items'] as List).map((e) => OrderItem.fromJson(e)).toList(),
-        subtotal: j['subtotal'], ongkir: j['ongkir'], total: j['total'],
+        id: (j['id'] ?? '').toString(), at: _toDate(j['at']),
+        name: (j['name'] ?? '').toString(), phone: (j['phone'] ?? '').toString(),
+        addr: (j['addr'] ?? '').toString(), note: (j['note'] ?? '').toString(), pay: (j['pay'] ?? '').toString(),
+        items: ((j['items'] as List?) ?? const []).map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList(),
+        subtotal: _toInt(j['subtotal']), ongkir: _toInt(j['ongkir']), total: _toInt(j['total']),
+        status: (j['status'] ?? 'Diterima').toString(),
       );
 }
 
@@ -62,6 +75,7 @@ class Store {
   static const _kProfile = 'paramall_profile';
   static const _kOrders = 'paramall_orders';
   static const _kSession = 'paramall_session';
+  static const _kToken = 'paramall_token';
 
   static Future<bool> loggedIn() async {
     final sp = await SharedPreferences.getInstance();
@@ -71,6 +85,21 @@ class Store {
   static Future<void> setLoggedIn(bool v) async {
     final sp = await SharedPreferences.getInstance();
     await sp.setBool(_kSession, v);
+  }
+
+  /// Session token from the backend (empty = logged out).
+  static Future<String> getToken() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getString(_kToken) ?? '';
+  }
+
+  static Future<void> setToken(String t) async {
+    final sp = await SharedPreferences.getInstance();
+    if (t.isEmpty) {
+      await sp.remove(_kToken);
+    } else {
+      await sp.setString(_kToken, t);
+    }
   }
 
   static Future<Profile> getProfile() async {
@@ -100,11 +129,10 @@ class Store {
     }
   }
 
-  static Future<void> addOrder(Order o) async {
+  /// Replace the local cache with the given (server) orders.
+  static Future<void> saveOrders(List<Order> orders) async {
     final sp = await SharedPreferences.getInstance();
-    final list = await getOrders();
-    list.insert(0, o);
-    final trimmed = list.take(50).toList();
+    final trimmed = orders.take(100).toList();
     await sp.setString(_kOrders, jsonEncode(trimmed.map((e) => e.toJson()).toList()));
   }
 }

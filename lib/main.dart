@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:url_launcher/url_launcher.dart';
 import 'store.dart';
+import 'api.dart';
 
 void main() => runApp(const ParamallApp());
+
+// Called after a successful register/login: hands the session token + account back to the shell.
+typedef Authed = Future<void> Function(String token, String name, String phone, String address);
 
 // ---------- config ----------
 const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
@@ -159,6 +163,7 @@ class _HomeShellState extends State<HomeShell> {
   Profile _profile = Profile();
   List<Order> _orders = [];
   bool _session = false;
+  String _token = '';
 
   @override
   void initState() {
@@ -171,18 +176,59 @@ class _HomeShellState extends State<HomeShell> {
       final p = await loadCatalog();
       final prof = await Store.getProfile();
       final ords = await Store.getOrders();
-      final sess = await Store.loggedIn();
+      final token = await Store.getToken();
       if (!mounted) return;
       setState(() {
         _products = p;
         _profile = prof;
         _orders = ords;
-        _session = sess && prof.hasAccount;
+        _token = token;
+        _session = token.isNotEmpty;
         _loading = false;
       });
+      // Have a token from a previous session → refresh account & orders from the server.
+      if (token.isNotEmpty) _syncSession();
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  // Validate the stored token and pull the latest account + orders.
+  Future<void> _syncSession() async {
+    try {
+      final me = await Api.me(_token);
+      final orders = await Api.myOrders(_token);
+      if (!mounted) return;
+      _profile = Profile(name: me.name, phone: me.phone, address: me.address);
+      await Store.saveProfile(_profile);
+      await Store.saveOrders(orders);
+      setState(() => _orders = orders);
+    } on ApiException catch (e) {
+      // Token expired/invalid → sign out. Ignore plain network errors (stay on cache).
+      if (e.code == 401) await _doLogout();
+    } catch (_) {
+      // Offline: keep showing the cached account & orders.
+    }
+  }
+
+  Future<void> _refreshOrders() async {
+    if (_token.isEmpty) return;
+    try {
+      final orders = await Api.myOrders(_token);
+      await Store.saveOrders(orders);
+      if (mounted) setState(() => _orders = orders);
+    } catch (_) {
+      // Ignore; the cached list stays on screen.
+    }
+  }
+
+  // Re-fetch orders and return the one with this id (used by the tracking page to show live status).
+  Future<Order?> _refreshOrder(String id) async {
+    await _refreshOrders();
+    for (final o in _orders) {
+      if (o.id == id) return o;
+    }
+    return null;
   }
 
   int get cartCount => _cart.values.fold(0, (a, b) => a + b);
@@ -232,6 +278,7 @@ class _HomeShellState extends State<HomeShell> {
         profile: _profile,
         subtotal: subtotal,
         onPlaced: _placeOrder,
+        onRefresh: _refreshOrder,
       );
     }));
   }
@@ -250,20 +297,30 @@ class _HomeShellState extends State<HomeShell> {
     });
   }
 
-  Future<void> _placeOrder(Order o) async {
-    // Keep the account's PIN — only update name/phone/address from the order.
-    _profile = Profile(name: o.name, phone: o.phone, address: o.addr, pinHash: _profile.pinHash);
+  // Sends the order to the server; returns the confirmed order (with its real id). Throws on failure.
+  Future<Order> _placeOrder(Order draft, String zoneLabel) async {
+    final id = await Api.placeOrder(token: _token, order: draft, zone: zoneLabel);
+    final confirmed = Order(
+      id: id, at: DateTime.now(),
+      name: draft.name, phone: draft.phone, addr: draft.addr, note: draft.note, pay: draft.pay,
+      items: draft.items, subtotal: draft.subtotal, ongkir: draft.ongkir, total: draft.total,
+      status: 'Diterima',
+    );
+    _profile = Profile(name: draft.name, phone: draft.phone, address: draft.addr);
     await Store.saveProfile(_profile);
-    await Store.addOrder(o);
-    if (!mounted) return;
-    setState(() {
-      _orders.insert(0, o);
-      _cart.clear();
-    });
+    if (mounted) {
+      setState(() {
+        _orders.insert(0, confirmed);
+        _cart.clear();
+      });
+    }
+    await Store.saveOrders(_orders);
+    _refreshOrders(); // background sync with the authoritative server list
+    return confirmed;
   }
 
   void _openTracking(Order o, {bool justPlaced = false}) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced)));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced, onRefresh: _refreshOrder)));
   }
 
   void _reorder(Order o) {
@@ -287,6 +344,13 @@ class _HomeShellState extends State<HomeShell> {
   void _saveProfile(Profile p) async {
     setState(() => _profile = p);
     await Store.saveProfile(p);
+    if (_token.isNotEmpty) {
+      try {
+        await Api.saveProfile(token: _token, name: p.name, address: p.address);
+      } catch (_) {
+        // Saved locally; server sync will catch up next time we're online.
+      }
+    }
     if (mounted) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -294,24 +358,30 @@ class _HomeShellState extends State<HomeShell> {
     }
   }
 
-  Future<void> _onAuthed(Profile p) async {
-    await Store.saveProfile(p);
+  Future<void> _onAuthed(String token, String name, String phone, String address) async {
+    _token = token;
+    _profile = Profile(name: name, phone: phone, address: address);
+    await Store.setToken(token);
+    await Store.saveProfile(_profile);
     await Store.setLoggedIn(true);
     if (!mounted) return;
-    setState(() {
-      _profile = p;
-      _session = true;
-    });
+    setState(() => _session = true);
+    await _refreshOrders();
   }
 
-  void _logout() async {
+  Future<void> _doLogout() async {
+    await Store.setToken('');
     await Store.setLoggedIn(false);
+    _token = '';
     if (!mounted) return;
     setState(() {
       _session = false;
+      _orders = [];
       _tab = 0;
     });
   }
+
+  void _logout() => _doLogout();
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +394,7 @@ class _HomeShellState extends State<HomeShell> {
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       _session
-          ? OrdersPage(orders: _orders, products: _products, onOpen: (o) => _openTracking(o), onReorder: _reorder)
+          ? OrdersPage(orders: _orders, products: _products, onOpen: (o) => _openTracking(o), onReorder: _reorder, onRefresh: _refreshOrders)
           : GuestGate(title: 'Pesanan', emoji: '🧾', message: 'Masuk dulu untuk melihat & melacak pesananmu.', onLogin: () => _requireLogin(() {})),
       _session
           ? ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3), onLogout: _logout)
@@ -821,8 +891,9 @@ class CheckoutPage extends StatefulWidget {
   final Map<int, int> cart;
   final Profile profile;
   final int subtotal;
-  final Future<void> Function(Order) onPlaced;
-  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.onPlaced});
+  final Future<Order> Function(Order draft, String zoneLabel) onPlaced;
+  final Future<Order?> Function(String id)? onRefresh;
+  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.onPlaced, this.onRefresh});
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
@@ -850,35 +921,39 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   String _payLabel(String p) => p == 'COD' ? 'Bayar di Tempat (COD)' : p == 'Transfer' ? 'Transfer Bank' : 'QRIS';
 
-  String _orderId() {
-    final d = DateTime.now();
-    String p(int n) => n.toString().padLeft(2, '0');
-    return 'PM${p(d.year % 100)}${p(d.month)}${p(d.day)}-${p(d.hour)}${p(d.minute)}${p(d.second)}';
-  }
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
 
   Future<void> _place() async {
     if (widget.subtotal < kMinOrder) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Minimal belanja ${rupiah(kMinOrder)}')));
+      _snack('Minimal belanja ${rupiah(kMinOrder)}');
       return;
     }
     if (_name.text.trim().isEmpty || _phone.text.trim().isEmpty || _addr.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Lengkapi nama, HP, dan alamat dulu')));
+      _snack('Lengkapi nama, HP, dan alamat dulu');
       return;
     }
     setState(() => _busy = true);
     final items = widget.cart.entries.map((e) => OrderItem(name: widget.products[e.key].name, price: widget.products[e.key].price, qty: e.value)).toList();
-    final order = Order(
-      id: _orderId(), at: DateTime.now(),
+    final draft = Order(
+      id: '', at: DateTime.now(),
       name: _name.text.trim(), phone: _phone.text.trim(), addr: _addr.text.trim(), note: _note.text.trim(), pay: _pay,
       items: items, subtotal: widget.subtotal, ongkir: ongkir, total: total,
     );
-    await widget.onPlaced(order);
-    if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TrackingPage(order: order, justPlaced: true)));
+    try {
+      final confirmed = await widget.onPlaced(draft, kZones[_zone].label);
+      if (!mounted) return;
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TrackingPage(order: confirmed, justPlaced: true, onRefresh: widget.onRefresh)));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _snack(e.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      _snack('Gagal membuat pesanan. Coba lagi.');
+    }
   }
 
   @override
@@ -1019,24 +1094,31 @@ const List<List<String>> _stages = [
   ['Driver mengantar', 'Driver dalam perjalanan ke rumahmu'],
   ['Pesanan selesai', 'Barang sudah diterima. Terima kasih!'],
 ];
-const List<int> _stageAt = [0, 20, 60, 130]; // detik (demo)
-
 class TrackingPage extends StatefulWidget {
   final Order order;
   final bool justPlaced;
-  const TrackingPage({super.key, required this.order, this.justPlaced = false});
+  // Polls the server for this order's latest status; null when there's nothing to refresh against.
+  final Future<Order?> Function(String id)? onRefresh;
+  const TrackingPage({super.key, required this.order, this.justPlaced = false, this.onRefresh});
   @override
   State<TrackingPage> createState() => _TrackingPageState();
 }
 
 class _TrackingPageState extends State<TrackingPage> {
+  late Order _order = widget.order;
   Timer? _t;
   @override
   void initState() {
     super.initState();
-    _t = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (mounted) setState(() {});
-    });
+    if (widget.onRefresh != null) {
+      _refresh();
+      _t = Timer.periodic(const Duration(seconds: 8), (_) => _refresh());
+    }
+  }
+
+  Future<void> _refresh() async {
+    final o = await widget.onRefresh!(_order.id);
+    if (o != null && mounted) setState(() => _order = o);
   }
 
   @override
@@ -1045,18 +1127,11 @@ class _TrackingPageState extends State<TrackingPage> {
     super.dispose();
   }
 
-  int get _stage {
-    final el = DateTime.now().difference(widget.order.at).inSeconds;
-    int s = 0;
-    for (int i = 0; i < _stageAt.length; i++) {
-      if (el >= _stageAt[i]) s = i;
-    }
-    return s;
-  }
+  int get _stage => orderStage(_order);
 
   _Driver get _driver {
     int sum = 0;
-    for (final c in widget.order.id.codeUnits) {
+    for (final c in _order.id.codeUnits) {
       sum += c;
     }
     return _drivers[sum % _drivers.length];
@@ -1064,7 +1139,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final o = widget.order;
+    final o = _order;
     final st = _stage;
     final d = _driver;
     return Scaffold(
@@ -1194,14 +1269,16 @@ class _TrackingPageState extends State<TrackingPage> {
 }
 
 // ---------- orders ----------
-int orderStage(Order o) {
-  final el = DateTime.now().difference(o.at).inSeconds;
-  int s = 0;
-  for (int i = 0; i < _stageAt.length; i++) {
-    if (el >= _stageAt[i]) s = i;
-  }
-  return s;
+// Map the server's status string to a 0–3 progress stage (tolerant of admin-typed variants).
+int stageOfStatus(String s) {
+  final t = s.toLowerCase();
+  if (t.contains('selesai') || t.contains('sampai')) return 3;
+  if (t.contains('antar') || t.contains('kirim')) return 2;
+  if (t.contains('proses') || t.contains('belanja') || t.contains('siap')) return 1;
+  return 0; // Diterima / menunggu
 }
+
+int orderStage(Order o) => stageOfStatus(o.status);
 
 String orderStatusLabel(int stage) {
   switch (stage) {
@@ -1227,7 +1304,8 @@ class OrdersPage extends StatefulWidget {
   final List<Product> products;
   final void Function(Order) onOpen;
   final void Function(Order) onReorder;
-  const OrdersPage({super.key, required this.orders, required this.products, required this.onOpen, required this.onReorder});
+  final Future<void> Function()? onRefresh;
+  const OrdersPage({super.key, required this.orders, required this.products, required this.onOpen, required this.onReorder, this.onRefresh});
   @override
   State<OrdersPage> createState() => _OrdersPageState();
 }
@@ -1269,12 +1347,25 @@ class _OrdersPageState extends State<OrdersPage> {
       ),
       const Divider(height: 1, color: kLine),
       Expanded(
-        child: list.isEmpty
-            ? EmptyView(emoji: '🧾', text: widget.orders.isEmpty ? 'Belum ada pesanan.\nYuk mulai belanja di Toko.' : 'Tidak ada pesanan di kategori ini.')
-            : ListView(
-                padding: const EdgeInsets.all(12),
-                children: list.map(_card).toList(),
-              ),
+        child: RefreshIndicator(
+          color: kGreen,
+          onRefresh: () async {
+            if (widget.onRefresh != null) await widget.onRefresh!();
+          },
+          child: list.isEmpty
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    const SizedBox(height: 80),
+                    EmptyView(emoji: '🧾', text: widget.orders.isEmpty ? 'Belum ada pesanan.\nYuk mulai belanja di Toko.' : 'Tidak ada pesanan di kategori ini.'),
+                  ],
+                )
+              : ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(12),
+                  children: list.map(_card).toList(),
+                ),
+        ),
       ),
     ]);
   }
@@ -1417,9 +1508,10 @@ class _ProfilePageState extends State<ProfilePage> {
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: kGreen),
           onPressed: () {
-            if (hashPin(ctrl.text.trim()) == kAdminHash) {
+            final pass = ctrl.text.trim();
+            if (hashPin(pass) == kAdminHash) {
               Navigator.pop(dctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => AdminPage(adminPass: pass)));
             } else {
               _snack('Passcode salah');
             }
@@ -1642,7 +1734,7 @@ BoxDecoration _brandBanner() => BoxDecoration(
 
 class LoginLanding extends StatelessWidget {
   final Profile account;
-  final Future<void> Function(Profile) onAuthed;
+  final Authed onAuthed;
   const LoginLanding({super.key, required this.account, required this.onAuthed});
 
   void _go(BuildContext context) {
@@ -1709,7 +1801,7 @@ InputDecoration _authField(String label, IconData icon) => InputDecoration(
 
 class MasukScreen extends StatefulWidget {
   final Profile account;
-  final Future<void> Function(Profile) onAuthed;
+  final Authed onAuthed;
   const MasukScreen({super.key, required this.account, required this.onAuthed});
   @override
   State<MasukScreen> createState() => _MasukScreenState();
@@ -1718,6 +1810,7 @@ class MasukScreen extends StatefulWidget {
 class _MasukScreenState extends State<MasukScreen> {
   late final TextEditingController _phone = TextEditingController(text: widget.account.phone);
   final TextEditingController _pin = TextEditingController();
+  bool _busy = false;
 
   @override
   void dispose() {
@@ -1733,13 +1826,22 @@ class _MasukScreenState extends State<MasukScreen> {
       _snack('Isi nomor HP dan PIN');
       return;
     }
-    final acc = widget.account;
-    if (!acc.hasAccount || acc.phone != phone || acc.pinHash != hashPin(pin)) {
-      _snack('Nomor HP atau PIN salah. Belum punya akun? Daftar dulu.');
-      return;
+    setState(() => _busy = true);
+    try {
+      final r = await Api.login(phone: phone, pin: pin);
+      await widget.onAuthed(r.token, r.name, r.phone, r.address);
+      if (mounted) Navigator.popUntil(context, (route) => route.isFirst);
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        _snack(e.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _busy = false);
+        _snack('Gagal masuk. Coba lagi.');
+      }
     }
-    await widget.onAuthed(acc);
-    if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
   }
 
   void _snack(String m) => ScaffoldMessenger.of(context)
@@ -1761,23 +1863,25 @@ class _MasukScreenState extends State<MasukScreen> {
           const SizedBox(height: 6),
           const Text('Masuk dengan no. HP dan PIN Anda.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: kLoginSub)),
           const SizedBox(height: 22),
-          TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
+          TextField(controller: _phone, enabled: !_busy, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
           const SizedBox(height: 14),
-          TextField(controller: _pin, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('PIN', Icons.lock_outline)),
+          TextField(controller: _pin, enabled: !_busy, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('PIN', Icons.lock_outline)),
           const SizedBox(height: 22),
           FilledButton.icon(
             style: FilledButton.styleFrom(backgroundColor: const Color(0xFF12543A), minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
-            onPressed: _submit,
-            icon: const Icon(Icons.login, size: 20),
-            label: const Text('Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            onPressed: _busy ? null : _submit,
+            icon: _busy
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+                : const Icon(Icons.login, size: 20),
+            label: Text(_busy ? 'Memeriksa…' : 'Masuk', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
           ),
           const SizedBox(height: 18),
           Center(child: GestureDetector(
-            onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DaftarScreen(onAuthed: widget.onAuthed))),
+            onTap: _busy ? null : () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DaftarScreen(onAuthed: widget.onAuthed))),
             child: const Text('Belum punya akun? Daftar', style: TextStyle(color: kGreen, fontWeight: FontWeight.w700, fontSize: 15)),
           )),
           const SizedBox(height: 16),
-          const Text('Akunmu tersimpan di perangkat ini.', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF9AA8A1), fontSize: 12.5)),
+          const Text('Akunmu tersimpan aman di server Paramall.', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF9AA8A1), fontSize: 12.5)),
         ],
       ),
     );
@@ -1785,7 +1889,7 @@ class _MasukScreenState extends State<MasukScreen> {
 }
 
 class DaftarScreen extends StatefulWidget {
-  final Future<void> Function(Profile) onAuthed;
+  final Authed onAuthed;
   const DaftarScreen({super.key, required this.onAuthed});
   @override
   State<DaftarScreen> createState() => _DaftarScreenState();
@@ -1796,6 +1900,7 @@ class _DaftarScreenState extends State<DaftarScreen> {
   final _phone = TextEditingController();
   final _pin = TextEditingController();
   final _pin2 = TextEditingController();
+  bool _busy = false;
 
   @override
   void dispose() {
@@ -1820,8 +1925,22 @@ class _DaftarScreenState extends State<DaftarScreen> {
       _snack('Konfirmasi PIN tidak sama');
       return;
     }
-    await widget.onAuthed(Profile(name: name, phone: phone, pinHash: hashPin(pin)));
-    if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+    setState(() => _busy = true);
+    try {
+      final r = await Api.register(name: name, phone: phone, pin: pin);
+      await widget.onAuthed(r.token, r.name, r.phone, r.address);
+      if (mounted) Navigator.popUntil(context, (route) => route.isFirst);
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        _snack(e.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _busy = false);
+        _snack('Gagal mendaftar. Coba lagi.');
+      }
+    }
   }
 
   void _snack(String m) => ScaffoldMessenger.of(context)
@@ -1843,23 +1962,25 @@ class _DaftarScreenState extends State<DaftarScreen> {
           const SizedBox(height: 6),
           const Text('Sekali daftar, belanja jadi cepat.', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: kLoginSub)),
           const SizedBox(height: 22),
-          TextField(controller: _name, textCapitalization: TextCapitalization.words, decoration: _authField('Nama', Icons.person_outline)),
+          TextField(controller: _name, enabled: !_busy, textCapitalization: TextCapitalization.words, decoration: _authField('Nama', Icons.person_outline)),
           const SizedBox(height: 14),
-          TextField(controller: _phone, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
+          TextField(controller: _phone, enabled: !_busy, keyboardType: TextInputType.phone, decoration: _authField('No. HP / WhatsApp', Icons.phone_outlined)),
           const SizedBox(height: 14),
-          TextField(controller: _pin, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Buat PIN (min. 4 angka)', Icons.lock_outline)),
+          TextField(controller: _pin, enabled: !_busy, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Buat PIN (min. 4 angka)', Icons.lock_outline)),
           const SizedBox(height: 14),
-          TextField(controller: _pin2, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Ulangi PIN', Icons.lock_outline)),
+          TextField(controller: _pin2, enabled: !_busy, keyboardType: TextInputType.number, obscureText: true, decoration: _authField('Ulangi PIN', Icons.lock_outline)),
           const SizedBox(height: 22),
           FilledButton.icon(
             style: FilledButton.styleFrom(backgroundColor: const Color(0xFF12543A), minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
-            onPressed: _submit,
-            icon: const Icon(Icons.check, size: 20),
-            label: const Text('Daftar & Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            onPressed: _busy ? null : _submit,
+            icon: _busy
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white))
+                : const Icon(Icons.check, size: 20),
+            label: Text(_busy ? 'Mendaftarkan…' : 'Daftar & Masuk', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
           ),
           const SizedBox(height: 18),
           Center(child: GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: _busy ? null : () => Navigator.pop(context),
             child: const Text('Sudah punya akun? Masuk', style: TextStyle(color: kGreen, fontWeight: FontWeight.w700, fontSize: 15)),
           )),
         ],
@@ -2110,7 +2231,8 @@ class _SupportChatPageState extends State<SupportChatPage> {
 
 // ---------- hidden in-app admin (unlock: tap Tentang Paramall 7x) ----------
 class AdminPage extends StatefulWidget {
-  const AdminPage({super.key});
+  final String adminPass;
+  const AdminPage({super.key, required this.adminPass});
   @override
   State<AdminPage> createState() => _AdminPageState();
 }
@@ -2118,6 +2240,8 @@ class AdminPage extends StatefulWidget {
 class _AdminPageState extends State<AdminPage> {
   List<Order> _orders = [];
   bool _loading = true;
+  String? _error;
+  final Set<String> _busy = {}; // order ids currently updating
 
   @override
   void initState() {
@@ -2126,15 +2250,52 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _load() async {
-    final o = await Store.getOrders();
-    if (!mounted) return;
     setState(() {
-      _orders = o;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    try {
+      final o = await Api.adminOrders(widget.adminPass);
+      if (!mounted) return;
+      setState(() {
+        _orders = o;
+        _loading = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.message;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Tidak bisa memuat pesanan. Cek koneksi.';
+        _loading = false;
+      });
+    }
   }
 
+  Future<void> _setStatus(Order o, String status) async {
+    setState(() => _busy.add(o.id));
+    try {
+      await Api.setStatus(adminPass: widget.adminPass, id: o.id, status: status);
+      await _load();
+    } on ApiException catch (e) {
+      if (mounted) _snack(e.message);
+    } catch (_) {
+      if (mounted) _snack('Gagal memperbarui status.');
+    } finally {
+      if (mounted) setState(() => _busy.remove(o.id));
+    }
+  }
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
   int get _revenue => _orders.fold(0, (a, b) => a + b.total);
+  int get _active => _orders.where((o) => orderStage(o) < 3).length;
 
   @override
   Widget build(BuildContext context) {
@@ -2145,74 +2306,122 @@ class _AdminPageState extends State<AdminPage> {
         foregroundColor: Colors.white,
         elevation: 0,
         title: const Text('Mode Admin', style: TextStyle(fontWeight: FontWeight.w800)),
+        actions: [IconButton(onPressed: _loading ? null : _load, icon: const Icon(Icons.refresh), tooltip: 'Muat ulang')],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: kGreen))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Row(children: [
-                  Expanded(child: _stat('Pesanan', '${_orders.length}', Icons.receipt_long)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _stat('Pendapatan', rupiah(_revenue), Icons.payments)),
-                ]),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-                  onPressed: () => launchUrl(Uri.parse('https://paramall.h2olaundry.com/admin'), mode: LaunchMode.externalApplication),
-                  icon: const Icon(Icons.tune),
-                  label: const Text('Kelola Harga & Katalog (Web)', style: TextStyle(fontWeight: FontWeight.w800)),
-                ),
-                const SizedBox(height: 20),
-                const Text('Pesanan Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                const SizedBox(height: 10),
-                if (_orders.isEmpty)
-                  const EmptyView(emoji: '🧾', text: 'Belum ada pesanan.')
-                else
-                  ..._orders.map(_orderRow),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: kMangoSoft, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
-                  child: const Text(
-                    'Catatan: ini admin ringkas di perangkat ini. Untuk melihat & kelola semua pesanan dari semua pelanggan (lintas HP), Paramall perlu server (backend).',
-                    style: TextStyle(fontSize: 12.5, color: kInk, height: 1.4),
+          : _error != null
+              ? _errorView()
+              : RefreshIndicator(
+                  color: kGreen,
+                  onRefresh: _load,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      Row(children: [
+                        Expanded(child: _stat('Total Pesanan', '${_orders.length}', Icons.receipt_long)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _stat('Aktif', '$_active', Icons.local_shipping)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _stat('Omzet', rupiah(_revenue), Icons.payments)),
+                      ]),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                        onPressed: () => launchUrl(Uri.parse('https://paramall.h2olaundry.com/admin'), mode: LaunchMode.externalApplication),
+                        icon: const Icon(Icons.tune),
+                        label: const Text('Kelola Harga & Katalog (Web)', style: TextStyle(fontWeight: FontWeight.w800)),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text('Pesanan Masuk (semua pelanggan)', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                      const SizedBox(height: 10),
+                      if (_orders.isEmpty)
+                        const Padding(padding: EdgeInsets.only(top: 30), child: EmptyView(emoji: '🧾', text: 'Belum ada pesanan masuk.'))
+                      else
+                        ..._orders.map(_orderRow),
+                    ],
                   ),
                 ),
-              ],
-            ),
     );
   }
 
+  Widget _errorView() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('⚠️', style: TextStyle(fontSize: 44)),
+            const SizedBox(height: 12),
+            Text(_error ?? '', textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14)),
+            const SizedBox(height: 18),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: kGreen),
+              onPressed: _load,
+              child: const Text('Coba lagi'),
+            ),
+          ]),
+        ),
+      );
+
   Widget _stat(String label, String value, IconData icon) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: kGreen, size: 22),
+          Icon(icon, color: kGreen, size: 20),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-          Text(label, style: const TextStyle(color: kMuted, fontSize: 12)),
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 11)),
         ]),
       );
 
   Widget _orderRow(Order o) {
     final stage = orderStage(o);
+    final busy = _busy.contains(o.id);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(12), border: Border.all(color: kLine)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Text('#${o.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
-          const Spacer(),
-          Text(orderStatusLabel(stage), style: TextStyle(color: orderStatusColor(stage), fontWeight: FontWeight.w700, fontSize: 11.5)),
+          Expanded(child: Text('#${o.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5))),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(color: orderStatusColor(stage).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(999)),
+            child: Text(orderStatusLabel(stage), style: TextStyle(color: orderStatusColor(stage), fontWeight: FontWeight.w800, fontSize: 11)),
+          ),
         ]),
-        const SizedBox(height: 4),
-        Text('${o.name} • ${o.phone}', style: const TextStyle(fontSize: 12.5)),
+        const SizedBox(height: 6),
+        Text('${o.name} • ${o.phone}', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
         Text(o.addr, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 11.5)),
-        const SizedBox(height: 4),
-        Text('${o.count} produk • ${rupiah(o.total)} • ${o.pay}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+        const SizedBox(height: 6),
+        ...o.items.map((it) => Text('• ${it.qty}× ${it.name}', style: const TextStyle(fontSize: 11.5, color: kInk), maxLines: 1, overflow: TextOverflow.ellipsis)),
+        const SizedBox(height: 6),
+        Text('${o.count} produk • ${rupiah(o.total)} • ${o.pay}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5)),
+        if (o.note.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 2), child: Text('Catatan: ${o.note}', style: const TextStyle(fontSize: 11.5, color: kMuted, fontStyle: FontStyle.italic))),
+        const Divider(height: 18),
+        busy
+            ? const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 4), child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2.2, color: kGreen))))
+            : Wrap(spacing: 8, runSpacing: 8, children: [
+                _statusBtn(o, 'Diproses', stage == 1),
+                _statusBtn(o, 'Diantar', stage == 2),
+                _statusBtn(o, 'Selesai', stage == 3),
+              ]),
       ]),
+    );
+  }
+
+  Widget _statusBtn(Order o, String status, bool active) {
+    return GestureDetector(
+      onTap: active ? null : () => _setStatus(o, status),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? kGreen : kGreenSoft,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: active ? kGreen : kLine),
+        ),
+        child: Text(status, style: TextStyle(color: active ? Colors.white : kGreenInk, fontWeight: FontWeight.w800, fontSize: 12.5)),
+      ),
     );
   }
 }
