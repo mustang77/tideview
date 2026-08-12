@@ -10,6 +10,8 @@ void main() => runApp(const ParamallApp());
 
 // ---------- config ----------
 const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
+// Hidden admin: salted-SHA256 of the passcode 'paramall2026' (same as web admin).
+const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad';
 const int kOngkir = 10000;
 const int kFreeOngkirMin = 100000;
 
@@ -1327,6 +1329,53 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _openSupport() => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportChatPage()));
 
+  // Hidden admin: tap "Tentang Paramall" 7x.
+  int _aboutTaps = 0;
+  Timer? _aboutTimer;
+  void _tapAbout() {
+    _aboutTaps++;
+    _aboutTimer?.cancel();
+    _aboutTimer = Timer(const Duration(seconds: 2), () => _aboutTaps = 0);
+    if (_aboutTaps >= 7) {
+      _aboutTaps = 0;
+      _aboutTimer?.cancel();
+      _askAdminPin();
+    } else if (_aboutTaps >= 3) {
+      _snack('${7 - _aboutTaps} langkah lagi menuju mode admin…');
+    } else {
+      _snack('Paramall • Versi 1.0.0');
+    }
+  }
+
+  void _askAdminPin() {
+    final ctrl = TextEditingController();
+    showDialog(context: context, builder: (dctx) => AlertDialog(
+      title: const Text('Mode Admin'),
+      content: TextField(controller: ctrl, obscureText: true, autofocus: true, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Passcode admin')),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Batal')),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: kGreen),
+          onPressed: () {
+            if (hashPin(ctrl.text.trim()) == kAdminHash) {
+              Navigator.pop(dctx);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage()));
+            } else {
+              _snack('Passcode salah');
+            }
+          },
+          child: const Text('Masuk'),
+        ),
+      ],
+    ));
+  }
+
+  @override
+  void dispose() {
+    _aboutTimer?.cancel();
+    super.dispose();
+  }
+
   void _about() {
     showDialog(context: context, builder: (_) => AlertDialog(
       title: const Text('Tentang Paramall'),
@@ -1378,7 +1427,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _card([
             _tile(Icons.headset_mic_outlined, 'Pusat Bantuan', 'Chat dengan tim Paramall', _openSupport),
             _sep(),
-            _tile(Icons.info_outline, 'Tentang Paramall', 'Versi 1.0.0', _about),
+            _tile(Icons.info_outline, 'Tentang Paramall', 'Versi 1.0.0', _tapAbout),
           ]),
           const SizedBox(height: 22),
           OutlinedButton.icon(
@@ -1994,6 +2043,115 @@ class _SupportChatPageState extends State<SupportChatPage> {
         ),
         child: Text(m.text, style: TextStyle(color: user ? Colors.white : (typing ? kMuted : kInk), fontSize: 14, fontStyle: typing ? FontStyle.italic : FontStyle.normal, height: 1.35)),
       ),
+    );
+  }
+}
+
+// ---------- hidden in-app admin (unlock: tap Tentang Paramall 7x) ----------
+class AdminPage extends StatefulWidget {
+  const AdminPage({super.key});
+  @override
+  State<AdminPage> createState() => _AdminPageState();
+}
+
+class _AdminPageState extends State<AdminPage> {
+  List<Order> _orders = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final o = await Store.getOrders();
+    if (!mounted) return;
+    setState(() {
+      _orders = o;
+      _loading = false;
+    });
+  }
+
+  int get _revenue => _orders.fold(0, (a, b) => a + b.total);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kGround,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF12543A),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Mode Admin', style: TextStyle(fontWeight: FontWeight.w800)),
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator(color: kGreen))
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Row(children: [
+                  Expanded(child: _stat('Pesanan', '${_orders.length}', Icons.receipt_long)),
+                  const SizedBox(width: 12),
+                  Expanded(child: _stat('Pendapatan', rupiah(_revenue), Icons.payments)),
+                ]),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                  onPressed: () => launchUrl(Uri.parse('https://paramall.h2olaundry.com/admin'), mode: LaunchMode.externalApplication),
+                  icon: const Icon(Icons.tune),
+                  label: const Text('Kelola Harga & Katalog (Web)', style: TextStyle(fontWeight: FontWeight.w800)),
+                ),
+                const SizedBox(height: 20),
+                const Text('Pesanan Masuk', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                const SizedBox(height: 10),
+                if (_orders.isEmpty)
+                  const EmptyView(emoji: '🧾', text: 'Belum ada pesanan.')
+                else
+                  ..._orders.map(_orderRow),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: kMangoSoft, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
+                  child: const Text(
+                    'Catatan: ini admin ringkas di perangkat ini. Untuk melihat & kelola semua pesanan dari semua pelanggan (lintas HP), Paramall perlu server (backend).',
+                    style: TextStyle(fontSize: 12.5, color: kInk, height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _stat(String label, String value, IconData icon) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(icon, color: kGreen, size: 22),
+          const SizedBox(height: 8),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          Text(label, style: const TextStyle(color: kMuted, fontSize: 12)),
+        ]),
+      );
+
+  Widget _orderRow(Order o) {
+    final stage = orderStage(o);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(12), border: Border.all(color: kLine)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Text('#${o.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+          const Spacer(),
+          Text(orderStatusLabel(stage), style: TextStyle(color: orderStatusColor(stage), fontWeight: FontWeight.w700, fontSize: 11.5)),
+        ]),
+        const SizedBox(height: 4),
+        Text('${o.name} • ${o.phone}', style: const TextStyle(fontSize: 12.5)),
+        Text(o.addr, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 11.5)),
+        const SizedBox(height: 4),
+        Text('${o.count} produk • ${rupiah(o.total)} • ${o.pay}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+      ]),
     );
   }
 }
