@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle, Clipboard, ClipboardData;
 import 'package:url_launcher/url_launcher.dart';
 import 'store.dart';
 import 'api.dart';
@@ -25,6 +25,17 @@ const String kDriverHash = '091ce939cb21f96cbc3592627761c196915935c69c572c05911c
 const int kFreeOngkirMin = 100000; // gratis ongkir di atas nominal ini (promo, tetap untung karena ada margin)
 const int kMinOrder = 25000; // minimal belanja
 const double kMarginPct = 0.12; // markup harga jual (12%) — sumber profit utama, skala dengan besar belanja
+
+// --- Pembayaran & anti-risiko COD ---
+// Nudge: beri GRATIS ongkir kalau pelanggan bayar di muka (QRIS/Transfer).
+// Ini menukar ongkir dengan kepastian bayar + tanpa risiko COD. Set false untuk matikan.
+const bool kPrepayFreeOngkir = true;
+// Info transfer bank — ISI dengan rekeningmu.
+const String kBankName = 'BCA';              // contoh: 'BCA', 'BRI', 'Mandiri'
+const String kBankAccount = '0000000000';    // nomor rekening
+const String kBankHolder = 'Paramall';       // atas nama
+// QRIS: tempel URL gambar QRIS statis-mu (opsional). Kosongkan kalau belum ada.
+const String kQrisImageUrl = '';
 
 class DeliveryZone {
   final String label;
@@ -924,7 +935,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
-  int get ongkir => widget.subtotal >= kFreeOngkirMin ? 0 : kZones[_zone].fee;
+  bool get _isPrepay => _pay == 'QRIS' || _pay == 'Transfer';
+  bool get _freeOngkir => widget.subtotal >= kFreeOngkirMin || (_isPrepay && kPrepayFreeOngkir);
+  int get ongkir => _freeOngkir ? 0 : kZones[_zone].fee;
   int get total => widget.subtotal + ongkir;
 
   String _payLabel(String p) => p == 'COD' ? 'Bayar di Tempat (COD)' : p == 'Transfer' ? 'Transfer Bank' : 'QRIS';
@@ -986,10 +999,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ...List.generate(kZones.length, _zoneTile),
               const SizedBox(height: 8),
               const Text('Metode Pembayaran', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              if (kPrepayFreeOngkir)
+                const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: Text('Bayar online (QRIS/Transfer) → GRATIS ongkir 🎉', style: TextStyle(color: kGreen, fontSize: 12.5, fontWeight: FontWeight.w700)),
+                ),
               const SizedBox(height: 10),
               _payTile('COD', '💵', 'Bayar di Tempat (COD)', 'Bayar tunai saat barang diantar'),
-              _payTile('Transfer', '🏦', 'Transfer Bank', 'Info rekening dikirim setelah pesan'),
-              _payTile('QRIS', '📱', 'QRIS', 'Scan & bayar (menyusul)'),
+              _payTile('Transfer', '🏦', 'Transfer Bank', kPrepayFreeOngkir ? 'Bayar di muka · gratis ongkir' : 'Transfer sebelum diantar'),
+              _payTile('QRIS', '📱', 'QRIS', kPrepayFreeOngkir ? 'Scan & bayar · gratis ongkir' : 'Scan & bayar'),
+              if (_isPrepay) ...[
+                const SizedBox(height: 10),
+                _payInstructions(),
+              ],
               const SizedBox(height: 12),
               const Text('Ringkasan Pesanan', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
               const SizedBox(height: 10),
@@ -1000,7 +1022,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ...widget.cart.entries.map((e) => moneyRow('${e.value}× ${widget.products[e.key].name}', rupiah(widget.products[e.key].price * e.value))),
                   const Divider(height: 18),
                   moneyRow('Subtotal', rupiah(widget.subtotal)),
-                  moneyRow(ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir (${kZones[_zone].label})', rupiah(ongkir)),
+                  moneyRow(ongkir != 0 ? 'Ongkir (${kZones[_zone].label})' : (_isPrepay && kPrepayFreeOngkir ? 'Ongkir (gratis · bayar online)' : 'Ongkir (gratis)'), rupiah(ongkir)),
                   const SizedBox(height: 4),
                   moneyRow('Total Bayar', rupiah(total), bold: true),
                 ]),
@@ -1082,6 +1104,89 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
   }
+
+  Widget _payInstructions() => PayInstructions(pay: _pay, total: total);
+}
+
+// Shows how to pay for a prepaid (QRIS/Transfer) order. Reused at checkout and
+// on the tracking screen. When [orderId] is set, adds a "kirim bukti" WA button.
+class PayInstructions extends StatelessWidget {
+  final String pay;
+  final int total;
+  final String? orderId;
+  const PayInstructions({super.key, required this.pay, required this.total, this.orderId});
+
+  bool get _isQris => pay == 'QRIS';
+
+  Future<void> _copy(BuildContext context, String v) async {
+    await Clipboard.setData(ClipboardData(text: v));
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Disalin'), duration: Duration(milliseconds: 900)));
+    }
+  }
+
+  void _sendProof() {
+    if (kWaNumber.isEmpty) return;
+    final msg = 'Halo Paramall, saya sudah bayar pesanan${orderId != null ? ' #$orderId' : ''} sebesar ${rupiah(total)}. Ini bukti transfernya:';
+    launchUrl(Uri.parse('https://wa.me/$kWaNumber?text=${Uri.encodeComponent(msg)}'), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: kMangoSoft, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Text(_isQris ? '📱' : '🏦', style: const TextStyle(fontSize: 17)),
+          const SizedBox(width: 8),
+          Text(_isQris ? 'Bayar via QRIS' : 'Bayar via Transfer', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+        ]),
+        const SizedBox(height: 10),
+        if (_isQris) ...[
+          if (kQrisImageUrl.isNotEmpty)
+            Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(kQrisImageUrl, height: 200, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Text('Gagal memuat QRIS'))))
+          else
+            const Text('Kode QRIS akan kami kirim via WhatsApp setelah pesanan dibuat.', style: TextStyle(fontSize: 12.5, color: kInk, height: 1.35)),
+        ] else ...[
+          _copyRow(context, 'Bank', kBankName, copyable: false),
+          _copyRow(context, 'No. Rekening', kBankAccount),
+          _copyRow(context, 'Atas Nama', kBankHolder, copyable: false),
+        ],
+        const Divider(height: 18),
+        _copyRow(context, 'Jumlah', rupiah(total)),
+        const SizedBox(height: 8),
+        const Text('Bayar sesuai jumlah di atas, lalu kirim bukti ke WhatsApp kami. Pesanan diproses setelah pembayaran dicek.', style: TextStyle(fontSize: 11.5, color: kMuted, height: 1.4)),
+        if (orderId != null && kWaNumber.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(46), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              onPressed: _sendProof,
+              icon: const Icon(Icons.chat, size: 18),
+              label: const Text('Sudah bayar? Kirim bukti', style: TextStyle(fontWeight: FontWeight.w800)),
+            ),
+          ),
+        ],
+      ]),
+    );
+  }
+
+  Widget _copyRow(BuildContext context, String k, String v, {bool copyable = true}) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(children: [
+          SizedBox(width: 92, child: Text(k, style: const TextStyle(color: kMuted, fontSize: 12.5))),
+          Expanded(child: Text(v, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5))),
+          if (copyable)
+            GestureDetector(
+              onTap: () => _copy(context, v),
+              child: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(Icons.copy, size: 16, color: kGreenInk)),
+            ),
+        ]),
+      );
 }
 
 // ---------- tracking ----------
@@ -1164,6 +1269,11 @@ class _TrackingPageState extends State<TrackingPage> {
                   decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(14)),
                   child: Row(children: [const Text('✅', style: TextStyle(fontSize: 18)), const SizedBox(width: 9), Expanded(child: Text('Pesanan #${o.id} berhasil dibuat!', style: const TextStyle(fontWeight: FontWeight.w700, color: kGreenInk)))]),
                 ),
+              // Prepaid order not yet processed → show payment instructions until it's paid & moved on.
+              if (o.pay != 'COD' && st == 0) ...[
+                PayInstructions(pay: o.pay, total: o.total, orderId: o.id),
+                const SizedBox(height: 16),
+              ],
               _map(st),
               const SizedBox(height: 16),
               ...List.generate(_stages.length, (i) => _stepRow(i, st)),
