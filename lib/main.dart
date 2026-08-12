@@ -12,8 +12,25 @@ void main() => runApp(const ParamallApp());
 const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
 // Hidden admin: salted-SHA256 of the passcode 'paramall2026' (same as web admin).
 const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad';
-const int kOngkir = 10000;
-const int kFreeOngkirMin = 100000;
+const int kFreeOngkirMin = 100000; // gratis ongkir di atas nominal ini (promo, tetap untung karena ada margin)
+const int kMinOrder = 25000; // minimal belanja
+const double kMarginPct = 0.12; // markup harga jual (12%) — sumber profit utama, skala dengan besar belanja
+
+class DeliveryZone {
+  final String label;
+  final int fee;
+  const DeliveryZone(this.label, this.fee);
+}
+
+// Ongkir berdasarkan jarak. Ubah label/tarif sesuai areamu.
+const List<DeliveryZone> kZones = [
+  DeliveryZone('Dalam 1 km', 10000),
+  DeliveryZone('1 – 2 km', 15000),
+  DeliveryZone('2 – 3 km', 20000),
+];
+
+int roundTo(num v, int step) => step <= 0 ? v.round() : (v / step).round() * step;
+int sellPrice(int base) => roundTo(base * (1 + kMarginPct), 500);
 
 // ---------- palette ----------
 const kGreen = Color(0xFF1E6E4F);
@@ -101,6 +118,14 @@ Future<List<Product>> loadCatalog() async {
   return data
       .map((e) => Product.fromJson(e as Map<String, dynamic>))
       .where((p) => p.name.isNotEmpty && p.price > 0)
+      // Apply the selling margin so displayed prices are our prices, not the shelf price.
+      .map((p) => Product(
+            name: p.name,
+            price: sellPrice(p.price),
+            priceOriginal: p.priceOriginal == null ? null : sellPrice(p.priceOriginal!),
+            imageUrl: p.imageUrl,
+            cat: p.cat,
+          ))
       .toList();
 }
 
@@ -162,7 +187,8 @@ class _HomeShellState extends State<HomeShell> {
 
   int get cartCount => _cart.values.fold(0, (a, b) => a + b);
   int get subtotal => _cart.entries.fold(0, (a, e) => a + _products[e.key].price * e.value);
-  int get ongkir => (subtotal >= kFreeOngkirMin || subtotal == 0) ? 0 : kOngkir;
+  // Cart estimate uses the nearest zone; the real zone is chosen at checkout.
+  int get ongkir => (subtotal >= kFreeOngkirMin || subtotal == 0) ? 0 : kZones[0].fee;
 
   void _setQty(int i, int v) => setState(() {
         if (v <= 0) {
@@ -205,7 +231,6 @@ class _HomeShellState extends State<HomeShell> {
         cart: Map<int, int>.from(_cart),
         profile: _profile,
         subtotal: subtotal,
-        ongkir: ongkir,
         onPlaced: _placeOrder,
       );
     }));
@@ -795,9 +820,8 @@ class CheckoutPage extends StatefulWidget {
   final Map<int, int> cart;
   final Profile profile;
   final int subtotal;
-  final int ongkir;
   final Future<void> Function(Order) onPlaced;
-  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.ongkir, required this.onPlaced});
+  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.onPlaced});
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
@@ -808,6 +832,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   late final TextEditingController _addr = TextEditingController(text: widget.profile.address);
   final TextEditingController _note = TextEditingController();
   String _pay = 'COD';
+  int _zone = 0;
   bool _busy = false;
 
   @override
@@ -819,7 +844,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
-  int get total => widget.subtotal + widget.ongkir;
+  int get ongkir => widget.subtotal >= kFreeOngkirMin ? 0 : kZones[_zone].fee;
+  int get total => widget.subtotal + ongkir;
 
   String _payLabel(String p) => p == 'COD' ? 'Bayar di Tempat (COD)' : p == 'Transfer' ? 'Transfer Bank' : 'QRIS';
 
@@ -830,6 +856,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _place() async {
+    if (widget.subtotal < kMinOrder) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('Minimal belanja ${rupiah(kMinOrder)}')));
+      return;
+    }
     if (_name.text.trim().isEmpty || _phone.text.trim().isEmpty || _addr.text.trim().isEmpty) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -841,7 +873,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final order = Order(
       id: _orderId(), at: DateTime.now(),
       name: _name.text.trim(), phone: _phone.text.trim(), addr: _addr.text.trim(), note: _note.text.trim(), pay: _pay,
-      items: items, subtotal: widget.subtotal, ongkir: widget.ongkir, total: total,
+      items: items, subtotal: widget.subtotal, ongkir: ongkir, total: total,
     );
     await widget.onPlaced(order);
     if (!mounted) return;
@@ -864,6 +896,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
               _field('Alamat lengkap', _addr, lines: 3),
               _field('Catatan (opsional)', _note),
               const SizedBox(height: 8),
+              const Text('Zona Pengantaran', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              const Text('Ongkir menyesuaikan jarak dari toko.', style: TextStyle(color: kMuted, fontSize: 12.5)),
+              const SizedBox(height: 10),
+              ...List.generate(kZones.length, _zoneTile),
+              const SizedBox(height: 8),
               const Text('Metode Pembayaran', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
               const SizedBox(height: 10),
               _payTile('COD', '💵', 'Bayar di Tempat (COD)', 'Bayar tunai saat barang diantar'),
@@ -879,7 +916,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ...widget.cart.entries.map((e) => moneyRow('${e.value}× ${widget.products[e.key].name}', rupiah(widget.products[e.key].price * e.value))),
                   const Divider(height: 18),
                   moneyRow('Subtotal', rupiah(widget.subtotal)),
-                  moneyRow(widget.ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir', rupiah(widget.ongkir)),
+                  moneyRow(ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir (${kZones[_zone].label})', rupiah(ongkir)),
                   const SizedBox(height: 4),
                   moneyRow('Total Bayar', rupiah(total), bold: true),
                 ]),
@@ -918,6 +955,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ]),
       );
+
+  Widget _zoneTile(int i) {
+    final z = kZones[i];
+    final on = _zone == i;
+    final free = widget.subtotal >= kFreeOngkirMin;
+    return GestureDetector(
+      onTap: () => setState(() => _zone = i),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(color: on ? kGreenSoft : kSurface, borderRadius: BorderRadius.circular(13), border: Border.all(color: on ? kGreen : kLine)),
+        child: Row(children: [
+          const Icon(Icons.pedal_bike, size: 20, color: kGreenInk),
+          const SizedBox(width: 11),
+          Expanded(child: Text(z.label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5))),
+          Text(free ? 'GRATIS' : rupiah(z.fee), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: free ? kGreen : kInk)),
+          const SizedBox(width: 10),
+          Icon(on ? Icons.radio_button_checked : Icons.radio_button_off, color: on ? kGreen : kMuted, size: 20),
+        ]),
+      ),
+    );
+  }
 
   Widget _payTile(String value, String emoji, String title, String sub) {
     final on = _pay == value;
