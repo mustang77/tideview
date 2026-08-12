@@ -491,5 +491,325 @@
   "price": 27900,
   "priceOriginal": 29900,
   "imageUrl": "https://c.alfagift.id/product/1/1_A8354910002167_20260216140121817_base.jpg"
+ },
+ {
+  "name": "Beras Ramos Cap Jago Setra Wangi 5 kg",
+  "price": 68000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Gulaku Gula Pasir Tebu Premium 1 kg",
+  "price": 18500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Telur Ayam Negeri Segar 1 kg",
+  "price": 28000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Segitiga Biru Tepung Terigu Serbaguna 1 kg",
+  "price": 12500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Cakra Kembar Tepung Terigu Protein Tinggi 1 kg",
+  "price": 14000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Blue Band Margarin Serbaguna 200 g",
+  "price": 11500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Kara Santan Kelapa 200 ml",
+  "price": 8500,
+  "imageUrl": ""
+ },
+ {
+  "name": "ABC Kecap Manis Botol 275 ml",
+  "price": 13000,
+  "imageUrl": ""
+ },
+ {
+  "name": "ABC Saus Sambal Asli Botol 335 ml",
+  "price": 15500,
+  "imageUrl": ""
+ },
+ {
+  "name": "ABC Saus Tomat Botol 335 ml",
+  "price": 14500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Masako Kaldu Penyedap Rasa Ayam 100 g",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Royco Penyedap Rasa Ayam 100 g",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sasa Micin Penyedap Rasa 100 g",
+  "price": 5500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Dolphin Garam Beryodium Halus 250 g",
+  "price": 3500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Kapal Api Special Kopi Bubuk 165 g",
+  "price": 12500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sariwangi Teh Celup Asli 25 pcs",
+  "price": 8500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Fortune Minyak Goreng Pouch 2 L",
+  "price": 34000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Indomie Mi Instan Goreng Spesial 85 g",
+  "price": 3200,
+  "imageUrl": ""
+ },
+ {
+  "name": "Indomie Mi Instan Kari Ayam 72 g",
+  "price": 3200,
+  "imageUrl": ""
+ },
+ {
+  "name": "Indomie Mi Instan Goreng Rendang 91 g",
+  "price": 3500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Indomie Mi Instan Kaldu Ayam 69 g",
+  "price": 3200,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sedaap Mi Instan Kuah Soto 75 g",
+  "price": 3000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Pop Mie Rasa Ayam 75 g",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Pop Mie Rasa Baso 75 g",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sarimi Isi 2 Mi Instan Ayam Bawang 126 g",
+  "price": 4000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Lemonilo Mi Instan Goreng 68 g",
+  "price": 5500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Teh Pucuk Harum Minuman Teh Melati 350 ml",
+  "price": 4000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Le Minerale Air Mineral Botol 600 ml",
+  "price": 3500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Coca-Cola Minuman Berkarbonasi 390 ml",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sprite Minuman Berkarbonasi 390 ml",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Fanta Minuman Berkarbonasi Stroberi 390 ml",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Floridina Minuman Jus Jeruk 350 ml",
+  "price": 4000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Good Day Kopi Cappuccino Pet 250 ml",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Milo Minuman Cokelat UHT 180 ml",
+  "price": 5500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Bear Brand Susu Steril 189 ml",
+  "price": 10500,
+  "imageUrl": ""
+ },
+ {
+  "name": "You C1000 Minuman Vitamin C Orange 140 ml",
+  "price": 6000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Extra Joss Minuman Energi Sachet 5 x 4.2 g",
+  "price": 6500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Chitato Snack Kentang Rasa Sapi Panggang 68 g",
+  "price": 11000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Lays Snack Kentang Rumput Laut 68 g",
+  "price": 11000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Qtela Keripik Singkong Original 60 g",
+  "price": 8500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Oreo Biskuit Sandwich Cokelat 133 g",
+  "price": 10500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Biskuat Bolu Cokelat 4 pcs",
+  "price": 9500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Beng Beng Wafer Cokelat Karamel 20 g",
+  "price": 2500,
+  "imageUrl": ""
+ },
+ {
+  "name": "SilverQueen Cokelat Chunky Bar 62 g",
+  "price": 15000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Nabati Richeese Wafer Keju 50 g",
+  "price": 4500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Garuda Kacang Kulit 200 g",
+  "price": 12000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Pepsodent Pasta Gigi Pencegah Gigi Berlubang 190 g",
+  "price": 12500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Lifebuoy Sabun Mandi Batang Total 10 x 4 pcs",
+  "price": 12000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sunsilk Sampo Black Shine 160 ml",
+  "price": 15500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Pantene Sampo Anti Ketombe 135 ml",
+  "price": 16500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Dove Sabun Mandi Cair Body Wash 400 ml",
+  "price": 28000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Rexona Deodoran Roll On Wanita 45 ml",
+  "price": 17000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Vaseline Body Lotion Healthy White 200 ml",
+  "price": 22000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Rinso Deterjen Bubuk Anti Noda 770 g",
+  "price": 20000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sunlight Sabun Cuci Piring Jeruk Nipis 755 ml",
+  "price": 15500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Nice Tisu Wajah Non Parfum 250 sheet",
+  "price": 15000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Baygon Obat Nyamuk Aerosol Sereh 600 ml",
+  "price": 32000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Bayclin Pemutih Pakaian Reguler 500 ml",
+  "price": 9500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Super Pell Pembersih Lantai Daya Pembersih Ekstra 770 ml",
+  "price": 12500,
+  "imageUrl": ""
+ },
+ {
+  "name": "ABC Baterai Alkaline AA 4 pcs",
+  "price": 15000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Sweety Gold Popok Celana Bayi M 30 pcs",
+  "price": 62000,
+  "imageUrl": ""
+ },
+ {
+  "name": "SGM Eksplor 1+ Susu Pertumbuhan Madu 900 g",
+  "price": 92000,
+  "imageUrl": ""
+ },
+ {
+  "name": "Zwitsal Baby Bath Milk & Rice 200 ml",
+  "price": 18500,
+  "imageUrl": ""
+ },
+ {
+  "name": "Cussons Baby Powder Soft & Smooth 200 g",
+  "price": 14500,
+  "imageUrl": ""
  }
 ]
