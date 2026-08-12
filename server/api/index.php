@@ -289,6 +289,20 @@ switch ($action) {
         ok();
     }
 
+    // ---- Push diagnostics (admin) ----
+    case 'fcm_status': {
+        requireAdmin($cfg, $body);
+        $sa = fcmServiceAccount();
+        $cnt = (int)($pdo->query('SELECT COUNT(*) AS c FROM device_tokens')->fetch()['c'] ?? 0);
+        ok([
+            'fcm_enabled'    => fcmEnabled($cfg),
+            'project_id_set' => trim((string)($cfg['fcm_project_id'] ?? '')) !== '',
+            'key_found'      => $sa !== null,
+            'client_email'   => $sa['client_email'] ?? null, // not secret; helps confirm the right key
+            'device_tokens'  => $cnt,
+        ]);
+    }
+
     // ---- Push notification tokens ----
     case 'register_token': {
         $u = authUser($pdo, $body);
