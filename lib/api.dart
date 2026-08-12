@@ -117,6 +117,21 @@ class Api {
     await _post('admin_set_status', {'admin_pass': adminPass, 'id': id, 'status': status});
   }
 
+  // ---- Driver mode ----
+  static Future<List<Order>> driverOrders(String driverPass) async {
+    final d = await _post('driver_orders', {'driver_pass': driverPass});
+    return _parseOrders(d['orders']);
+  }
+
+  static Future<void> driverSetStatus({required String driverPass, required String id, required String status}) async {
+    await _post('driver_set_status', {'driver_pass': driverPass, 'id': id, 'status': status});
+  }
+
+  // ---- Push tokens (used once Firebase is set up) ----
+  static Future<void> registerToken({required String token, required String deviceToken, required String platform}) async {
+    await _post('register_token', {'device_token': deviceToken, 'platform': platform}, token: token);
+  }
+
   static List<Order> _parseOrders(dynamic raw) {
     if (raw is! List) return [];
     return raw.whereType<Map<String, dynamic>>().map(Order.fromJson).toList();

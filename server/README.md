@@ -21,9 +21,15 @@ Runs on your existing Webuzo/LiteSpeed host — no new server needed.
 | `my_orders` | token | — | orders[] |
 | `admin_orders` | admin_pass | — | all orders[] |
 | `admin_set_status` | admin_pass | id, status | ok |
+| `driver_orders` | driver_pass | — | active orders[] (not yet Selesai) |
+| `driver_set_status` | driver_pass | id, status (Diantar/Selesai) | ok |
+| `register_token` | token | device_token, platform | ok (for push) |
+| `unregister_token` | — | device_token | ok |
 
 Auth token goes in the JSON body as `token` (or `Authorization: Bearer <token>`).
-Admin endpoints need `admin_pass` (your admin passcode).
+Admin endpoints need `admin_pass`; driver endpoints need `driver_pass` (the admin
+passcode also works for driver endpoints). Status changes send a push to the
+customer, and new orders alert the `staff` topic — see **Push notifications** below.
 
 ## Setup (once, ~10 minutes)
 
@@ -48,6 +54,25 @@ Admin endpoints need `admin_pass` (your admin passcode).
 - `config.php` holds your DB password — it is git-ignored; never share it.
 - Always call over **https** (your site already has SSL).
 - This is an MVP: consider adding rate-limiting and per-token expiry as you grow.
+
+## Push notifications (Firebase Cloud Messaging)
+
+Push is **optional** and off until you configure it — the API works fine without
+it. To turn it on:
+
+1. Create a free Firebase project (see `FIREBASE_SETUP.md` at the repo root for
+   the full walkthrough).
+2. In Firebase → *Project settings → Service accounts → Generate new private
+   key*. Save the downloaded JSON as `api/fcm-service-account.json` (next to
+   `index.php`). It is git-ignored — never commit it.
+3. Put your Firebase **project id** into `config.php` as `fcm_project_id`.
+4. Re-import `schema.sql` (or just run the `device_tokens` CREATE TABLE) so the
+   token table exists.
+
+That's it. `fcm.php` reads those two things; if either is missing it silently
+no-ops. When present:
+- changing an order's status pushes to that customer's devices, and
+- a new order pushes to the `staff` topic (drivers/admins subscribe to it).
 
 ## Next: connect the app
 

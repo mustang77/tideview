@@ -14,8 +14,9 @@ typedef Authed = Future<void> Function(String token, String name, String phone, 
 
 // ---------- config ----------
 const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
-// Hidden admin: salted-SHA256 of the passcode 'paramall2026' (same as web admin).
-const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad';
+// Hidden staff access: salted-SHA256 of the passcodes (server holds the real ones).
+const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad'; // 'paramall2026'
+const String kDriverHash = '091ce939cb21f96cbc3592627761c196915935c69c572c05911c0127f2b9eff9'; // 'driver2026'
 const int kFreeOngkirMin = 100000; // gratis ongkir di atas nominal ini (promo, tetap untung karena ada margin)
 const int kMinOrder = 25000; // minimal belanja
 const double kMarginPct = 0.12; // markup harga jual (12%) — sumber profit utama, skala dengan besar belanja
@@ -1501,8 +1502,12 @@ class _ProfilePageState extends State<ProfilePage> {
   void _askAdminPin() {
     final ctrl = TextEditingController();
     showDialog(context: context, builder: (dctx) => AlertDialog(
-      title: const Text('Mode Admin'),
-      content: TextField(controller: ctrl, obscureText: true, autofocus: true, keyboardType: TextInputType.text, autocorrect: false, enableSuggestions: false, decoration: const InputDecoration(labelText: 'Passcode admin')),
+      title: const Text('Mode Staff'),
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        TextField(controller: ctrl, obscureText: true, autofocus: true, keyboardType: TextInputType.text, autocorrect: false, enableSuggestions: false, decoration: const InputDecoration(labelText: 'Passcode admin / driver')),
+        const SizedBox(height: 8),
+        const Text('Admin: kelola semua pesanan. Driver: antar pesanan.', style: TextStyle(fontSize: 11.5, color: kMuted)),
+      ]),
       actions: [
         TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Batal')),
         FilledButton(
@@ -1512,6 +1517,9 @@ class _ProfilePageState extends State<ProfilePage> {
             if (hashPin(pass) == kAdminHash) {
               Navigator.pop(dctx);
               Navigator.push(context, MaterialPageRoute(builder: (_) => AdminPage(adminPass: pass)));
+            } else if (hashPin(pass) == kDriverHash) {
+              Navigator.pop(dctx);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => DriverPage(driverPass: pass)));
             } else {
               _snack('Passcode salah');
             }
@@ -2422,6 +2430,243 @@ class _AdminPageState extends State<AdminPage> {
         ),
         child: Text(status, style: TextStyle(color: active ? Colors.white : kGreenInk, fontWeight: FontWeight.w800, fontSize: 12.5)),
       ),
+    );
+  }
+}
+
+// ---------- driver mode (unlock: staff passcode → driver code) ----------
+class DriverPage extends StatefulWidget {
+  final String driverPass;
+  const DriverPage({super.key, required this.driverPass});
+  @override
+  State<DriverPage> createState() => _DriverPageState();
+}
+
+class _DriverPageState extends State<DriverPage> {
+  List<Order> _orders = [];
+  bool _loading = true;
+  String? _error;
+  final Set<String> _busy = {};
+  int _tab = 0; // 0 = Perlu diantar, 1 = Sedang diantar
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final o = await Api.driverOrders(widget.driverPass);
+      if (!mounted) return;
+      setState(() {
+        _orders = o;
+        _loading = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.message;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Tidak bisa memuat pesanan. Cek koneksi.';
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _setStatus(Order o, String status) async {
+    setState(() => _busy.add(o.id));
+    try {
+      await Api.driverSetStatus(driverPass: widget.driverPass, id: o.id, status: status);
+      await _load();
+      if (mounted) _snack(status == 'Diantar' ? 'Diambil — selamat mengantar! 🛵' : 'Pesanan selesai ✅');
+    } on ApiException catch (e) {
+      if (mounted) _snack(e.message);
+    } catch (_) {
+      if (mounted) _snack('Gagal memperbarui status.');
+    } finally {
+      if (mounted) setState(() => _busy.remove(o.id));
+    }
+  }
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
+  Future<void> _call(String phone) async {
+    final p = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (p.isEmpty) return;
+    await launchUrl(Uri.parse('tel:$p'));
+  }
+
+  Future<void> _maps(String addr) async {
+    final q = Uri.encodeComponent(addr);
+    await launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=$q'), mode: LaunchMode.externalApplication);
+  }
+
+  bool _isDelivering(Order o) => orderStage(o) == 2; // Diantar
+
+  List<Order> get _list => _orders.where((o) => _tab == 0 ? !_isDelivering(o) : _isDelivering(o)).toList();
+
+  @override
+  Widget build(BuildContext context) {
+    final toPickup = _orders.where((o) => !_isDelivering(o)).length;
+    final delivering = _orders.where(_isDelivering).length;
+    return Scaffold(
+      backgroundColor: kGround,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF12543A),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Mode Driver', style: TextStyle(fontWeight: FontWeight.w800)),
+        actions: [IconButton(onPressed: _loading ? null : _load, icon: const Icon(Icons.refresh), tooltip: 'Muat ulang')],
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator(color: kGreen))
+          : _error != null
+              ? _errorView()
+              : Column(children: [
+                  Container(
+                    color: kSurface,
+                    child: Row(children: [
+                      _tabBtn(0, 'Perlu diantar', toPickup),
+                      _tabBtn(1, 'Sedang diantar', delivering),
+                    ]),
+                  ),
+                  const Divider(height: 1, color: kLine),
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: kGreen,
+                      onRefresh: _load,
+                      child: _list.isEmpty
+                          ? ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [
+                              SizedBox(height: 90),
+                              EmptyView(emoji: '🛵', text: 'Tidak ada pesanan di sini.\nTarik ke bawah untuk memuat ulang.'),
+                            ])
+                          : ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.all(12),
+                              children: _list.map(_card).toList(),
+                            ),
+                    ),
+                  ),
+                ]),
+    );
+  }
+
+  Widget _tabBtn(int i, String label, int count) {
+    final on = i == _tab;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _tab = i),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 13),
+          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: on ? kGreen : Colors.transparent, width: 2.5))),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(label, style: TextStyle(color: on ? kGreen : kMuted, fontWeight: on ? FontWeight.w800 : FontWeight.w600, fontSize: 13.5)),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+              decoration: BoxDecoration(color: on ? kGreen : kTile, borderRadius: BorderRadius.circular(999)),
+              child: Text('$count', style: TextStyle(color: on ? Colors.white : kMuted, fontWeight: FontWeight.w800, fontSize: 11)),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _errorView() => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text('⚠️', style: TextStyle(fontSize: 44)),
+            const SizedBox(height: 12),
+            Text(_error ?? '', textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14)),
+            const SizedBox(height: 18),
+            FilledButton(style: FilledButton.styleFrom(backgroundColor: kGreen), onPressed: _load, child: const Text('Coba lagi')),
+          ]),
+        ),
+      );
+
+  Widget _card(Order o) {
+    final busy = _busy.contains(o.id);
+    final delivering = _isDelivering(o);
+    final isCod = o.pay.toUpperCase() == 'COD';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // COD banner — what the driver must collect on delivery.
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(color: isCod ? kMangoSoft : kGreenSoft, borderRadius: const BorderRadius.vertical(top: Radius.circular(13))),
+          child: Row(children: [
+            Text(isCod ? '💵' : '✅', style: const TextStyle(fontSize: 15)),
+            const SizedBox(width: 8),
+            Expanded(child: Text(isCod ? 'Tagih tunai (COD)' : '${o.pay} — sudah diatur', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5))),
+            Text(rupiah(o.total), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: isCod ? const Color(0xFF8A5300) : kGreenInk)),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Text('#${o.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+              const Spacer(),
+              Text('${o.count} produk', style: const TextStyle(color: kMuted, fontSize: 12)),
+            ]),
+            const SizedBox(height: 6),
+            Text(o.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            const SizedBox(height: 2),
+            Text(o.addr, style: const TextStyle(fontSize: 13, color: kInk, height: 1.3)),
+            if (o.note.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 3), child: Text('Catatan: ${o.note}', style: const TextStyle(fontSize: 12, color: kMuted, fontStyle: FontStyle.italic))),
+            const SizedBox(height: 10),
+            Row(children: [
+              Expanded(child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: kGreenInk, side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                onPressed: () => _call(o.phone),
+                icon: const Icon(Icons.call, size: 17),
+                label: const Text('Telepon', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+              )),
+              const SizedBox(width: 8),
+              Expanded(child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: kGreenInk, side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                onPressed: () => _maps(o.addr),
+                icon: const Icon(Icons.map_outlined, size: 17),
+                label: const Text('Peta', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+              )),
+            ]),
+            const Divider(height: 20),
+            ...o.items.map((it) => Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text('• ${it.qty}× ${it.name}', style: const TextStyle(fontSize: 12.5), maxLines: 1, overflow: TextOverflow.ellipsis),
+                )),
+            const SizedBox(height: 12),
+            if (busy)
+              const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 4), child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: kGreen))))
+            else
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: delivering ? const Color(0xFF1E8E5A) : kGreen, minimumSize: const Size.fromHeight(46), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  onPressed: () => _setStatus(o, delivering ? 'Selesai' : 'Diantar'),
+                  icon: Icon(delivering ? Icons.check_circle : Icons.pedal_bike, size: 19),
+                  label: Text(delivering ? 'Tandai Selesai' : 'Ambil & Antar', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                ),
+              ),
+          ]),
+        ),
+      ]),
     );
   }
 }

@@ -51,3 +51,7 @@ android/key.properties
 
 # Backend secrets
 server/api/config.php
+server/api/fcm-service-account.json
+
+# Firebase (Android) — google-services.json holds project keys
+android/app/google-services.json

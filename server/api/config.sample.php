@@ -9,4 +9,9 @@ return [
     'db_pass'    => 'YOUR_DB_PASSWORD',
     // Passcode for the admin endpoints (same as the in-app / web admin).
     'admin_pass' => 'paramall2026',
+    // Passcode for drivers (in-app Driver mode). Give this to your delivery team.
+    'driver_pass' => 'driver2026',
+    // Firebase project id (for push). Fill in after you create the Firebase project,
+    // or leave blank — notifications just no-op until this + fcm-service-account.json exist.
+    'fcm_project_id' => '',
 ];

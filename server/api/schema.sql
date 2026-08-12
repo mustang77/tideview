@@ -30,3 +30,15 @@ CREATE TABLE IF NOT EXISTS orders (
   INDEX idx_user (user_id),
   INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Firebase Cloud Messaging device tokens (for push notifications).
+CREATE TABLE IF NOT EXISTS device_tokens (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT NOT NULL DEFAULT 0,        -- 0 = staff/driver device (not tied to a customer)
+  token      VARCHAR(255) NOT NULL UNIQUE,
+  platform   VARCHAR(20) NOT NULL DEFAULT '',
+  role       VARCHAR(20) NOT NULL DEFAULT 'customer', -- 'customer' | 'staff'
+  updated_at DATETIME NOT NULL,
+  INDEX idx_user (user_id),
+  INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
