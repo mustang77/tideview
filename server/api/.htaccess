@@ -1,0 +1,10 @@
+# Block direct web access to secrets in this folder.
+# The API reads these files server-side (PHP); they must never be downloadable.
+<FilesMatch "\.(json|sql|sample\.php)$">
+    Require all denied
+</FilesMatch>
+
+# config.php is PHP (never served as text), but deny it too for good measure.
+<Files "config.php">
+    Require all denied
+</Files>
