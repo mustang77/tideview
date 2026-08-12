@@ -15,6 +15,7 @@
     --danger:#C0432E; --danger-soft:#F7E6E2; --good:#1E8E5A;
     --shadow:0 1px 2px rgba(20,40,30,.06), 0 8px 24px rgba(20,40,30,.06);
     --tile:#F1EFE8;
+    --q1:#E3F0E9; --q2:#FBEAD1; --q3:#E3EDF6; --q4:#EEE6F4; --q5:#E7F2EB;
     --font-display: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", "Segoe UI", system-ui, sans-serif;
     --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --nav-h: 62px;
@@ -25,7 +26,7 @@
     --primary:#54BD8E; --primary-ink:#BEE9D5; --primary-soft:#17352A;
     --accent:#F2AA4C; --accent-soft:#38290F; --accent-ink:#F2C489;
     --danger:#E4715A; --danger-soft:#37211C; --good:#54BD8E;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35); --tile:#1E2620;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35); --tile:#1E2620; --q1:#17352A; --q2:#38290F; --q3:#16283A; --q4:#241C33; --q5:#173026;
   } }
   :root[data-theme="dark"] {
     --ground:#0E1411; --surface:#161D19; --surface-2:#1E2620; --raise:#1B231E;
@@ -33,7 +34,7 @@
     --primary:#54BD8E; --primary-ink:#BEE9D5; --primary-soft:#17352A;
     --accent:#F2AA4C; --accent-soft:#38290F; --accent-ink:#F2C489;
     --danger:#E4715A; --danger-soft:#37211C; --good:#54BD8E;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35); --tile:#1E2620;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35); --tile:#1E2620; --q1:#17352A; --q2:#38290F; --q3:#16283A; --q4:#241C33; --q5:#173026;
   }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { margin:0; }
@@ -54,6 +55,12 @@
   .search { margin-top:11px; display:flex; align-items:center; gap:9px; background:#fff; border-radius:13px; padding:11px 13px; }
   .search svg { width:17px; height:17px; color:var(--muted); flex:none; }
   .search input { border:0; outline:0; width:100%; font-size:14.5px; font-family:var(--font-body); background:transparent; color:var(--ink); }
+
+  .quickmenu { display:flex; justify-content:space-between; gap:4px; padding:16px 12px 2px; }
+  .qm { flex:1; background:none; border:0; display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; padding:2px; }
+  .qm:active { transform:scale(.94); }
+  .qm .ic { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; font-size:25px; }
+  .qm span { font-size:10.5px; font-weight:600; color:var(--ink); line-height:1.12; text-align:center; }
 
   .cats { display:flex; gap:8px; overflow-x:auto; padding:14px 16px 4px; scrollbar-width:none; }
   .cats::-webkit-scrollbar { display:none; }
@@ -200,6 +207,13 @@
         <input id="q" type="text" placeholder="Cari Indomie, beras, minyak…" aria-label="Cari produk"/>
       </label>
     </header>
+    <div class="quickmenu">
+      <button class="qm" data-act="cat:Sembako"><span class="ic" style="background:var(--q1)">🍚</span><span>Sembako</span></button>
+      <button class="qm" data-act="cat:Makanan Instan"><span class="ic" style="background:var(--q2)">🍜</span><span>Makanan Instan</span></button>
+      <button class="qm" data-act="cat:Minuman"><span class="ic" style="background:var(--q3)">🥤</span><span>Minuman</span></button>
+      <button class="qm" data-act="track"><span class="ic" style="background:var(--q4)">🛵</span><span>Lacak Pesanan</span></button>
+      <button class="qm" data-act="help"><span class="ic" style="background:var(--q5)">💬</span><span>Bantuan</span></button>
+    </div>
     <nav class="cats" id="cats" aria-label="Kategori"></nav>
     <div class="promo"><span class="e">🛵</span><p><b>Kami yang belanja &amp; antar</b>Pilih barangnya, tim Paramall beli di Alfamart / Indomaret &amp; antar ke rumah.</p></div>
     <div class="sectionhdr"><h2 class="sec" id="secttl">Semua produk</h2><span id="count"></span></div>
@@ -233,8 +247,8 @@
       <div id="co-items" style="margin-bottom:12px"></div>
       <div class="summary" id="co-summary"></div>
     </div>
-    <div style="height:96px"></div>
-    <div class="actionbar" style="position:sticky"><button class="btn" id="placeOrder">Buat Pesanan</button></div>
+    <div style="height:150px"></div>
+    <div class="actionbar"><button class="btn" id="placeOrder">Buat Pesanan · <span class="money" id="co-total"></span></button></div>
   </section>
 
   <!-- ============ LACAK / TRACKING ============ -->
@@ -328,6 +342,7 @@
   function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active", s.id===id)); window.scrollTo(0,0); }
   function tab(name){
     document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
+    hideCartAction();
     if (name==="shop") show("sc-shop");
     else if (name==="cart"){ renderCart(); show("sc-cart"); }
     else if (name==="me"){ renderMe(); show("sc-me"); }
@@ -342,10 +357,28 @@
     catsEl.innerHTML="";
     CAT_ORDER.filter(c=>c==="Semua"||present.has(c)).forEach(c=>{
       const b=document.createElement("button"); b.className="cat"; b.textContent=c; b.setAttribute("aria-pressed", c===activeCat);
-      b.onclick=()=>{ activeCat=c; [...catsEl.children].forEach(x=>x.setAttribute("aria-pressed", x.textContent===c)); renderGrid(); };
+      b.onclick=()=>setCat(c);
       catsEl.appendChild(b);
     });
   }
+  function setCat(c){
+    activeCat=c; q.value="";
+    [...catsEl.children].forEach(x=>x.setAttribute("aria-pressed", x.textContent===c));
+    renderGrid();
+    $("secttl").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  // quick-menu icons
+  document.querySelectorAll(".qm").forEach(b=>{
+    const act=b.dataset.act;
+    b.onclick=()=>{
+      if(act.startsWith("cat:")) setCat(act.slice(4));
+      else if(act==="track") tab("me");
+      else if(act==="help"){
+        if(CFG.waNumber) window.open(`https://wa.me/${CFG.waNumber}?text=${encodeURIComponent("Halo Paramall, saya mau tanya.")}`,"_blank");
+        else toast("Bantuan: hubungi tim Paramall lewat WhatsApp (nomor menyusul).");
+      }
+    };
+  });
   function renderGrid(){
     const term=q.value.trim().toLowerCase();
     $("secttl").textContent = activeCat==="Semua" ? "Semua produk" : activeCat;
@@ -440,6 +473,7 @@
     $("co-summary").innerHTML=`<div class="sline"><span>Subtotal</span><span class="money">${rp(subtotal())}</span></div>
       <div class="sline"><span>Ongkir${ongkir()===0?' (gratis)':''}</span><span class="money">${rp(ongkir())}</span></div>
       <div class="sline total"><span>Total Bayar</span><span class="money">${rp(total())}</span></div>`;
+    const ct=$("co-total"); if(ct) ct.textContent=rp(total());
   }
   $("co-back").onclick=()=>{ show("sc-cart"); renderCart(); };
 
