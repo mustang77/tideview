@@ -264,12 +264,17 @@ class _HomeShellState extends State<HomeShell> {
 }
 
 // ---------- shared widgets ----------
+// Route images through our same-origin proxy so Flutter Web's canvas can draw
+// them (Alfamart's CDN sends no CORS headers). img.php lives at the site root.
+const String kImgProxy = '/img.php?u=';
+
 Widget productImage(Product p, {double emojiSize = 40}) {
   final emoji = kCatEmoji[p.cat] ?? '🛍️';
   Widget fallback() => Center(child: Text(emoji, style: TextStyle(fontSize: emojiSize)));
   if (p.imageUrl.isEmpty) return fallback();
+  final src = '$kImgProxy${Uri.encodeComponent(p.imageUrl)}';
   return Image.network(
-    p.imageUrl,
+    src,
     fit: BoxFit.contain,
     errorBuilder: (_, __, ___) => fallback(),
     loadingBuilder: (_, child, prog) => prog == null ? child : fallback(),
