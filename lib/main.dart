@@ -1351,7 +1351,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final ctrl = TextEditingController();
     showDialog(context: context, builder: (dctx) => AlertDialog(
       title: const Text('Mode Admin'),
-      content: TextField(controller: ctrl, obscureText: true, autofocus: true, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Passcode admin')),
+      content: TextField(controller: ctrl, obscureText: true, autofocus: true, keyboardType: TextInputType.text, autocorrect: false, enableSuggestions: false, decoration: const InputDecoration(labelText: 'Passcode admin')),
       actions: [
         TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Batal')),
         FilledButton(
