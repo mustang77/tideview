@@ -92,10 +92,15 @@
 
   /* Bottom nav */
   .nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; height:var(--nav-h); background:var(--surface); border-top:1px solid var(--line); display:flex; z-index:40; padding-bottom:env(safe-area-inset-bottom); }
-  .nav button { flex:1; background:none; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--muted); font-size:11px; font-weight:600; cursor:pointer; position:relative; }
+  .nav button { flex:1; background:none; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--muted); font-size:10px; font-weight:600; cursor:pointer; position:relative; padding:0 2px; }
   .nav button.active { color:var(--primary); }
-  .nav svg { width:23px; height:23px; }
-  .navbadge { position:absolute; top:6px; right:calc(50% - 22px); background:var(--danger); color:#fff; min-width:17px; height:17px; border-radius:999px; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 4px; }
+  .nav svg { width:22px; height:22px; }
+  .catgrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cattile { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:14px; display:flex; align-items:center; gap:12px; box-shadow:var(--shadow); cursor:pointer; }
+  .cattile:active { transform:scale(.98); }
+  .cattile .ic { width:46px; height:46px; border-radius:13px; display:grid; place-items:center; font-size:24px; background:var(--primary-soft); flex:none; }
+  .cattile .nm { font-weight:700; font-size:14px; } .cattile small { color:var(--muted); font-size:11.5px; }
+  .navbadge { position:absolute; top:6px; right:calc(50% - 20px); background:var(--danger); color:#fff; min-width:17px; height:17px; border-radius:999px; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; padding:0 4px; }
   .navbadge.on { display:flex; }
 
   /* Cart & lists */
@@ -269,16 +274,29 @@
       <div class="field"><label>Nama</label><input id="me-i-name" placeholder="Nama kamu"></div>
       <div class="field"><label>Nomor HP / WhatsApp</label><input id="me-i-phone" inputmode="tel" placeholder="08xx…"></div>
       <div class="field"><label>Alamat</label><textarea id="me-i-addr" placeholder="Alamat pengantaran"></textarea></div>
-      <button class="btn" id="me-save" style="margin-bottom:22px">Simpan</button>
-      <h2 class="sec" style="margin-bottom:10px">Pesanan Saya</h2>
-      <div id="me-orders"></div>
+      <button class="btn" id="me-save" style="margin-bottom:10px">Simpan</button>
+      <button class="btn ghost" id="me-toorders">Lihat Pesanan Saya</button>
     </div>
+  </section>
+
+  <!-- ============ KATEGORI ============ -->
+  <section class="screen" id="sc-cat">
+    <header class="top"><div class="brandline"><div class="brand" style="font-size:19px">Kategori</div></div></header>
+    <div class="pad"><div class="catgrid" id="catgrid"></div></div>
+  </section>
+
+  <!-- ============ PESANAN ============ -->
+  <section class="screen" id="sc-orders">
+    <header class="top"><div class="brandline"><div class="brand" style="font-size:19px">Pesanan Saya</div></div></header>
+    <div class="pad" id="orders-body"></div>
   </section>
 
   <!-- ============ NAV ============ -->
   <nav class="nav">
     <button data-tab="shop" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Toko</button>
+    <button data-tab="cat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Kategori</button>
     <button data-tab="cart"><span class="navbadge" id="nav-badge"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2.4 12.2a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L21 8H6"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>Keranjang</button>
+    <button data-tab="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9.5 8h5M9.5 12h5"/></svg>Pesanan</button>
     <button data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Saya</button>
   </nav>
 </div>
@@ -344,8 +362,26 @@
     document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
     hideCartAction();
     if (name==="shop") show("sc-shop");
+    else if (name==="cat"){ renderCatScreen(); show("sc-cat"); }
     else if (name==="cart"){ renderCart(); show("sc-cart"); }
+    else if (name==="orders"){ renderOrders(); show("sc-orders"); }
     else if (name==="me"){ renderMe(); show("sc-me"); }
+  }
+  function renderCatScreen(){
+    const counts={}; P.forEach(x=>counts[x.cat]=(counts[x.cat]||0)+1);
+    const cats=CAT_ORDER.filter(c=>c!=="Semua" && counts[c]);
+    $("catgrid").innerHTML = `<div class="cattile" data-c="Semua" style="grid-column:1/-1"><span class="ic">🛒</span><div><div class="nm">Semua Produk</div><small>${P.length} produk</small></div></div>` +
+      cats.map(c=>`<div class="cattile" data-c="${c}"><span class="ic">${TILE_EMOJI[c]||"🛍️"}</span><div><div class="nm">${c}</div><small>${counts[c]} produk</small></div></div>`).join("");
+    $("catgrid").querySelectorAll("[data-c]").forEach(t=> t.onclick=()=>{ tab("shop"); setCat(t.dataset.c); });
+  }
+  function renderOrders(){
+    const ol=store.orders;
+    $("orders-body").innerHTML = ol.length ? ol.map(o=>`<div class="ordercard" data-oid="${o.id}" style="cursor:pointer">
+      <div class="hd"><span>#${o.id}</span><span class="st">Lacak ›</span></div>
+      <div class="it">${o.items.reduce((a,b)=>a+b.qty,0)} barang • ${new Date(o.at).toLocaleDateString("id-ID",{day:"numeric",month:"short"})}</div>
+      <div class="tt money">${rp(o.total)}</div></div>`).join("")
+      : `<div class="empty"><span class="big">🧾</span>Belum ada pesanan.<br>Yuk mulai belanja di Toko.</div>`;
+    $("orders-body").querySelectorAll("[data-oid]").forEach(c=> c.onclick=()=>openTrack(c.dataset.oid,false));
   }
   document.querySelectorAll(".nav button").forEach(b=> b.onclick=()=>tab(b.dataset.tab));
 
@@ -547,7 +583,7 @@
     if(waLink(o)) $("tr-wa").onclick=()=>window.open(waLink(o),"_blank");
     $("tr-shop").onclick=()=>tab("shop");
   }
-  $("tr-back").onclick=()=>tab("me");
+  $("tr-back").onclick=()=>tab("orders");
   function waText(o){
     let t=`*Pesanan ${CFG.storeName}*\n#${o.id}\n\n`;
     o.items.forEach(it=> t+=`• ${it.qty}× ${it.name} — ${rp(it.sum)}\n`);
@@ -563,15 +599,9 @@
     $("me-name").textContent=p.name||"Tamu"; $("me-phone").textContent=p.phone||"Belum ada nomor HP";
     $("me-avatar").textContent=(p.name?p.name.trim()[0].toUpperCase():"😊");
     $("me-i-name").value=p.name||""; $("me-i-phone").value=p.phone||""; $("me-i-addr").value=p.address||"";
-    const ol=store.orders;
-    $("me-orders").innerHTML = ol.length ? ol.map(o=>`<div class="ordercard" data-oid="${o.id}" style="cursor:pointer">
-      <div class="hd"><span>#${o.id}</span><span class="st">Lacak ›</span></div>
-      <div class="it">${o.items.reduce((a,b)=>a+b.qty,0)} barang • ${new Date(o.at).toLocaleDateString("id-ID",{day:"numeric",month:"short"})}</div>
-      <div class="tt money">${rp(o.total)}</div></div>`).join("")
-      : `<div class="empty" style="padding:30px"><span class="big">🧾</span>Belum ada pesanan.</div>`;
-    $("me-orders").querySelectorAll("[data-oid]").forEach(c=> c.onclick=()=>openTrack(c.dataset.oid,false));
   }
   $("me-save").onclick=()=>{ store.profile={ name:$("me-i-name").value.trim(), phone:$("me-i-phone").value.trim(), address:$("me-i-addr").value.trim() }; renderMe(); toast("Data tersimpan"); };
+  $("me-toorders").onclick=()=>tab("orders");
 
   // ---------- boot ----------
   function load(data){
