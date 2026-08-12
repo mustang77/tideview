@@ -120,20 +120,33 @@ async function openApiSession(context) {
     }
   });
 
+  // Grab the bearer token the site sends on its OWN API requests, so we can
+  // reuse it for clean, keyword-specific, paginated calls even when the token
+  // isn't exposed in a readable cookie.
+  const state = { auth: null };
+  page.on('request', (req) => {
+    if (state.auth) return;
+    if (!req.url().includes(API_HOST)) return;
+    const a = req.headers()['authorization'];
+    if (a) state.auth = a;
+  });
+
   await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(5000); // let the SPA obtain its guest token + first calls
 
-  const tok = await page.evaluate(() => /auth\._token\.local=/.test(document.cookie));
-  console.log(`  guest token cookie present: ${tok}`);
+  const cookieTok = await page.evaluate(() => /auth\._token\.local=/.test(document.cookie));
+  console.log(`  token — cookie: ${cookieTok}, captured from site requests: ${!!state.auth}`);
 
   const call = (pathAndQuery) =>
-    page.evaluate(async (url) => {
+    page.evaluate(async ({ url, auth }) => {
       try {
         const headers = { accept: 'application/json' };
         const m = document.cookie.match(/auth\._token\.local=([^;]+)/);
         if (m) {
           const t = decodeURIComponent(m[1]);
           headers.authorization = /^bearer\s/i.test(t) ? t : 'Bearer ' + t;
+        } else if (auth) {
+          headers.authorization = auth;
         }
         const res = await fetch(url, { credentials: 'include', headers });
         const text = await res.text();
@@ -143,7 +156,7 @@ async function openApiSession(context) {
       } catch (e) {
         return { status: -1, error: String(e) };
       }
-    }, `https://${API_HOST}${pathAndQuery}`);
+    }, { url: `https://${API_HOST}${pathAndQuery}`, auth: state.auth });
 
   // Navigate the real search page so the site itself loads (authenticated)
   // results, which the interception handler above then captures.
