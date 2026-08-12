@@ -14,22 +14,34 @@ declare(strict_types=1);
  * Keep it secret — it is git-ignored.
  */
 
-function fcmServiceAccountPath(): string {
-    return __DIR__ . '/fcm-service-account.json';
+/**
+ * Load the service-account credentials. Preferred: fcm-service-account.php
+ * (a PHP file that `return`s the array — never served as readable text, so it
+ * is safe even on servers that ignore .htaccess). Falls back to the raw .json
+ * for backward compatibility.
+ */
+function fcmServiceAccount(): ?array {
+    $php = __DIR__ . '/fcm-service-account.php';
+    if (is_file($php)) {
+        $sa = require $php;
+        return is_array($sa) ? $sa : null;
+    }
+    $json = __DIR__ . '/fcm-service-account.json';
+    if (is_file($json)) {
+        $sa = json_decode((string)@file_get_contents($json), true);
+        return is_array($sa) ? $sa : null;
+    }
+    return null;
 }
 
 function fcmEnabled(array $cfg): bool {
-    return trim((string)($cfg['fcm_project_id'] ?? '')) !== '' && is_file(fcmServiceAccountPath());
+    return trim((string)($cfg['fcm_project_id'] ?? '')) !== '' && fcmServiceAccount() !== null;
 }
 
 /** Build a short-lived OAuth access token from the service account (JWT bearer grant). */
 function fcmAccessToken(): ?string {
-    $raw = @file_get_contents(fcmServiceAccountPath());
-    if ($raw === false) {
-        return null;
-    }
-    $sa = json_decode($raw, true);
-    if (!is_array($sa) || empty($sa['client_email']) || empty($sa['private_key'])) {
+    $sa = fcmServiceAccount();
+    if ($sa === null || empty($sa['client_email']) || empty($sa['private_key'])) {
         return null;
     }
     $now = time();

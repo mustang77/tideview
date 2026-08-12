@@ -52,6 +52,7 @@ android/key.properties
 # Backend secrets — the Firebase service-account key is admin-level; server only.
 server/api/config.php
 server/api/fcm-service-account.json
+server/api/fcm-service-account.php
 **/firebase-adminsdk*.json
 
 # Note: android/app/google-services.json is intentionally committed. It only
