@@ -411,8 +411,9 @@ class EmptyView extends StatelessWidget {
 
 Widget moneyRow(String a, String b, {bool bold = false}) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(a, style: TextStyle(color: bold ? kInk : kMuted, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, fontSize: bold ? 16 : 13.5)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(child: Text(a, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: bold ? kInk : kMuted, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, fontSize: bold ? 16 : 13.5))),
+        const SizedBox(width: 10),
         Text(b, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w600, fontSize: bold ? 17 : 13.5)),
       ]),
     );
@@ -1520,8 +1521,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _label(String t) => Padding(padding: const EdgeInsets.only(left: 4, bottom: 8), child: Text(t, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: kMuted, letterSpacing: 0.6)));
 
   Widget _card(List<Widget> children) => Container(
-    decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
-    child: Column(children: children),
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+    child: Material(color: kSurface, child: Column(children: children)),
   );
 
   Widget _sep() => const Divider(height: 1, thickness: 1, indent: 56, color: kLine);
