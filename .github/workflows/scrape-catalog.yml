@@ -57,6 +57,9 @@ on:
       - ".github/workflows/scrape-catalog.yml"
       - "tools/**"
 
+permissions:
+  contents: write
+
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -66,8 +69,8 @@ jobs:
     env:
       SOURCE: ${{ inputs.source || 'alfagift' }}
       MODE: ${{ inputs.mode || 'search' }}
-      QUERY: ${{ inputs.query || 'indomie,mie sedaap,beras,minyak goreng,gula,telur,kopi,teh,susu,air mineral,kecap,saus sambal,tepung,roti,biskuit,snack,sabun mandi,shampoo,pasta gigi,tisu,detergen,pewangi,popok,sabun cuci piring' }}
-      MAX: ${{ inputs.max || '250' }}
+      QUERY: ${{ inputs.query || 'indomie,mie sedaap,pop mie,beras,minyak goreng,gula pasir,telur,kopi,teh,susu,air mineral,kecap manis,saus sambal,saus tomat,tepung terigu,margarin,santan,garam,penyedap rasa,roti,biskuit,wafer,coklat,permen,keripik,snack,kacang,sabun mandi,shampoo,pasta gigi,sikat gigi,deodorant,lotion,tisu,detergen,pewangi,pembersih lantai,sabun cuci piring,pembalut,popok bayi,susu bayi,minuman,sirup,kopi sachet' }}
+      MAX: ${{ inputs.max || '450' }}
       STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
       LAT: ${{ inputs.lat || '-6.1763897' }}
       LNG: ${{ inputs.lng || '106.82667' }}
@@ -113,3 +116,54 @@ jobs:
           name: catalog-${{ inputs.source || 'alfagift' }}
           path: tools/*_scraper/output/*
           if-no-files-found: warn
+
+      # Convert the scrape into the app's catalog shape ({name, price,
+      # priceOriginal?, imageUrl}) and commit it, so products get REAL photos.
+      # Safety: aborts if the scrape returned too few products (won't wipe the
+      # existing catalog on a failed/blocked run).
+      - name: Update app catalog (real images)
+        if: ${{ (inputs.mode || 'search') != 'list-categories' }}
+        shell: bash
+        run: |
+          set -e
+          if [ "$SOURCE" = "klikindomaret" ]; then
+            SRC=tools/klikindomaret_scraper/output/catalog.json
+          else
+            SRC=tools/alfagift_scraper/output/catalog.json
+          fi
+          if [ ! -f "$SRC" ]; then echo "No scrape output at $SRC — skipping."; exit 0; fi
+          SRC="$SRC" node -e '
+            const fs=require("fs");
+            const src=JSON.parse(fs.readFileSync(process.env.SRC,"utf8"));
+            const int=v=>{const n=Math.round(Number(v)); return Number.isFinite(n)?n:0;};
+            const seen=new Set(); const out=[];
+            for(const p of src){
+              if(!p||!p.name) continue;
+              const price=int(p.price);
+              if(price<=0) continue;
+              const img=(typeof p.imageUrl==="string")?p.imageUrl:"";
+              if(!img) continue; // keep only products WITH a photo
+              const key=String(p.name).trim().toLowerCase();
+              if(seen.has(key)) continue; seen.add(key);
+              const row={name:String(p.name).trim(), price};
+              const po=int(p.priceOriginal);
+              if(po>price) row.priceOriginal=po;
+              row.imageUrl=img;
+              out.push(row);
+            }
+            if(out.length<60){ console.error("Only "+out.length+" products with images — aborting commit to avoid wiping the catalog."); process.exit(3); }
+            const json=JSON.stringify(out,null,1)+"\n";
+            fs.writeFileSync("assets/catalog.json",json);
+            fs.writeFileSync("site/catalog.json",json);
+            console.log("Wrote "+out.length+" products (all with photos) to app catalogs.");
+          '
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/catalog.json site/catalog.json
+          if git diff --cached --quiet; then
+            echo "Catalog unchanged."
+          else
+            git commit -m "Refresh catalog from ${SOURCE} scrape — real product photos"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo "Pushed updated catalog."
+          fi
