@@ -35,175 +35,72 @@
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
     --tile-a:#18271F; --tile-b:#2A2213; --tile-c:#182230; --tile-d:#271A22; --tile-e:#22261C;
   }
-
   * { box-sizing:border-box; }
   html,body { margin:0; }
-  body {
-    background:var(--ground); color:var(--ink);
-    font-family:var(--font-body);
-    -webkit-font-smoothing:antialiased;
-    line-height:1.45;
-  }
-  .app {
-    max-width:480px; margin:0 auto; min-height:100vh;
-    background:var(--ground); position:relative;
-    display:flex; flex-direction:column;
-    box-shadow:0 0 60px rgba(0,0,0,.06);
-  }
+  body { background:var(--ground); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; line-height:1.45; }
+  .app { max-width:480px; margin:0 auto; min-height:100vh; background:var(--ground); position:relative; display:flex; flex-direction:column; box-shadow:0 0 60px rgba(0,0,0,.06); }
 
-  /* Header */
-  .top {
-    position:sticky; top:0; z-index:20;
-    background:var(--primary); color:#fff;
-    padding:14px 16px 12px;
-    border-radius:0 0 20px 20px;
-  }
+  .top { position:sticky; top:0; z-index:20; background:var(--primary); color:#fff; padding:14px 16px 12px; border-radius:0 0 20px 20px; }
   .brandline { display:flex; align-items:center; gap:10px; }
-  .logo {
-    width:34px; height:34px; border-radius:10px;
-    background:#fff; color:var(--primary);
-    display:grid; place-items:center; font-size:20px; flex:none;
-    box-shadow:0 2px 6px rgba(0,0,0,.15);
-  }
-  .brand {
-    font-family:var(--font-display); font-weight:800;
-    font-size:22px; letter-spacing:-.01em;
-  }
-  .brand small { display:block; font-family:var(--font-body); font-weight:500; font-size:11.5px; opacity:.9; letter-spacing:.01em; margin-top:1px; }
-  .preview-chip {
-    margin-left:auto; align-self:flex-start;
-    font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-    background:rgba(255,255,255,.18); color:#fff;
-    padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.3);
-  }
-  .loc {
-    display:inline-flex; align-items:center; gap:6px;
-    margin-top:11px; font-size:12.5px; color:#fff;
-    background:rgba(255,255,255,.14); padding:5px 10px; border-radius:999px;
-  }
+  .logo { width:34px; height:34px; border-radius:10px; background:#fff; color:var(--primary); display:grid; place-items:center; font-size:20px; flex:none; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+  .brand { font-family:var(--font-display); font-weight:800; font-size:22px; letter-spacing:-.01em; }
+  .brand small { display:block; font-family:var(--font-body); font-weight:500; font-size:11.5px; opacity:.9; margin-top:1px; }
+  .preview-chip { margin-left:auto; align-self:flex-start; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:rgba(255,255,255,.18); color:#fff; padding:4px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.3); }
+  .loc { display:inline-flex; align-items:center; gap:6px; margin-top:11px; font-size:12.5px; color:#fff; background:rgba(255,255,255,.14); padding:5px 10px; border-radius:999px; }
   .loc b { font-weight:700; }
-  .search {
-    margin-top:11px; display:flex; align-items:center; gap:9px;
-    background:#fff; border-radius:13px; padding:11px 13px;
-  }
+  .search { margin-top:11px; display:flex; align-items:center; gap:9px; background:#fff; border-radius:13px; padding:11px 13px; }
   .search svg { width:17px; height:17px; color:var(--muted); flex:none; }
-  .search input {
-    border:0; outline:0; width:100%; font-size:14.5px; font-family:var(--font-body);
-    background:transparent; color:var(--ink);
-  }
+  .search input { border:0; outline:0; width:100%; font-size:14.5px; font-family:var(--font-body); background:transparent; color:var(--ink); }
 
-  /* Categories */
-  .cats {
-    display:flex; gap:8px; overflow-x:auto; padding:14px 16px 4px;
-    scrollbar-width:none;
-  }
+  .cats { display:flex; gap:8px; overflow-x:auto; padding:14px 16px 4px; scrollbar-width:none; }
   .cats::-webkit-scrollbar { display:none; }
-  .cat {
-    flex:none; font-size:13px; font-weight:600; white-space:nowrap;
-    padding:8px 14px; border-radius:999px; cursor:pointer;
-    background:var(--surface-2); color:var(--ink);
-    border:1px solid transparent; transition:transform .08s ease;
-  }
+  .cat { flex:none; font-size:13px; font-weight:600; white-space:nowrap; padding:8px 14px; border-radius:999px; cursor:pointer; background:var(--surface-2); color:var(--ink); border:1px solid transparent; transition:transform .08s ease; }
   .cat:active { transform:scale(.96); }
   .cat[aria-pressed="true"] { background:var(--primary); color:#fff; }
 
-  /* Promo */
-  .promo {
-    margin:12px 16px 4px; padding:14px 16px;
-    background:linear-gradient(100deg,var(--accent-soft),var(--surface));
-    border:1px solid var(--line); border-radius:16px;
-    display:flex; align-items:center; gap:12px;
-  }
+  .promo { margin:12px 16px 4px; padding:14px 16px; background:linear-gradient(100deg,var(--accent-soft),var(--surface)); border:1px solid var(--line); border-radius:16px; display:flex; align-items:center; gap:12px; }
   .promo .emoji { font-size:26px; }
   .promo p { margin:0; font-size:12.5px; color:var(--muted); }
   .promo b { color:var(--ink); font-family:var(--font-display); font-size:14px; display:block; margin-bottom:1px; }
 
-  /* Grid */
-  .sectionhdr {
-    display:flex; align-items:baseline; justify-content:space-between;
-    padding:16px 16px 8px;
-  }
+  .sectionhdr { display:flex; align-items:baseline; justify-content:space-between; padding:16px 16px 8px; }
   .sectionhdr h2 { margin:0; font-family:var(--font-display); font-size:16.5px; font-weight:800; letter-spacing:-.01em; }
   .sectionhdr span { font-size:12px; color:var(--muted); }
-  .grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:12px;
-    padding:0 16px 140px;
-  }
-  .card {
-    background:var(--surface); border:1px solid var(--line); border-radius:16px;
-    padding:9px; display:flex; flex-direction:column; box-shadow:var(--shadow);
-  }
-  .thumb {
-    position:relative; aspect-ratio:1/1; border-radius:12px;
-    display:grid; place-items:center; font-size:44px; margin-bottom:9px;
-  }
-  .tag {
-    position:absolute; top:7px; left:7px;
-    background:var(--accent); color:#3a2400;
-    font-size:10px; font-weight:800; letter-spacing:.02em;
-    padding:3px 7px; border-radius:999px;
-  }
-  .name { font-size:13.2px; font-weight:600; line-height:1.3; margin:0 2px; min-height:34px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px 140px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:9px; display:flex; flex-direction:column; box-shadow:var(--shadow); }
+  .thumb { position:relative; aspect-ratio:1/1; border-radius:12px; display:grid; place-items:center; font-size:44px; margin-bottom:9px; overflow:hidden; background:var(--surface-2); }
+  .thumb img { width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .thumb img { mix-blend-mode:normal; } }
+  :root[data-theme="dark"] .thumb img { mix-blend-mode:normal; }
+  .tag { position:absolute; top:7px; left:7px; background:var(--accent); color:#3a2400; font-size:10px; font-weight:800; padding:3px 7px; border-radius:999px; z-index:2; }
+  .name { font-size:13.2px; font-weight:600; line-height:1.3; margin:0 2px; min-height:34px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .size { font-size:11.5px; color:var(--muted); margin:2px 2px 8px; }
   .pricerow { margin-top:auto; display:flex; align-items:flex-end; justify-content:space-between; gap:6px; padding:0 2px 2px; }
-  .price { font-family:var(--font-display); font-weight:800; font-size:15px; letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+  .price { font-family:var(--font-display); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; }
   .old { font-size:11px; color:var(--muted); text-decoration:line-through; display:block; font-variant-numeric:tabular-nums; margin-bottom:1px; }
-  .add {
-    flex:none; width:34px; height:34px; border-radius:11px; cursor:pointer;
-    background:var(--primary-soft); color:var(--primary-ink);
-    border:0; font-size:20px; font-weight:700; line-height:1;
-    display:grid; place-items:center; transition:transform .08s ease;
-  }
+  .add { flex:none; width:34px; height:34px; border-radius:11px; cursor:pointer; background:var(--primary-soft); color:var(--primary-ink); border:0; font-size:20px; font-weight:700; line-height:1; display:grid; place-items:center; transition:transform .08s ease; }
   .add:active { transform:scale(.9); }
   .stepper { display:none; align-items:center; gap:8px; }
   .stepper.on { display:flex; }
   .add.hide { display:none; }
-  .stepper button {
-    width:28px; height:28px; border-radius:9px; border:0; cursor:pointer;
-    background:var(--primary); color:#fff; font-size:17px; line-height:1; display:grid; place-items:center;
-  }
+  .stepper button { width:28px; height:28px; border-radius:9px; border:0; cursor:pointer; background:var(--primary); color:#fff; font-size:17px; line-height:1; display:grid; place-items:center; }
   .stepper b { font-size:14px; min-width:16px; text-align:center; font-variant-numeric:tabular-nums; }
 
-  /* Cart bar */
-  .cartbar {
-    position:sticky; bottom:0; z-index:20;
-    margin:0 auto; width:100%; max-width:480px;
-    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-    background:linear-gradient(to top,var(--ground) 72%, transparent);
-  }
-  .cartinner {
-    background:var(--primary); color:#fff; border-radius:16px;
-    padding:13px 16px; display:flex; align-items:center; gap:12px;
-    box-shadow:0 8px 24px rgba(20,80,55,.28);
-    opacity:.55; filter:saturate(.7); transition:opacity .2s ease, filter .2s ease;
-  }
+  .cartbar { position:sticky; bottom:0; z-index:20; margin:0 auto; width:100%; max-width:480px; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(to top,var(--ground) 72%, transparent); }
+  .cartinner { background:var(--primary); color:#fff; border-radius:16px; padding:13px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 8px 24px rgba(20,80,55,.28); opacity:.55; filter:saturate(.7); transition:opacity .2s ease, filter .2s ease; }
   .cartinner.active { opacity:1; filter:none; }
   .cartinfo { display:flex; flex-direction:column; line-height:1.2; }
   .cartinfo small { font-size:11.5px; opacity:.85; }
   .cartinfo b { font-family:var(--font-display); font-size:17px; font-variant-numeric:tabular-nums; }
-  .checkout {
-    margin-left:auto; background:#fff; color:var(--primary-ink);
-    border:0; border-radius:11px; padding:10px 16px; cursor:pointer;
-    font-family:var(--font-display); font-weight:800; font-size:14px;
-    display:inline-flex; align-items:center; gap:7px; transition:transform .08s ease;
-  }
+  .checkout { margin-left:auto; background:#fff; color:var(--primary-ink); border:0; border-radius:11px; padding:10px 16px; cursor:pointer; font-family:var(--font-display); font-weight:800; font-size:14px; display:inline-flex; align-items:center; gap:7px; transition:transform .08s ease; }
   .checkout:active { transform:scale(.96); }
 
   .foot { text-align:center; font-size:11px; color:var(--muted); padding:0 24px 20px; }
+  .empty { text-align:center; color:var(--muted); font-size:13.5px; padding:40px 24px; grid-column:1/-1; }
 
-  /* Toast */
-  .toast {
-    position:fixed; left:50%; bottom:96px; transform:translate(-50%,20px);
-    background:var(--ink); color:var(--ground);
-    padding:11px 16px; border-radius:12px; font-size:13px; max-width:320px;
-    text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.3);
-    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:50;
-  }
+  .toast { position:fixed; left:50%; bottom:96px; transform:translate(-50%,20px); background:var(--ink); color:var(--ground); padding:11px 16px; border-radius:12px; font-size:13px; max-width:320px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:50; }
   .toast.show { opacity:1; transform:translate(-50%,0); }
-
-  button:focus-visible, input:focus-visible, .cat:focus-visible {
-    outline:2px solid var(--accent); outline-offset:2px;
-  }
+  button:focus-visible, input:focus-visible, .cat:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
 </style>
 </head>
@@ -213,7 +110,7 @@
     <div class="brandline">
       <div class="logo">🛒</div>
       <div class="brand">Paramall<small>Belanja Alfamart &amp; Indomaret — kami yang antar</small></div>
-      <span class="preview-chip">Preview</span>
+      <span class="preview-chip" id="srcchip">Preview</span>
     </div>
     <div class="loc">📍 Antar ke: <b>Kotamu</b> · ganti</div>
     <label class="search">
@@ -235,7 +132,7 @@
   </div>
   <main class="grid" id="grid"></main>
 
-  <div class="foot">Harga &amp; produk di sini masih contoh. Data asli dari Alfamart/Indomaret menyusul setelah scraper siap.</div>
+  <div class="foot" id="foot">Memuat produk…</div>
 
   <div class="cartbar">
     <div class="cartinner" id="cartinner">
@@ -248,71 +145,80 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  const rp = n => "Rp" + n.toLocaleString("id-ID");
+  const rp = n => "Rp" + Number(n||0).toLocaleString("id-ID");
   const TILES = ["tile-a","tile-b","tile-c","tile-d","tile-e"];
-  const CATS = ["Semua","Sembako","Makanan Instan","Minuman","Perawatan","Rumah Tangga"];
 
-  const P = [
-    {n:"Indomie Goreng", s:"85 g", p:3200, o:3500, e:"🍜", c:"Makanan Instan", t:"Hemat"},
-    {n:"Beras Ramos", s:"5 kg", p:62500, e:"🍚", c:"Sembako"},
-    {n:"Minyak Goreng Sania", s:"2 L", p:38900, o:41000, e:"🫗", c:"Sembako", t:"Hemat"},
-    {n:"Gula Pasir Gulaku", s:"1 kg", p:17500, e:"🧂", c:"Sembako"},
-    {n:"Telur Ayam Negeri", s:"1 kg", p:28000, e:"🥚", c:"Sembako"},
-    {n:"Kopi Kapal Api", s:"165 g", p:12900, e:"☕", c:"Minuman"},
-    {n:"Teh Celup Sariwangi", s:"25 pcs", p:8500, e:"🍵", c:"Minuman"},
-    {n:"Susu Ultra Milk", s:"1 L", p:19900, o:21500, e:"🥛", c:"Minuman", t:"Hemat"},
-    {n:"Aqua Botol", s:"600 ml", p:3500, e:"💧", c:"Minuman"},
-    {n:"Mie Sedaap Goreng", s:"90 g", p:3000, e:"🍜", c:"Makanan Instan"},
-    {n:"Sari Roti Tawar", s:"6 pcs", p:16500, e:"🍞", c:"Sembako"},
-    {n:"Kecap Manis Bango", s:"220 ml", p:13900, e:"🍶", c:"Sembako"},
-    {n:"Shampoo Clear", s:"160 ml", p:23900, o:26000, e:"🧴", c:"Perawatan", t:"Hemat"},
-    {n:"Sabun Lifebuoy", s:"85 g", p:4500, e:"🧼", c:"Perawatan"},
-    {n:"Pasta Gigi Pepsodent", s:"190 g", p:15900, e:"🪥", c:"Perawatan"},
-    {n:"Tisu Paseo", s:"250 sheet", p:18500, e:"🧻", c:"Rumah Tangga"},
-    {n:"Sabun Cuci Rinso", s:"770 g", p:22900, e:"🧺", c:"Rumah Tangga"},
-    {n:"Baterai ABC", s:"AA · 2 pcs", p:9500, e:"🔋", c:"Rumah Tangga"},
+  // Category rules — first match wins. (Alfamart names are descriptive, so we
+  // classify by keyword.)
+  const CAT_RULES = [
+    ["Makanan Instan", /\b(indomie|mie|mi instan|sedaap|bihun|bubur instan)\b/i],
+    ["Minuman", /(teh|kopi|susu|jus|juice|minuman|air mineral|aqua|isotonik|soda|sari|nutriboost|pocari|kratingdaeng|le mineral|sprite|coca|fanta|floridina)/i],
+    ["Sembako", /(beras|minyak goreng|gula|telur|tepung|kecap|saus|sambal|garam|margarin|mentega|santan)/i],
+    ["Snack", /(keripik|biskuit|wafer|coklat|cokelat|permen|snack|chiki|tortilla|mentos|roti|kacang|astor|oreo)/i],
+    ["Perawatan", /(sabun mandi|shampoo|sampo|pasta gigi|sikat gigi|odol|deodorant|lotion|handbody|pembalut|kapas)/i],
+    ["Rumah Tangga", /(tisu|tissue|detergen|deterjen|pewangi|pembersih|sabun cuci|pel |pengharum|kamper|baterai)/i],
+    ["Bayi", /(popok|diaper|mamypoko|sweety|merries|baby|bayi)/i],
   ];
+  const catOf = (name) => { for (const [c,re] of CAT_RULES) if (re.test(name)) return c; return "Lainnya"; };
+  const CAT_ORDER = ["Semua","Sembako","Makanan Instan","Minuman","Snack","Perawatan","Rumah Tangga","Bayi","Lainnya"];
+  const EMOJI = {Sembako:"🍚","Makanan Instan":"🍜",Minuman:"🥤",Snack:"🍪",Perawatan:"🧴","Rumah Tangga":"🧻",Bayi:"🍼",Lainnya:"🛍️"};
 
-  const cart = {};
+  // Real Alfamart products, embedded so the shop shows data even without a
+  // separate catalog.json. Upload a catalog.json next to this file to override
+  // with a fresher/bigger list.
+  const EMBEDDED = /*__CATALOG__*/[{"name": "Minute Maid Pulpy Minuman Jus Buah Rasa Jeruk Botol 300 ml", "price": 6200, "imageUrl": "https://c.alfagift.id/product/1/1_A12520003409_20230419091712684_base.jpg"}, {"name": "Happy Tos Keripik Tortilla Hijau 140 g", "price": 13400, "imageUrl": "https://c.alfagift.id/product/1/1_A10040002093_20231201162945441_base.jpg"}, {"name": "Nutriboost Minuman Susu Rasa Stroberi Botol 300 ml", "price": 7700, "imageUrl": "https://c.alfagift.id/product/1/1_A12990004219_20230710091750745_base.jpg"}, {"name": "mentos Permen Rainbow Roll 37 g", "price": 4700, "imageUrl": "https://c.alfagift.id/product/1/1_A11910004065_20250929153507288_base.jpg"}, {"name": "mentos Permen Mint Roll 37 g", "price": 4700, "imageUrl": "https://c.alfagift.id/product/1/1_A11910001151_20250929152417693_base.jpg"}, {"name": "Fruit Tea Minuman Teh Freeze 350 ml", "price": 4200, "imageUrl": "https://c.alfagift.id/product/1/1_A12790040918_20240624161507461_base.jpg"}, {"name": "Pocari Sweat Minuman Isotonik Botol 500 ml", "price": 8200, "imageUrl": "https://c.alfagift.id/product/1/1_A12630003575_20240801142839005_base.jpg"}, {"name": "Fruit Tea Minuman Teh Blackcurrant 350 ml", "price": 4200, "imageUrl": "https://c.alfagift.id/product/1/1_A12790040881_20240625161751128_base.jpg"}, {"name": "Indomie Mi Instan Ayam Bawang 69 g", "price": 3200, "imageUrl": "https://c.alfagift.id/product/1/1_A03350000153_20240613175243566_base.jpg"}, {"name": "Tehbotol Sosro Minuman Teh Original 350 ml", "price": 4200, "imageUrl": "https://c.alfagift.id/product/1/1_A12790040900_20240314131805179_base.jpg"}, {"name": "MyRoti Roti Tawar Funwari 8 s", "price": 15000, "imageUrl": "https://c.alfagift.id/product/1/1_A10480000330_20240516163533790_base.jpg"}, {"name": "Indomie Mi Instan Soto Mie 70 g", "price": 3200, "imageUrl": "https://c.alfagift.id/product/1/1_A09430004766_20240613175350431_base.jpg"}, {"name": "Ultra Sari Kacang Ijo 250 ml", "price": 5700, "imageUrl": "https://c.alfagift.id/product/1/1_A12520002571_20230705105414480_base.jpg"}, {"name": "Ultra Milk Susu UHT Stroberi Kotak 250 ml", "price": 8400, "imageUrl": "https://c.alfagift.id/product/1/1_A13170001236_20251015094310758_base.jpg"}, {"name": "Ultra Teh Kotak Melati 300 ml", "price": 4500, "imageUrl": "https://c.alfagift.id/product/1/1_A12790004903_20240422144803313_base.jpg"}, {"name": "Ultra Milk Susu UHT Full Cream Kotak 250 ml", "price": 8400, "imageUrl": "https://c.alfagift.id/product/1/1_A13170001235_20251015093132113_base.jpg"}, {"name": "Ultra Milk Susu UHT Coklat Kotak 250 ml", "price": 8400, "imageUrl": "https://c.alfagift.id/product/1/1_A13170001039_20251015091407757_base.jpg"}, {"name": "Sinde Larutan Penyegar Cap Badak Leci 320 ml", "price": 9200, "imageUrl": "https://c.alfagift.id/product/1/1_A12740006116_20250321174823778_base.jpg"}, {"name": "Adem Sari Ching Ku Lemon Botol 350 ml", "price": 10300, "imageUrl": "https://c.alfagift.id/product/1/1_A12740003308_20250205155637087_base.jpg"}, {"name": "Kratingdaeng Minuman Energi Botol 150 ml", "price": 6500, "imageUrl": "https://c.alfagift.id/product/1/1_A12630003501_20260304133734045_base.jpg"}, {"name": "Frestea Minuman Teh Green Tea Madu 500 ml", "price": 7100, "imageUrl": "https://c.alfagift.id/product/1/1_A12790002792_20251127153658265_base.jpg"}, {"name": "Happy Tos Keripik Tortilla Original 140 g", "price": 11300, "imageUrl": "https://c.alfagift.id/product/1/1_A10040005372_20251117134805769_base.jpg"}, {"name": "Frestea Minuman Teh Rasa Apel Botol 500 ml", "price": 7100, "imageUrl": "https://c.alfagift.id/product/1/1_A12790003643_20251127153123102_base.jpg"}, {"name": "ABC Minuman Sari Kacang Hijau 250 ml", "price": 5500, "imageUrl": "https://c.alfagift.id/product/1/A12740003130_A12740003130_20251113104242593_base.jpg"}, {"name": "Sedaap Mi Instan Rebus khas Korean Pedas 77 g", "price": 3000, "imageUrl": "https://c.alfagift.id/product/1/1_A7331920001037_20240613171008706_base.jpg"}, {"name": "Paroti Roti Sisir Mentega 80 g", "price": 6500, "priceOriginal": 8000, "imageUrl": "https://c.alfagift.id/product/1/1_A7408030002168_20260415153123648_base.jpg"}, {"name": "Roma Sari Gandum Biskuit Sandwich Susu & Cokelat 108 g", "price": 11900, "imageUrl": "https://c.alfagift.id/product/1/1_A10160000081_20240521155119879_base.jpg"}, {"name": "Piattos Snack Kentang Sapi Panggang 65 g", "price": 11700, "imageUrl": "https://c.alfagift.id/product/1/1_A10040041512_20260602083410370_base.jpg"}, {"name": "MamyPoko X-tra Kering Popok Celana Bayi L 28 pcs", "price": 58900, "priceOriginal": 70300, "imageUrl": "https://c.alfagift.id/product/1/1_A15910039411_20240722143414480_base.jpg"}, {"name": "Luwak White Koffie Original Pet 220 ml", "price": 4900, "priceOriginal": 7300, "imageUrl": "https://c.alfagift.id/product/1/1_A12790040954_20240626143920291_base.jpg"}, {"name": "Sedaap Mi Instan Goreng isi 5 x 90 g", "price": 13400, "priceOriginal": 15400, "imageUrl": "https://c.alfagift.id/product/1/1_A7145990001037_20260807213109167_base.jpg"}, {"name": "Hydro Coco Minuman Air Kelapa Original 250 ml", "price": 7900, "priceOriginal": 8800, "imageUrl": "https://c.alfagift.id/product/1/1_A12890003851_20260727164533659_base.jpg"}, {"name": "ABC Minuman Kopi Chocomalt Pet 180 ml", "price": 3900, "priceOriginal": 4700, "imageUrl": "https://c.alfagift.id/product/1/1_A12790015620_20260615161927319_base.jpg"}, {"name": "ABC Minuman Kopi Susu 180 ml", "price": 3900, "priceOriginal": 4700, "imageUrl": "https://c.alfagift.id/product/1/1_A12790040866_20260615162055980_base.jpg"}, {"name": "Ekonomi Sabun Cuci Piring Jeruk Nipis 670 g", "price": 7500, "priceOriginal": 9500, "imageUrl": "https://c.alfagift.id/product/1/1_A7035670001924_20260227153103970_base.jpg"}, {"name": "Nestle Pure Life Air Mineral Botol 600 ml", "price": 4100, "imageUrl": "https://c.alfagift.id/product/1/1_A12460006981_20260807212058908_base.jpg"}, {"name": "Bintang Zero Minuman Berkarbonasi 330 ml", "price": 9300, "imageUrl": "https://c.alfagift.id/product/1/1_A6807260001082_20241014154212837_base.jpg"}, {"name": "Bimoli Minyak Goreng Pouch 2 L", "price": 42800, "imageUrl": "https://c.alfagift.id/product/1/1_A09350001880_20260421155328307_base.jpg"}, {"name": "Bango Kecap Manis Refill 700 g", "price": 26500, "imageUrl": "https://c.alfagift.id/product/1/1_A09270039118_20251023115229466_base.jpg"}, {"name": "Nestle Pure Life Air Mineral Botol 1.5 L", "price": 7100, "imageUrl": "https://c.alfagift.id/product/1/1_A12460006224_20260807212145873_base.jpg"}, {"name": "Mama Lemon Sabun Cuci Piring Jeruk Nipis Refill 650 g", "price": 8500, "priceOriginal": 10600, "imageUrl": "https://c.alfagift.id/product/1/1_A27790039192_20260807093017307_base.jpg"}, {"name": "Aqua Air Mineral Botol 600 ml", "price": 3800, "imageUrl": "https://c.alfagift.id/product/1/1_A12460003260_20260518134545879_base.jpg"}, {"name": "SunCo Minyak Goreng Pouch 2 L", "price": 42200, "priceOriginal": 47200, "imageUrl": "https://c.alfagift.id/product/1/1_A09350002158_20240610133552718_base.jpg"}, {"name": "Sedaap Mi Instan Goreng Selection Korean Ayam Pedas 87 g", "price": 3100, "imageUrl": "https://c.alfagift.id/product/1/1_A7059060001114_20241107150853783_base.jpg"}, {"name": "Sania Minyak Goreng Pouch 2 L", "price": 41500, "priceOriginal": 42800, "imageUrl": "https://c.alfagift.id/product/1/1_A09350002156_20240507154551859_base.jpg"}, {"name": "Tropical Minyak Goreng Kelapa Sawit Botol 2 L", "price": 42200, "priceOriginal": 46900, "imageUrl": "https://c.alfagift.id/product/1/1_A7129250000985_20250317095736607_base.jpg"}, {"name": "Javana Minuman Teh Melati 350 ml", "price": 2000, "priceOriginal": 3600, "imageUrl": "https://c.alfagift.id/product/1/1_A12300005198_20240624152537527_base.jpg"}, {"name": "Sari Roti Tawar Jumbo 555 g", "price": 18000, "imageUrl": "https://c.alfagift.id/product/1/1_A7423970001134_20240724172439863_base.jpg"}, {"name": "Rhino Resin Keychain -  Blind Box", "price": 29900, "imageUrl": "https://c.alfagift.id/product/1/1_A8361990002167_20260610161955215_base.jpg"}, {"name": "Bean Spot Obalab Kue Bentuk Segitiga Rasa Keju 80 g", "price": 12000, "imageUrl": "https://c.alfagift.id/product/1/1_A8427000002167_20260612104934256_base.jpg"}, {"name": "Durex Performa Kondom Tahan Lama 3 pcs", "price": 42900, "imageUrl": "https://c.alfagift.id/product/1/1_A8366070002167_20260318120156312_base.jpg"}, {"name": "Fumakilla Vape Obat Pembasmi Nyamuk Aerosol Milk Tea 600 ml", "price": 31900, "priceOriginal": 38500, "imageUrl": "https://c.alfagift.id/product/1/1_A8371160002167_20260402154856177_base.jpg"}, {"name": "Sniff & Co Extrait de Parfum Petal Party 30 ml", "price": 53900, "imageUrl": "https://c.alfagift.id/product/1/1_A8372630002167_20260408143918945_base.jpg"}, {"name": "Derma Angel Patch Jerawat Salicylic Acid Pagi 6 + 3 pcs", "price": 19000, "imageUrl": "https://c.alfagift.id/product/1/1_A8374240002167_20260409133411918_base.jpg"}, {"name": "Clear Sampo Pria Anti Ketombe & Rambut Rontok 160 ml", "price": 38500, "imageUrl": "https://c.alfagift.id/product/1/1_A8366760002167_20260325141821517_base.jpg"}, {"name": "Hose Pembersih Wajah Low pH Anti Jerawat 100 ml", "price": 35900, "imageUrl": "https://c.alfagift.id/product/1/1_A8366800002167_20260325151009696_base.jpg"}, {"name": "Hose Pembersih Wajah Brightening & Exfoliating 100 ml", "price": 35900, "imageUrl": "https://c.alfagift.id/product/1/1_A8366810002167_20260325151719451_base.jpg"}, {"name": "Charm Safe Night Daun Sirih Pembalut Wing Malam 29 cm 17 pcs", "price": 17900, "priceOriginal": 19300, "imageUrl": "https://c.alfagift.id/product/1/1_A8364300002167_20260313132923222_base.jpg"}, {"name": "Garnier Bright Complete Pembersih Wajah Low Ph Vitamin C 100 ml", "price": 39900, "imageUrl": "https://c.alfagift.id/product/1/1_A8371150002167_20260402154529888_base.jpg"}, {"name": "Lakon Filter Rokok 12 Batang", "price": 17900, "imageUrl": "https://c.alfagift.id/product/1/1_A8369680002167_20260401170517933_base.jpg"}, {"name": "Downy Long Wear Pewangi, Pelicin & Pelembut Pakaian Sunshine Radiance 500 ml", "price": 24900, "priceOriginal": 31000, "imageUrl": "https://c.alfagift.id/product/1/1_A8350430002167_20260202154136336_base.jpg"}, {"name": "Milna Abon Sapi Anak 100 g", "price": 41000, "priceOriginal": 46300, "imageUrl": "https://c.alfagift.id/product/1/1_A8433980002167_20260707105122902_base.jpg"}, {"name": "Makarizo Texture Experience Sampo Black Chocolate 250 ml", "price": 53000, "priceOriginal": 77900, "imageUrl": "https://c.alfagift.id/product/1/1_A8426420002167_20260731234933846_base.jpg"}, {"name": "Charm Pembalut Wanita Wing Stylish Compact 12 pcs", "price": 25000, "priceOriginal": 29900, "imageUrl": "https://c.alfagift.id/product/1/1_A8366630002167_20260809073812263_base.jpg"}, {"name": "Cuties Catz Makanan Kucing Kering Adult Tuna 500 g", "price": 13900, "priceOriginal": 15000, "imageUrl": "https://c.alfagift.id/product/1/1_A8343970002167_20260107155840507_base.jpg"}, {"name": "Wakely Keripik Ubi Rasa Black Truffle 80 g", "price": 21900, "priceOriginal": 28000, "imageUrl": "https://c.alfagift.id/product/1/1_A8363340002167_20260309142605783_base.jpg"}, {"name": "Boom Cinta Deterjen Cair Lavender Jerigen 4.5 L", "price": 39900, "priceOriginal": 65000, "imageUrl": "https://c.alfagift.id/product/1/1_A8403920002167_20260712163711121_base.jpeg"}, {"name": "Hansaplast Plester Luka Anak Aqua Protect 20 s", "price": 37000, "priceOriginal": 39900, "imageUrl": "https://c.alfagift.id/product/1/1_A8413600002167_20260515095451199_base.jpg"}, {"name": "Cussons Baby Cuddle Calm Minyak Telon 150 ml", "price": 39900, "priceOriginal": 49000, "imageUrl": "https://c.alfagift.id/product/1/1_A8363020002167_20260309083327698_base.jpg"}, {"name": "Gentle Gen Deterjen Cair Morning Breeze 700 g + Kilau Nipis Sabun Cuci Piring", "price": 19900, "imageUrl": "https://c.alfagift.id/product/1/1_A8365030002167_20260326182000243_base.jpg"}, {"name": "Shinzu'i Skin Lightening Sabun Mandi Cair Kirei Refill 725 ml x 2 pcs", "price": 58500, "priceOriginal": 68000, "imageUrl": "https://c.alfagift.id/product/1/1_A8364970002167_20260801000950377_base.jpg"}, {"name": "MamyPoko Popok Celana Bayi Tidak Gembung XXL 34 pcs", "price": 68000, "priceOriginal": 76900, "imageUrl": "https://c.alfagift.id/product/1/1_A8346270002167_20260731231246325_base.jpg"}, {"name": "Cocodee Minuman Air Kelapa 200 ml", "price": 9500, "priceOriginal": 9900, "imageUrl": "https://c.alfagift.id/product/1/1_A8346990002167_20260122074017175_base.jpg"}, {"name": "Diamond Susu Cair UHT Low Fat 1 L", "price": 23000, "priceOriginal": 25500, "imageUrl": "https://c.alfagift.id/product/1/1_A8349890002167_20260129162206697_base.jpg"}, {"name": "Milna Abon Ayam Anak 100 g", "price": 38000, "priceOriginal": 43500, "imageUrl": "https://c.alfagift.id/product/1/1_A8433990002167_20260707104634525_base.jpg"}, {"name": "Topi Koki Beras Setra Royale 5 kg", "price": 92600, "imageUrl": "https://c.alfagift.id/product/1/1_A8364270002167_20260313102038669_base.jpg"}, {"name": "Kit GP-9 Pelumas Multiguna Spray Anti Karat 225 g", "price": 25900, "priceOriginal": 58000, "imageUrl": "https://c.alfagift.id/product/1/1_A8345120002167_20260115152814736_base.jpg"}, {"name": "P'Nuteri Kacang Atom Teri 68 g", "price": 11500, "priceOriginal": 12000, "imageUrl": "https://c.alfagift.id/product/1/1_A8359310002167_20260224101836656_base.png"}, {"name": "Noolie Bubur Bayi Rasa Ubi dan Kacang Merah 100 g", "price": 26500, "priceOriginal": 31900, "imageUrl": "https://c.alfagift.id/product/1/1_A8364120002167_20260312123037996_base.jpg"}, {"name": "Kananori Bumbu Tabur Rumput Laut Rasa Cakalang 30 g", "price": 15900, "priceOriginal": 16500, "imageUrl": "https://c.alfagift.id/product/1/1_A8359290002167_20260224100650677_base.png"}, {"name": "OMG Oh My Glow Pembersih Wajah Bright Booster 100 ml", "price": 22900, "priceOriginal": 25500, "imageUrl": "https://c.alfagift.id/product/1/1_A8348010002167_20260127083929270_base.jpg"}, {"name": "Milna Camilan Puree Buah Happy Berry 80 g", "price": 13400, "priceOriginal": 15600, "imageUrl": "https://c.alfagift.id/product/1/1_A8434010002167_20260707110204396_base.jpg"}, {"name": "Milna Camilan Puree Buah Tummy Dragon 80 g", "price": 13400, "priceOriginal": 15600, "imageUrl": "https://c.alfagift.id/product/1/1_A8434020002167_20260707111214538_base.jpg"}, {"name": "Milna Camilan Puree Buah Imon Kiwi 80 g", "price": 13400, "priceOriginal": 15600, "imageUrl": "https://c.alfagift.id/product/1/1_A8434030002167_20260707111759766_base.jpg"}, {"name": "Milna WGain Soya Bubur Bayi Soto Ayam Kampung 100 g", "price": 37500, "priceOriginal": 40700, "imageUrl": "https://c.alfagift.id/product/1/1_A8434000002167_20260707103845654_base.jpg"}, {"name": "Molto Parfum + Protect Pelembut & Pewangi Pakaian Morning Fresh Refill 550 ml x 2 pcs", "price": 27900, "priceOriginal": 30000, "imageUrl": "https://c.alfagift.id/product/1/1_A8372540002167_20260408102623544_base.jpg"}, {"name": "Garden of Na'eem Sabun Mandi Cair Royal Jasmine 480 ml", "price": 21900, "priceOriginal": 24500, "imageUrl": "https://c.alfagift.id/product/1/1_A8364950002167_20260512112250803_base.jpg"}, {"name": "OMG Oh My Glam Mattelast Lip Cream Matte 28 Cromboloni 2.9 g", "price": 25000, "priceOriginal": 28500, "imageUrl": "https://c.alfagift.id/product/1/1_A8347990002167_20260126224258864_base.jpg"}, {"name": "Delicyo Kentang Goreng Rasa Truffle 38 g", "price": 8000, "priceOriginal": 8500, "imageUrl": "https://c.alfagift.id/product/1/1_A8359710002167_20260225095026280_base.jpg"}, {"name": "Yummy Bites Bebewafer Biskuit Bayi Susu 36 g", "price": 27900, "priceOriginal": 29900, "imageUrl": "https://c.alfagift.id/product/1/1_A8354910002167_20260216140121817_base.jpg"}]/*__END__*/;
+
+  let P = [];
   let activeCat = "Semua";
+  const cart = {};
 
   const catsEl = document.getElementById("cats");
-  CATS.forEach(c => {
-    const b = document.createElement("button");
-    b.className = "cat"; b.textContent = c;
-    b.setAttribute("aria-pressed", c === activeCat);
-    b.onclick = () => { activeCat = c; [...catsEl.children].forEach(x => x.setAttribute("aria-pressed", x.textContent === c)); render(); };
-    catsEl.appendChild(b);
-  });
-
   const grid = document.getElementById("grid");
   const q = document.getElementById("q");
   q.addEventListener("input", render);
 
+  function buildCats() {
+    const present = new Set(P.map(x => x.cat));
+    const cats = CAT_ORDER.filter(c => c === "Semua" || present.has(c));
+    catsEl.innerHTML = "";
+    cats.forEach(c => {
+      const b = document.createElement("button");
+      b.className = "cat"; b.textContent = c;
+      b.setAttribute("aria-pressed", c === activeCat);
+      b.onclick = () => { activeCat = c; [...catsEl.children].forEach(x => x.setAttribute("aria-pressed", x.textContent === c)); render(); };
+      catsEl.appendChild(b);
+    });
+  }
+
   function render() {
     const term = q.value.trim().toLowerCase();
     document.getElementById("secttl").textContent = activeCat === "Semua" ? "Semua produk" : activeCat;
-    const list = P.filter((x,i) => (activeCat==="Semua"||x.c===activeCat) && (!term || x.n.toLowerCase().includes(term)))
-                  .map(x => ({x, i:P.indexOf(x)}));
+    const list = [];
+    P.forEach((x, i) => {
+      if ((activeCat === "Semua" || x.cat === activeCat) && (!term || x.name.toLowerCase().includes(term))) list.push(i);
+    });
     document.getElementById("count").textContent = list.length + " item";
     grid.innerHTML = "";
-    list.forEach(({x,i}) => grid.appendChild(cardFor(x,i)));
+    if (!list.length) { grid.innerHTML = '<div class="empty">Tidak ada produk yang cocok.</div>'; return; }
+    list.forEach(i => grid.appendChild(cardFor(P[i], i)));
   }
 
   function cardFor(x, i) {
     const qty = cart[i] || 0;
     const el = document.createElement("article");
     el.className = "card";
+    const emoji = EMOJI[x.cat] || "🛍️";
+    const thumb = x.imageUrl
+      ? `<img src="${x.imageUrl}" alt="" loading="lazy" onerror="this.remove();this.parentNode.append('${emoji}')">`
+      : emoji;
+    const disc = x.priceOriginal && x.priceOriginal > x.price;
     el.innerHTML = `
-      <div class="thumb ${TILES[i % TILES.length]}">${x.t ? `<span class="tag">${x.t}</span>`:""}${x.e}</div>
-      <p class="name">${x.n}</p>
-      <div class="size">${x.s}</div>
+      <div class="thumb ${TILES[i % TILES.length]}">${disc ? '<span class="tag">Hemat</span>':""}${thumb}</div>
+      <p class="name">${x.name}</p>
       <div class="pricerow">
-        <div>${x.o ? `<span class="old">${rp(x.o)}</span>`:""}<span class="price">${rp(x.p)}</span></div>
-        <button class="add ${qty?"hide":""}" aria-label="Tambah ${x.n}">+</button>
-        <div class="stepper ${qty?"on":""}">
-          <button class="minus" aria-label="Kurangi">−</button><b>${qty}</b><button class="plus" aria-label="Tambah">+</button>
-        </div>
+        <div>${disc ? `<span class="old">${rp(x.priceOriginal)}</span>`:""}<span class="price">${rp(x.price)}</span></div>
+        <button class="add ${qty?"hide":""}" aria-label="Tambah">+</button>
+        <div class="stepper ${qty?"on":""}"><button class="minus" aria-label="Kurangi">−</button><b>${qty}</b><button class="plus" aria-label="Tambah">+</button></div>
       </div>`;
     el.querySelector(".add").onclick = () => chg(i, 1);
     el.querySelector(".plus")?.addEventListener("click", () => chg(i, 1));
@@ -320,30 +226,52 @@
     return el;
   }
 
-  function chg(i, d) {
-    cart[i] = Math.max(0, (cart[i]||0) + d);
-    if (!cart[i]) delete cart[i];
-    render(); updateCart();
-  }
-
+  function chg(i, d) { cart[i] = Math.max(0, (cart[i]||0)+d); if (!cart[i]) delete cart[i]; render(); updateCart(); }
   function updateCart() {
-    const items = Object.entries(cart).reduce((a,[,q])=>a+q,0);
-    const total = Object.entries(cart).reduce((a,[i,q])=>a+P[i].p*q,0);
-    const inner = document.getElementById("cartinner");
+    const items = Object.values(cart).reduce((a,q)=>a+q,0);
+    const total = Object.entries(cart).reduce((a,[i,q])=>a+(P[i].price||0)*q,0);
     document.getElementById("cartcount").textContent = items ? `${items} barang di keranjang` : "Keranjang kosong";
     document.getElementById("carttotal").textContent = rp(total);
-    inner.classList.toggle("active", items>0);
+    document.getElementById("cartinner").classList.toggle("active", items>0);
   }
 
-  const toast = document.getElementById("toast");
-  let tmr;
-  function say(m) { toast.textContent = m; toast.classList.add("show"); clearTimeout(tmr); tmr = setTimeout(()=>toast.classList.remove("show"), 2600); }
+  const toast = document.getElementById("toast"); let tmr;
+  function say(m){ toast.textContent=m; toast.classList.add("show"); clearTimeout(tmr); tmr=setTimeout(()=>toast.classList.remove("show"),2600); }
   document.getElementById("checkout").onclick = () => {
     const items = Object.values(cart).reduce((a,q)=>a+q,0);
-    say(items ? "Ini masih preview — checkout & pembayaran menyusul 🚧" : "Keranjang masih kosong. Tambah barang dulu ya 🙂");
+    say(items ? "Pesanan diterima (preview) — checkout & pembayaran menyusul 🚧" : "Keranjang masih kosong 🙂");
   };
 
-  render(); updateCart();
+  function load(data, live) {
+    P = data.map(x => ({
+      name: x.name, price: x.price, priceOriginal: x.priceOriginal,
+      imageUrl: x.imageUrl || "", cat: catOf(x.name || "")
+    })).filter(x => x.name && x.price);
+    buildCats(); render(); updateCart();
+    const chip = document.getElementById("srcchip");
+    const foot = document.getElementById("foot");
+    if (live) {
+      chip.textContent = "Live"; chip.style.background = "rgba(255,255,255,.28)";
+      foot.textContent = `${P.length} produk dari Alfamart. Harga indikatif — dicek ulang saat tim belanja.`;
+    } else {
+      foot.textContent = "Contoh produk (catalog.json belum ada). Upload catalog.json untuk data asli.";
+    }
+  }
+
+  // Minimal fallback if EMBEDDED is somehow empty.
+  const SAMPLE = [
+    {name:"Indomie Mi Instan Ayam Bawang 69 g", price:3200, imageUrl:""},
+    {name:"Ultra Milk Susu UHT Coklat 250 ml", price:8400, imageUrl:""},
+  ];
+
+  // Show embedded real products immediately...
+  const start = (Array.isArray(EMBEDDED) && EMBEDDED.length) ? EMBEDDED : SAMPLE;
+  load(start, Array.isArray(EMBEDDED) && EMBEDDED.length > 0);
+  // ...then override with catalog.json if one is uploaded alongside this file.
+  fetch("catalog.json", { cache: "no-store" })
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (Array.isArray(d) && d.length) load(d, true); })
+    .catch(() => {});
 </script>
 </body>
 </html>
