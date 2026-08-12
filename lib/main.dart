@@ -1,8 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:url_launcher/url_launcher.dart';
+import 'store.dart';
 
 void main() => runApp(const ParamallApp());
+
+// ---------- config ----------
+const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
+const int kOngkir = 10000;
+const int kFreeOngkirMin = 100000;
 
 // ---------- palette ----------
 const kGreen = Color(0xFF1E6E4F);
@@ -27,6 +35,9 @@ String rupiah(num n) {
   }
   return buf.toString();
 }
+
+const List<String> _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+String shortDate(DateTime d) => '${d.day} ${_months[d.month - 1]}';
 
 const List<String> kCatOrder = [
   'Semua', 'Sembako', 'Makanan Instan', 'Minuman', 'Snack', 'Perawatan', 'Rumah Tangga', 'Bayi', 'Lainnya',
@@ -58,7 +69,7 @@ int _asInt(dynamic v) {
   return int.tryParse('${v ?? ''}') ?? 0;
 }
 
-// ---------- model ----------
+// ---------- product model ----------
 class Product {
   final String name;
   final int price;
@@ -95,16 +106,11 @@ class ParamallApp extends StatelessWidget {
   const ParamallApp({super.key});
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.fromSeed(seedColor: kGreen, primary: kGreen);
+    final scheme = ColorScheme.fromSeed(seedColor: kGreen);
     return MaterialApp(
       title: 'Paramall',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: scheme,
-        useMaterial3: true,
-        scaffoldBackgroundColor: kGround,
-        fontFamily: 'Roboto',
-      ),
+      theme: ThemeData(colorScheme: scheme, useMaterial3: true, scaffoldBackgroundColor: kGround, fontFamily: 'Roboto'),
       home: const HomeShell(),
     );
   }
@@ -120,7 +126,10 @@ class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
   bool _loading = true;
   List<Product> _products = [];
-  final Map<int, int> _cart = {}; // product index -> qty
+  final Map<int, int> _cart = {};
+  String _shopCat = 'Semua';
+  Profile _profile = Profile();
+  List<Order> _orders = [];
 
   @override
   void initState() {
@@ -131,9 +140,13 @@ class _HomeShellState extends State<HomeShell> {
   Future<void> _load() async {
     try {
       final p = await loadCatalog();
+      final prof = await Store.getProfile();
+      final ords = await Store.getOrders();
       if (!mounted) return;
       setState(() {
         _products = p;
+        _profile = prof;
+        _orders = ords;
         _loading = false;
       });
     } catch (_) {
@@ -143,24 +156,27 @@ class _HomeShellState extends State<HomeShell> {
 
   int get cartCount => _cart.values.fold(0, (a, b) => a + b);
   int get subtotal => _cart.entries.fold(0, (a, e) => a + _products[e.key].price * e.value);
-  int get ongkir => (subtotal >= 100000 || subtotal == 0) ? 0 : 10000;
+  int get ongkir => (subtotal >= kFreeOngkirMin || subtotal == 0) ? 0 : kOngkir;
 
-  void _setQty(int i, int v) {
-    setState(() {
-      if (v <= 0) {
-        _cart.remove(i);
-      } else {
-        _cart[i] = v;
-      }
-    });
-  }
+  void _setQty(int i, int v) => setState(() {
+        if (v <= 0) {
+          _cart.remove(i);
+        } else {
+          _cart[i] = v;
+        }
+      });
 
   void _addToCart(int i, int qty) {
     _setQty(i, (_cart[i] ?? 0) + qty);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Ditambahkan ke keranjang'), duration: Duration(milliseconds: 1200)));
+      ..showSnackBar(const SnackBar(content: Text('Ditambahkan ke keranjang'), duration: Duration(milliseconds: 1100)));
   }
+
+  void _setCat(String c) => setState(() {
+        _shopCat = c;
+        _tab = 0;
+      });
 
   void _openSheet(int i) {
     showModalBottomSheet(
@@ -171,7 +187,44 @@ class _HomeShellState extends State<HomeShell> {
     );
   }
 
-  void _goTab(int i) => setState(() => _tab = i);
+  void _openCheckout() {
+    if (cartCount == 0) return;
+    Navigator.push(context, MaterialPageRoute(builder: (_) {
+      return CheckoutPage(
+        products: _products,
+        cart: Map<int, int>.from(_cart),
+        profile: _profile,
+        subtotal: subtotal,
+        ongkir: ongkir,
+        onPlaced: _placeOrder,
+      );
+    }));
+  }
+
+  Future<void> _placeOrder(Order o) async {
+    _profile = Profile(name: o.name, phone: o.phone, address: o.addr);
+    await Store.saveProfile(_profile);
+    await Store.addOrder(o);
+    if (!mounted) return;
+    setState(() {
+      _orders.insert(0, o);
+      _cart.clear();
+    });
+  }
+
+  void _openTracking(Order o, {bool justPlaced = false}) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced)));
+  }
+
+  void _saveProfile(Profile p) async {
+    setState(() => _profile = p);
+    await Store.saveProfile(p);
+    if (mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Data tersimpan')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,42 +232,38 @@ class _HomeShellState extends State<HomeShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: kGreen)));
     }
     final pages = [
-      ShopPage(products: _products, cart: _cart, onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet),
-      CategoryPage(products: _products),
-      CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir),
-      const _Soon(title: 'Pesanan', emoji: '🧾', note: 'Riwayat & lacak pesanan menyusul di tahap berikutnya.'),
-      const _Soon(title: 'Saya', emoji: '😊', note: 'Profil & login menyusul di tahap berikutnya.'),
+      ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
+          onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3)),
+      CategoryPage(products: _products, onPick: _setCat),
+      CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
+      OrdersPage(orders: _orders, onOpen: (o) => _openTracking(o)),
+      ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3)),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          backgroundColor: kSurface,
-          indicatorColor: kGreenSoft,
-          labelTextStyle: WidgetStateProperty.all(const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-        ),
-        child: NavigationBar(
-          height: 64,
-          selectedIndex: _tab,
-          onDestinationSelected: _goTab,
-          destinations: [
-            const NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'Toko'),
-            const NavigationDestination(icon: Icon(Icons.grid_view_outlined), selectedIcon: Icon(Icons.grid_view_rounded), label: 'Kategori'),
-            NavigationDestination(
-              icon: Badge(isLabelVisible: cartCount > 0, label: Text('$cartCount'), child: const Icon(Icons.shopping_cart_outlined)),
-              selectedIcon: Badge(isLabelVisible: cartCount > 0, label: Text('$cartCount'), child: const Icon(Icons.shopping_cart)),
-              label: 'Keranjang',
-            ),
-            const NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Pesanan'),
-            const NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Saya'),
-          ],
-        ),
+      bottomNavigationBar: NavigationBar(
+        height: 64,
+        backgroundColor: kSurface,
+        indicatorColor: kGreenSoft,
+        selectedIndex: _tab,
+        onDestinationSelected: (i) => setState(() => _tab = i),
+        destinations: [
+          const NavigationDestination(icon: Icon(Icons.storefront_outlined), selectedIcon: Icon(Icons.storefront), label: 'Toko'),
+          const NavigationDestination(icon: Icon(Icons.grid_view_outlined), selectedIcon: Icon(Icons.grid_view_rounded), label: 'Kategori'),
+          NavigationDestination(
+            icon: Badge(isLabelVisible: cartCount > 0, label: Text('$cartCount'), child: const Icon(Icons.shopping_cart_outlined)),
+            selectedIcon: Badge(isLabelVisible: cartCount > 0, label: Text('$cartCount'), child: const Icon(Icons.shopping_cart)),
+            label: 'Keranjang',
+          ),
+          const NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Pesanan'),
+          const NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Saya'),
+        ],
       ),
     );
   }
 }
 
-// ---------- shared bits ----------
+// ---------- shared widgets ----------
 Widget productImage(Product p, {double emojiSize = 40}) {
   final emoji = kCatEmoji[p.cat] ?? '🛍️';
   Widget fallback() => Center(child: Text(emoji, style: TextStyle(fontSize: emojiSize)));
@@ -227,19 +276,65 @@ Widget productImage(Product p, {double emojiSize = 40}) {
   );
 }
 
+class GreenHeader extends StatelessWidget {
+  final String title;
+  final Widget? leading;
+  const GreenHeader({super.key, required this.title, this.leading});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 14, 16, 14),
+      decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
+      child: Row(children: [
+        if (leading != null) ...[leading!, const SizedBox(width: 8)],
+        Text(title, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+      ]),
+    );
+  }
+}
+
+class EmptyView extends StatelessWidget {
+  final String emoji;
+  final String text;
+  const EmptyView({super.key, required this.emoji, required this.text});
+  @override
+  Widget build(BuildContext context) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(emoji, style: const TextStyle(fontSize: 46)),
+            const SizedBox(height: 12),
+            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14)),
+          ]),
+        ),
+      );
+}
+
+Widget moneyRow(String a, String b, {bool bold = false}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(a, style: TextStyle(color: bold ? kInk : kMuted, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, fontSize: bold ? 16 : 13.5)),
+        Text(b, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w600, fontSize: bold ? 17 : 13.5)),
+      ]),
+    );
+
 // ---------- shop ----------
 class ShopPage extends StatefulWidget {
   final List<Product> products;
   final Map<int, int> cart;
-  final void Function(int index) onAdd;
-  final void Function(int index) onOpen;
-  const ShopPage({super.key, required this.products, required this.cart, required this.onAdd, required this.onOpen});
+  final String activeCat;
+  final void Function(String) onCat;
+  final void Function(int) onAdd;
+  final void Function(int) onOpen;
+  final VoidCallback onGoOrders;
+  const ShopPage({super.key, required this.products, required this.cart, required this.activeCat,
+      required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders});
   @override
   State<ShopPage> createState() => _ShopPageState();
 }
 
 class _ShopPageState extends State<ShopPage> {
-  String _cat = 'Semua';
   String _search = '';
 
   List<int> get _visible {
@@ -247,7 +342,7 @@ class _ShopPageState extends State<ShopPage> {
     final out = <int>[];
     for (int i = 0; i < widget.products.length; i++) {
       final p = widget.products[i];
-      if ((_cat == 'Semua' || p.cat == _cat) && (term.isEmpty || p.name.toLowerCase().contains(term))) {
+      if ((widget.activeCat == 'Semua' || p.cat == widget.activeCat) && (term.isEmpty || p.name.toLowerCase().contains(term))) {
         out.add(i);
       }
     }
@@ -272,8 +367,7 @@ class _ShopPageState extends State<ShopPage> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.66,
-            ),
+                crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.66),
             delegate: SliverChildBuilderDelegate(
               (_, k) {
                 final i = idxs[k];
@@ -292,14 +386,12 @@ class _ShopPageState extends State<ShopPage> {
       padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 12, 16, 14),
       decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(width: 34, height: 34, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: const Center(child: Text('🛒', style: TextStyle(fontSize: 18)))),
-          const SizedBox(width: 10),
-          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        Row(children: const [
+          _LogoBox(),
+          SizedBox(width: 10),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-            Text('Belanja Alfamart & Indomaret — kami yang antar',
-                style: TextStyle(color: Colors.white70, fontSize: 11)),
+            Text('Belanja Alfamart & Indomaret — kami yang antar', style: TextStyle(color: Colors.white70, fontSize: 11)),
           ])),
         ]),
         const SizedBox(height: 12),
@@ -309,10 +401,7 @@ class _ShopPageState extends State<ShopPage> {
           child: TextField(
             onChanged: (v) => setState(() => _search = v),
             decoration: const InputDecoration(
-              icon: Icon(Icons.search, size: 20, color: kMuted),
-              hintText: 'Cari Indomie, beras, minyak…',
-              border: InputBorder.none,
-            ),
+                icon: Icon(Icons.search, size: 20, color: kMuted), hintText: 'Cari Indomie, beras, minyak…', border: InputBorder.none),
           ),
         ),
       ]),
@@ -320,31 +409,30 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   Widget _quickMenu() {
-    final items = [
-      ['🍚', 'Sembako', const Color(0xFFE3F0E9)],
-      ['🍜', 'Makanan\nInstan', const Color(0xFFFBEAD1)],
-      ['🥤', 'Minuman', const Color(0xFFE3EDF6)],
-      ['🛵', 'Lacak\nPesanan', const Color(0xFFEEE6F4)],
-      ['💬', 'Bantuan', const Color(0xFFE7F2EB)],
+    final items = <List<Object>>[
+      ['🍚', 'Sembako', const Color(0xFFE3F0E9), 'cat:Sembako'],
+      ['🍜', 'Makanan\nInstan', const Color(0xFFFBEAD1), 'cat:Makanan Instan'],
+      ['🥤', 'Minuman', const Color(0xFFE3EDF6), 'cat:Minuman'],
+      ['🛵', 'Lacak\nPesanan', const Color(0xFFEEE6F4), 'orders'],
+      ['💬', 'Bantuan', const Color(0xFFE7F2EB), 'help'],
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 14, 10, 2),
       child: Row(
         children: items.map((it) {
+          final act = it[3] as String;
           return Expanded(
             child: InkWell(
+              borderRadius: BorderRadius.circular(12),
               onTap: () {
-                final label = (it[1] as String).replaceAll('\n', ' ');
-                if (label == 'Sembako') setState(() => _cat = 'Sembako');
-                else if (label == 'Makanan Instan') setState(() => _cat = 'Makanan Instan');
-                else if (label == 'Minuman') setState(() => _cat = 'Minuman');
-                else {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(const SnackBar(content: Text('Fitur ini menyusul di tahap berikutnya')));
+                if (act.startsWith('cat:')) {
+                  widget.onCat(act.substring(4));
+                } else if (act == 'orders') {
+                  widget.onGoOrders();
+                } else {
+                  _help();
                 }
               },
-              borderRadius: BorderRadius.circular(12),
               child: Column(children: [
                 Container(width: 50, height: 50, decoration: BoxDecoration(color: it[2] as Color, borderRadius: BorderRadius.circular(15)),
                     child: Center(child: Text(it[0] as String, style: const TextStyle(fontSize: 24)))),
@@ -359,6 +447,17 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
+  void _help() {
+    if (kWaNumber.isNotEmpty) {
+      launchUrl(Uri.parse('https://wa.me/$kWaNumber?text=${Uri.encodeComponent('Halo Paramall, saya mau tanya.')}'),
+          mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Bantuan: hubungi tim Paramall lewat WhatsApp (nomor menyusul).')));
+    }
+  }
+
   Widget _catChips() {
     return SizedBox(
       height: 44,
@@ -366,11 +465,11 @@ class _ShopPageState extends State<ShopPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
         children: _cats.map((c) {
-          final on = c == _cat;
+          final on = c == widget.activeCat;
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
-              onTap: () => setState(() => _cat = c),
+              onTap: () => widget.onCat(c),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(color: on ? kGreen : kTile, borderRadius: BorderRadius.circular(999)),
@@ -394,12 +493,19 @@ class _ShopPageState extends State<ShopPage> {
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
           Text('Kami yang belanja & antar', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
           SizedBox(height: 1),
-          Text('Pilih barangnya, tim Paramall beli di Alfamart / Indomaret & antar ke rumah.',
-              style: TextStyle(fontSize: 12, color: kMuted)),
+          Text('Pilih barangnya, tim Paramall beli di Alfamart / Indomaret & antar ke rumah.', style: TextStyle(fontSize: 12, color: kMuted)),
         ])),
       ]),
     );
   }
+}
+
+class _LogoBox extends StatelessWidget {
+  const _LogoBox();
+  @override
+  Widget build(BuildContext context) => Container(
+      width: 34, height: 34, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+      child: const Center(child: Text('🛒', style: TextStyle(fontSize: 18))));
 }
 
 class ProductCard extends StatelessWidget {
@@ -417,8 +523,7 @@ class ProductCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
             child: Stack(children: [
-              Positioned.fill(child: ClipRRect(borderRadius: BorderRadius.circular(12),
-                  child: Container(color: kTile, child: productImage(product)))),
+              Positioned.fill(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Container(color: kTile, child: productImage(product)))),
               if (product.discounted)
                 Positioned(top: 6, left: 6, child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -427,23 +532,17 @@ class ProductCard extends StatelessWidget {
             ]),
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            height: 34,
-            child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.25)),
-          ),
+          SizedBox(height: 34, child: Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, height: 1.25))),
           const SizedBox(height: 6),
           Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
               if (product.discounted)
-                Text(rupiah(product.priceOriginal!),
-                    style: const TextStyle(fontSize: 11, color: kMuted, decoration: TextDecoration.lineThrough)),
+                Text(rupiah(product.priceOriginal!), style: const TextStyle(fontSize: 11, color: kMuted, decoration: TextDecoration.lineThrough)),
               Text(rupiah(product.price), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
             ])),
             GestureDetector(
               onTap: onAdd,
-              child: Container(width: 34, height: 34, decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(11)),
-                  child: const Icon(Icons.add, size: 20, color: kGreenInk)),
+              child: Container(width: 34, height: 34, decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(11)), child: const Icon(Icons.add, size: 20, color: kGreenInk)),
             ),
           ]),
         ]),
@@ -471,38 +570,28 @@ class _ProductSheetState extends State<ProductSheet> {
       child: SafeArea(
         top: false,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, margin: const EdgeInsets.only(top: 10, bottom: 4),
-              decoration: BoxDecoration(color: kLine, borderRadius: BorderRadius.circular(999))),
-          Container(margin: const EdgeInsets.fromLTRB(16, 6, 16, 0), height: 180,
-              decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(16)),
-              child: productImage(p, emojiSize: 80)),
+          Container(width: 40, height: 4, margin: const EdgeInsets.only(top: 10, bottom: 4), decoration: BoxDecoration(color: kLine, borderRadius: BorderRadius.circular(999))),
+          Container(margin: const EdgeInsets.fromLTRB(16, 6, 16, 0), height: 180, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(16)), child: productImage(p, emojiSize: 80)),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
               Text(p.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.35)),
               const SizedBox(height: 8),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(999)),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(999)),
                   child: Text(p.cat, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: kGreenInk))),
               const SizedBox(height: 12),
               Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text(rupiah(p.price), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
-                if (p.discounted) ...[
-                  const SizedBox(width: 8),
-                  Text(rupiah(p.priceOriginal!),
-                      style: const TextStyle(fontSize: 14, color: kMuted, decoration: TextDecoration.lineThrough)),
-                ],
+                if (p.discounted) ...[const SizedBox(width: 8), Text(rupiah(p.priceOriginal!), style: const TextStyle(fontSize: 14, color: kMuted, decoration: TextDecoration.lineThrough))],
               ]),
               const SizedBox(height: 18),
               Row(children: [
                 _stepBtn(Icons.remove, () => setState(() => qty = qty > 1 ? qty - 1 : 1)),
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Text('$qty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 14), child: Text('$qty', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
                 _stepBtn(Icons.add, () => setState(() => qty++)),
                 const SizedBox(width: 12),
                 Expanded(child: FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: kGreen, padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                  style: FilledButton.styleFrom(backgroundColor: kGreen, padding: const EdgeInsets.symmetric(vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                   onPressed: () {
                     widget.onAdd(qty);
                     Navigator.pop(context);
@@ -518,16 +607,14 @@ class _ProductSheetState extends State<ProductSheet> {
   }
 
   Widget _stepBtn(IconData ic, VoidCallback onTap) => GestureDetector(
-        onTap: onTap,
-        child: Container(width: 34, height: 34, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(10)),
-            child: Icon(ic, size: 18, color: kInk)),
-      );
+      onTap: onTap, child: Container(width: 34, height: 34, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(10)), child: Icon(ic, size: 18, color: kInk)));
 }
 
 // ---------- categories ----------
 class CategoryPage extends StatelessWidget {
   final List<Product> products;
-  const CategoryPage({super.key, required this.products});
+  final void Function(String) onPick;
+  const CategoryPage({super.key, required this.products, required this.onPick});
   @override
   Widget build(BuildContext context) {
     final counts = <String, int>{};
@@ -535,29 +622,33 @@ class CategoryPage extends StatelessWidget {
       counts[p.cat] = (counts[p.cat] ?? 0) + 1;
     }
     final cats = kCatOrder.where((c) => c != 'Semua' && (counts[c] ?? 0) > 0).toList();
-    return _Scaffolded(
-      title: 'Kategori',
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: cats.map((c) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
-            child: Row(children: [
-              Container(width: 46, height: 46, decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(13)),
-                  child: Center(child: Text(kCatEmoji[c] ?? '🛍️', style: const TextStyle(fontSize: 24)))),
-              const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(c, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                Text('${counts[c]} produk', style: const TextStyle(color: kMuted, fontSize: 11.5)),
-              ])),
-              const Icon(Icons.chevron_right, color: kMuted),
-            ]),
-          );
-        }).toList(),
+    return Column(children: [
+      const GreenHeader(title: 'Kategori'),
+      Expanded(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: cats.map((c) {
+            return GestureDetector(
+              onTap: () => onPick(c),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+                child: Row(children: [
+                  Container(width: 46, height: 46, decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(13)), child: Center(child: Text(kCatEmoji[c] ?? '🛍️', style: const TextStyle(fontSize: 24)))),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                    Text(c, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    Text('${counts[c]} produk', style: const TextStyle(color: kMuted, fontSize: 11.5)),
+                  ])),
+                  const Icon(Icons.chevron_right, color: kMuted),
+                ]),
+              ),
+            );
+          }).toList(),
+        ),
       ),
-    );
+    ]);
   }
 }
 
@@ -565,128 +656,543 @@ class CategoryPage extends StatelessWidget {
 class CartPage extends StatelessWidget {
   final List<Product> products;
   final Map<int, int> cart;
-  final void Function(int index, int qty) onQty;
+  final void Function(int, int) onQty;
   final int subtotal;
   final int ongkir;
-  const CartPage({super.key, required this.products, required this.cart, required this.onQty, required this.subtotal, required this.ongkir});
+  final VoidCallback onCheckout;
+  const CartPage({super.key, required this.products, required this.cart, required this.onQty, required this.subtotal, required this.ongkir, required this.onCheckout});
 
   @override
   Widget build(BuildContext context) {
     final entries = cart.entries.toList();
-    return _Scaffolded(
-      title: 'Keranjang',
-      child: entries.isEmpty
-          ? const _Empty(emoji: '🛒', text: 'Keranjang masih kosong.\nYuk pilih barang di Toko.')
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                ...entries.map((e) {
-                  final p = products[e.key];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(10),
+    return Column(children: [
+      const GreenHeader(title: 'Keranjang'),
+      Expanded(
+        child: entries.isEmpty
+            ? const EmptyView(emoji: '🛒', text: 'Keranjang masih kosong.\nYuk pilih barang di Toko.')
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  ...entries.map((e) {
+                    final p = products[e.key];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+                      child: Row(children: [
+                        Container(width: 64, height: 64, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(12)), child: productImage(p, emojiSize: 28)),
+                        const SizedBox(width: 12),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                          Text(p.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 2),
+                          Text(rupiah(p.price), style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800)),
+                          const SizedBox(height: 6),
+                          Row(children: [
+                            _step(Icons.remove, () => onQty(e.key, e.value - 1)),
+                            Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text('${e.value}', style: const TextStyle(fontWeight: FontWeight.w700))),
+                            _step(Icons.add, () => onQty(e.key, e.value + 1)),
+                          ]),
+                        ])),
+                      ]),
+                    );
+                  }),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
-                    child: Row(children: [
-                      Container(width: 64, height: 64, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(12)),
-                          child: productImage(p, emojiSize: 28)),
-                      const SizedBox(width: 12),
-                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                        Text(p.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 2),
-                        Text(rupiah(p.price), style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800)),
-                        const SizedBox(height: 6),
-                        Row(children: [
-                          _cartStep(Icons.remove, () => onQty(e.key, e.value - 1)),
-                          Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text('${e.value}', style: const TextStyle(fontWeight: FontWeight.w700))),
-                          _cartStep(Icons.add, () => onQty(e.key, e.value + 1)),
-                        ]),
-                      ])),
+                    child: Column(children: [
+                      moneyRow('Subtotal', rupiah(subtotal)),
+                      moneyRow(ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir', rupiah(ongkir)),
+                      const Divider(height: 18),
+                      moneyRow('Total', rupiah(subtotal + ongkir), bold: true),
                     ]),
-                  );
-                }),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
-                  child: Column(children: [
-                    _sline('Subtotal', rupiah(subtotal)),
-                    _sline(ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir', rupiah(ongkir)),
-                    const Divider(height: 18),
-                    _sline('Total', rupiah(subtotal + ongkir), bold: true),
-                  ]),
-                ),
-                const SizedBox(height: 12),
-                FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(const SnackBar(content: Text('Checkout menyusul di tahap berikutnya')));
-                  },
-                  child: Text('Checkout · ${rupiah(subtotal + ongkir)}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                    onPressed: onCheckout,
+                    child: Text('Checkout · ${rupiah(subtotal + ongkir)}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                  ),
+                ],
+              ),
+      ),
+    ]);
+  }
+
+  Widget _step(IconData ic, VoidCallback onTap) => GestureDetector(
+      onTap: onTap, child: Container(width: 28, height: 28, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(9), border: Border.all(color: kLine)), child: Icon(ic, size: 16, color: kInk)));
+}
+
+// ---------- checkout ----------
+class CheckoutPage extends StatefulWidget {
+  final List<Product> products;
+  final Map<int, int> cart;
+  final Profile profile;
+  final int subtotal;
+  final int ongkir;
+  final Future<void> Function(Order) onPlaced;
+  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.ongkir, required this.onPlaced});
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  late final TextEditingController _name = TextEditingController(text: widget.profile.name);
+  late final TextEditingController _phone = TextEditingController(text: widget.profile.phone);
+  late final TextEditingController _addr = TextEditingController(text: widget.profile.address);
+  final TextEditingController _note = TextEditingController();
+  String _pay = 'COD';
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    _addr.dispose();
+    _note.dispose();
+    super.dispose();
+  }
+
+  int get total => widget.subtotal + widget.ongkir;
+
+  String _payLabel(String p) => p == 'COD' ? 'Bayar di Tempat (COD)' : p == 'Transfer' ? 'Transfer Bank' : 'QRIS';
+
+  String _orderId() {
+    final d = DateTime.now();
+    String p(int n) => n.toString().padLeft(2, '0');
+    return 'PM${p(d.year % 100)}${p(d.month)}${p(d.day)}-${p(d.hour)}${p(d.minute)}${p(d.second)}';
+  }
+
+  Future<void> _place() async {
+    if (_name.text.trim().isEmpty || _phone.text.trim().isEmpty || _addr.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Lengkapi nama, HP, dan alamat dulu')));
+      return;
+    }
+    setState(() => _busy = true);
+    final items = widget.cart.entries.map((e) => OrderItem(name: widget.products[e.key].name, price: widget.products[e.key].price, qty: e.value)).toList();
+    final order = Order(
+      id: _orderId(), at: DateTime.now(),
+      name: _name.text.trim(), phone: _phone.text.trim(), addr: _addr.text.trim(), note: _note.text.trim(), pay: _pay,
+      items: items, subtotal: widget.subtotal, ongkir: widget.ongkir, total: total,
+    );
+    await widget.onPlaced(order);
+    if (!mounted) return;
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TrackingPage(order: order, justPlaced: true)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(children: [
+        GreenHeader(title: 'Checkout', leading: _BackBtn(() => Navigator.pop(context))),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('Alamat Pengantaran', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              const SizedBox(height: 10),
+              _field('Nama penerima', _name),
+              _field('Nomor HP / WhatsApp', _phone, keyboard: TextInputType.phone),
+              _field('Alamat lengkap', _addr, lines: 3),
+              _field('Catatan (opsional)', _note),
+              const SizedBox(height: 8),
+              const Text('Metode Pembayaran', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              const SizedBox(height: 10),
+              _payTile('COD', '💵', 'Bayar di Tempat (COD)', 'Bayar tunai saat barang diantar'),
+              _payTile('Transfer', '🏦', 'Transfer Bank', 'Info rekening dikirim setelah pesan'),
+              _payTile('QRIS', '📱', 'QRIS', 'Scan & bayar (menyusul)'),
+              const SizedBox(height: 12),
+              const Text('Ringkasan Pesanan', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+                child: Column(children: [
+                  ...widget.cart.entries.map((e) => moneyRow('${e.value}× ${widget.products[e.key].name}', rupiah(widget.products[e.key].price * e.value))),
+                  const Divider(height: 18),
+                  moneyRow('Subtotal', rupiah(widget.subtotal)),
+                  moneyRow(widget.ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir', rupiah(widget.ongkir)),
+                  const SizedBox(height: 4),
+                  moneyRow('Total Bayar', rupiah(total), bold: true),
+                ]),
+              ),
+            ],
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(54), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: _busy ? null : _place,
+              child: Text(_busy ? 'Memproses…' : 'Buat Pesanan · ${rupiah(total)}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5)),
             ),
+          ),
+        ),
+      ]),
     );
   }
 
-  Widget _cartStep(IconData ic, VoidCallback onTap) => GestureDetector(
-        onTap: onTap,
-        child: Container(width: 28, height: 28, decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(9), border: Border.all(color: kLine)),
-            child: Icon(ic, size: 16, color: kInk)),
-      );
-
-  Widget _sline(String a, String b, {bool bold = false}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text(a, style: TextStyle(color: bold ? kInk : kMuted, fontWeight: bold ? FontWeight.w800 : FontWeight.w500, fontSize: bold ? 16 : 13.5)),
-          Text(b, style: TextStyle(fontWeight: bold ? FontWeight.w800 : FontWeight.w600, fontSize: bold ? 17 : 13.5)),
+  Widget _field(String label, TextEditingController c, {int lines = 1, TextInputType? keyboard}) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: c, maxLines: lines, keyboardType: keyboard,
+            decoration: InputDecoration(
+              filled: true, fillColor: kSurface, isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5)),
+            ),
+          ),
         ]),
       );
+
+  Widget _payTile(String value, String emoji, String title, String sub) {
+    final on = _pay == value;
+    return GestureDetector(
+      onTap: () => setState(() => _pay = value),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(color: on ? kGreenSoft : kSurface, borderRadius: BorderRadius.circular(13), border: Border.all(color: on ? kGreen : kLine)),
+        child: Row(children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 11),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+            Text(sub, style: const TextStyle(color: kMuted, fontSize: 11.5)),
+          ])),
+          Icon(on ? Icons.radio_button_checked : Icons.radio_button_off, color: on ? kGreen : kMuted, size: 20),
+        ]),
+      ),
+    );
+  }
 }
 
-// ---------- scaffolding helpers ----------
-class _Scaffolded extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const _Scaffolded({required this.title, required this.child});
+// ---------- tracking ----------
+class _Driver {
+  final String name, veh, plate, emoji;
+  const _Driver(this.name, this.veh, this.plate, this.emoji);
+}
+
+const List<_Driver> _drivers = [
+  _Driver('Budi Santoso', 'Honda Vario', 'B 3245 KLM', '🧑🏻‍🦱'),
+  _Driver('Andi Pratama', 'Yamaha NMAX', 'B 5521 XYZ', '🧔🏻'),
+  _Driver('Slamet Riyadi', 'Honda Beat', 'B 8890 QRS', '👨🏻'),
+  _Driver('Dewi Lestari', 'Honda Scoopy', 'B 1123 TUV', '👩🏻'),
+];
+const List<List<String>> _stages = [
+  ['Pesanan diterima', 'Menunggu tim menyiapkan'],
+  ['Sedang dibelanjakan', 'Tim belanja di Alfamart/Indomaret'],
+  ['Driver mengantar', 'Driver dalam perjalanan ke rumahmu'],
+  ['Pesanan selesai', 'Barang sudah diterima. Terima kasih!'],
+];
+const List<int> _stageAt = [0, 20, 60, 130]; // detik (demo)
+
+class TrackingPage extends StatefulWidget {
+  final Order order;
+  final bool justPlaced;
+  const TrackingPage({super.key, required this.order, this.justPlaced = false});
+  @override
+  State<TrackingPage> createState() => _TrackingPageState();
+}
+
+class _TrackingPageState extends State<TrackingPage> {
+  Timer? _t;
+  @override
+  void initState() {
+    super.initState();
+    _t = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _t?.cancel();
+    super.dispose();
+  }
+
+  int get _stage {
+    final el = DateTime.now().difference(widget.order.at).inSeconds;
+    int s = 0;
+    for (int i = 0; i < _stageAt.length; i++) {
+      if (el >= _stageAt[i]) s = i;
+    }
+    return s;
+  }
+
+  _Driver get _driver {
+    int sum = 0;
+    for (final c in widget.order.id.codeUnits) {
+      sum += c;
+    }
+    return _drivers[sum % _drivers.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final o = widget.order;
+    final st = _stage;
+    final d = _driver;
+    return Scaffold(
+      body: Column(children: [
+        GreenHeader(title: 'Lacak Pesanan', leading: _BackBtn(() => Navigator.pop(context))),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (widget.justPlaced)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(14)),
+                  child: Row(children: [const Text('✅', style: TextStyle(fontSize: 18)), const SizedBox(width: 9), Expanded(child: Text('Pesanan #${o.id} berhasil dibuat!', style: const TextStyle(fontWeight: FontWeight.w700, color: kGreenInk)))]),
+                ),
+              _map(st),
+              const SizedBox(height: 16),
+              ...List.generate(_stages.length, (i) => _stepRow(i, st)),
+              if (st >= 2 && st < 3) _driverCard(d),
+              const SizedBox(height: 6),
+              const Text('Detail Pesanan', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+                child: Column(children: [
+                  ...o.items.map((it) => moneyRow('${it.qty}× ${it.name}', rupiah(it.sum))),
+                  moneyRow(o.ongkir == 0 ? 'Ongkir (gratis)' : 'Ongkir', rupiah(o.ongkir)),
+                  const Divider(height: 18),
+                  moneyRow('Total · ${_payLabel(o.pay)}', rupiah(o.total), bold: true),
+                ]),
+              ),
+              const SizedBox(height: 16),
+              if (kWaNumber.isNotEmpty)
+                FilledButton(
+                  style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                  onPressed: () => launchUrl(Uri.parse(_waLink(o)), mode: LaunchMode.externalApplication),
+                  child: const Text('Kirim detail ke WhatsApp Paramall', style: TextStyle(fontWeight: FontWeight.w800)),
+                ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Kembali', style: TextStyle(fontWeight: FontWeight.w700, color: kInk)),
+              ),
+            ],
+          ),
+        ),
+      ]),
+    );
+  }
+
+  String _payLabel(String p) => p == 'COD' ? 'COD' : p == 'Transfer' ? 'Transfer' : 'QRIS';
+  String _waText(Order o) {
+    final b = StringBuffer('*Pesanan Paramall*\n#${o.id}\n\n');
+    for (final it in o.items) {
+      b.write('• ${it.qty}× ${it.name} — ${rupiah(it.sum)}\n');
+    }
+    b.write('\nSubtotal: ${rupiah(o.subtotal)}\nOngkir: ${rupiah(o.ongkir)}\n*Total: ${rupiah(o.total)}*\nBayar: ${_payLabel(o.pay)}\n\n*Penerima*\n${o.name}\n${o.phone}\n${o.addr}\n');
+    if (o.note.isNotEmpty) b.write('Catatan: ${o.note}\n');
+    return b.toString();
+  }
+
+  String _waLink(Order o) => 'https://wa.me/$kWaNumber?text=${Uri.encodeComponent(_waText(o))}';
+
+  Widget _map(int st) {
+    final pos = st >= 3 ? 0.84 : st == 2 ? 0.58 : st == 1 ? 0.30 : 0.12;
+    return Container(
+      height: 140,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), border: Border.all(color: kLine), gradient: const LinearGradient(colors: [Color(0xFFCFE6D8), Color(0xFFE8F0E5)], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+      child: Stack(children: [
+        const Positioned(right: 24, top: 44, child: Text('🏠', style: TextStyle(fontSize: 26))),
+        Align(alignment: Alignment(pos * 2 - 1, 0.05), child: Text(st >= 3 ? '✅' : '🛵', style: const TextStyle(fontSize: 30))),
+        Positioned(left: 14, bottom: 12, child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+          decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(999)),
+          child: Text(st >= 3 ? 'Selesai' : st == 2 ? '🛵 Menuju rumah' : st == 1 ? 'Disiapkan' : 'Menunggu', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+        )),
+      ]),
+    );
+  }
+
+  Widget _stepRow(int i, int st) {
+    final done = i < st, now = i == st;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Column(children: [
+          Container(width: 22, height: 22, decoration: BoxDecoration(color: done ? kGreen : now ? kMango : kTile, shape: BoxShape.circle),
+              child: Icon(done ? Icons.check : Icons.circle, size: done ? 14 : 8, color: done ? Colors.white : now ? const Color(0xFF3A2400) : kMuted)),
+          if (i < _stages.length - 1) Container(width: 2, height: 26, color: kLine),
+        ]),
+        const SizedBox(width: 12),
+        Expanded(child: Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(_stages[i][0], style: TextStyle(fontWeight: (done || now) ? FontWeight.w800 : FontWeight.w500, color: (done || now) ? kInk : kMuted, fontSize: 13.5)),
+            Text(_stages[i][1], style: const TextStyle(color: kMuted, fontSize: 11.5)),
+            const SizedBox(height: 10),
+          ]),
+        )),
+      ]),
+    );
+  }
+
+  Widget _driverCard(_Driver d) {
+    return Container(
+      margin: const EdgeInsets.only(top: 6, bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+      child: Row(children: [
+        Container(width: 48, height: 48, decoration: BoxDecoration(color: kMangoSoft, shape: BoxShape.circle), child: Center(child: Text(d.emoji, style: const TextStyle(fontSize: 24)))),
+        const SizedBox(width: 12),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+          Text(d.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+          Text('${d.veh} · ${d.plate}', style: const TextStyle(color: kMuted, fontSize: 12)),
+        ])),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: kGreen, padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11))),
+          onPressed: () => launchUrl(Uri.parse('tel:081200000000')),
+          child: const Text('Hubungi', style: TextStyle(fontWeight: FontWeight.w700)),
+        ),
+      ]),
+    );
+  }
+}
+
+// ---------- orders ----------
+class OrdersPage extends StatelessWidget {
+  final List<Order> orders;
+  final void Function(Order) onOpen;
+  const OrdersPage({super.key, required this.orders, required this.onOpen});
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Container(
-        width: double.infinity,
-        padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 14, 16, 14),
-        decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
-        child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
+      const GreenHeader(title: 'Pesanan Saya'),
+      Expanded(
+        child: orders.isEmpty
+            ? const EmptyView(emoji: '🧾', text: 'Belum ada pesanan.\nYuk mulai belanja di Toko.')
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: orders.map((o) {
+                  return GestureDetector(
+                    onTap: () => onOpen(o),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          Text('#${o.id}', style: const TextStyle(color: kMuted, fontSize: 12.5)),
+                          Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3), decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(999)), child: const Text('Lacak ›', style: TextStyle(color: kGreenInk, fontWeight: FontWeight.w700, fontSize: 11))),
+                        ]),
+                        const SizedBox(height: 6),
+                        Text('${o.count} barang • ${shortDate(o.at)}', style: const TextStyle(fontSize: 13)),
+                        const SizedBox(height: 4),
+                        Text(rupiah(o.total), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                      ]),
+                    ),
+                  );
+                }).toList(),
+              ),
       ),
-      Expanded(child: child),
     ]);
   }
 }
 
-class _Empty extends StatelessWidget {
-  final String emoji;
-  final String text;
-  const _Empty({required this.emoji, required this.text});
+// ---------- profile ----------
+class ProfilePage extends StatefulWidget {
+  final Profile profile;
+  final void Function(Profile) onSave;
+  final VoidCallback onGoOrders;
+  const ProfilePage({super.key, required this.profile, required this.onSave, required this.onGoOrders});
   @override
-  Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(emoji, style: const TextStyle(fontSize: 46)),
-            const SizedBox(height: 12),
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14)),
-          ]),
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late final TextEditingController _name = TextEditingController(text: widget.profile.name);
+  late final TextEditingController _phone = TextEditingController(text: widget.profile.phone);
+  late final TextEditingController _addr = TextEditingController(text: widget.profile.address);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _phone.dispose();
+    _addr.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = widget.profile.name.isNotEmpty ? widget.profile.name.trim()[0].toUpperCase() : '😊';
+    return Column(children: [
+      const GreenHeader(title: 'Saya'),
+      Expanded(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Row(children: [
+              Container(width: 56, height: 56, decoration: const BoxDecoration(color: kGreen, shape: BoxShape.circle), child: Center(child: Text(initial, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)))),
+              const SizedBox(width: 14),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                Text(widget.profile.name.isEmpty ? 'Tamu' : widget.profile.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                Text(widget.profile.phone.isEmpty ? 'Belum ada nomor HP' : widget.profile.phone, style: const TextStyle(color: kMuted, fontSize: 12.5)),
+              ])),
+            ]),
+            const SizedBox(height: 18),
+            const Text('Data Saya', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            const SizedBox(height: 10),
+            _field('Nama', _name),
+            _field('Nomor HP / WhatsApp', _phone, keyboard: TextInputType.phone),
+            _field('Alamat', _addr, lines: 3),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () => widget.onSave(Profile(name: _name.text.trim(), phone: _phone.text.trim(), address: _addr.text.trim())),
+              child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.w800)),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: widget.onGoOrders,
+              child: const Text('Lihat Pesanan Saya', style: TextStyle(fontWeight: FontWeight.w700, color: kInk)),
+            ),
+          ],
         ),
+      ),
+    ]);
+  }
+
+  Widget _field(String label, TextEditingController c, {int lines = 1, TextInputType? keyboard}) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kMuted)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: c, maxLines: lines, keyboardType: keyboard,
+            decoration: InputDecoration(
+              filled: true, fillColor: kSurface, isDense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5)),
+            ),
+          ),
+        ]),
       );
 }
 
-class _Soon extends StatelessWidget {
-  final String title;
-  final String emoji;
-  final String note;
-  const _Soon({required this.title, required this.emoji, required this.note});
+class _BackBtn extends StatelessWidget {
+  final VoidCallback onTap;
+  const _BackBtn(this.onTap);
   @override
-  Widget build(BuildContext context) => _Scaffolded(title: title, child: _Empty(emoji: emoji, text: note));
+  Widget build(BuildContext context) => GestureDetector(
+      onTap: onTap,
+      child: Container(width: 30, height: 30, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(999)), child: const Icon(Icons.chevron_left, color: Colors.white)));
 }
