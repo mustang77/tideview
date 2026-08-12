@@ -292,7 +292,7 @@ class _HomeShellState extends State<HomeShell> {
 
 // ---------- shared widgets ----------
 // Route images through our same-origin proxy so Flutter Web's canvas can draw
-// them (Alfamart's CDN sends no CORS headers). img.php lives at the site root.
+// them (the source CDN sends no CORS headers). img.php lives at the site root.
 const String kImgProxy = '/img.php?u=';
 
 Widget productImage(Product p, {double emojiSize = 40}) {
@@ -425,7 +425,7 @@ class _ShopPageState extends State<ShopPage> {
           SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-            Text('Belanja Alfamart & Indomaret — kami yang antar', style: TextStyle(color: Colors.white70, fontSize: 11)),
+            Text('Belanja online di Paramall — kami antar ke rumah', style: TextStyle(color: Colors.white70, fontSize: 11)),
           ])),
         ]),
         const SizedBox(height: 12),
@@ -527,7 +527,7 @@ class _ShopPageState extends State<ShopPage> {
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
           Text('Kami yang belanja & antar', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
           SizedBox(height: 1),
-          Text('Pilih barangnya, tim Paramall beli di Alfamart / Indomaret & antar ke rumah.', style: TextStyle(fontSize: 12, color: kMuted)),
+          Text('Pilih barangnya, tim Paramall belanjakan & antar langsung ke rumah kamu.', style: TextStyle(fontSize: 12, color: kMuted)),
         ])),
       ]),
     );
@@ -923,7 +923,7 @@ const List<_Driver> _drivers = [
 ];
 const List<List<String>> _stages = [
   ['Pesanan diterima', 'Menunggu tim menyiapkan'],
-  ['Sedang dibelanjakan', 'Tim belanja di Alfamart/Indomaret'],
+  ['Sedang dibelanjakan', 'Tim Paramall sedang menyiapkan pesananmu'],
   ['Driver mengantar', 'Driver dalam perjalanan ke rumahmu'],
   ['Pesanan selesai', 'Barang sudah diterima. Terima kasih!'],
 ];
@@ -1272,7 +1272,7 @@ class LoginLanding extends StatelessWidget {
           const Text('P A R A K A N', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kGreen, letterSpacing: 4)),
           const SizedBox(height: 14),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 32),
-              child: Text('Belanja Alfamart & Indomaret.\nKami yang belanja & antar ke rumah.', textAlign: TextAlign.center,
+              child: Text('Belanja online di Paramall —\nkami antar ke rumah.', textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15.5, color: kLoginSub, height: 1.4))),
           const SizedBox(height: 30),
           Padding(
