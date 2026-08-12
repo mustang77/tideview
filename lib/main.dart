@@ -111,7 +111,7 @@ class ParamallApp extends StatelessWidget {
     return MaterialApp(
       title: 'Paramall',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: scheme, useMaterial3: true, scaffoldBackgroundColor: kGround, fontFamily: 'Roboto'),
+      theme: ThemeData(colorScheme: scheme, useMaterial3: true, scaffoldBackgroundColor: kGround, fontFamily: 'PlusJakartaSans'),
       home: const HomeShell(),
     );
   }
