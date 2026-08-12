@@ -303,6 +303,17 @@ switch ($action) {
         ]);
     }
 
+    case 'fcm_test': {
+        requireAdmin($cfg, $body);
+        if (!fcmEnabled($cfg)) {
+            fail(400, 'FCM belum aktif — cek fcm_project_id & file kunci');
+        }
+        // Try to exchange the service-account key for a Google access token.
+        // Succeeds only if the key is valid AND still active (not deleted).
+        $tok = fcmAccessToken();
+        ok(['token_ok' => $tok !== null && $tok !== '']);
+    }
+
     // ---- Push notification tokens ----
     case 'register_token': {
         $u = authUser($pdo, $body);
