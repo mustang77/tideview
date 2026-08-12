@@ -68,9 +68,9 @@ jobs:
     # temporary push trigger (inputs empty -> small, fast defaults).
     env:
       SOURCE: ${{ inputs.source || 'alfagift' }}
-      MODE: ${{ inputs.mode || 'search' }}
+      MODE: ${{ inputs.mode || 'all' }}
       QUERY: ${{ inputs.query || 'indomie,mie sedaap,pop mie,beras,minyak goreng,gula pasir,telur,kopi,teh,susu,air mineral,kecap manis,saus sambal,saus tomat,tepung terigu,margarin,santan,garam,penyedap rasa,roti,biskuit,wafer,coklat,permen,keripik,snack,kacang,sabun mandi,shampoo,pasta gigi,sikat gigi,deodorant,lotion,tisu,detergen,pewangi,pembersih lantai,sabun cuci piring,pembalut,popok bayi,susu bayi,minuman,sirup,kopi sachet' }}
-      MAX: ${{ inputs.max || '450' }}
+      MAX: ${{ inputs.max || '1200' }}
       STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
       LAT: ${{ inputs.lat || '-6.1763897' }}
       LNG: ${{ inputs.lng || '106.82667' }}
