@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "634504848641",
+    "project_id": "paramall-f30a1",
+    "storage_bucket": "paramall-f30a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634504848641:android:e38b3d69d560689d696700",
+        "android_client_info": {
+          "package_name": "com.paramall.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhDnkiBSWM5veM1lrHdo2FZVFRccdY_qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

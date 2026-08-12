@@ -6,8 +6,13 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:url_launcher/url_launcher.dart';
 import 'store.dart';
 import 'api.dart';
+import 'push.dart';
 
-void main() => runApp(const ParamallApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Push.init();
+  runApp(const ParamallApp());
+}
 
 // Called after a successful register/login: hands the session token + account back to the shell.
 typedef Authed = Future<void> Function(String token, String name, String phone, String address);
@@ -203,6 +208,7 @@ class _HomeShellState extends State<HomeShell> {
       _profile = Profile(name: me.name, phone: me.phone, address: me.address);
       await Store.saveProfile(_profile);
       await Store.saveOrders(orders);
+      await Push.registerDevice(_token); // keep the push token fresh
       setState(() => _orders = orders);
     } on ApiException catch (e) {
       // Token expired/invalid → sign out. Ignore plain network errors (stay on cache).
@@ -365,6 +371,7 @@ class _HomeShellState extends State<HomeShell> {
     await Store.setToken(token);
     await Store.saveProfile(_profile);
     await Store.setLoggedIn(true);
+    await Push.registerDevice(token); // start receiving order-status pushes
     if (!mounted) return;
     setState(() => _session = true);
     await _refreshOrders();
@@ -2254,6 +2261,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   void initState() {
     super.initState();
+    Push.subscribeStaff(); // this device now hears about new orders
     _load();
   }
 
@@ -2452,6 +2460,7 @@ class _DriverPageState extends State<DriverPage> {
   @override
   void initState() {
     super.initState();
+    Push.subscribeStaff(); // driver device hears about new orders
     _load();
   }
 

@@ -49,9 +49,11 @@ android/key.properties
 *.jks
 *.keystore
 
-# Backend secrets
+# Backend secrets — the Firebase service-account key is admin-level; server only.
 server/api/config.php
 server/api/fcm-service-account.json
+**/firebase-adminsdk*.json
 
-# Firebase (Android) — google-services.json holds project keys
-android/app/google-services.json
+# Note: android/app/google-services.json is intentionally committed. It only
+# holds the public Android app id + a restricted API key (already shipped inside
+# every APK) and is required for the CI Android build.
