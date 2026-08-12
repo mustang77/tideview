@@ -1172,79 +1172,208 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  static const _danger = Color(0xFFC0432E);
+
+  String get _displayName => widget.profile.name.isEmpty ? 'Tamu' : widget.profile.name;
+  String get _displayPhone => widget.profile.phone.isEmpty ? 'Belum ada nomor HP' : widget.profile.phone;
+  String get _initial => widget.profile.name.trim().isNotEmpty ? widget.profile.name.trim()[0].toUpperCase() : 'P';
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
+  void _openEdit() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ProfileEditSheet(profile: widget.profile, onSave: widget.onSave),
+    );
+  }
+
+  void _about() {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Tentang Paramall'),
+      content: const Text('Paramall — belanja online, kami antar ke rumah.\n\nVersi 1.0.0'),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
+    ));
+  }
+
+  void _confirmLogout() {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Keluar?'),
+      content: const Text('Kamu perlu masuk lagi untuk memesan.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        TextButton(onPressed: () { Navigator.pop(context); widget.onLogout(); }, child: const Text('Keluar', style: TextStyle(color: _danger, fontWeight: FontWeight.w700))),
+      ],
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: kGround,
+      drawer: _buildDrawer(),
+      appBar: AppBar(
+        backgroundColor: kGreen,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Akun Saya', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+        leading: IconButton(icon: const Icon(Icons.menu), onPressed: () => _scaffoldKey.currentState?.openDrawer()),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(18))),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _summaryCard(),
+          const SizedBox(height: 18),
+          _label('AKUN'),
+          _card([
+            _tile(Icons.receipt_long_outlined, 'Pesanan Saya', 'Lihat & lacak pesanan', widget.onGoOrders),
+            _sep(),
+            _tile(Icons.location_on_outlined, 'Alamat Pengantaran', widget.profile.address.isEmpty ? 'Belum diatur' : widget.profile.address, _openEdit),
+            _sep(),
+            _tile(Icons.person_outline, 'Ubah Data Akun', 'Nama & nomor HP', _openEdit),
+          ]),
+          const SizedBox(height: 16),
+          _label('BANTUAN & INFO'),
+          _card([
+            _tile(Icons.headset_mic_outlined, 'Pusat Bantuan', 'Hubungi tim Paramall', () => _snack('Bantuan lewat WhatsApp menyusul.')),
+            _sep(),
+            _tile(Icons.info_outline, 'Tentang Paramall', 'Versi 1.0.0', _about),
+          ]),
+          const SizedBox(height: 22),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: Color(0xFFE7C9C1)), foregroundColor: _danger, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+            onPressed: _confirmLogout,
+            icon: const Icon(Icons.logout, size: 19),
+            label: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(height: 14),
+          const Center(child: Text('Paramall • v1.0.0', style: TextStyle(color: Color(0xFF9AA39C), fontSize: 12))),
+        ],
+      ),
+    );
+  }
+
+  Widget _summaryCard() => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(18), border: Border.all(color: kLine), boxShadow: const [BoxShadow(color: Color(0x0F14281E), blurRadius: 18, offset: Offset(0, 6))]),
+    child: Row(children: [
+      Container(width: 60, height: 60, decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF2E9C6E), kGreen]), shape: BoxShape.circle), child: Center(child: Text(_initial, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)))),
+      const SizedBox(width: 14),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        Text(_displayName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 2),
+        Text(_displayPhone, style: const TextStyle(color: kMuted, fontSize: 13)),
+      ])),
+      TextButton(onPressed: _openEdit, style: TextButton.styleFrom(foregroundColor: kGreen), child: const Text('Ubah', style: TextStyle(fontWeight: FontWeight.w800))),
+    ]),
+  );
+
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(left: 4, bottom: 8), child: Text(t, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: kMuted, letterSpacing: 0.6)));
+
+  Widget _card(List<Widget> children) => Container(
+    decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+    child: Column(children: children),
+  );
+
+  Widget _sep() => const Divider(height: 1, thickness: 1, indent: 56, color: kLine);
+
+  Widget _tile(IconData icon, String title, String subtitle, VoidCallback onTap) => ListTile(
+    onTap: onTap,
+    leading: Container(width: 38, height: 38, decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(11)), child: Icon(icon, color: kGreenInk, size: 20)),
+    title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+    subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 12)),
+    trailing: const Icon(Icons.chevron_right, color: kMuted, size: 20),
+  );
+
+  Widget _buildDrawer() => Drawer(
+    backgroundColor: kGround,
+    child: ListView(padding: EdgeInsets.zero, children: [
+      Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 24, 20, 22),
+        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF2E9C6E), Color(0xFF12543A)], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+          Container(width: 54, height: 54, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: Center(child: Text(_initial, style: const TextStyle(color: kGreen, fontSize: 24, fontWeight: FontWeight.w800)))),
+          const SizedBox(height: 12),
+          Text(_displayName, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+          Text(_displayPhone, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ]),
+      ),
+      _drawerTile(Icons.receipt_long_outlined, 'Pesanan Saya', () { Navigator.pop(context); widget.onGoOrders(); }),
+      _drawerTile(Icons.location_on_outlined, 'Alamat Pengantaran', () { Navigator.pop(context); _openEdit(); }),
+      _drawerTile(Icons.person_outline, 'Ubah Data Akun', () { Navigator.pop(context); _openEdit(); }),
+      _drawerTile(Icons.headset_mic_outlined, 'Pusat Bantuan', () { Navigator.pop(context); _snack('Bantuan lewat WhatsApp menyusul.'); }),
+      _drawerTile(Icons.info_outline, 'Tentang Paramall', () { Navigator.pop(context); _about(); }),
+      const Divider(),
+      _drawerTile(Icons.logout, 'Keluar', () { Navigator.pop(context); _confirmLogout(); }, danger: true),
+    ]),
+  );
+
+  Widget _drawerTile(IconData icon, String label, VoidCallback onTap, {bool danger = false}) => ListTile(
+    leading: Icon(icon, color: danger ? _danger : kGreenInk),
+    title: Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: danger ? _danger : kInk)),
+    onTap: onTap,
+  );
+}
+
+class _ProfileEditSheet extends StatefulWidget {
+  final Profile profile;
+  final void Function(Profile) onSave;
+  const _ProfileEditSheet({required this.profile, required this.onSave});
+  @override
+  State<_ProfileEditSheet> createState() => _ProfileEditSheetState();
+}
+
+class _ProfileEditSheetState extends State<_ProfileEditSheet> {
   late final TextEditingController _name = TextEditingController(text: widget.profile.name);
   late final TextEditingController _phone = TextEditingController(text: widget.profile.phone);
   late final TextEditingController _addr = TextEditingController(text: widget.profile.address);
 
   @override
-  void dispose() {
-    _name.dispose();
-    _phone.dispose();
-    _addr.dispose();
-    super.dispose();
-  }
+  void dispose() { _name.dispose(); _phone.dispose(); _addr.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
-    final initial = widget.profile.name.isNotEmpty ? widget.profile.name.trim()[0].toUpperCase() : '😊';
-    return Column(children: [
-      const GreenHeader(title: 'Saya'),
-      Expanded(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(children: [
-              Container(width: 56, height: 56, decoration: const BoxDecoration(color: kGreen, shape: BoxShape.circle), child: Center(child: Text(initial, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)))),
-              const SizedBox(width: 14),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                Text(widget.profile.name.isEmpty ? 'Tamu' : widget.profile.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                Text(widget.profile.phone.isEmpty ? 'Belum ada nomor HP' : widget.profile.phone, style: const TextStyle(color: kMuted, fontSize: 12.5)),
-              ])),
-            ]),
-            const SizedBox(height: 18),
-            const Text('Data Saya', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-            const SizedBox(height: 10),
-            _field('Nama', _name),
-            _field('Nomor HP / WhatsApp', _phone, keyboard: TextInputType.phone),
-            _field('Alamat', _addr, lines: 3),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              onPressed: () => widget.onSave(Profile(name: _name.text.trim(), phone: _phone.text.trim(), address: _addr.text.trim(), pinHash: widget.profile.pinHash)),
-              child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.w800)),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              onPressed: widget.onGoOrders,
-              child: const Text('Lihat Pesanan Saya', style: TextStyle(fontWeight: FontWeight.w700, color: kInk)),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: widget.onLogout,
-              child: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.w700, color: kMuted)),
-            ),
-          ],
+    return Container(
+      decoration: const BoxDecoration(color: kSurface, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      padding: EdgeInsets.only(left: 18, right: 18, top: 8, bottom: MediaQuery.of(context).viewInsets.bottom + 18),
+      child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Center(child: Container(width: 40, height: 4, margin: const EdgeInsets.only(top: 2, bottom: 14), decoration: BoxDecoration(color: kLine, borderRadius: BorderRadius.circular(999)))),
+        const Text('Ubah Data Akun', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 14),
+        _f('Nama', _name),
+        const SizedBox(height: 12),
+        _f('Nomor HP / WhatsApp', _phone, keyboard: TextInputType.phone),
+        const SizedBox(height: 12),
+        _f('Alamat', _addr, lines: 3),
+        const SizedBox(height: 18),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+          onPressed: () {
+            widget.onSave(Profile(name: _name.text.trim(), phone: _phone.text.trim(), address: _addr.text.trim(), pinHash: widget.profile.pinHash));
+            Navigator.pop(context);
+          },
+          child: const Text('Simpan', style: TextStyle(fontWeight: FontWeight.w800)),
         ),
-      ),
-    ]);
+      ]),
+    );
   }
 
-  Widget _field(String label, TextEditingController c, {int lines = 1, TextInputType? keyboard}) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kMuted)),
-          const SizedBox(height: 6),
-          TextField(
-            controller: c, maxLines: lines, keyboardType: keyboard,
-            decoration: InputDecoration(
-              filled: true, fillColor: kSurface, isDense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5)),
-            ),
-          ),
-        ]),
-      );
+  Widget _f(String label, TextEditingController c, {int lines = 1, TextInputType? keyboard}) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kMuted)),
+    const SizedBox(height: 6),
+    TextField(controller: c, maxLines: lines, keyboardType: keyboard, decoration: InputDecoration(
+      filled: true, fillColor: kGround, isDense: true, contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5)),
+    )),
+  ]);
 }
 
 class _BackBtn extends StatelessWidget {
