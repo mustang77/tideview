@@ -5,14 +5,14 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A12520003409_20230419091712684_base.jpg"
  },
  {
-  "name": "Happy Tos Keripik Tortilla Hijau 140 g",
-  "price": 13400,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A10040002093_20231201162945441_base.jpg"
- },
- {
   "name": "Nutriboost Minuman Susu Rasa Stroberi Botol 300 ml",
   "price": 7700,
   "imageUrl": "https://c.alfagift.id/product/1/1_A12990004219_20230710091750745_base.jpg"
+ },
+ {
+  "name": "Happy Tos Keripik Tortilla Hijau 140 g",
+  "price": 13400,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A10040002093_20231201162945441_base.jpg"
  },
  {
   "name": "mentos Permen Rainbow Roll 37 g",
@@ -30,14 +30,19 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A12790040918_20240624161507461_base.jpg"
  },
  {
+  "name": "Fruit Tea Minuman Teh Blackcurrant 350 ml",
+  "price": 4200,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A12790040881_20240625161751128_base.jpg"
+ },
+ {
   "name": "Pocari Sweat Minuman Isotonik Botol 500 ml",
   "price": 8200,
   "imageUrl": "https://c.alfagift.id/product/1/1_A12630003575_20240801142839005_base.jpg"
  },
  {
-  "name": "Fruit Tea Minuman Teh Blackcurrant 350 ml",
-  "price": 4200,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A12790040881_20240625161751128_base.jpg"
+  "name": "MyRoti Roti Tawar Funwari 8 s",
+  "price": 15000,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A10480000330_20240516163533790_base.jpg"
  },
  {
   "name": "Indomie Mi Instan Ayam Bawang 69 g",
@@ -48,11 +53,6 @@
   "name": "Tehbotol Sosro Minuman Teh Original 350 ml",
   "price": 4200,
   "imageUrl": "https://c.alfagift.id/product/1/1_A12790040900_20240314131805179_base.jpg"
- },
- {
-  "name": "MyRoti Roti Tawar Funwari 8 s",
-  "price": 15000,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A10480000330_20240516163533790_base.jpg"
  },
  {
   "name": "Indomie Mi Instan Soto Mie 70 g",
@@ -100,14 +100,20 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A12630003501_20260304133734045_base.jpg"
  },
  {
-  "name": "Frestea Minuman Teh Green Tea Madu 500 ml",
-  "price": 7100,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A12790002792_20251127153658265_base.jpg"
- },
- {
   "name": "Happy Tos Keripik Tortilla Original 140 g",
   "price": 11300,
   "imageUrl": "https://c.alfagift.id/product/1/1_A10040005372_20251117134805769_base.jpg"
+ },
+ {
+  "name": "Paroti Roti Sisir Mentega 80 g",
+  "price": 6500,
+  "priceOriginal": 8000,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A7408030002168_20260415153123648_base.jpg"
+ },
+ {
+  "name": "Frestea Minuman Teh Green Tea Madu 500 ml",
+  "price": 7100,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A12790002792_20251127153658265_base.jpg"
  },
  {
   "name": "Frestea Minuman Teh Rasa Apel Botol 500 ml",
@@ -115,20 +121,14 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A12790003643_20251127153123102_base.jpg"
  },
  {
-  "name": "ABC Minuman Sari Kacang Hijau 250 ml",
-  "price": 5500,
-  "imageUrl": "https://c.alfagift.id/product/1/A12740003130_A12740003130_20251113104242593_base.jpg"
- },
- {
   "name": "Sedaap Mi Instan Rebus khas Korean Pedas 77 g",
   "price": 3000,
   "imageUrl": "https://c.alfagift.id/product/1/1_A7331920001037_20240613171008706_base.jpg"
  },
  {
-  "name": "Paroti Roti Sisir Mentega 80 g",
-  "price": 6500,
-  "priceOriginal": 8000,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A7408030002168_20260415153123648_base.jpg"
+  "name": "ABC Minuman Sari Kacang Hijau 250 ml",
+  "price": 5500,
+  "imageUrl": "https://c.alfagift.id/product/1/A12740003130_A12740003130_20251113104242593_base.jpg"
  },
  {
   "name": "Roma Sari Gandum Biskuit Sandwich Susu & Cokelat 108 g",
@@ -193,14 +193,15 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A6807260001082_20241014154212837_base.jpg"
  },
  {
+  "name": "Mama Lemon Sabun Cuci Piring Jeruk Nipis Refill 650 g",
+  "price": 8500,
+  "priceOriginal": 10600,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A27790039192_20260807093017307_base.jpg"
+ },
+ {
   "name": "Bimoli Minyak Goreng Pouch 2 L",
   "price": 42800,
   "imageUrl": "https://c.alfagift.id/product/1/1_A09350001880_20260421155328307_base.jpg"
- },
- {
-  "name": "Bango Kecap Manis Refill 700 g",
-  "price": 26500,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A09270039118_20251023115229466_base.jpg"
  },
  {
   "name": "Nestle Pure Life Air Mineral Botol 1.5 L",
@@ -208,15 +209,9 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A12460006224_20260807212145873_base.jpg"
  },
  {
-  "name": "Mama Lemon Sabun Cuci Piring Jeruk Nipis Refill 650 g",
-  "price": 8500,
-  "priceOriginal": 10600,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A27790039192_20260807093017307_base.jpg"
- },
- {
-  "name": "Aqua Air Mineral Botol 600 ml",
-  "price": 3800,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A12460003260_20260518134545879_base.jpg"
+  "name": "Bango Kecap Manis Refill 700 g",
+  "price": 26500,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A09270039118_20251023115229466_base.jpg"
  },
  {
   "name": "SunCo Minyak Goreng Pouch 2 L",
@@ -225,21 +220,26 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A09350002158_20240610133552718_base.jpg"
  },
  {
+  "name": "Aqua Air Mineral Botol 600 ml",
+  "price": 3800,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A12460003260_20260518134545879_base.jpg"
+ },
+ {
   "name": "Sedaap Mi Instan Goreng Selection Korean Ayam Pedas 87 g",
   "price": 3100,
   "imageUrl": "https://c.alfagift.id/product/1/1_A7059060001114_20241107150853783_base.jpg"
- },
- {
-  "name": "Sania Minyak Goreng Pouch 2 L",
-  "price": 41500,
-  "priceOriginal": 42800,
-  "imageUrl": "https://c.alfagift.id/product/1/1_A09350002156_20240507154551859_base.jpg"
  },
  {
   "name": "Tropical Minyak Goreng Kelapa Sawit Botol 2 L",
   "price": 42200,
   "priceOriginal": 46900,
   "imageUrl": "https://c.alfagift.id/product/1/1_A7129250000985_20250317095736607_base.jpg"
+ },
+ {
+  "name": "Sania Minyak Goreng Pouch 2 L",
+  "price": 41500,
+  "priceOriginal": 42800,
+  "imageUrl": "https://c.alfagift.id/product/1/1_A09350002156_20240507154551859_base.jpg"
  },
  {
   "name": "Javana Minuman Teh Melati 350 ml",
@@ -351,7 +351,7 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A8363340002167_20260309142605783_base.jpg"
  },
  {
-  "name": "Boom Cinta Deterjen Cair Lavender Jerigen 4.5 L",
+  "name": "Boom Cinta Detergen Cair Lavender Jerigen 4.5 L",
   "price": 39900,
   "priceOriginal": 65000,
   "imageUrl": "https://c.alfagift.id/product/1/1_A8403920002167_20260712163711121_base.jpeg"
@@ -369,7 +369,7 @@
   "imageUrl": "https://c.alfagift.id/product/1/1_A8363020002167_20260309083327698_base.jpg"
  },
  {
-  "name": "Gentle Gen Deterjen Cair Morning Breeze 700 g + Kilau Nipis Sabun Cuci Piring",
+  "name": "Gentle Gen Detergen Cair Morning Breeze 700 g + Kilau Nipis Sabun Cuci Piring",
   "price": 19900,
   "imageUrl": "https://c.alfagift.id/product/1/1_A8365030002167_20260326182000243_base.jpg"
  },
@@ -491,325 +491,5 @@
   "price": 27900,
   "priceOriginal": 29900,
   "imageUrl": "https://c.alfagift.id/product/1/1_A8354910002167_20260216140121817_base.jpg"
- },
- {
-  "name": "Beras Ramos Cap Jago Setra Wangi 5 kg",
-  "price": 68000,
-  "imageUrl": ""
- },
- {
-  "name": "Gulaku Gula Pasir Tebu Premium 1 kg",
-  "price": 18500,
-  "imageUrl": ""
- },
- {
-  "name": "Telur Ayam Negeri Segar 1 kg",
-  "price": 28000,
-  "imageUrl": ""
- },
- {
-  "name": "Segitiga Biru Tepung Terigu Serbaguna 1 kg",
-  "price": 12500,
-  "imageUrl": ""
- },
- {
-  "name": "Cakra Kembar Tepung Terigu Protein Tinggi 1 kg",
-  "price": 14000,
-  "imageUrl": ""
- },
- {
-  "name": "Blue Band Margarin Serbaguna 200 g",
-  "price": 11500,
-  "imageUrl": ""
- },
- {
-  "name": "Kara Santan Kelapa 200 ml",
-  "price": 8500,
-  "imageUrl": ""
- },
- {
-  "name": "ABC Kecap Manis Botol 275 ml",
-  "price": 13000,
-  "imageUrl": ""
- },
- {
-  "name": "ABC Saus Sambal Asli Botol 335 ml",
-  "price": 15500,
-  "imageUrl": ""
- },
- {
-  "name": "ABC Saus Tomat Botol 335 ml",
-  "price": 14500,
-  "imageUrl": ""
- },
- {
-  "name": "Masako Kaldu Penyedap Rasa Ayam 100 g",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Royco Penyedap Rasa Ayam 100 g",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Sasa Micin Penyedap Rasa 100 g",
-  "price": 5500,
-  "imageUrl": ""
- },
- {
-  "name": "Dolphin Garam Beryodium Halus 250 g",
-  "price": 3500,
-  "imageUrl": ""
- },
- {
-  "name": "Kapal Api Special Kopi Bubuk 165 g",
-  "price": 12500,
-  "imageUrl": ""
- },
- {
-  "name": "Sariwangi Teh Celup Asli 25 pcs",
-  "price": 8500,
-  "imageUrl": ""
- },
- {
-  "name": "Fortune Minyak Goreng Pouch 2 L",
-  "price": 34000,
-  "imageUrl": ""
- },
- {
-  "name": "Indomie Mi Instan Goreng Spesial 85 g",
-  "price": 3200,
-  "imageUrl": ""
- },
- {
-  "name": "Indomie Mi Instan Kari Ayam 72 g",
-  "price": 3200,
-  "imageUrl": ""
- },
- {
-  "name": "Indomie Mi Instan Goreng Rendang 91 g",
-  "price": 3500,
-  "imageUrl": ""
- },
- {
-  "name": "Indomie Mi Instan Kaldu Ayam 69 g",
-  "price": 3200,
-  "imageUrl": ""
- },
- {
-  "name": "Sedaap Mi Instan Kuah Soto 75 g",
-  "price": 3000,
-  "imageUrl": ""
- },
- {
-  "name": "Pop Mie Rasa Ayam 75 g",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Pop Mie Rasa Baso 75 g",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Sarimi Isi 2 Mi Instan Ayam Bawang 126 g",
-  "price": 4000,
-  "imageUrl": ""
- },
- {
-  "name": "Lemonilo Mi Instan Goreng 68 g",
-  "price": 5500,
-  "imageUrl": ""
- },
- {
-  "name": "Teh Pucuk Harum Minuman Teh Melati 350 ml",
-  "price": 4000,
-  "imageUrl": ""
- },
- {
-  "name": "Le Minerale Air Mineral Botol 600 ml",
-  "price": 3500,
-  "imageUrl": ""
- },
- {
-  "name": "Coca-Cola Minuman Berkarbonasi 390 ml",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Sprite Minuman Berkarbonasi 390 ml",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Fanta Minuman Berkarbonasi Stroberi 390 ml",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Floridina Minuman Jus Jeruk 350 ml",
-  "price": 4000,
-  "imageUrl": ""
- },
- {
-  "name": "Good Day Kopi Cappuccino Pet 250 ml",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Milo Minuman Cokelat UHT 180 ml",
-  "price": 5500,
-  "imageUrl": ""
- },
- {
-  "name": "Bear Brand Susu Steril 189 ml",
-  "price": 10500,
-  "imageUrl": ""
- },
- {
-  "name": "You C1000 Minuman Vitamin C Orange 140 ml",
-  "price": 6000,
-  "imageUrl": ""
- },
- {
-  "name": "Extra Joss Minuman Energi Sachet 5 x 4.2 g",
-  "price": 6500,
-  "imageUrl": ""
- },
- {
-  "name": "Chitato Snack Kentang Rasa Sapi Panggang 68 g",
-  "price": 11000,
-  "imageUrl": ""
- },
- {
-  "name": "Lays Snack Kentang Rumput Laut 68 g",
-  "price": 11000,
-  "imageUrl": ""
- },
- {
-  "name": "Qtela Keripik Singkong Original 60 g",
-  "price": 8500,
-  "imageUrl": ""
- },
- {
-  "name": "Oreo Biskuit Sandwich Cokelat 133 g",
-  "price": 10500,
-  "imageUrl": ""
- },
- {
-  "name": "Biskuat Bolu Cokelat 4 pcs",
-  "price": 9500,
-  "imageUrl": ""
- },
- {
-  "name": "Beng Beng Wafer Cokelat Karamel 20 g",
-  "price": 2500,
-  "imageUrl": ""
- },
- {
-  "name": "SilverQueen Cokelat Chunky Bar 62 g",
-  "price": 15000,
-  "imageUrl": ""
- },
- {
-  "name": "Nabati Richeese Wafer Keju 50 g",
-  "price": 4500,
-  "imageUrl": ""
- },
- {
-  "name": "Garuda Kacang Kulit 200 g",
-  "price": 12000,
-  "imageUrl": ""
- },
- {
-  "name": "Pepsodent Pasta Gigi Pencegah Gigi Berlubang 190 g",
-  "price": 12500,
-  "imageUrl": ""
- },
- {
-  "name": "Lifebuoy Sabun Mandi Batang Total 10 x 4 pcs",
-  "price": 12000,
-  "imageUrl": ""
- },
- {
-  "name": "Sunsilk Sampo Black Shine 160 ml",
-  "price": 15500,
-  "imageUrl": ""
- },
- {
-  "name": "Pantene Sampo Anti Ketombe 135 ml",
-  "price": 16500,
-  "imageUrl": ""
- },
- {
-  "name": "Dove Sabun Mandi Cair Body Wash 400 ml",
-  "price": 28000,
-  "imageUrl": ""
- },
- {
-  "name": "Rexona Deodoran Roll On Wanita 45 ml",
-  "price": 17000,
-  "imageUrl": ""
- },
- {
-  "name": "Vaseline Body Lotion Healthy White 200 ml",
-  "price": 22000,
-  "imageUrl": ""
- },
- {
-  "name": "Rinso Deterjen Bubuk Anti Noda 770 g",
-  "price": 20000,
-  "imageUrl": ""
- },
- {
-  "name": "Sunlight Sabun Cuci Piring Jeruk Nipis 755 ml",
-  "price": 15500,
-  "imageUrl": ""
- },
- {
-  "name": "Nice Tisu Wajah Non Parfum 250 sheet",
-  "price": 15000,
-  "imageUrl": ""
- },
- {
-  "name": "Baygon Obat Nyamuk Aerosol Sereh 600 ml",
-  "price": 32000,
-  "imageUrl": ""
- },
- {
-  "name": "Bayclin Pemutih Pakaian Reguler 500 ml",
-  "price": 9500,
-  "imageUrl": ""
- },
- {
-  "name": "Super Pell Pembersih Lantai Daya Pembersih Ekstra 770 ml",
-  "price": 12500,
-  "imageUrl": ""
- },
- {
-  "name": "ABC Baterai Alkaline AA 4 pcs",
-  "price": 15000,
-  "imageUrl": ""
- },
- {
-  "name": "Sweety Gold Popok Celana Bayi M 30 pcs",
-  "price": 62000,
-  "imageUrl": ""
- },
- {
-  "name": "SGM Eksplor 1+ Susu Pertumbuhan Madu 900 g",
-  "price": 92000,
-  "imageUrl": ""
- },
- {
-  "name": "Zwitsal Baby Bath Milk & Rice 200 ml",
-  "price": 18500,
-  "imageUrl": ""
- },
- {
-  "name": "Cussons Baby Powder Soft & Smooth 200 g",
-  "price": 14500,
-  "imageUrl": ""
  }
 ]
