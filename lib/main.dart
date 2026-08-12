@@ -239,6 +239,24 @@ class _HomeShellState extends State<HomeShell> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced)));
   }
 
+  void _reorder(Order o) {
+    int added = 0;
+    for (final it in o.items) {
+      final idx = _products.indexWhere((p) => p.name == it.name);
+      if (idx >= 0) {
+        _cart[idx] = (_cart[idx] ?? 0) + it.qty;
+        added += it.qty;
+      }
+    }
+    setState(() => _tab = 2);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(added > 0 ? '$added barang ditambahkan ke keranjang' : 'Produk sudah tidak tersedia'),
+        duration: const Duration(milliseconds: 1400),
+      ));
+  }
+
   void _saveProfile(Profile p) async {
     setState(() => _profile = p);
     await Store.saveProfile(p);
@@ -279,7 +297,7 @@ class _HomeShellState extends State<HomeShell> {
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       _session
-          ? OrdersPage(orders: _orders, onOpen: (o) => _openTracking(o))
+          ? OrdersPage(orders: _orders, products: _products, onOpen: (o) => _openTracking(o), onReorder: _reorder)
           : GuestGate(title: 'Pesanan', emoji: '🧾', message: 'Masuk dulu untuk melihat & melacak pesananmu.', onLogin: () => _requireLogin(() {})),
       _session
           ? ProfilePage(profile: _profile, onSave: _saveProfile, onGoOrders: () => setState(() => _tab = 3), onLogout: _logout)
@@ -1114,44 +1132,166 @@ class _TrackingPageState extends State<TrackingPage> {
 }
 
 // ---------- orders ----------
-class OrdersPage extends StatelessWidget {
+int orderStage(Order o) {
+  final el = DateTime.now().difference(o.at).inSeconds;
+  int s = 0;
+  for (int i = 0; i < _stageAt.length; i++) {
+    if (el >= _stageAt[i]) s = i;
+  }
+  return s;
+}
+
+String orderStatusLabel(int stage) {
+  switch (stage) {
+    case 0:
+      return 'Menunggu diproses';
+    case 1:
+      return 'Sedang dibelanjakan';
+    case 2:
+      return 'Sedang diantar';
+    default:
+      return 'Selesai';
+  }
+}
+
+Color orderStatusColor(int stage) {
+  if (stage >= 3) return const Color(0xFF1E8E5A);
+  if (stage == 2) return kGreen;
+  return const Color(0xFFC7761B);
+}
+
+class OrdersPage extends StatefulWidget {
   final List<Order> orders;
+  final List<Product> products;
   final void Function(Order) onOpen;
-  const OrdersPage({super.key, required this.orders, required this.onOpen});
+  final void Function(Order) onReorder;
+  const OrdersPage({super.key, required this.orders, required this.products, required this.onOpen, required this.onReorder});
+  @override
+  State<OrdersPage> createState() => _OrdersPageState();
+}
+
+class _OrdersPageState extends State<OrdersPage> {
+  int _tab = 0;
+  static const _tabs = ['Semua', 'Diproses', 'Diantar', 'Selesai'];
+  late final Map<String, Product> _byName = {for (final p in widget.products) p.name: p};
+
+  bool _match(Order o) {
+    if (_tab == 0) return true;
+    final s = orderStage(o);
+    if (_tab == 1) return s <= 1;
+    if (_tab == 2) return s == 2;
+    return s >= 3;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final list = widget.orders.where(_match).toList();
     return Column(children: [
       const GreenHeader(title: 'Pesanan Saya'),
+      Container(
+        color: kSurface,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: List.generate(_tabs.length, (i) {
+            final on = i == _tab;
+            return GestureDetector(
+              onTap: () => setState(() => _tab = i),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: on ? kGreen : Colors.transparent, width: 2.5))),
+                child: Text(_tabs[i], style: TextStyle(color: on ? kGreen : kMuted, fontWeight: on ? FontWeight.w800 : FontWeight.w600, fontSize: 13.5)),
+              ),
+            );
+          })),
+        ),
+      ),
+      const Divider(height: 1, color: kLine),
       Expanded(
-        child: orders.isEmpty
-            ? const EmptyView(emoji: '🧾', text: 'Belum ada pesanan.\nYuk mulai belanja di Toko.')
+        child: list.isEmpty
+            ? EmptyView(emoji: '🧾', text: widget.orders.isEmpty ? 'Belum ada pesanan.\nYuk mulai belanja di Toko.' : 'Tidak ada pesanan di kategori ini.')
             : ListView(
-                padding: const EdgeInsets.all(16),
-                children: orders.map((o) {
-                  return GestureDetector(
-                    onTap: () => onOpen(o),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text('#${o.id}', style: const TextStyle(color: kMuted, fontSize: 12.5)),
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3), decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(999)), child: const Text('Lacak ›', style: TextStyle(color: kGreenInk, fontWeight: FontWeight.w700, fontSize: 11))),
-                        ]),
-                        const SizedBox(height: 6),
-                        Text('${o.count} barang • ${shortDate(o.at)}', style: const TextStyle(fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text(rupiah(o.total), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
-                      ]),
-                    ),
-                  );
-                }).toList(),
+                padding: const EdgeInsets.all(12),
+                children: list.map(_card).toList(),
               ),
       ),
     ]);
   }
+
+  Widget _thumb(OrderItem it) {
+    final p = _byName[it.name];
+    return Container(
+      width: 56,
+      height: 56,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(10)),
+      child: p != null ? productImage(p, emojiSize: 24) : const Center(child: Text('🛍️', style: TextStyle(fontSize: 24))),
+    );
+  }
+
+  Widget _card(Order o) {
+    final stage = orderStage(o);
+    final shown = o.items.take(2).toList();
+    final more = o.items.length - shown.length;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(14), border: Border.all(color: kLine)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+          child: Row(children: [
+            Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2), decoration: BoxDecoration(color: kGreen, borderRadius: BorderRadius.circular(4)), child: const Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800))),
+            const SizedBox(width: 8),
+            const Text('Belanja Harian', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            const Spacer(),
+            Text(orderStatusLabel(stage), style: TextStyle(color: orderStatusColor(stage), fontWeight: FontWeight.w700, fontSize: 12)),
+          ]),
+        ),
+        const Divider(height: 1, color: kLine),
+        ...shown.map((it) => Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                _thumb(it),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(it.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, height: 1.3)),
+                  const SizedBox(height: 4),
+                  Text(rupiah(it.price), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                ])),
+                const SizedBox(width: 8),
+                Text('x${it.qty}', style: const TextStyle(color: kMuted, fontSize: 12.5)),
+              ]),
+            )),
+        if (more > 0)
+          Padding(padding: const EdgeInsets.only(bottom: 8), child: Center(child: Text('+$more produk lainnya', style: const TextStyle(color: kMuted, fontSize: 12)))),
+        const Divider(height: 1, color: kLine),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            Text('Total ${o.count} produk: ', style: const TextStyle(color: kMuted, fontSize: 12.5)),
+            Text(rupiah(o.total), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(side: const BorderSide(color: kLine), foregroundColor: kInk, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
+              onPressed: () => widget.onOpen(o),
+              child: const Text('Lacak', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+            const SizedBox(width: 10),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: kGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
+              onPressed: () => widget.onReorder(o),
+              child: const Text('Beli Lagi', style: TextStyle(fontWeight: FontWeight.w800)),
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
 }
+
 
 // ---------- profile ----------
 class ProfilePage extends StatefulWidget {
