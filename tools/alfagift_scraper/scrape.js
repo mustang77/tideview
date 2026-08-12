@@ -101,30 +101,76 @@ async function launchBrowser(headful) {
   return { browser, context };
 }
 
-// Warm the page so the site fetches its guest token, then hand back a helper
-// that calls the API *from inside the page* — inheriting cookies/token/headers.
+// Warm the page so the site fetches its guest token, then hand back helpers.
+// Two ways to get data, used together for resilience:
+//   1. call()  — hit the API from inside the page, adding the bearer token the
+//      site keeps in its cookie (its own axios does the same). Supports paging.
+//   2. interception — capture the product JSON the site loads on its own (e.g.
+//      when we navigate to a real search page via primeSearch). No auth to
+//      replicate; whatever the site can load, we get.
 async function openApiSession(context) {
   const page = await context.newPage();
-  await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  // Give the SPA a moment to obtain its token and issue its first API calls.
-  await page.waitForTimeout(4000);
 
-  // Call the API from inside the page so the fetch inherits the site's cookies,
-  // guest token, and origin — no need to replicate their auth ourselves.
+  // Safety net: collect product/category JSON the site requests on its own.
+  const captured = [];
+  page.on('response', async (res) => {
+    const u = res.url();
+    if (u.includes(API_HOST) && /\/v2\/(products|categories)/.test(u)) {
+      try { captured.push(await res.json()); } catch (e) { /* not JSON */ }
+    }
+  });
+
+  await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(5000); // let the SPA obtain its guest token + first calls
+
+  const tok = await page.evaluate(() => /auth\._token\.local=/.test(document.cookie));
+  console.log(`  guest token cookie present: ${tok}`);
+
   const call = (pathAndQuery) =>
     page.evaluate(async (url) => {
       try {
-        const res = await fetch(url, { credentials: 'include', headers: { accept: 'application/json' } });
+        const headers = { accept: 'application/json' };
+        const m = document.cookie.match(/auth\._token\.local=([^;]+)/);
+        if (m) {
+          const t = decodeURIComponent(m[1]);
+          headers.authorization = /^bearer\s/i.test(t) ? t : 'Bearer ' + t;
+        }
+        const res = await fetch(url, { credentials: 'include', headers });
         const text = await res.text();
         let json = null;
         try { json = JSON.parse(text); } catch (e) {}
-        return { status: res.status, json, text: json ? null : text.slice(0, 500) };
+        return { status: res.status, json, text: json ? null : text.slice(0, 300) };
       } catch (e) {
         return { status: -1, error: String(e) };
       }
     }, `https://${API_HOST}${pathAndQuery}`);
 
-  return { page, call };
+  // Navigate the real search page so the site itself loads (authenticated)
+  // results, which the interception handler above then captures.
+  const primeSearch = async (keyword) => {
+    try {
+      await page.goto(`${BASE}/search?keyword=${encodeURIComponent(keyword)}`,
+        { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForTimeout(4500);
+    } catch (e) { /* ignore navigation hiccups */ }
+  };
+
+  return { page, call, captured, primeSearch };
+}
+
+// Fold any intercepted payloads into the product list (deduped).
+function drainCaptured(captured, products, seen, max) {
+  for (const payload of captured) {
+    for (const raw of extractProducts(payload)) {
+      const p = normalizeProduct(raw);
+      if (!p) continue;
+      const key = p.sku || p.name;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      products.push(p);
+      if (products.length >= max) return;
+    }
+  }
 }
 
 async function listCategories(call) {
@@ -205,7 +251,8 @@ async function main() {
 
   const { browser, context } = await launchBrowser(args.headful);
   try {
-    const { call } = await openApiSession(context);
+    const session = await openApiSession(context);
+    const { call } = session;
 
     // --raw: dump the first product response so you can confirm the real field
     // names and adjust normalize.js if Alfagift has renamed anything.
@@ -235,11 +282,17 @@ async function main() {
       for (const kw of args.search.split(',').map((s) => s.trim()).filter(Boolean)) {
         if (products.length >= opts.max) break;
         console.log(`Search: "${kw}"`);
+        // Let the site load authenticated page-0 results (captured via interception)...
+        await session.primeSearch(kw);
+        drainCaptured(session.captured, products, seen, opts.max);
+        // ...then page for more directly.
         await harvest(
           call,
           (start, limit) => `/v2/products/searches?keyword=${encodeURIComponent(kw)}&start=${start}&limit=${limit}`,
           opts, products, seen
         );
+        drainCaptured(session.captured, products, seen, opts.max);
+        console.log(`  running total: ${products.length}`);
       }
     } else if (args.category) {
       console.log(`Category: ${args.category}`);
@@ -248,6 +301,7 @@ async function main() {
         (start, limit) => `/v2/products/category/${args.category}?sortDirection=asc&start=${start}&limit=${limit}`,
         opts, products, seen
       );
+      drainCaptured(session.captured, products, seen, opts.max);
     } else if (args.all) {
       const cats = await listCategories(call);
       // Leaf-ish categories (deepest) hold the actual products.
@@ -268,10 +322,14 @@ async function main() {
       return;
     }
 
+    // Last resort: whatever the site loaded on its own (homepage, etc.).
+    if (!products.length) drainCaptured(session.captured, products, seen, opts.max);
+
     if (!products.length) {
       console.error(
-        '\nNo products collected. Run `node scrape.js --search indomie --raw` and inspect ' +
-        'output/raw-sample.json — the API field names may have changed (adjust normalize.js).'
+        `\nNo products collected (intercepted payloads seen: ${session.captured.length}). ` +
+        'Run `node scrape.js --search indomie --raw` and inspect output/raw-sample.json — ' +
+        'the API may have changed or the guest token was not issued.'
       );
       process.exitCode = 2;
       return;
