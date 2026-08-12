@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand green used to tint push notifications. -->
+    <color name="paramall_green">#1E6E4F</color>
+</resources>
