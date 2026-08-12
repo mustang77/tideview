@@ -206,7 +206,8 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Future<void> _placeOrder(Order o) async {
-    _profile = Profile(name: o.name, phone: o.phone, address: o.addr);
+    // Keep the account's PIN — only update name/phone/address from the order.
+    _profile = Profile(name: o.name, phone: o.phone, address: o.addr, pinHash: _profile.pinHash);
     await Store.saveProfile(_profile);
     await Store.addOrder(o);
     if (!mounted) return;
