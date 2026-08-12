@@ -66,8 +66,8 @@ jobs:
     env:
       SOURCE: ${{ inputs.source || 'alfagift' }}
       MODE: ${{ inputs.mode || 'search' }}
-      QUERY: ${{ inputs.query || 'indomie' }}
-      MAX: ${{ inputs.max || '20' }}
+      QUERY: ${{ inputs.query || 'indomie,mie sedaap,beras,minyak goreng,gula,telur,kopi,teh,susu,air mineral,kecap,saus sambal,tepung,roti,biskuit,snack,sabun mandi,shampoo,pasta gigi,tisu,detergen,pewangi,popok,sabun cuci piring' }}
+      MAX: ${{ inputs.max || '250' }}
       STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
       LAT: ${{ inputs.lat || '-6.1763897' }}
       LNG: ${{ inputs.lng || '106.82667' }}
