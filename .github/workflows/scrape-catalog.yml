@@ -67,8 +67,8 @@ jobs:
     # Fallbacks make the job work both for manual runs (inputs set) and the
     # temporary push trigger (inputs empty -> small, fast defaults).
     env:
-      SOURCE: ${{ inputs.source || 'alfagift' }}
-      MODE: ${{ inputs.mode || 'search' }}
+      SOURCE: ${{ inputs.source || 'klikindomaret' }}
+      MODE: ${{ inputs.mode || 'all' }}
       QUERY: ${{ inputs.query || 'indomie,mie sedaap,sarimi,pop mie,supermi,lemonilo,beras,minyak goreng,bimoli,sania,sunco,fortune,filma,gula pasir,gulaku,rose brand,telur,tepung terigu,segitiga biru,cakra,kunci biru,maizena,hunkwe,blue band,margarin,simas,santan,kara,garam,masako,royco,sasa,kaldu,kecap bango,kecap abc,saus abc,saus sambal,saos tomat,saus tiram,mentega,keju kraft,kraft,frisian flag,ultra milk,indomilk,bear brand,milo,dancow,susu kental manis,kopi kapal api,good day,nescafe,luwak,abc kopi,teh sariwangi,teh pucuk,teh sosro,frestea,teh gelas,fruit tea,aqua,le minerale,cleo,vit,nestle pure life,pocari sweat,mizone,you c1000,kratingdaeng,extra joss,coca cola,sprite,fanta,floridina,marjan,nutrisari,marimas,pop ice,jasjus,energen,quaker,koko krunch,chitato,lays,taro,qtela,cheetos,chiki,oreo,roma,biskuat,khong guan,tango,nabati,richeese,beng beng,silverqueen,delfi,cadbury,kitkat,permen,mentos,kopiko,relaxa,kacang garuda,dua kelinci,pilus,momogi,pepsodent,ciptadent,close up,formula,lifebuoy,nuvo,dettol,lux,giv,shinzui,sunsilk,clear,pantene,head shoulders,dove,rejoice,emeron,zinc,rexona,nivea,vaseline,citra,marina,gatsby,ponds,wardah,rinso,attack,daia,so klin,molto,downy,sunlight,mama lemon,wipol,super pell,bayclin,vixal,harpic,baygon,hit,vape,stella,kispray,paseo,nice,tessa,tisu,mamypoko,sweety,merries,pampers,popok,charm,laurier,softex,pembalut,sgm,bebelac,nutrilon,lactogen,milna,cerelac,promina,susu bayi,minyak telon,minyak kayu putih,madu,sarden,kornet,sosis,nugget,bakso,tepung bumbu,sasa,ladaku,cabe bubuk,kecap ikan' }}
       MAX: ${{ inputs.max || '1200' }}
       STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
@@ -135,27 +135,25 @@ jobs:
           SRC="$SRC" node -e '
             const fs=require("fs");
             const src=JSON.parse(fs.readFileSync(process.env.SRC,"utf8"));
+            let existing=[]; try{ existing=JSON.parse(fs.readFileSync("assets/catalog.json","utf8")); }catch(e){}
             const int=v=>{const n=Math.round(Number(v)); return Number.isFinite(n)?n:0;};
             const seen=new Set(); const out=[];
-            for(const p of src){
-              if(!p||!p.name) continue;
-              const price=int(p.price);
-              if(price<=0) continue;
-              const img=(typeof p.imageUrl==="string")?p.imageUrl:"";
-              if(!img) continue; // keep only products WITH a photo
-              const key=String(p.name).trim().toLowerCase();
-              if(seen.has(key)) continue; seen.add(key);
+            const add=(p)=>{
+              if(!p||!p.name) return;
+              const price=int(p.price); if(price<=0) return;
+              const img=(typeof p.imageUrl==="string")?p.imageUrl:""; if(!img) return;
+              const key=String(p.name).trim().toLowerCase(); if(seen.has(key)) return; seen.add(key);
               const row={name:String(p.name).trim(), price};
-              const po=int(p.priceOriginal);
-              if(po>price) row.priceOriginal=po;
-              row.imageUrl=img;
-              out.push(row);
-            }
-            if(out.length<60){ console.error("Only "+out.length+" products with images — aborting commit to avoid wiping the catalog."); process.exit(3); }
+              const po=int(p.priceOriginal); if(po>price) row.priceOriginal=po;
+              row.imageUrl=img; out.push(row);
+            };
+            existing.forEach(add);
+            src.forEach(add);
+            if(out.length<60){ console.error("Only "+out.length+" products — aborting."); process.exit(3); }
             const json=JSON.stringify(out,null,1)+"\n";
             fs.writeFileSync("assets/catalog.json",json);
             fs.writeFileSync("site/catalog.json",json);
-            console.log("Wrote "+out.length+" products (all with photos) to app catalogs.");
+            console.log("Catalog now has "+out.length+" products (was "+existing.length+").");
           '
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
