@@ -43,8 +43,10 @@ const List<BankAccount> kBankAccounts = [
   BankAccount(bank: 'Mandiri', number: '1360010070164', holder: 'Yoga Tri Wibowo'),
   BankAccount(bank: 'BCA', number: '1550527908', holder: 'Yoga Tri Wibowo'),
 ];
-// QRIS: tempel URL gambar QRIS statis-mu (opsional). Kosongkan kalau belum ada.
-const String kQrisImageUrl = '';
+// QRIS: URL gambar QRIS statis. Kosongkan kalau belum ada.
+const String kQrisImageUrl = 'https://paramall.h2olaundry.com/qris.jpg';
+// Keterangan singkat di bawah gambar QRIS (siapa penerimanya / pakai app apa).
+const String kQrisNote = 'Scan pakai GoPay / Gojek — a.n. Yoga';
 
 class DeliveryZone {
   final String label;
@@ -1411,9 +1413,27 @@ class PayInstructions extends StatelessWidget {
         ]),
         const SizedBox(height: 10),
         if (_isQris) ...[
-          if (kQrisImageUrl.isNotEmpty)
-            Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(kQrisImageUrl, height: 200, fit: BoxFit.contain, errorBuilder: (_, __, ___) => const Text('Gagal memuat QRIS'))))
-          else
+          if (kQrisImageUrl.isNotEmpty) ...[
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    kIsWeb ? '$kImgProxy${Uri.encodeComponent(kQrisImageUrl)}' : kQrisImageUrl,
+                    height: 220,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Padding(padding: EdgeInsets.all(24), child: Text('Gagal memuat QRIS')),
+                  ),
+                ),
+              ),
+            ),
+            if (kQrisNote.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Center(child: Text(kQrisNote, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, color: kInk, fontWeight: FontWeight.w600))),
+            ],
+          ] else
             const Text('Kode QRIS akan kami kirim via WhatsApp setelah pesanan dibuat.', style: TextStyle(fontSize: 12.5, color: kInk, height: 1.35)),
         ] else ...[
           for (int i = 0; i < kBankAccounts.length; i++) ...[
