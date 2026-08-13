@@ -911,6 +911,7 @@ class _ProductSheetState extends State<ProductSheet> {
               const SizedBox(height: 12),
               Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                 Text(rupiah(p.price), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                const Text(' /pcs', style: TextStyle(fontSize: 12.5, color: kMuted, fontWeight: FontWeight.w600)),
                 if (p.discounted) ...[const SizedBox(width: 8), Text(rupiah(p.priceOriginal!), style: const TextStyle(fontSize: 14, color: kMuted, decoration: TextDecoration.lineThrough))],
               ]),
               const SizedBox(height: 18),
@@ -925,7 +926,10 @@ class _ProductSheetState extends State<ProductSheet> {
                     widget.onAdd(qty);
                     Navigator.pop(context);
                   },
-                  child: const Text('Masukkan Keranjang', style: TextStyle(fontWeight: FontWeight.w800)),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text('Keranjang · ${rupiah(p.price * qty)}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                  ),
                 )),
               ]),
             ]),
