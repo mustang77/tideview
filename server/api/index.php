@@ -187,11 +187,45 @@ switch ($action) {
         $st = $pdo->prepare('SELECT * FROM users WHERE phone = ? LIMIT 1');
         $st->execute([$phone]);
         $u = $st->fetch();
+
+        // Brute-force guard. A 4-digit PIN is only 10k combinations, so lock an
+        // account for 15 minutes after 5 wrong PINs in a row. Degrades to a
+        // no-op if the users table hasn't been migrated yet (columns absent),
+        // so deploy order doesn't matter and login never breaks.
+        $migrated = $u && array_key_exists('locked_until', $u);
+        if ($migrated && $u['locked_until'] !== null && strtotime((string)$u['locked_until']) > time()) {
+            fail(429, 'Terlalu banyak percobaan. Coba lagi dalam beberapa menit.');
+        }
+
         if (!$u || !password_verify($pin, $u['pin_hash'])) {
+            if ($migrated) {
+                try {
+                    $attempts = (int)($u['failed_attempts'] ?? 0) + 1;
+                    if ($attempts >= 5) {
+                        $pdo->prepare('UPDATE users SET failed_attempts = 0, locked_until = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id = ?')
+                            ->execute([$u['id']]);
+                    } else {
+                        $pdo->prepare('UPDATE users SET failed_attempts = ? WHERE id = ?')->execute([$attempts, $u['id']]);
+                    }
+                } catch (Throwable $e) {
+                    // Columns missing / migration incomplete — skip the counter.
+                }
+            }
             fail(401, 'Nomor HP atau PIN salah');
         }
+
+        // Success — issue a fresh token and clear any failure count.
         $token = newToken();
-        $pdo->prepare('UPDATE users SET token = ? WHERE id = ?')->execute([$token, $u['id']]);
+        try {
+            if ($migrated) {
+                $pdo->prepare('UPDATE users SET token = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?')
+                    ->execute([$token, $u['id']]);
+            } else {
+                $pdo->prepare('UPDATE users SET token = ? WHERE id = ?')->execute([$token, $u['id']]);
+            }
+        } catch (Throwable $e) {
+            $pdo->prepare('UPDATE users SET token = ? WHERE id = ?')->execute([$token, $u['id']]);
+        }
         ok(['token' => $token, 'name' => $u['name'], 'phone' => $u['phone'], 'address' => $u['address']]);
     }
 

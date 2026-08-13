@@ -7,9 +7,16 @@ CREATE TABLE IF NOT EXISTS users (
   pin_hash  VARCHAR(255) NOT NULL,
   address   VARCHAR(300) NOT NULL DEFAULT '',
   token     VARCHAR(80)  NOT NULL DEFAULT '',
+  failed_attempts INT     NOT NULL DEFAULT 0,   -- consecutive wrong-PIN count
+  locked_until    DATETIME NULL,                -- login locked until this time
   created_at DATETIME    NOT NULL,
   INDEX idx_token (token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- If your users table already exists, add the brute-force-guard columns with:
+--   ALTER TABLE users
+--     ADD COLUMN failed_attempts INT NOT NULL DEFAULT 0,
+--     ADD COLUMN locked_until    DATETIME NULL;
 
 CREATE TABLE IF NOT EXISTS orders (
   id         VARCHAR(40) PRIMARY KEY,
