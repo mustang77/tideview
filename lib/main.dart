@@ -46,7 +46,7 @@ const List<BankAccount> kBankAccounts = [
 // QRIS: URL gambar QRIS statis. Kosongkan kalau belum ada.
 const String kQrisImageUrl = 'https://paramall.h2olaundry.com/qris.jpg';
 // Keterangan singkat di bawah gambar QRIS (siapa penerimanya / pakai app apa).
-const String kQrisNote = 'Scan pakai GoPay / Gojek — a.n. Yoga';
+const String kQrisNote = 'Scan untuk bayar — pakai DANA, GoPay, OVO, ShopeePay, atau m-banking';
 
 class DeliveryZone {
   final String label;
