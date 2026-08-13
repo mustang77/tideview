@@ -1,0 +1,50 @@
+name: Mirror images to Bunny
+
+# Downloads each product image and uploads it to your Bunny Storage, then
+# rewrites the catalog to serve photos from your own CDN. Runs when the catalog
+# changes (so new products get mirrored automatically) or on manual dispatch.
+# Idempotent: images already on the CDN host are skipped.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - claude/alfamart-indomaret-api-acpx8f
+    paths:
+      - ".github/workflows/mirror-images.yml"
+      - "tools/mirror-to-bunny.js"
+      - "assets/catalog.json"
+
+permissions:
+  contents: write
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STORAGE_ZONE: wcamobile
+      PULL_HOST: wcamobile.b-cdn.net
+      # Region upload host — change to match your storage zone's region:
+      #   Singapore -> sg.storage.bunnycdn.com   Germany(default) -> storage.bunnycdn.com
+      STORAGE_ENDPOINT: sg.storage.bunnycdn.com
+      PREFIX: paramall
+      BUNNY_STORAGE_KEY: ${{ secrets.BUNNY_STORAGE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Mirror to Bunny
+        run: node tools/mirror-to-bunny.js
+      - name: Commit rewritten catalog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/catalog.json site/catalog.json
+          if git diff --cached --quiet; then
+            echo "No catalog changes."
+          else
+            git commit -m "Mirror product images to Bunny CDN"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
