@@ -215,17 +215,31 @@ switch ($action) {
         if (!is_array($items) || count($items) === 0) {
             fail(400, 'Keranjang kosong');
         }
+        // Recompute the money server-side from the items — never trust the
+        // client's subtotal/total (a tampered app or direct API call could
+        // otherwise submit an order for Rp0). Delivery fee (ongkir) depends on
+        // zone/distance the server can't compute, so we accept it but clamp it
+        // to >= 0; the grand total is always subtotal + ongkir.
         $clean = [];
+        $subtotal = 0;
         foreach ($items as $it) {
             if (!is_array($it)) {
                 continue;
             }
+            $price = max(0, (int)($it['price'] ?? 0));
+            $qty = max(1, (int)($it['qty'] ?? 1));
             $clean[] = [
                 'name' => mb_substr(trim((string)($it['name'] ?? '')), 0, 200),
-                'price' => (int)($it['price'] ?? 0),
-                'qty' => max(1, (int)($it['qty'] ?? 1)),
+                'price' => $price,
+                'qty' => $qty,
             ];
+            $subtotal += $price * $qty;
         }
+        if (count($clean) === 0 || $subtotal <= 0) {
+            fail(400, 'Keranjang tidak valid');
+        }
+        $ongkir = max(0, ifield($body, 'ongkir'));
+        $total = $subtotal + $ongkir;
         $id = 'PM' . date('ymd-His') . random_int(10, 99);
         $st = $pdo->prepare(
             'INSERT INTO orders (id, user_id, name, phone, addr, note, pay, zone, items, subtotal, ongkir, total, status, created_at, updated_at)
@@ -241,7 +255,7 @@ switch ($action) {
             sfield($body, 'pay', 20),
             sfield($body, 'zone', 40),
             json_encode($clean, JSON_UNESCAPED_UNICODE),
-            ifield($body, 'subtotal'), ifield($body, 'ongkir'), ifield($body, 'total'),
+            $subtotal, $ongkir, $total,
             'Diterima',
         ]);
         if ($addr !== '') {
@@ -249,7 +263,7 @@ switch ($action) {
         }
         // Alert the delivery team (devices subscribed to the 'staff' topic).
         fcmNotifyTopic($cfg, 'staff', 'Pesanan baru masuk 🛎️',
-            sprintf('#%s • %s • %s', $id, $u['name'], rupiahShort(ifield($body, 'total'))),
+            sprintf('#%s • %s • %s', $id, $u['name'], rupiahShort($total)),
             ['orderId' => $id, 'type' => 'new_order']);
         ok(['id' => $id]);
     }
