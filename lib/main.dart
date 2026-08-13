@@ -3273,7 +3273,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
     if (widget.promos.isEmpty) return const SizedBox.shrink();
     return Column(children: [
       SizedBox(
-        height: 110,
+        height: 140,
         child: PageView.builder(
           controller: _pc,
           onPageChanged: (i) => setState(() => _i = i),
@@ -3298,18 +3298,18 @@ class _PromoCarouselState extends State<PromoCarousel> {
     return GestureDetector(
       onTap: p.action == null ? null : () => widget.onAction(p.action!),
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           gradient: LinearGradient(colors: p.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
           boxShadow: [BoxShadow(color: p.colors.last.withValues(alpha: 0.30), blurRadius: 14, offset: const Offset(0, 6))],
         ),
         child: Row(children: [
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
+          Expanded(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16.5)),
             const SizedBox(height: 4),
-            Text(p.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.3)),
+            Text(p.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.25)),
             if (p.action != null) ...[
               const SizedBox(height: 8),
               Container(
