@@ -134,20 +134,25 @@ const List<String> _months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', '
 String shortDate(DateTime d) => '${d.day} ${_months[d.month - 1]}';
 
 const List<String> kCatOrder = [
-  'Semua', 'Sembako', 'Makanan Instan', 'Minuman', 'Snack', 'Perawatan', 'Rumah Tangga', 'Bayi', 'Lainnya',
+  'Semua', 'Sembako', 'Makanan Instan', 'Minuman', 'Snack', 'Perawatan', 'Kesehatan', 'Rumah Tangga', 'Bayi', 'Rokok', 'Lainnya',
 ];
 const Map<String, String> kCatEmoji = {
   'Sembako': '🍚', 'Makanan Instan': '🍜', 'Minuman': '🥤', 'Snack': '🍪',
-  'Perawatan': '🧴', 'Rumah Tangga': '🧻', 'Bayi': '🍼', 'Lainnya': '🛍️',
+  'Perawatan': '🧴', 'Kesehatan': '💊', 'Rumah Tangga': '🧻', 'Bayi': '🍼', 'Rokok': '🚬', 'Lainnya': '🛍️',
 };
+// Order matters — first match wins. Specific/priority categories come first so
+// e.g. baby milk doesn't fall into "Minuman" and mosquito repellent ("obat
+// nyamuk") doesn't fall into "Kesehatan".
 final List<List<String>> _catRules = [
-  ['Makanan Instan', r'\b(indomie|mie|mi instan|sedaap|bihun|bubur instan)\b'],
-  ['Minuman', r'(teh|kopi|susu|jus|juice|minuman|air mineral|aqua|isotonik|soda|sari|nutriboost|pocari|kratingdaeng|le mineral|sprite|coca|fanta|floridina|koffie)'],
-  ['Sembako', r'(beras|minyak goreng|gula|telur|tepung|kecap|saus|sambal|garam|margarin|mentega|santan)'],
-  ['Snack', r'(keripik|biskuit|wafer|coklat|cokelat|permen|snack|chiki|tortilla|mentos|roti|kacang|astor|oreo)'],
-  ['Perawatan', r'(sabun mandi|shampoo|sampo|pasta gigi|sikat gigi|odol|deodorant|lotion|handbody|pembalut|kapas)'],
-  ['Rumah Tangga', r'(tisu|tissue|detergen|deterjen|pewangi|pembersih|sabun cuci|pengharum|kamper|baterai)'],
-  ['Bayi', r'(popok|diaper|mamypoko|sweety|merries|baby|bayi)'],
+  ['Bayi', r'(popok|diaper|mamypoko|mamy poko|sweety|merries|pampers|makuku|goo\.?n|bayi|\bbaby\b|milna|sgm|bebelac|nutrilon|lactogen|cerelac|promina|dancow|nutribaby|morinaga|lactamil|chil ?mil|chil ?kid|minyak telon|telon|bubur bayi|sun baby|cussons baby|zwitsal)'],
+  ['Rokok', r'(rokok|sampoerna|djarum|gudang garam|marlboro|dji sam soe|dunhill|\besse\b|magnum filter|lucky strike|class mild|clas mild|kretek|filter rokok|sigaret)'],
+  ['Kesehatan', r'(obat batuk|obat flu|obat demam|obat maag|obat sakit|obat diare|obat masuk angin|vitamin|multivitamin|masker medis|masker kn95|masker duckbill|kondom|durex|sutra bkkbn|fiesta kondom|hansaplast|plester|betadine|antiseptik|hand ?sanitizer|tolak angin|antangin|bodrex|paramex|promag|entrostop|panadol|mixagrip|decolgen|komix|vicks|counterpain|salonpas|koyo|minyak kayu putih|minyak angin|freshcare|balsem|kapsul|tablet|patch jerawat|salicylic|termometer|redoxon|imboost|enervon|blackmores|paracetamol|antimo|feminax|kiranti|diapet)'],
+  ['Perawatan', r'(sabun mandi|sabun batang|body ?wash|shower|shampoo|sampo|conditioner|pasta gigi|sikat gigi|odol|deodoran|deodorant|antiperspirant|lotion|hand ?body|body ?lotion|hand cream|pembalut|pantyliner|panty liner|kapas|cotton bud|parfum|cologne|eau de|body mist|lip |lipstik|lipstick|lip cream|lip balm|lip tint|bedak|foundation|cushion|maskara|mascara|eyeliner|eyeshadow|blush|concealer|serum|toner|micellar|sunscreen|sunblock|facial|pembersih wajah|pencuci muka|face wash|scrub wajah|masker wajah|pelembab|moisturizer|pomade|minyak rambut|hair |cukur|razor|gillette|wardah|pixy|emina|maybelline|garnier|pond|nivea|vaseline|citra|marina|gatsby|makarizo|rexona|\bdove\b|sunsilk|\bclear\b|pantene|head ?& ?shoulders|tresemme|loreal|revlon|shinzui)'],
+  ['Rumah Tangga', r'(tisu|tissue|tissu|detergen|deterjen|pewangi|pelembut|pelicin|pembersih|sabun cuci|sabun colek|sunlight|mama lemon|pengharum|kamper|baterai|battery|obat nyamuk|anti nyamuk|pembasmi nyamuk|baygon|autan|soffell|\bhit\b|vape|racun serangga|superpell|super pell|wipol|bayclin|pemutih|vixal|harpic|porstex|kispray|karbol|plastik|pelumas|spray anti|lampu|korek|kanebo|spons|sikat lantai|ember|kabel|\bgas\b|tabung|\blem\b|isolasi|kantong sampah|trash bag|karpet|keset|gantungan|pengki|sapu)'],
+  ['Makanan Instan', r'(indomie|mie |\bmi \b|mi instan|mi goreng|mie goreng|sedaap|sarimi|supermi|super ?mi|pop ?mie|bihun instan|kwetiau instan|bubur instan|spaghetti instan|lemonilo|mie gelas|nissin)'],
+  ['Minuman', r'(\bteh |kopi|susu|jus |juice|minuman|air mineral|aqua|isotonik|soda|sari kacang|sari buah|sari apel|sari asem|nutriboost|pocari|kratingdaeng|le mineral|sprite|coca|fanta|floridina|koffie|milo|energen|sirup|marjan|nutrisari|extra joss|larutan|hydro coco|cocodee|yakult|good day|nescafe|luwak|teh pucuk|frestea|fruit tea|\btebs\b|adem sari|you c1000|mizone|hemaviton|jasjus|pop ice|marimas|ovaltine|bear brand|ultra milk|frisian flag|indomilk|kental manis)'],
+  ['Snack', r'(keripik|kripik|biskuit|biscuit|wafer|coklat|cokelat|permen|snack|chiki|tortilla|mentos|roti|kacang|astor|oreo|chitato|lays|taro|qtela|cheetos|richeese|nabati|tango|beng ?beng|silver ?queen|delfi|cadbury|kit ?kat|kopiko|relaxa|pilus|momogi|jelly|agar|marshmallow|crackers|malkist|\bgery\b|khong guan|monde|kue |cookies|kentang goreng|makaroni|basreng|popcorn|slai|selamat|nyam|choki)'],
+  ['Sembako', r'(beras|minyak goreng|minyak sayur|\bgula\b|telur|tepung|terigu|maizena|sagu|kecap|saus|saos|sambal|garam|margarin|mentega|santan|bumbu|penyedap|masako|royco|sasa|micin|\bmsg\b|kaldu|madu|selai|meses|keju|lada|merica|ketumbar|kunyit|jahe|cabe|cabai|abon|kismis|\boat\b|gandum|ketan|kacang hijau|kacang tanah|nugget|sosis|bakso|sarden|kornet|tuna kaleng)'],
 ];
 String catOf(String name) {
   final n = name.toLowerCase();
