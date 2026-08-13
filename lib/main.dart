@@ -227,6 +227,28 @@ class ParamallApp extends StatelessWidget {
       title: 'Paramall',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorScheme: scheme, useMaterial3: true, scaffoldBackgroundColor: kGround, fontFamily: 'PlusJakartaSans'),
+      // On wide screens (web/desktop/tablet) keep the phone layout as a
+      // centered column instead of stretching edge-to-edge. No effect on
+      // phones, where the screen is already narrower than the cap.
+      builder: (context, child) {
+        if (child == null) return const SizedBox.shrink();
+        if (MediaQuery.of(context).size.width <= 500) return child;
+        return ColoredBox(
+          color: const Color(0xFFE7E6E1),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: kGround,
+                  boxShadow: [BoxShadow(color: Color(0x22000000), blurRadius: 28)],
+                ),
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
       home: const HomeShell(),
     );
   }

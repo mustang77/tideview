@@ -28,8 +28,8 @@ jobs:
           channel: stable
       - run: flutter --version
       - run: flutter pub get
-      # Deployed inside public_html/store/ so the web root stays tidy.
-      - run: flutter build web --release --base-href /store/
+      # Deployed at the site root (the paramall/ folder), so base href is /.
+      - run: flutter build web --release --base-href /
       # Bundle the image proxy so product photos load on web (canvas CORS).
       # (The app calls /img.php at the site root, which already exists; this
       # copy is just a harmless spare inside the folder.)
