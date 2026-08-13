@@ -56,6 +56,30 @@ const List<DeliveryZone> kZones = [
 int roundTo(num v, int step) => step <= 0 ? v.round() : (v / step).round() * step;
 int sellPrice(int base) => roundTo(base * (1 + kMarginPct), 500);
 
+// ---------- promo banners (edit these to change what shows on the home page) ----------
+class PromoBanner {
+  final String title, subtitle, emoji;
+  final List<Color> colors; // gradient (top-left → bottom-right)
+  final String? action;     // 'cat:Sembako' opens a category, else null
+  const PromoBanner({required this.title, required this.subtitle, this.emoji = '🎉', required this.colors, this.action});
+}
+
+// The rotating banner carousel at the top of the shop.
+const List<PromoBanner> kPromos = [
+  PromoBanner(title: 'Gratis Ongkir 🛵', subtitle: 'Belanja min. Rp100.000 — kami antar gratis ke rumah', emoji: '🛵', colors: [Color(0xFF2E9C6E), Color(0xFF12543A)]),
+  PromoBanner(title: 'Bayar Online, Hemat', subtitle: 'Pakai QRIS / Transfer → ongkir GRATIS', emoji: '📱', colors: [Color(0xFFE4952A), Color(0xFFB4671A)]),
+  PromoBanner(title: 'Sembako Lengkap', subtitle: 'Beras, minyak, gula & kebutuhan harian', emoji: '🍚', colors: [Color(0xFF3A7BD5), Color(0xFF1E4F97)], action: 'cat:Sembako'),
+];
+
+// A one-time popup when the app opens (set enabled = false to turn it off).
+const bool kPromoPopupEnabled = true;
+const PromoBanner kPromoPopup = PromoBanner(
+  title: 'Selamat Datang! 🎉',
+  subtitle: 'Belanja kebutuhan harian di Paramall, kami antar ke rumah.\nGratis ongkir min. Rp100.000.',
+  emoji: '🛒',
+  colors: [Color(0xFF2E9C6E), Color(0xFF12543A)],
+);
+
 // ---------- palette ----------
 const kGreen = Color(0xFF1E6E4F);
 const kGreenInk = Color(0xFF134A34);
@@ -177,6 +201,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
   bool _loading = true;
+  bool _promoShown = false;
   List<Product> _products = [];
   final Map<int, int> _cart = {};
   String _shopCat = 'Semua';
@@ -420,6 +445,13 @@ class _HomeShellState extends State<HomeShell> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: kGreen)));
     }
+    // Show the welcome/promo popup once, after the first frame.
+    if (kPromoPopupEnabled && !_promoShown) {
+      _promoShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showPromoPopup(context);
+      });
+    }
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
           onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3)),
@@ -563,7 +595,7 @@ class _ShopPageState extends State<ShopPage> {
         SliverToBoxAdapter(child: _header()),
         SliverToBoxAdapter(child: _quickMenu()),
         SliverToBoxAdapter(child: _catChips()),
-        SliverToBoxAdapter(child: _promo()),
+        SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(onAction: _onPromoAction))),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           sliver: SliverGrid(
@@ -652,6 +684,14 @@ class _ShopPageState extends State<ShopPage> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportChatPage()));
   }
 
+  void _onPromoAction(String a) {
+    if (a.startsWith('cat:')) {
+      widget.onCat(a.substring(4));
+    } else if (a == 'help') {
+      _help();
+    }
+  }
+
   Widget _catChips() {
     return SizedBox(
       height: 44,
@@ -676,7 +716,8 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
-  Widget _promo() {
+  // ignore: unused_element
+  Widget _promoOld() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       padding: const EdgeInsets.all(13),
@@ -3090,4 +3131,135 @@ class _DriverDeliveryScreenState extends State<DriverDeliveryScreen> {
       ]),
     );
   }
+}
+
+// ================= promo banners =================
+
+// Rotating, auto-scrolling promo banners with dot indicators.
+class PromoCarousel extends StatefulWidget {
+  final void Function(String action) onAction;
+  const PromoCarousel({super.key, required this.onAction});
+  @override
+  State<PromoCarousel> createState() => _PromoCarouselState();
+}
+
+class _PromoCarouselState extends State<PromoCarousel> {
+  final PageController _pc = PageController(viewportFraction: 0.92);
+  int _i = 0;
+  Timer? _t;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kPromos.length > 1) {
+      _t = Timer.periodic(const Duration(seconds: 4), (_) {
+        if (!_pc.hasClients) return;
+        _pc.animateToPage((_i + 1) % kPromos.length, duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _t?.cancel();
+    _pc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kPromos.isEmpty) return const SizedBox.shrink();
+    return Column(children: [
+      SizedBox(
+        height: 110,
+        child: PageView.builder(
+          controller: _pc,
+          onPageChanged: (i) => setState(() => _i = i),
+          itemCount: kPromos.length,
+          itemBuilder: (_, i) => _card(kPromos[i]),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(kPromos.length, (i) {
+        final on = i == _i;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: on ? 18 : 6, height: 6,
+          decoration: BoxDecoration(color: on ? kGreen : kLine, borderRadius: BorderRadius.circular(999)),
+        );
+      })),
+    ]);
+  }
+
+  Widget _card(PromoBanner p) {
+    return GestureDetector(
+      onTap: p.action == null ? null : () => widget.onAction(p.action!),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: LinearGradient(colors: p.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          boxShadow: [BoxShadow(color: p.colors.last.withValues(alpha: 0.30), blurRadius: 14, offset: const Offset(0, 6))],
+        ),
+        child: Row(children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(p.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17)),
+            const SizedBox(height: 4),
+            Text(p.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.3)),
+            if (p.action != null) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
+                child: Text('Lihat', style: TextStyle(color: p.colors.last, fontWeight: FontWeight.w800, fontSize: 12)),
+              ),
+            ],
+          ])),
+          const SizedBox(width: 10),
+          Text(p.emoji, style: const TextStyle(fontSize: 44)),
+        ]),
+      ),
+    );
+  }
+}
+
+// One-time welcome/promo popup (Shopee-style).
+Future<void> showPromoPopup(BuildContext context) async {
+  const p = kPromoPopup;
+  await showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (dctx) => Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.all(28),
+      child: Stack(clipBehavior: Clip.none, children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(22, 30, 22, 22),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(colors: kPromoPopup.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Text(p.emoji, style: TextStyle(fontSize: 54)),
+            const SizedBox(height: 14),
+            Text(p.title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 21)),
+            const SizedBox(height: 8),
+            Text(p.subtitle, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 13.5, height: 1.45)),
+            const SizedBox(height: 20),
+            SizedBox(width: double.infinity, child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: kPromoPopup.colors.last, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              onPressed: () => Navigator.pop(dctx),
+              child: const Text('Mulai Belanja', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+            )),
+          ]),
+        ),
+        Positioned(right: -6, top: -6, child: GestureDetector(
+          onTap: () => Navigator.pop(dctx),
+          child: Container(width: 30, height: 30, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.close, size: 18, color: kInk)),
+        )),
+      ]),
+    ),
+  );
 }
