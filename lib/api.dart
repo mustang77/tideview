@@ -23,6 +23,16 @@ class AuthResult {
   AuthResult({required this.token, required this.name, required this.phone, required this.address});
 }
 
+/// Latest driver position for an order (lat/lng null until the driver starts moving).
+class DriverLoc {
+  final String status;
+  final double? lat;
+  final double? lng;
+  final String at;
+  DriverLoc({required this.status, this.lat, this.lng, required this.at});
+  bool get hasFix => lat != null && lng != null;
+}
+
 class Api {
   static Future<Map<String, dynamic>> _post(String action, Map<String, dynamic> body, {String? token}) async {
     late final http.Response res;
@@ -125,6 +135,23 @@ class Api {
 
   static Future<void> driverSetStatus({required String driverPass, required String id, required String status}) async {
     await _post('driver_set_status', {'driver_pass': driverPass, 'id': id, 'status': status});
+  }
+
+  // ---- Live driver location ----
+  static Future<void> sendDriverLocation({required String driverPass, required String id, required double lat, required double lng}) async {
+    await _post('driver_location', {'driver_pass': driverPass, 'id': id, 'lat': lat, 'lng': lng});
+  }
+
+  /// Latest driver position for one of the customer's orders (nulls until the driver starts).
+  static Future<DriverLoc> orderLocation({required String token, required String id}) async {
+    final d = await _post('order_location', {'id': id}, token: token);
+    double? num2(dynamic v) => v == null ? null : (v is num ? v.toDouble() : double.tryParse('$v'));
+    return DriverLoc(
+      status: (d['status'] ?? '').toString(),
+      lat: num2(d['lat']),
+      lng: num2(d['lng']),
+      at: (d['at'] ?? '').toString(),
+    );
   }
 
   // ---- Push tokens (used once Firebase is set up) ----

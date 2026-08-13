@@ -314,6 +314,37 @@ switch ($action) {
         ok(['token_ok' => $tok !== null && $tok !== '']);
     }
 
+    // ---- Live driver location ----
+    case 'driver_location': {
+        requireDriver($cfg, $body);
+        $id = sfield($body, 'id', 40);
+        $lat = isset($body['lat']) ? (float)$body['lat'] : null;
+        $lng = isset($body['lng']) ? (float)$body['lng'] : null;
+        if ($id === '' || $lat === null || $lng === null) {
+            fail(400, 'id, lat, lng wajib');
+        }
+        $pdo->prepare('UPDATE orders SET driver_lat = ?, driver_lng = ?, driver_at = NOW() WHERE id = ?')
+            ->execute([$lat, $lng, $id]);
+        ok();
+    }
+
+    case 'order_location': {
+        $u = authUser($pdo, $body);
+        $id = sfield($body, 'id', 40);
+        $st = $pdo->prepare('SELECT status, driver_lat, driver_lng, driver_at FROM orders WHERE id = ? AND user_id = ? LIMIT 1');
+        $st->execute([$id, (int)$u['id']]);
+        $o = $st->fetch();
+        if (!$o) {
+            fail(404, 'Pesanan tidak ditemukan');
+        }
+        ok([
+            'status' => $o['status'],
+            'lat' => $o['driver_lat'] !== null ? (float)$o['driver_lat'] : null,
+            'lng' => $o['driver_lng'] !== null ? (float)$o['driver_lng'] : null,
+            'at' => $o['driver_at'] !== null ? str_replace(' ', 'T', (string)$o['driver_at']) : null,
+        ]);
+    }
+
     // ---- Push notification tokens ----
     case 'register_token': {
         $u = authUser($pdo, $body);

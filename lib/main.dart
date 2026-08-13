@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle, Clipboard, ClipboardData;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import 'store.dart';
 import 'api.dart';
 import 'push.dart';
@@ -249,6 +252,15 @@ class _HomeShellState extends State<HomeShell> {
     return null;
   }
 
+  Future<DriverLoc?> _orderLocation(String id) async {
+    if (_token.isEmpty) return null;
+    try {
+      return await Api.orderLocation(token: _token, id: id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   int get cartCount => _cart.values.fold(0, (a, b) => a + b);
   int get subtotal => _cart.entries.fold(0, (a, e) => a + _products[e.key].price * e.value);
   // Cart estimate uses the nearest zone; the real zone is chosen at checkout.
@@ -297,6 +309,7 @@ class _HomeShellState extends State<HomeShell> {
         subtotal: subtotal,
         onPlaced: _placeOrder,
         onRefresh: _refreshOrder,
+        onLocation: _orderLocation,
       );
     }));
   }
@@ -338,7 +351,7 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   void _openTracking(Order o, {bool justPlaced = false}) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced, onRefresh: _refreshOrder)));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => TrackingPage(order: o, justPlaced: justPlaced, onRefresh: _refreshOrder, onLocation: _orderLocation)));
   }
 
   void _reorder(Order o) {
@@ -912,7 +925,8 @@ class CheckoutPage extends StatefulWidget {
   final int subtotal;
   final Future<Order> Function(Order draft, String zoneLabel) onPlaced;
   final Future<Order?> Function(String id)? onRefresh;
-  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.onPlaced, this.onRefresh});
+  final Future<DriverLoc?> Function(String id)? onLocation;
+  const CheckoutPage({super.key, required this.products, required this.cart, required this.profile, required this.subtotal, required this.onPlaced, this.onRefresh, this.onLocation});
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
@@ -965,7 +979,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     try {
       final confirmed = await widget.onPlaced(draft, kZones[_zone].label);
       if (!mounted) return;
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TrackingPage(order: confirmed, justPlaced: true, onRefresh: widget.onRefresh)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => TrackingPage(order: confirmed, justPlaced: true, onRefresh: widget.onRefresh, onLocation: widget.onLocation)));
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -1212,7 +1226,9 @@ class TrackingPage extends StatefulWidget {
   final bool justPlaced;
   // Polls the server for this order's latest status; null when there's nothing to refresh against.
   final Future<Order?> Function(String id)? onRefresh;
-  const TrackingPage({super.key, required this.order, this.justPlaced = false, this.onRefresh});
+  // Polls the driver's live GPS for this order (for the moving map).
+  final Future<DriverLoc?> Function(String id)? onLocation;
+  const TrackingPage({super.key, required this.order, this.justPlaced = false, this.onRefresh, this.onLocation});
   @override
   State<TrackingPage> createState() => _TrackingPageState();
 }
@@ -1220,12 +1236,18 @@ class TrackingPage extends StatefulWidget {
 class _TrackingPageState extends State<TrackingPage> {
   late Order _order = widget.order;
   Timer? _t;
+  Timer? _locT;
+  LatLng? _driverPos;
   @override
   void initState() {
     super.initState();
     if (widget.onRefresh != null) {
       _refresh();
       _t = Timer.periodic(const Duration(seconds: 8), (_) => _refresh());
+    }
+    if (widget.onLocation != null) {
+      _pollLoc();
+      _locT = Timer.periodic(const Duration(seconds: 4), (_) => _pollLoc());
     }
   }
 
@@ -1234,9 +1256,17 @@ class _TrackingPageState extends State<TrackingPage> {
     if (o != null && mounted) setState(() => _order = o);
   }
 
+  Future<void> _pollLoc() async {
+    final loc = await widget.onLocation!(_order.id);
+    if (loc != null && loc.hasFix && mounted) {
+      setState(() => _driverPos = LatLng(loc.lat!, loc.lng!));
+    }
+  }
+
   @override
   void dispose() {
     _t?.cancel();
+    _locT?.cancel();
     super.dispose();
   }
 
@@ -1274,7 +1304,11 @@ class _TrackingPageState extends State<TrackingPage> {
                 PayInstructions(pay: o.pay, total: o.total, orderId: o.id),
                 const SizedBox(height: 16),
               ],
-              _map(st),
+              // Live map while the driver is on the way; illustrative map otherwise.
+              if (st == 2 && widget.onLocation != null)
+                _liveMap()
+              else
+                _map(st),
               const SizedBox(height: 16),
               ...List.generate(_stages.length, (i) => _stepRow(i, st)),
               if (st >= 2 && st < 3) _driverCard(d),
@@ -1323,6 +1357,29 @@ class _TrackingPageState extends State<TrackingPage> {
   }
 
   String _waLink(Order o) => 'https://wa.me/$kWaNumber?text=${Uri.encodeComponent(_waText(o))}';
+
+  Widget _liveMap() {
+    if (_driverPos == null) {
+      return Container(
+        height: 150,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(18), border: Border.all(color: kLine), color: kTile),
+        child: const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Text('🛵', style: TextStyle(fontSize: 30)),
+          SizedBox(height: 8),
+          Text('Menunggu driver mulai berbagi lokasi…', style: TextStyle(color: kMuted, fontSize: 12.5)),
+        ])),
+      );
+    }
+    return Column(children: [
+      SizedBox(height: 220, child: LiveDeliveryMap(driver: _driverPos)),
+      const SizedBox(height: 6),
+      Row(children: const [
+        Icon(Icons.circle, size: 9, color: kGreen),
+        SizedBox(width: 6),
+        Text('Driver dalam perjalanan • lokasi langsung', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kGreenInk)),
+      ]),
+    ]);
+  }
 
   Widget _map(int st) {
     final pos = st >= 3 ? 0.84 : st == 2 ? 0.58 : st == 1 ? 0.30 : 0.12;
@@ -2631,6 +2688,11 @@ class _DriverPageState extends State<DriverPage> {
     await launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=$q'), mode: LaunchMode.externalApplication);
   }
 
+  Future<void> _openDelivery(Order o) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => DriverDeliveryScreen(order: o, driverPass: widget.driverPass)));
+    await _load();
+  }
+
   bool _isDelivering(Order o) => orderStage(o) == 2; // Diantar
 
   List<Order> get _list => _orders.where((o) => _tab == 0 ? !_isDelivering(o) : _isDelivering(o)).toList();
@@ -2778,11 +2840,251 @@ class _DriverPageState extends State<DriverPage> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   style: FilledButton.styleFrom(backgroundColor: delivering ? const Color(0xFF1E8E5A) : kGreen, minimumSize: const Size.fromHeight(46), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                  onPressed: () => _setStatus(o, delivering ? 'Selesai' : 'Diantar'),
-                  icon: Icon(delivering ? Icons.check_circle : Icons.pedal_bike, size: 19),
-                  label: Text(delivering ? 'Tandai Selesai' : 'Ambil & Antar', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                  onPressed: () => _openDelivery(o),
+                  icon: Icon(delivering ? Icons.navigation : Icons.pedal_bike, size: 19),
+                  label: Text(delivering ? 'Lanjut Antar (peta)' : 'Ambil & Antar', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
                 ),
               ),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+// ================= live delivery tracking (OpenStreetMap) =================
+
+// Smoothly interpolate a marker between two coordinates so it glides, not jumps.
+class LatLngTween extends Tween<LatLng> {
+  LatLngTween({required LatLng begin, required LatLng end}) : super(begin: begin, end: end);
+  @override
+  LatLng lerp(double t) => LatLng(
+        begin!.latitude + (end!.latitude - begin!.latitude) * t,
+        begin!.longitude + (end!.longitude - begin!.longitude) * t,
+      );
+}
+
+TileLayer _osmTiles() => TileLayer(
+      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      userAgentPackageName: 'com.paramall.app',
+      maxZoom: 19,
+    );
+
+class _DriverPin extends StatelessWidget {
+  const _DriverPin();
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: kGreen, shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2.5),
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))],
+        ),
+        child: const Center(child: Text('🛵', style: TextStyle(fontSize: 22))),
+      );
+}
+
+/// An OSM map that shows the driver's live (animated) position, and optionally
+/// the destination. Size it from the parent (SizedBox height, or Expanded).
+class LiveDeliveryMap extends StatefulWidget {
+  final LatLng? driver;
+  final LatLng? destination;
+  const LiveDeliveryMap({super.key, this.driver, this.destination});
+  @override
+  State<LiveDeliveryMap> createState() => _LiveDeliveryMapState();
+}
+
+class _LiveDeliveryMapState extends State<LiveDeliveryMap> {
+  final MapController _map = MapController();
+
+  @override
+  void didUpdateWidget(covariant LiveDeliveryMap old) {
+    super.didUpdateWidget(old);
+    final d = widget.driver;
+    if (d != null && d != old.driver) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          _map.move(d, _map.camera.zoom);
+        } catch (_) {}
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final center = widget.driver ?? widget.destination ?? const LatLng(-7.3167, 110.1667); // Parakan-ish default
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: FlutterMap(
+        mapController: _map,
+        options: MapOptions(
+          initialCenter: center,
+          initialZoom: 15,
+          interactionOptions: const InteractionOptions(flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
+        ),
+        children: [
+          _osmTiles(),
+          if (widget.destination != null)
+            MarkerLayer(markers: [
+              Marker(point: widget.destination!, width: 40, height: 40, child: const Text('🏠', style: TextStyle(fontSize: 30))),
+            ]),
+          if (widget.driver != null)
+            TweenAnimationBuilder<LatLng>(
+              tween: LatLngTween(begin: widget.driver!, end: widget.driver!),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInOut,
+              builder: (_, pos, __) => MarkerLayer(markers: [
+                Marker(point: pos, width: 46, height: 46, child: const _DriverPin()),
+              ]),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Driver-side screen: streams GPS to the server while delivering, and lets the
+/// driver mark the order done.
+class DriverDeliveryScreen extends StatefulWidget {
+  final Order order;
+  final String driverPass;
+  const DriverDeliveryScreen({super.key, required this.order, required this.driverPass});
+  @override
+  State<DriverDeliveryScreen> createState() => _DriverDeliveryScreenState();
+}
+
+class _DriverDeliveryScreenState extends State<DriverDeliveryScreen> {
+  Timer? _t;
+  LatLng? _pos;
+  String? _err;
+  bool _finishing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  Future<void> _start() async {
+    if (orderStage(widget.order) < 2) {
+      try {
+        await Api.driverSetStatus(driverPass: widget.driverPass, id: widget.order.id, status: 'Diantar');
+      } catch (_) {}
+    }
+    if (!await _ensurePermission()) {
+      if (mounted) setState(() => _err = 'Izin lokasi ditolak. Aktifkan lokasi agar pelanggan bisa melihat posisimu.');
+      return;
+    }
+    await _tick();
+    _t = Timer.periodic(const Duration(seconds: 4), (_) => _tick());
+  }
+
+  Future<bool> _ensurePermission() async {
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) return false;
+      var p = await Geolocator.checkPermission();
+      if (p == LocationPermission.denied) p = await Geolocator.requestPermission();
+      return p == LocationPermission.always || p == LocationPermission.whileInUse;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _tick() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      final ll = LatLng(pos.latitude, pos.longitude);
+      if (mounted) setState(() => _pos = ll);
+      await Api.sendDriverLocation(driverPass: widget.driverPass, id: widget.order.id, lat: ll.latitude, lng: ll.longitude);
+    } catch (_) {}
+  }
+
+  Future<void> _finish() async {
+    setState(() => _finishing = true);
+    try {
+      await Api.driverSetStatus(driverPass: widget.driverPass, id: widget.order.id, status: 'Selesai');
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _finishing = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(e is ApiException ? e.message : 'Gagal menyelesaikan')));
+    }
+  }
+
+  Future<void> _call() async {
+    final p = widget.order.phone.replaceAll(RegExp(r'[^0-9+]'), '');
+    if (p.isNotEmpty) await launchUrl(Uri.parse('tel:$p'));
+  }
+
+  Future<void> _maps() async {
+    await launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(widget.order.addr)}'), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  void dispose() {
+    _t?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final o = widget.order;
+    return Scaffold(
+      backgroundColor: kGround,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF12543A),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: Text('Antar #${o.id}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+      ),
+      body: Column(children: [
+        Expanded(
+          child: _err != null
+              ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('📍', style: TextStyle(fontSize: 44)),
+                  const SizedBox(height: 12),
+                  Text(_err!, textAlign: TextAlign.center, style: const TextStyle(color: kMuted, fontSize: 14)),
+                  const SizedBox(height: 16),
+                  FilledButton(style: FilledButton.styleFrom(backgroundColor: kGreen), onPressed: () { setState(() => _err = null); _start(); }, child: const Text('Coba lagi')),
+                ])))
+              : Padding(padding: const EdgeInsets.all(12), child: LiveDeliveryMap(driver: _pos)),
+        ),
+        Container(
+          decoration: const BoxDecoration(color: kSurface, border: Border(top: BorderSide(color: kLine))),
+          padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(color: kGreenSoft, borderRadius: BorderRadius.circular(999)),
+                child: Text(_pos == null ? 'Mencari lokasi…' : 'Berbagi lokasi • live', style: const TextStyle(color: kGreenInk, fontWeight: FontWeight.w700, fontSize: 11.5)),
+              ),
+              const Spacer(),
+              Text(o.pay.toUpperCase() == 'COD' ? 'Tagih ${rupiah(o.total)}' : '${o.pay} • lunas', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: kInk)),
+            ]),
+            const SizedBox(height: 8),
+            Text(o.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+            Text(o.addr, style: const TextStyle(fontSize: 13, color: kInk, height: 1.3)),
+            const SizedBox(height: 10),
+            Row(children: [
+              Expanded(child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: kGreenInk, side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                onPressed: _call, icon: const Icon(Icons.call, size: 17), label: const Text('Telepon', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)))),
+              const SizedBox(width: 8),
+              Expanded(child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: kGreenInk, side: const BorderSide(color: kLine), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                onPressed: _maps, icon: const Icon(Icons.navigation_outlined, size: 17), label: const Text('Navigasi', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)))),
+            ]),
+            const SizedBox(height: 10),
+            SizedBox(width: double.infinity, child: FilledButton.icon(
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1E8E5A), minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              onPressed: _finishing ? null : _finish,
+              icon: _finishing ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2.2, color: Colors.white)) : const Icon(Icons.check_circle, size: 19),
+              label: Text(_finishing ? 'Menyelesaikan…' : 'Tandai Selesai', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
+            )),
           ]),
         ),
       ]),

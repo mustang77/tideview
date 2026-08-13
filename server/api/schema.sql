@@ -25,11 +25,20 @@ CREATE TABLE IF NOT EXISTS orders (
   ongkir     INT,
   total      INT,
   status     VARCHAR(40) NOT NULL DEFAULT 'Diterima',
+  driver_lat DECIMAL(10,7) NULL,
+  driver_lng DECIMAL(10,7) NULL,
+  driver_at  DATETIME NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   INDEX idx_user (user_id),
   INDEX idx_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- If your orders table already exists, add the live-tracking columns with:
+--   ALTER TABLE orders
+--     ADD COLUMN driver_lat DECIMAL(10,7) NULL,
+--     ADD COLUMN driver_lng DECIMAL(10,7) NULL,
+--     ADD COLUMN driver_at  DATETIME NULL;
 
 -- Firebase Cloud Messaging device tokens (for push notifications).
 CREATE TABLE IF NOT EXISTS device_tokens (
