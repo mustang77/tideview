@@ -189,6 +189,7 @@ class Product {
     );
   }
   bool get discounted => priceOriginal != null && priceOriginal! > price;
+  int get discountPct => discounted ? (((priceOriginal! - price) / priceOriginal!) * 100).round() : 0;
 }
 
 Future<List<Product>> loadCatalog() async {
@@ -624,7 +625,10 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   String _search = '';
+  String _sort = 'Relevan';
   final TextEditingController _searchCtrl = TextEditingController();
+
+  static const List<String> _sortOptions = ['Relevan', 'Termurah', 'Termahal', 'Promo'];
 
   @override
   void dispose() {
@@ -643,6 +647,20 @@ class _ShopPageState extends State<ShopPage> {
       final nameOk = !searching || p.name.toLowerCase().contains(term);
       if (catOk && nameOk) out.add(i);
     }
+    final ps = widget.products;
+    switch (_sort) {
+      case 'Termurah':
+        out.sort((a, b) => ps[a].price.compareTo(ps[b].price));
+        break;
+      case 'Termahal':
+        out.sort((a, b) => ps[b].price.compareTo(ps[a].price));
+        break;
+      case 'Promo':
+        // Discounted first (biggest saving on top), the rest keep catalog order.
+        out.sort((a, b) => ps[b].discountPct.compareTo(ps[a].discountPct));
+        break;
+      // 'Relevan' — keep catalog order.
+    }
     return out;
   }
 
@@ -660,6 +678,7 @@ class _ShopPageState extends State<ShopPage> {
         SliverToBoxAdapter(child: _quickMenu()),
         SliverToBoxAdapter(child: _catChips()),
         SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(promos: widget.promos, onAction: _onPromoAction))),
+        if (idxs.isNotEmpty) SliverToBoxAdapter(child: _sortBar(idxs.length)),
         if (idxs.isEmpty)
           SliverToBoxAdapter(
             child: Padding(
@@ -691,6 +710,29 @@ class _ShopPageState extends State<ShopPage> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _sortBar(int count) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 0),
+      child: Row(children: [
+        Text('$count produk', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: kMuted)),
+        const Spacer(),
+        const Icon(Icons.swap_vert, size: 18, color: kMuted),
+        const SizedBox(width: 2),
+        DropdownButton<String>(
+          value: _sort,
+          isDense: true,
+          underline: const SizedBox.shrink(),
+          borderRadius: BorderRadius.circular(12),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: kInk),
+          items: [
+            for (final s in _sortOptions) DropdownMenuItem(value: s, child: Text(s)),
+          ],
+          onChanged: (v) => setState(() => _sort = v ?? 'Relevan'),
+        ),
+      ]),
     );
   }
 
@@ -857,7 +899,7 @@ class ProductCard extends StatelessWidget {
                 Positioned(top: 6, left: 6, child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                   decoration: BoxDecoration(color: kMango, borderRadius: BorderRadius.circular(999)),
-                  child: const Text('Hemat', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF3A2400))))),
+                  child: Text(product.discountPct >= 1 ? 'Hemat ${product.discountPct}%' : 'Hemat', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF3A2400))))),
             ]),
           ),
           const SizedBox(height: 8),
