@@ -22,7 +22,7 @@ void main() async {
 typedef Authed = Future<void> Function(String token, String name, String phone, String address);
 
 // ---------- config ----------
-const String kWaNumber = ''; // isi nomor WhatsApp penjual, contoh: '628123456789'
+const String kWaNumber = '6282327923455'; // nomor WhatsApp penjual (format 62…)
 // Hidden staff access: salted-SHA256 of the passcodes (server holds the real ones).
 const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad'; // 'paramall2026'
 const String kDriverHash = '091ce939cb21f96cbc3592627761c196915935c69c572c05911c0127f2b9eff9'; // 'driver2026'
