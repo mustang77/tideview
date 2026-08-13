@@ -48,6 +48,20 @@ function orderOut(array $o): array {
         'updated_at' => str_replace(' ', 'T', (string)$o['updated_at']),
     ];
 }
+function promoOut(array $p): array {
+    return [
+        'id' => (int)$p['id'],
+        'title' => $p['title'],
+        'subtitle' => $p['subtitle'],
+        'emoji' => $p['emoji'],
+        'color1' => $p['color1'],
+        'color2' => $p['color2'],
+        'action' => $p['action'],
+        'is_popup' => (int)$p['is_popup'],
+        'sort_order' => (int)$p['sort_order'],
+        'active' => (int)$p['active'],
+    ];
+}
 function authUser(PDO $pdo, array $body): array {
     $token = '';
     $hdr = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
@@ -286,6 +300,55 @@ switch ($action) {
         }
         $pdo->prepare('UPDATE orders SET status = ?, updated_at = NOW() WHERE id = ?')->execute([$status, $id]);
         notifyOrderOwner($pdo, $cfg, $id, $status);
+        ok();
+    }
+
+    // ---- Promo banners ----
+    case 'promos': {
+        $st = $pdo->query('SELECT * FROM promos WHERE active = 1 ORDER BY sort_order ASC, id ASC');
+        ok(['promos' => array_map('promoOut', $st->fetchAll())]);
+    }
+
+    case 'admin_promos': {
+        requireAdmin($cfg, $body);
+        $st = $pdo->query('SELECT * FROM promos ORDER BY sort_order ASC, id ASC');
+        ok(['promos' => array_map('promoOut', $st->fetchAll())]);
+    }
+
+    case 'admin_save_promo': {
+        requireAdmin($cfg, $body);
+        $id = ifield($body, 'id');
+        $fields = [
+            sfield($body, 'title', 120),
+            sfield($body, 'subtitle', 300),
+            sfield($body, 'emoji', 16) ?: '🎉',
+            sfield($body, 'color1', 9) ?: '#2E9C6E',
+            sfield($body, 'color2', 9) ?: '#12543A',
+            sfield($body, 'action', 60),
+            (isset($body['is_popup']) && ($body['is_popup'] === true || (string)$body['is_popup'] === '1')) ? 1 : 0,
+            ifield($body, 'sort_order'),
+            (isset($body['active']) && ($body['active'] === false || (string)$body['active'] === '0')) ? 0 : 1,
+        ];
+        if ($fields[0] === '') {
+            fail(400, 'Judul promo wajib');
+        }
+        if ($id > 0) {
+            $st = $pdo->prepare('UPDATE promos SET title=?, subtitle=?, emoji=?, color1=?, color2=?, action=?, is_popup=?, sort_order=?, active=?, updated_at=NOW() WHERE id=?');
+            $st->execute([...$fields, $id]);
+            ok(['id' => $id]);
+        }
+        $st = $pdo->prepare('INSERT INTO promos (title, subtitle, emoji, color1, color2, action, is_popup, sort_order, active, updated_at) VALUES (?,?,?,?,?,?,?,?,?,NOW())');
+        $st->execute($fields);
+        ok(['id' => (int)$pdo->lastInsertId()]);
+    }
+
+    case 'admin_delete_promo': {
+        requireAdmin($cfg, $body);
+        $id = ifield($body, 'id');
+        if ($id <= 0) {
+            fail(400, 'id wajib');
+        }
+        $pdo->prepare('DELETE FROM promos WHERE id = ?')->execute([$id]);
         ok();
     }
 

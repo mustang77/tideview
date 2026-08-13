@@ -56,28 +56,54 @@ const List<DeliveryZone> kZones = [
 int roundTo(num v, int step) => step <= 0 ? v.round() : (v / step).round() * step;
 int sellPrice(int base) => roundTo(base * (1 + kMarginPct), 500);
 
-// ---------- promo banners (edit these to change what shows on the home page) ----------
+// ---------- promo banners (managed from Admin → Kelola Promo) ----------
 class PromoBanner {
+  final int id;
   final String title, subtitle, emoji;
   final List<Color> colors; // gradient (top-left → bottom-right)
   final String? action;     // 'cat:Sembako' opens a category, else null
-  const PromoBanner({required this.title, required this.subtitle, this.emoji = '🎉', required this.colors, this.action});
+  final bool isPopup;       // true = shown as the app-open popup instead of the carousel
+  const PromoBanner({this.id = 0, required this.title, required this.subtitle, this.emoji = '🎉', required this.colors, this.action, this.isPopup = false});
+  factory PromoBanner.fromJson(Map<String, dynamic> j) => PromoBanner(
+        id: int.tryParse('${j['id'] ?? 0}') ?? 0,
+        title: (j['title'] ?? '').toString(),
+        subtitle: (j['subtitle'] ?? '').toString(),
+        emoji: (j['emoji'] ?? '').toString().isEmpty ? '🎉' : (j['emoji']).toString(),
+        colors: [promoHex((j['color1'] ?? '#2E9C6E').toString()), promoHex((j['color2'] ?? '#12543A').toString())],
+        action: (j['action'] ?? '').toString().isEmpty ? null : (j['action']).toString(),
+        isPopup: j['is_popup'] == true || j['is_popup'] == 1 || (j['is_popup'] ?? '').toString() == '1',
+      );
 }
 
-// The rotating banner carousel at the top of the shop.
+Color promoHex(String s) {
+  s = s.replaceAll('#', '').trim();
+  if (s.length == 6) s = 'FF$s';
+  return Color(int.tryParse(s, radix: 16) ?? 0xFF2E9C6E);
+}
+
+// Preset gradients the admin picks from (stored as hex on the server).
+const List<List<String>> kPromoGradients = [
+  ['#2E9C6E', '#12543A'], // Hijau
+  ['#E4952A', '#B4671A'], // Oranye
+  ['#3A7BD5', '#1E4F97'], // Biru
+  ['#E0533D', '#9E2A1B'], // Merah
+  ['#8E5AE0', '#5A2E9E'], // Ungu
+];
+const List<String> kPromoGradientNames = ['Hijau', 'Oranye', 'Biru', 'Merah', 'Ungu'];
+
+// Fallbacks used when the server has no promos or is unreachable.
 const List<PromoBanner> kPromos = [
   PromoBanner(title: 'Gratis Ongkir 🛵', subtitle: 'Belanja min. Rp100.000 — kami antar gratis ke rumah', emoji: '🛵', colors: [Color(0xFF2E9C6E), Color(0xFF12543A)]),
   PromoBanner(title: 'Bayar Online, Hemat', subtitle: 'Pakai QRIS / Transfer → ongkir GRATIS', emoji: '📱', colors: [Color(0xFFE4952A), Color(0xFFB4671A)]),
   PromoBanner(title: 'Sembako Lengkap', subtitle: 'Beras, minyak, gula & kebutuhan harian', emoji: '🍚', colors: [Color(0xFF3A7BD5), Color(0xFF1E4F97)], action: 'cat:Sembako'),
 ];
-
-// A one-time popup when the app opens (set enabled = false to turn it off).
 const bool kPromoPopupEnabled = true;
-const PromoBanner kPromoPopup = PromoBanner(
+const PromoBanner kPromoPopupDefault = PromoBanner(
   title: 'Selamat Datang! 🎉',
   subtitle: 'Belanja kebutuhan harian di Paramall, kami antar ke rumah.\nGratis ongkir min. Rp100.000.',
   emoji: '🛒',
   colors: [Color(0xFF2E9C6E), Color(0xFF12543A)],
+  isPopup: true,
 );
 
 // ---------- palette ----------
@@ -202,6 +228,8 @@ class _HomeShellState extends State<HomeShell> {
   int _tab = 0;
   bool _loading = true;
   bool _promoShown = false;
+  List<PromoBanner> _promos = kPromos;
+  PromoBanner _popup = kPromoPopupDefault;
   List<Product> _products = [];
   final Map<int, int> _cart = {};
   String _shopCat = 'Semua';
@@ -233,9 +261,37 @@ class _HomeShellState extends State<HomeShell> {
       });
       // Have a token from a previous session → refresh account & orders from the server.
       if (token.isNotEmpty) _syncSession();
+      _loadPromos(); // fetch server-managed banners, then show the popup
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _loadPromos() async {
+    try {
+      final rows = await Api.promos().timeout(const Duration(seconds: 6));
+      final all = rows.map(PromoBanner.fromJson).toList();
+      if (mounted && all.isNotEmpty) {
+        final carousel = all.where((p) => !p.isPopup).toList();
+        final popups = all.where((p) => p.isPopup).toList();
+        setState(() {
+          if (carousel.isNotEmpty) _promos = carousel;
+          if (popups.isNotEmpty) _popup = popups.first;
+        });
+      }
+    } catch (_) {
+      // Offline / no promos on server → keep the built-in defaults.
+    } finally {
+      _maybeShowPopup();
+    }
+  }
+
+  void _maybeShowPopup() {
+    if (!mounted || !kPromoPopupEnabled || _promoShown) return;
+    _promoShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) showPromoPopup(context, _popup);
+    });
   }
 
   // Validate the stored token and pull the latest account + orders.
@@ -445,16 +501,9 @@ class _HomeShellState extends State<HomeShell> {
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: kGreen)));
     }
-    // Show the welcome/promo popup once, after the first frame.
-    if (kPromoPopupEnabled && !_promoShown) {
-      _promoShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) showPromoPopup(context);
-      });
-    }
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
-          onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3)),
+          onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3), promos: _promos),
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       _session
@@ -561,8 +610,9 @@ class ShopPage extends StatefulWidget {
   final void Function(int) onAdd;
   final void Function(int) onOpen;
   final VoidCallback onGoOrders;
+  final List<PromoBanner> promos;
   const ShopPage({super.key, required this.products, required this.cart, required this.activeCat,
-      required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders});
+      required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders, required this.promos});
   @override
   State<ShopPage> createState() => _ShopPageState();
 }
@@ -595,7 +645,7 @@ class _ShopPageState extends State<ShopPage> {
         SliverToBoxAdapter(child: _header()),
         SliverToBoxAdapter(child: _quickMenu()),
         SliverToBoxAdapter(child: _catChips()),
-        SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(onAction: _onPromoAction))),
+        SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(promos: widget.promos, onAction: _onPromoAction))),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           sliver: SliverGrid(
@@ -2552,6 +2602,13 @@ class _AdminPageState extends State<AdminPage> {
                       ]),
                       const SizedBox(height: 16),
                       FilledButton.icon(
+                        style: FilledButton.styleFrom(backgroundColor: kMango, foregroundColor: const Color(0xFF3A2400), minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AdminPromosScreen(adminPass: widget.adminPass))),
+                        icon: const Icon(Icons.campaign),
+                        label: const Text('Kelola Promo (Banner)', style: TextStyle(fontWeight: FontWeight.w800)),
+                      ),
+                      const SizedBox(height: 10),
+                      FilledButton.icon(
                         style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                         onPressed: () => launchUrl(Uri.parse('https://paramall.h2olaundry.com/admin'), mode: LaunchMode.externalApplication),
                         icon: const Icon(Icons.tune),
@@ -3137,8 +3194,9 @@ class _DriverDeliveryScreenState extends State<DriverDeliveryScreen> {
 
 // Rotating, auto-scrolling promo banners with dot indicators.
 class PromoCarousel extends StatefulWidget {
+  final List<PromoBanner> promos;
   final void Function(String action) onAction;
-  const PromoCarousel({super.key, required this.onAction});
+  const PromoCarousel({super.key, required this.promos, required this.onAction});
   @override
   State<PromoCarousel> createState() => _PromoCarouselState();
 }
@@ -3151,10 +3209,10 @@ class _PromoCarouselState extends State<PromoCarousel> {
   @override
   void initState() {
     super.initState();
-    if (kPromos.length > 1) {
+    if (widget.promos.length > 1) {
       _t = Timer.periodic(const Duration(seconds: 4), (_) {
         if (!_pc.hasClients) return;
-        _pc.animateToPage((_i + 1) % kPromos.length, duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
+        _pc.animateToPage((_i + 1) % widget.promos.length, duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
       });
     }
   }
@@ -3168,19 +3226,19 @@ class _PromoCarouselState extends State<PromoCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    if (kPromos.isEmpty) return const SizedBox.shrink();
+    if (widget.promos.isEmpty) return const SizedBox.shrink();
     return Column(children: [
       SizedBox(
         height: 110,
         child: PageView.builder(
           controller: _pc,
           onPageChanged: (i) => setState(() => _i = i),
-          itemCount: kPromos.length,
-          itemBuilder: (_, i) => _card(kPromos[i]),
+          itemCount: widget.promos.length,
+          itemBuilder: (_, i) => _card(widget.promos[i]),
         ),
       ),
       const SizedBox(height: 8),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(kPromos.length, (i) {
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(widget.promos.length, (i) {
         final on = i == _i;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
@@ -3226,8 +3284,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
 }
 
 // One-time welcome/promo popup (Shopee-style).
-Future<void> showPromoPopup(BuildContext context) async {
-  const p = kPromoPopup;
+Future<void> showPromoPopup(BuildContext context, PromoBanner p) async {
   await showDialog(
     context: context,
     barrierDismissible: true,
@@ -3239,17 +3296,17 @@ Future<void> showPromoPopup(BuildContext context) async {
           padding: const EdgeInsets.fromLTRB(22, 30, 22, 22),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(colors: kPromoPopup.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+            gradient: LinearGradient(colors: p.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
           ),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Text(p.emoji, style: TextStyle(fontSize: 54)),
+            Text(p.emoji, style: const TextStyle(fontSize: 54)),
             const SizedBox(height: 14),
             Text(p.title, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 21)),
             const SizedBox(height: 8),
             Text(p.subtitle, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 13.5, height: 1.45)),
             const SizedBox(height: 20),
             SizedBox(width: double.infinity, child: FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: kPromoPopup.colors.last, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+              style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: p.colors.last, minimumSize: const Size.fromHeight(48), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
               onPressed: () => Navigator.pop(dctx),
               child: const Text('Mulai Belanja', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
             )),
@@ -3262,4 +3319,333 @@ Future<void> showPromoPopup(BuildContext context) async {
       ]),
     ),
   );
+}
+
+// ================= admin: manage promo banners =================
+class AdminPromosScreen extends StatefulWidget {
+  final String adminPass;
+  const AdminPromosScreen({super.key, required this.adminPass});
+  @override
+  State<AdminPromosScreen> createState() => _AdminPromosScreenState();
+}
+
+class _AdminPromosScreenState extends State<AdminPromosScreen> {
+  List<Map<String, dynamic>> _promos = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final p = await Api.adminPromos(widget.adminPass);
+      if (!mounted) return;
+      setState(() {
+        _promos = p;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e is ApiException ? e.message : 'Gagal memuat promo.';
+        _loading = false;
+      });
+    }
+  }
+
+  void _snack(String m) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(m)));
+
+  void _edit(Map<String, dynamic>? promo) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _PromoEditSheet(adminPass: widget.adminPass, promo: promo, onSaved: _load),
+    );
+  }
+
+  Future<void> _delete(Map<String, dynamic> p) async {
+    final ok = await showDialog<bool>(context: context, builder: (d) => AlertDialog(
+      title: const Text('Hapus promo?'),
+      content: Text('"${p['title']}" akan dihapus.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Batal')),
+        TextButton(onPressed: () => Navigator.pop(d, true), child: const Text('Hapus', style: TextStyle(color: Color(0xFFC0432E), fontWeight: FontWeight.w700))),
+      ],
+    ));
+    if (ok != true) return;
+    try {
+      await Api.adminDeletePromo(adminPass: widget.adminPass, id: int.tryParse('${p['id']}') ?? 0);
+      await _load();
+    } catch (e) {
+      if (mounted) _snack(e is ApiException ? e.message : 'Gagal menghapus.');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kGround,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF12543A),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Kelola Promo', style: TextStyle(fontWeight: FontWeight.w800)),
+        actions: [IconButton(onPressed: _loading ? null : _load, icon: const Icon(Icons.refresh))],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: kGreen,
+        onPressed: () => _edit(null),
+        icon: const Icon(Icons.add),
+        label: const Text('Promo Baru', style: TextStyle(fontWeight: FontWeight.w800)),
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator(color: kGreen))
+          : _error != null
+              ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Text('⚠️', style: TextStyle(fontSize: 40)),
+                  const SizedBox(height: 10),
+                  Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: kMuted)),
+                  const SizedBox(height: 14),
+                  FilledButton(style: FilledButton.styleFrom(backgroundColor: kGreen), onPressed: _load, child: const Text('Coba lagi')),
+                ])))
+              : _promos.isEmpty
+                  ? const Center(child: EmptyView(emoji: '📣', text: 'Belum ada promo.\nTap “Promo Baru” untuk membuat.'))
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(14, 14, 14, 90),
+                      children: _promos.map(_card).toList(),
+                    ),
+    );
+  }
+
+  Widget _card(Map<String, dynamic> p) {
+    final banner = PromoBanner.fromJson(p);
+    final active = (p['active'] ?? 1).toString() != '0';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(color: kSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: kLine)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(colors: banner.colors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          ),
+          child: Row(children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+              Text(banner.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
+              const SizedBox(height: 2),
+              Text(banner.subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 11.5)),
+            ])),
+            const SizedBox(width: 8),
+            Text(banner.emoji, style: const TextStyle(fontSize: 30)),
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 8, 4),
+          child: Row(children: [
+            if (banner.isPopup) _tag('POPUP', kMango),
+            if (banner.isPopup) const SizedBox(width: 6),
+            _tag(active ? 'AKTIF' : 'NONAKTIF', active ? kGreen : kMuted),
+            if (banner.action != null) ...[const SizedBox(width: 6), _tag(banner.action!, const Color(0xFF3A7BD5))],
+            const Spacer(),
+            TextButton.icon(onPressed: () => _edit(p), icon: const Icon(Icons.edit, size: 17), label: const Text('Ubah'), style: TextButton.styleFrom(foregroundColor: kGreenInk)),
+            IconButton(onPressed: () => _delete(p), icon: const Icon(Icons.delete_outline, color: Color(0xFFC0432E))),
+          ]),
+        ),
+      ]),
+    );
+  }
+
+  Widget _tag(String t, Color c) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(color: c.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(999)),
+        child: Text(t, style: TextStyle(color: c, fontWeight: FontWeight.w800, fontSize: 10.5)),
+      );
+}
+
+class _PromoEditSheet extends StatefulWidget {
+  final String adminPass;
+  final Map<String, dynamic>? promo;
+  final VoidCallback onSaved;
+  const _PromoEditSheet({required this.adminPass, required this.promo, required this.onSaved});
+  @override
+  State<_PromoEditSheet> createState() => _PromoEditSheetState();
+}
+
+class _PromoEditSheetState extends State<_PromoEditSheet> {
+  late final TextEditingController _title = TextEditingController(text: widget.promo?['title']?.toString() ?? '');
+  late final TextEditingController _subtitle = TextEditingController(text: widget.promo?['subtitle']?.toString() ?? '');
+  late final TextEditingController _emoji = TextEditingController(text: widget.promo?['emoji']?.toString() ?? '🎉');
+  late int _grad = _initGrad();
+  late String _action = (widget.promo?['action']?.toString().isNotEmpty ?? false) ? widget.promo!['action'].toString() : '';
+  late bool _isPopup = (widget.promo?['is_popup'] ?? 0).toString() == '1';
+  late bool _active = (widget.promo?['active'] ?? 1).toString() != '0';
+  bool _busy = false;
+
+  int _initGrad() {
+    final c1 = (widget.promo?['color1'] ?? '').toString().toUpperCase();
+    for (int i = 0; i < kPromoGradients.length; i++) {
+      if (kPromoGradients[i][0].toUpperCase() == c1) return i;
+    }
+    return 0;
+  }
+
+  List<String> get _categories => kCatOrder.where((c) => c != 'Semua').toList();
+  // Keep the dropdown value valid even if the saved action isn't a known category.
+  String get _validAction {
+    final valid = ['', ..._categories.map((c) => 'cat:$c')];
+    return valid.contains(_action) ? _action : '';
+  }
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _subtitle.dispose();
+    _emoji.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_title.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(const SnackBar(content: Text('Isi judul promo')));
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      await Api.adminSavePromo(adminPass: widget.adminPass, promo: {
+        'id': int.tryParse('${widget.promo?['id'] ?? 0}') ?? 0,
+        'title': _title.text.trim(),
+        'subtitle': _subtitle.text.trim(),
+        'emoji': _emoji.text.trim().isEmpty ? '🎉' : _emoji.text.trim(),
+        'color1': kPromoGradients[_grad][0],
+        'color2': kPromoGradients[_grad][1],
+        'action': _action,
+        'is_popup': _isPopup ? 1 : 0,
+        'sort_order': int.tryParse('${widget.promo?['sort_order'] ?? 0}') ?? 0,
+        'active': _active ? 1 : 0,
+      });
+      if (!mounted) return;
+      Navigator.pop(context);
+      widget.onSaved();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(SnackBar(content: Text(e is ApiException ? e.message : 'Gagal menyimpan.')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = [promoHex(kPromoGradients[_grad][0]), promoHex(kPromoGradients[_grad][1])];
+    return Container(
+      decoration: const BoxDecoration(color: kSurface, borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      padding: EdgeInsets.only(left: 18, right: 18, top: 8, bottom: MediaQuery.of(context).viewInsets.bottom + 18),
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Center(child: Container(width: 40, height: 4, margin: const EdgeInsets.only(top: 2, bottom: 14), decoration: BoxDecoration(color: kLine, borderRadius: BorderRadius.circular(999)))),
+          Text(widget.promo == null ? 'Promo Baru' : 'Ubah Promo', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 14),
+          // live preview
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: colors, begin: Alignment.topLeft, end: Alignment.bottomRight)),
+            child: Row(children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                Text(_title.text.isEmpty ? 'Judul promo' : _title.text, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+                const SizedBox(height: 3),
+                Text(_subtitle.text.isEmpty ? 'Deskripsi singkat…' : _subtitle.text, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              ])),
+              const SizedBox(width: 8),
+              Text(_emoji.text.isEmpty ? '🎉' : _emoji.text, style: const TextStyle(fontSize: 34)),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          _f('Judul', _title),
+          const SizedBox(height: 10),
+          _f('Deskripsi', _subtitle, lines: 2),
+          const SizedBox(height: 10),
+          _f('Emoji', _emoji),
+          const SizedBox(height: 14),
+          const Text('Warna', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kMuted)),
+          const SizedBox(height: 8),
+          Row(children: List.generate(kPromoGradients.length, (i) {
+            final on = i == _grad;
+            return GestureDetector(
+              onTap: () => setState(() => _grad = i),
+              child: Container(
+                width: 46, height: 46, margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(colors: [promoHex(kPromoGradients[i][0]), promoHex(kPromoGradients[i][1])], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  border: Border.all(color: on ? kInk : Colors.transparent, width: 2.5),
+                ),
+                child: on ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
+              ),
+            );
+          })),
+          const SizedBox(height: 14),
+          const Text('Tombol menuju', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kMuted)),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<String>(
+            initialValue: _validAction,
+            isExpanded: true,
+            decoration: InputDecoration(isDense: true, contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5))),
+            items: [
+              const DropdownMenuItem(value: '', child: Text('Tidak ada (info saja)')),
+              ..._categories.map((c) => DropdownMenuItem(value: 'cat:$c', child: Text('Kategori: $c'))),
+            ],
+            onChanged: (v) => setState(() => _action = v ?? ''),
+          ),
+          const SizedBox(height: 6),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            activeThumbColor: kGreen,
+            value: _isPopup,
+            onChanged: (v) => setState(() => _isPopup = v),
+            title: const Text('Tampilkan sebagai popup pembuka', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+            subtitle: const Text('Muncul saat aplikasi dibuka', style: TextStyle(fontSize: 11.5, color: kMuted)),
+          ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            activeThumbColor: kGreen,
+            value: _active,
+            onChanged: (v) => setState(() => _active = v),
+            title: const Text('Aktif', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(52), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+            onPressed: _busy ? null : _save,
+            child: Text(_busy ? 'Menyimpan…' : 'Simpan Promo', style: const TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _f(String label, TextEditingController c, {int lines = 1}) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kMuted)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: c, maxLines: lines,
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            filled: true, fillColor: kGround, isDense: true, contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kLine)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kGreen, width: 1.5)),
+          ),
+        ),
+      ]);
 }

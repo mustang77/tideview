@@ -159,6 +159,29 @@ class Api {
     await _post('register_token', {'device_token': deviceToken, 'platform': platform}, token: token);
   }
 
+  // ---- Promo banners ----
+  static Future<List<Map<String, dynamic>>> promos() async {
+    final d = await _post('promos', {});
+    final raw = d['promos'];
+    if (raw is! List) return [];
+    return raw.whereType<Map<String, dynamic>>().toList();
+  }
+
+  static Future<List<Map<String, dynamic>>> adminPromos(String adminPass) async {
+    final d = await _post('admin_promos', {'admin_pass': adminPass});
+    final raw = d['promos'];
+    if (raw is! List) return [];
+    return raw.whereType<Map<String, dynamic>>().toList();
+  }
+
+  static Future<void> adminSavePromo({required String adminPass, required Map<String, dynamic> promo}) async {
+    await _post('admin_save_promo', {'admin_pass': adminPass, ...promo});
+  }
+
+  static Future<void> adminDeletePromo({required String adminPass, required int id}) async {
+    await _post('admin_delete_promo', {'admin_pass': adminPass, 'id': id});
+  }
+
   static List<Order> _parseOrders(dynamic raw) {
     if (raw is! List) return [];
     return raw.whereType<Map<String, dynamic>>().map(Order.fromJson).toList();
