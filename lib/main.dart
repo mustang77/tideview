@@ -34,10 +34,15 @@ const double kMarginPct = 0.12; // markup harga jual (12%) — sumber profit uta
 // Nudge: beri GRATIS ongkir kalau pelanggan bayar di muka (QRIS/Transfer).
 // Ini menukar ongkir dengan kepastian bayar + tanpa risiko COD. Set false untuk matikan.
 const bool kPrepayFreeOngkir = true;
-// Info transfer bank — ISI dengan rekeningmu.
-const String kBankName = 'BCA';              // contoh: 'BCA', 'BRI', 'Mandiri'
-const String kBankAccount = '0000000000';    // nomor rekening
-const String kBankHolder = 'Paramall';       // atas nama
+// Info transfer bank — daftar rekening tujuan (boleh satu atau lebih).
+class BankAccount {
+  final String bank, number, holder;
+  const BankAccount({required this.bank, required this.number, required this.holder});
+}
+const List<BankAccount> kBankAccounts = [
+  BankAccount(bank: 'Mandiri', number: '1360010070164', holder: 'Yoga Tri Wibowo'),
+  BankAccount(bank: 'BCA', number: '1550527908', holder: 'Yoga Tri Wibowo'),
+];
 // QRIS: tempel URL gambar QRIS statis-mu (opsional). Kosongkan kalau belum ada.
 const String kQrisImageUrl = '';
 
@@ -1411,9 +1416,12 @@ class PayInstructions extends StatelessWidget {
           else
             const Text('Kode QRIS akan kami kirim via WhatsApp setelah pesanan dibuat.', style: TextStyle(fontSize: 12.5, color: kInk, height: 1.35)),
         ] else ...[
-          _copyRow(context, 'Bank', kBankName, copyable: false),
-          _copyRow(context, 'No. Rekening', kBankAccount),
-          _copyRow(context, 'Atas Nama', kBankHolder, copyable: false),
+          for (int i = 0; i < kBankAccounts.length; i++) ...[
+            if (i > 0) const Divider(height: 16),
+            _copyRow(context, 'Bank', kBankAccounts[i].bank, copyable: false),
+            _copyRow(context, 'No. Rekening', kBankAccounts[i].number),
+            _copyRow(context, 'Atas Nama', kBankAccounts[i].holder, copyable: false),
+          ],
         ],
         const Divider(height: 18),
         _copyRow(context, 'Jumlah', rupiah(total)),
