@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1E6E4F">
+<meta name="theme-color" content="#EE4D2D">
 <meta name="description" content="Paramall — belanja Alfamart & Indomaret, kami yang antar ke rumah.">
 <title>Paramall</title>
 <style>
   :root {
     --ground:#F6F5F1; --surface:#FFFFFF; --surface-2:#F1EFE8; --raise:#FBFAF7;
     --ink:#16211C; --muted:#657069; --faint:#98A199; --line:#E7E1D5;
-    --primary:#1E6E4F; --primary-ink:#134A34; --primary-soft:#E4F0E9;
+    --primary:#EE4D2D; --primary-ink:#C13B20; --primary-soft:#FDECE7;
     --accent:#E4952A; --accent-soft:#FBEAD1; --accent-ink:#8A5410;
     --danger:#C0432E; --danger-soft:#F7E6E2; --good:#1E8E5A;
     --price:#EE4D2D; --price-soft:#FDECE7; /* Shopee-style price/discount red */
@@ -24,7 +24,7 @@
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
     --ground:#0E1411; --surface:#161D19; --surface-2:#1E2620; --raise:#1B231E;
     --ink:#ECF2EE; --muted:#95A29A; --faint:#6C7A72; --line:#26302A;
-    --primary:#54BD8E; --primary-ink:#BEE9D5; --primary-soft:#17352A;
+    --primary:#FF6E4E; --primary-ink:#FFB59F; --primary-soft:#3A211B;
     --accent:#F2AA4C; --accent-soft:#38290F; --accent-ink:#F2C489;
     --danger:#E4715A; --danger-soft:#37211C; --good:#54BD8E;
     --price:#FF6E4E; --price-soft:#3A211B;
@@ -33,7 +33,7 @@
   :root[data-theme="dark"] {
     --ground:#0E1411; --surface:#161D19; --surface-2:#1E2620; --raise:#1B231E;
     --ink:#ECF2EE; --muted:#95A29A; --faint:#6C7A72; --line:#26302A;
-    --primary:#54BD8E; --primary-ink:#BEE9D5; --primary-soft:#17352A;
+    --primary:#FF6E4E; --primary-ink:#FFB59F; --primary-soft:#3A211B;
     --accent:#F2AA4C; --accent-soft:#38290F; --accent-ink:#F2C489;
     --danger:#E4715A; --danger-soft:#37211C; --good:#54BD8E;
     --price:#FF6E4E; --price-soft:#3A211B;
@@ -73,6 +73,16 @@
   .promo { margin:12px 16px 4px; padding:13px 15px; background:linear-gradient(100deg,var(--accent-soft),var(--surface)); border:1px solid var(--line); border-radius:16px; display:flex; align-items:center; gap:11px; }
   .promo .e { font-size:24px; } .promo p { margin:0; font-size:12px; color:var(--muted); }
   .promo b { color:var(--ink); font-family:var(--font-display); font-size:13.5px; display:block; margin-bottom:1px; }
+
+  /* Promo banner carousel (Shopee/GoFood style) */
+  .bannerwrap { padding:14px 14px 2px; }
+  .bslides { display:flex; overflow-x:auto; gap:10px; scroll-snap-type:x mandatory; scrollbar-width:none; padding:0 2px; }
+  .bslides::-webkit-scrollbar { display:none; }
+  .bslide { scroll-snap-align:center; flex:0 0 88%; min-height:98px; border-radius:16px; padding:16px 18px; color:#fff; font-family:var(--font-display); font-weight:800; font-size:17px; line-height:1.2; display:flex; flex-direction:column; justify-content:center; gap:5px; background:linear-gradient(120deg,var(--a),var(--b)); box-shadow:0 6px 16px rgba(0,0,0,.14); }
+  .bslide small { font-family:var(--font-body); font-weight:500; font-size:12.5px; opacity:.95; }
+  .bdots { display:flex; justify-content:center; gap:6px; margin-top:9px; }
+  .bdot { width:6px; height:6px; border-radius:999px; background:var(--line); transition:width .2s,background .2s; }
+  .bdot.on { width:16px; background:var(--primary); }
 
   .sectionhdr { display:flex; align-items:baseline; justify-content:space-between; padding:16px 16px 8px; }
   .sectionhdr span { font-size:12px; color:var(--muted); }
@@ -215,6 +225,14 @@
         <input id="q" type="text" placeholder="Cari Indomie, beras, minyak…" aria-label="Cari produk"/>
       </label>
     </header>
+    <div class="bannerwrap">
+      <div class="bslides" id="bslides">
+        <div class="bslide" style="--a:#EE4D2D;--b:#FF8A3D"><span>🛵 Gratis Ongkir</span><small>Belanja min. Rp100.000 — kami antar gratis ke rumah</small></div>
+        <div class="bslide" style="--a:#F5385D;--b:#FF7AA0"><span>🔥 Promo Sembako Tiap Hari</span><small>Beras, minyak, gula & kebutuhan dapur harga hemat</small></div>
+        <div class="bslide" style="--a:#7A3DF5;--b:#B07AFF"><span>📱 Bayar Praktis</span><small>QRIS, Transfer Bank, atau COD — pilih yang mudah</small></div>
+      </div>
+      <div class="bdots" id="bdots"></div>
+    </div>
     <div class="quickmenu">
       <button class="qm" data-act="cat:Sembako"><span class="ic" style="background:var(--q1)">🍚</span><span>Sembako</span></button>
       <button class="qm" data-act="cat:Makanan Instan"><span class="ic" style="background:var(--q2)">🍜</span><span>Makanan Instan</span></button>
@@ -617,6 +635,17 @@
   $("loc-city").textContent=CFG.city;
   load(Array.isArray(EMBEDDED)&&EMBEDDED.length?EMBEDDED:[]);
   fetch("catalog.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)&&d.length) load(d); }).catch(()=>{});
+
+  // ---------- promo banner carousel ----------
+  (function(){
+    const wrap=$("bslides"), dotsEl=$("bdots"); if(!wrap||!dotsEl) return;
+    const n=wrap.children.length; if(!n) return; let idx=0;
+    for(let i=0;i<n;i++){ const d=document.createElement("span"); d.className="bdot"+(i===0?" on":""); dotsEl.appendChild(d); }
+    const dots=[...dotsEl.children];
+    const mark=i=>dots.forEach((d,j)=>d.classList.toggle("on",j===i));
+    wrap.addEventListener("scroll",()=>{ const i=Math.round(wrap.scrollLeft/wrap.clientWidth); if(i!==idx){ idx=i; mark(idx); } });
+    setInterval(()=>{ idx=(idx+1)%n; wrap.scrollTo({left:idx*wrap.clientWidth,behavior:"smooth"}); mark(idx); },4500);
+  })();
 </script>
 </body>
 </html>
