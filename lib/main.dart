@@ -624,15 +624,24 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   String _search = '';
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   List<int> get _visible {
     final term = _search.trim().toLowerCase();
+    final searching = term.isNotEmpty;
     final out = <int>[];
     for (int i = 0; i < widget.products.length; i++) {
       final p = widget.products[i];
-      if ((widget.activeCat == 'Semua' || p.cat == widget.activeCat) && (term.isEmpty || p.name.toLowerCase().contains(term))) {
-        out.add(i);
-      }
+      // While searching, look across ALL categories; otherwise honour the active category.
+      final catOk = searching || widget.activeCat == 'Semua' || p.cat == widget.activeCat;
+      final nameOk = !searching || p.name.toLowerCase().contains(term);
+      if (catOk && nameOk) out.add(i);
     }
     return out;
   }
@@ -651,20 +660,36 @@ class _ShopPageState extends State<ShopPage> {
         SliverToBoxAdapter(child: _quickMenu()),
         SliverToBoxAdapter(child: _catChips()),
         SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(promos: widget.promos, onAction: _onPromoAction))),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.66),
-            delegate: SliverChildBuilderDelegate(
-              (_, k) {
-                final i = idxs[k];
-                return ProductCard(product: widget.products[i], onAdd: () => widget.onAdd(i), onOpen: () => widget.onOpen(i));
-              },
-              childCount: idxs.length,
+        if (idxs.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(30, 50, 30, 30),
+              child: Column(children: [
+                const Text('🔍', style: TextStyle(fontSize: 44)),
+                const SizedBox(height: 12),
+                Text(
+                  _search.trim().isEmpty ? 'Belum ada produk di kategori ini.' : 'Tidak ada hasil untuk "${_search.trim()}".',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: kMuted, fontSize: 14),
+                ),
+              ]),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.66),
+              delegate: SliverChildBuilderDelegate(
+                (_, k) {
+                  final i = idxs[k];
+                  return ProductCard(product: widget.products[i], onAdd: () => widget.onAdd(i), onOpen: () => widget.onOpen(i));
+                },
+                childCount: idxs.length,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -687,9 +712,23 @@ class _ShopPageState extends State<ShopPage> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(13)),
           child: TextField(
+            controller: _searchCtrl,
             onChanged: (v) => setState(() => _search = v),
-            decoration: const InputDecoration(
-                icon: Icon(Icons.search, size: 20, color: kMuted), hintText: 'Cari Indomie, beras, minyak…', border: InputBorder.none),
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              icon: const Icon(Icons.search, size: 20, color: kMuted),
+              hintText: 'Cari Indomie, beras, minyak…',
+              border: InputBorder.none,
+              suffixIcon: _search.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(Icons.close, size: 18, color: kMuted),
+                      onPressed: () => setState(() {
+                        _search = '';
+                        _searchCtrl.clear();
+                      }),
+                    ),
+            ),
           ),
         ),
       ]),
