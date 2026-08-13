@@ -1079,7 +1079,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget _zoneTile(int i) {
     final z = kZones[i];
     final on = _zone == i;
-    final free = widget.subtotal >= kFreeOngkirMin;
+    final free = _freeOngkir; // ≥ free-ongkir minimum OR paying online
     return GestureDetector(
       onTap: () => setState(() => _zone = i),
       child: Container(
