@@ -12,7 +12,7 @@
  * Only hosts in $ALLOWED are fetched; anything else gets 403.
  */
 
-$ALLOWED = ['c.alfagift.id', 'cdn.klikindomaret.com', 'ap-mc.klikindomaret.com'];
+$ALLOWED = ['wcamobile.b-cdn.net', 'paramall.h2olaundry.com', 'c.alfagift.id', 'cdn.klikindomaret.com', 'ap-mc.klikindomaret.com'];
 
 $u = isset($_GET['u']) ? $_GET['u'] : '';
 if ($u === '') { http_response_code(400); exit('missing u'); }
