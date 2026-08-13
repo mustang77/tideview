@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'store.dart';
 import 'api.dart';
 import 'push.dart';
+import 'receipt.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -1571,6 +1572,13 @@ class _TrackingPageState extends State<TrackingPage> {
                 ]),
               ),
               const SizedBox(height: 16),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50), side: const BorderSide(color: kGreen), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                icon: const Icon(Icons.receipt_long, size: 20, color: kGreen),
+                label: const Text('Cetak / Simpan Struk', style: TextStyle(fontWeight: FontWeight.w800, color: kGreen)),
+                onPressed: () => _printReceipt(o),
+              ),
+              const SizedBox(height: 10),
               if (kWaNumber.isNotEmpty)
                 FilledButton(
                   style: FilledButton.styleFrom(backgroundColor: kGreen, minimumSize: const Size.fromHeight(50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
@@ -1588,6 +1596,18 @@ class _TrackingPageState extends State<TrackingPage> {
         ),
       ]),
     );
+  }
+
+  Future<void> _printReceipt(Order o) async {
+    try {
+      await printReceipt(o, waNumber: kWaNumber);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(const SnackBar(content: Text('Tidak bisa membuka pencetak di perangkat ini')));
+      }
+    }
   }
 
   String _payLabel(String p) => p == 'COD' ? 'COD' : p == 'Transfer' ? 'Transfer' : 'QRIS';
