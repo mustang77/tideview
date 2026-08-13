@@ -48,3 +48,5 @@ jobs:
             git commit -m "Mirror product images to Bunny CDN"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
+
+# trigger: mirror run 07955fd
