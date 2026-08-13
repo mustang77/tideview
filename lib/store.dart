@@ -41,6 +41,7 @@ class OrderItem {
 class Order {
   final String id;
   final DateTime at;
+  final DateTime? _updatedAt;
   final String name, phone, addr, note, pay;
   final List<OrderItem> items;
   final int subtotal, ongkir, total;
@@ -49,13 +50,16 @@ class Order {
     required this.id, required this.at, required this.name, required this.phone,
     required this.addr, required this.note, required this.pay, required this.items,
     required this.subtotal, required this.ongkir, required this.total,
-    this.status = 'Diterima',
-  });
+    this.status = 'Diterima', DateTime? updatedAt,
+  }) : _updatedAt = updatedAt;
 
+  // When the order last changed (status update). Falls back to creation time.
+  DateTime get updatedAt => _updatedAt ?? at;
   int get count => items.fold(0, (a, b) => a + b.qty);
 
   Map<String, dynamic> toJson() => {
-        'id': id, 'at': at.toIso8601String(), 'name': name, 'phone': phone,
+        'id': id, 'at': at.toIso8601String(), 'updated_at': updatedAt.toIso8601String(),
+        'name': name, 'phone': phone,
         'addr': addr, 'note': note, 'pay': pay,
         'items': items.map((e) => e.toJson()).toList(),
         'subtotal': subtotal, 'ongkir': ongkir, 'total': total, 'status': status,
@@ -63,6 +67,7 @@ class Order {
   // Works for both our local cache and the server's JSON (same shape).
   factory Order.fromJson(Map<String, dynamic> j) => Order(
         id: (j['id'] ?? '').toString(), at: _toDate(j['at']),
+        updatedAt: DateTime.tryParse('${j['updated_at'] ?? ''}')?.toLocal(),
         name: (j['name'] ?? '').toString(), phone: (j['phone'] ?? '').toString(),
         addr: (j['addr'] ?? '').toString(), note: (j['note'] ?? '').toString(), pay: (j['pay'] ?? '').toString(),
         items: ((j['items'] as List?) ?? const []).map((e) => OrderItem.fromJson(e as Map<String, dynamic>)).toList(),
@@ -76,6 +81,29 @@ class Store {
   static const _kOrders = 'paramall_orders';
   static const _kSession = 'paramall_session';
   static const _kToken = 'paramall_token';
+  static const _kNotifSeenAt = 'paramall_notif_seen_at';   // millis of last inbox open
+  static const _kNotifSeenPromos = 'paramall_notif_promos'; // promo keys already seen
+
+  /// When the notification inbox was last opened (epoch 0 if never).
+  static Future<DateTime> getNotifSeenAt() async {
+    final sp = await SharedPreferences.getInstance();
+    return DateTime.fromMillisecondsSinceEpoch(sp.getInt(_kNotifSeenAt) ?? 0);
+  }
+
+  static Future<void> setNotifSeenAt(DateTime t) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(_kNotifSeenAt, t.millisecondsSinceEpoch);
+  }
+
+  static Future<Set<String>> getSeenPromoKeys() async {
+    final sp = await SharedPreferences.getInstance();
+    return (sp.getStringList(_kNotifSeenPromos) ?? const <String>[]).toSet();
+  }
+
+  static Future<void> setSeenPromoKeys(Set<String> keys) async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setStringList(_kNotifSeenPromos, keys.toList());
+  }
 
   static Future<bool> loggedIn() async {
     final sp = await SharedPreferences.getInstance();

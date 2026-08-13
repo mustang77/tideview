@@ -243,11 +243,39 @@ class _HomeShellState extends State<HomeShell> {
   List<Order> _orders = [];
   bool _session = false;
   String _token = '';
+  DateTime _notifSeenAt = DateTime.fromMillisecondsSinceEpoch(0);
+  Set<String> _seenPromos = {};
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  List<AppNotif> get _notifs => buildNotifications(_orders, _promos, _notifSeenAt, _seenPromos);
+  int get _notifUnread => notifUnreadCount(_notifs);
+
+  // Open the bell inbox, then mark everything currently shown as read.
+  Future<void> _openNotifications() async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationsPage(
+      notifs: _notifs,
+      onOpenOrder: (id) {
+        for (final o in _orders) {
+          if (o.id == id) { _openTracking(o); return; }
+        }
+        setState(() => _tab = 3); // fall back to the orders tab
+      },
+      onPromoAction: _notifPromoAction,
+    )));
+    _notifSeenAt = DateTime.now();
+    _seenPromos = {..._promos.map(promoKey)};
+    await Store.setNotifSeenAt(_notifSeenAt);
+    await Store.setSeenPromoKeys(_seenPromos);
+    if (mounted) setState(() {});
+  }
+
+  void _notifPromoAction(String a) {
+    if (a.startsWith('cat:')) _setCat(a.substring(4));
   }
 
   Future<void> _load() async {
@@ -256,6 +284,8 @@ class _HomeShellState extends State<HomeShell> {
       final prof = await Store.getProfile();
       final ords = await Store.getOrders();
       final token = await Store.getToken();
+      final notifSeenAt = await Store.getNotifSeenAt();
+      final seenPromos = await Store.getSeenPromoKeys();
       if (!mounted) return;
       setState(() {
         _products = p;
@@ -263,6 +293,8 @@ class _HomeShellState extends State<HomeShell> {
         _orders = ords;
         _token = token;
         _session = token.isNotEmpty;
+        _notifSeenAt = notifSeenAt;
+        _seenPromos = seenPromos;
         _loading = false;
       });
       // Have a token from a previous session → refresh account & orders from the server.
@@ -509,7 +541,8 @@ class _HomeShellState extends State<HomeShell> {
     }
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
-          onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3), promos: _promos),
+          onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3),
+          promos: _promos, notifUnread: _notifUnread, onBell: _openNotifications),
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       _session
@@ -617,8 +650,11 @@ class ShopPage extends StatefulWidget {
   final void Function(int) onOpen;
   final VoidCallback onGoOrders;
   final List<PromoBanner> promos;
+  final int notifUnread;
+  final VoidCallback onBell;
   const ShopPage({super.key, required this.products, required this.cart, required this.activeCat,
-      required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders, required this.promos});
+      required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders, required this.promos,
+      this.notifUnread = 0, required this.onBell});
   @override
   State<ShopPage> createState() => _ShopPageState();
 }
@@ -736,18 +772,46 @@ class _ShopPageState extends State<ShopPage> {
     );
   }
 
+  Widget _bell() {
+    return GestureDetector(
+      onTap: widget.onBell,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 6),
+        child: Stack(clipBehavior: Clip.none, children: [
+          const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 27),
+          if (widget.notifUnread > 0)
+            Positioned(
+              right: -3, top: -3,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                decoration: BoxDecoration(color: const Color(0xFFE0533D), borderRadius: BorderRadius.circular(999), border: Border.all(color: kGreen, width: 1.5)),
+                child: Text(
+                  widget.notifUnread > 9 ? '9+' : '${widget.notifUnread}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w800, height: 1.15),
+                ),
+              ),
+            ),
+        ]),
+      ),
+    );
+  }
+
   Widget _header() {
     return Container(
       padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 12, 16, 14),
       decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: const [
-          _LogoBox(),
-          SizedBox(width: 10),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+        Row(children: [
+          const _LogoBox(),
+          const SizedBox(width: 10),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
             Text('Belanja online di Paramall — kami antar ke rumah', style: TextStyle(color: Colors.white70, fontSize: 11)),
           ])),
+          _bell(),
         ]),
         const SizedBox(height: 12),
         Container(
@@ -1653,6 +1717,155 @@ Color orderStatusColor(int stage) {
   if (stage >= 3) return const Color(0xFF1E8E5A);
   if (stage == 2) return kGreen;
   return const Color(0xFFC7761B);
+}
+
+// ---------- notifications (in-app bell inbox) ----------
+// A lightweight, derived feed: order-status updates + active promos. No server
+// "notifications" table — entries are built on the fly from data the app
+// already has, and read-state is tracked locally (last-open time + seen promos).
+enum NotifKind { order, promo }
+
+class AppNotif {
+  final NotifKind kind;
+  final String emoji, title, body;
+  final DateTime? time;
+  final bool unread;
+  final String? orderId;     // order taps open tracking
+  final String? promoAction; // promo taps run the promo action
+  const AppNotif({
+    required this.kind, required this.emoji, required this.title, required this.body,
+    this.time, this.unread = false, this.orderId, this.promoAction,
+  });
+}
+
+String promoKey(PromoBanner p) => p.id > 0 ? 'id:${p.id}' : 'title:${p.title}';
+
+String _orderNotifBody(int stage) {
+  switch (stage) {
+    case 0: return 'Pesanan diterima, menunggu diproses.';
+    case 1: return 'Pesananmu sedang kami siapkan 🛒';
+    case 2: return 'Driver sedang mengantar pesananmu 🛵';
+    default: return 'Pesanan selesai. Terima kasih! ✅';
+  }
+}
+
+const List<String> _orderNotifEmoji = ['📥', '🛒', '🛵', '✅'];
+
+String timeAgo(DateTime d) {
+  final diff = DateTime.now().difference(d);
+  if (diff.inMinutes < 1) return 'Baru saja';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} mnt lalu';
+  if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+  if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+  return shortDate(d);
+}
+
+// Build the inbox feed: order updates first (newest on top), then promos.
+List<AppNotif> buildNotifications(List<Order> orders, List<PromoBanner> promos, DateTime seenAt, Set<String> seenPromos) {
+  final orderNotifs = <AppNotif>[];
+  for (final o in orders) {
+    final stage = orderStage(o); // always 0..3
+    orderNotifs.add(AppNotif(
+      kind: NotifKind.order,
+      emoji: _orderNotifEmoji[stage],
+      title: 'Pesanan #${o.id}',
+      body: _orderNotifBody(stage),
+      time: o.updatedAt,
+      unread: o.updatedAt.isAfter(seenAt),
+      orderId: o.id,
+    ));
+  }
+  orderNotifs.sort((a, b) => (b.time ?? DateTime(0)).compareTo(a.time ?? DateTime(0)));
+  final promoNotifs = [
+    for (final p in promos)
+      AppNotif(
+        kind: NotifKind.promo,
+        emoji: p.emoji,
+        title: p.title,
+        body: p.subtitle,
+        unread: !seenPromos.contains(promoKey(p)),
+        promoAction: p.action,
+      ),
+  ];
+  return [...orderNotifs, ...promoNotifs];
+}
+
+int notifUnreadCount(List<AppNotif> list) => list.where((n) => n.unread).length;
+
+class NotificationsPage extends StatelessWidget {
+  final List<AppNotif> notifs;
+  final void Function(String orderId) onOpenOrder;
+  final void Function(String action) onPromoAction;
+  const NotificationsPage({super.key, required this.notifs, required this.onOpenOrder, required this.onPromoAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kGround,
+      body: Column(children: [
+        GreenHeader(
+          title: 'Notifikasi',
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        Expanded(
+          child: notifs.isEmpty
+              ? const EmptyView(emoji: '🔔', text: 'Belum ada notifikasi.\nPesanan & promo akan muncul di sini.')
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 24),
+                  itemCount: notifs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => _tile(context, notifs[i]),
+                ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _tile(BuildContext context, AppNotif n) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        if (n.kind == NotifKind.order && n.orderId != null) {
+          Navigator.pop(context);
+          onOpenOrder(n.orderId!);
+        } else if (n.kind == NotifKind.promo && n.promoAction != null && n.promoAction!.isNotEmpty) {
+          Navigator.pop(context);
+          onPromoAction(n.promoAction!);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: n.unread ? kGreenSoft : kSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: n.unread ? kGreen.withValues(alpha: 0.25) : kLine),
+        ),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Container(
+            width: 42, height: 42,
+            decoration: BoxDecoration(color: kTile, borderRadius: BorderRadius.circular(12)),
+            child: Center(child: Text(n.emoji, style: const TextStyle(fontSize: 22))),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              Expanded(child: Text(n.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
+              if (n.unread) Container(width: 8, height: 8, margin: const EdgeInsets.only(left: 6), decoration: const BoxDecoration(color: Color(0xFFE0533D), shape: BoxShape.circle)),
+            ]),
+            const SizedBox(height: 3),
+            Text(n.body, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMuted, fontSize: 13, height: 1.3)),
+            if (n.time != null) ...[
+              const SizedBox(height: 5),
+              Text(timeAgo(n.time!), style: const TextStyle(color: kMuted, fontSize: 11, fontWeight: FontWeight.w600)),
+            ],
+          ])),
+        ]),
+      ),
+    );
+  }
 }
 
 class OrdersPage extends StatefulWidget {
