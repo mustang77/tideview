@@ -765,10 +765,10 @@ class _ShopPageState extends State<ShopPage> {
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 24),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.66),
+                  crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 8, childAspectRatio: 0.66),
               delegate: SliverChildBuilderDelegate(
                 (_, k) {
                   final i = idxs[k];
@@ -784,7 +784,7 @@ class _ShopPageState extends State<ShopPage> {
 
   Widget _sortBar(int count) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 0),
+      padding: const EdgeInsets.fromLTRB(12, 14, 8, 0),
       child: Row(children: [
         Text('$count produk', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: kMuted)),
         const Spacer(),
