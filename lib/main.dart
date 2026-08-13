@@ -23,9 +23,8 @@ typedef Authed = Future<void> Function(String token, String name, String phone, 
 
 // ---------- config ----------
 const String kWaNumber = '6282327923455'; // nomor WhatsApp penjual (format 62…)
-// Hidden staff access: salted-SHA256 of the passcodes (server holds the real ones).
-const String kAdminHash = 'ca106a58d913c7884d69c2eb174233a2c05bf11f3e07f2b42eee9468ae51d8ad'; // 'paramall2026'
-const String kDriverHash = '091ce939cb21f96cbc3592627761c196915935c69c572c05911c0127f2b9eff9'; // 'driver2026'
+// Hidden staff access: the passcodes are verified against the server
+// (config.php), so they can be changed there anytime without touching the app.
 const int kFreeOngkirMin = 100000; // gratis ongkir di atas nominal ini (promo, tetap untung karena ada margin)
 const int kMinOrder = 25000; // minimal belanja
 const double kMarginPct = 0.12; // markup harga jual (12%) — sumber profit utama, skala dengan besar belanja
@@ -2155,16 +2154,27 @@ class _ProfilePageState extends State<ProfilePage> {
         TextButton(onPressed: () => Navigator.pop(dctx), child: const Text('Batal')),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: kGreen),
-          onPressed: () {
+          onPressed: () async {
             final pass = ctrl.text.trim();
-            if (hashPin(pass) == kAdminHash) {
-              Navigator.pop(dctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => AdminPage(adminPass: pass)));
-            } else if (hashPin(pass) == kDriverHash) {
-              Navigator.pop(dctx);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => DriverPage(driverPass: pass)));
-            } else {
-              _snack('Passcode salah');
+            if (pass.isEmpty) return;
+            Navigator.pop(dctx);
+            _snack('Memeriksa passcode…');
+            // config.php on the server is the source of truth. Try admin, then
+            // driver — whichever the server accepts opens that mode.
+            try {
+              await Api.adminOrders(pass);
+              if (mounted) Navigator.push(context, MaterialPageRoute(builder: (_) => AdminPage(adminPass: pass)));
+              return;
+            } on ApiException catch (e) {
+              if (e.code == 0) { if (mounted) _snack(e.message); return; } // offline — don't mislabel as wrong pass
+            }
+            try {
+              await Api.driverOrders(pass);
+              if (mounted) Navigator.push(context, MaterialPageRoute(builder: (_) => DriverPage(driverPass: pass)));
+              return;
+            } on ApiException catch (e) {
+              if (mounted) _snack(e.code == 0 ? e.message : 'Passcode salah');
+              return;
             }
           },
           child: const Text('Masuk'),
