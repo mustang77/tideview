@@ -48,14 +48,6 @@ on:
         description: "(Indomaret) district id"
         type: string
         default: "141100100"
-  # TEMPORARY: auto-run on pushes to the dev branch so the workflow can be
-  # verified before it reaches the default branch. Remove this block once merged.
-  push:
-    branches:
-      - claude/alfamart-indomaret-api-acpx8f
-    paths:
-      - ".github/workflows/scrape-catalog.yml"
-      - "tools/**"
 
 permissions:
   contents: write
@@ -67,8 +59,8 @@ jobs:
     # Fallbacks make the job work both for manual runs (inputs set) and the
     # temporary push trigger (inputs empty -> small, fast defaults).
     env:
-      SOURCE: ${{ inputs.source || 'klikindomaret' }}
-      MODE: ${{ inputs.mode || 'all' }}
+      SOURCE: ${{ inputs.source || 'alfagift' }}
+      MODE: ${{ inputs.mode || 'search' }}
       QUERY: ${{ inputs.query || 'indomie,mie sedaap,sarimi,pop mie,supermi,lemonilo,beras,minyak goreng,bimoli,sania,sunco,fortune,filma,gula pasir,gulaku,rose brand,telur,tepung terigu,segitiga biru,cakra,kunci biru,maizena,hunkwe,blue band,margarin,simas,santan,kara,garam,masako,royco,sasa,kaldu,kecap bango,kecap abc,saus abc,saus sambal,saos tomat,saus tiram,mentega,keju kraft,kraft,frisian flag,ultra milk,indomilk,bear brand,milo,dancow,susu kental manis,kopi kapal api,good day,nescafe,luwak,abc kopi,teh sariwangi,teh pucuk,teh sosro,frestea,teh gelas,fruit tea,aqua,le minerale,cleo,vit,nestle pure life,pocari sweat,mizone,you c1000,kratingdaeng,extra joss,coca cola,sprite,fanta,floridina,marjan,nutrisari,marimas,pop ice,jasjus,energen,quaker,koko krunch,chitato,lays,taro,qtela,cheetos,chiki,oreo,roma,biskuat,khong guan,tango,nabati,richeese,beng beng,silverqueen,delfi,cadbury,kitkat,permen,mentos,kopiko,relaxa,kacang garuda,dua kelinci,pilus,momogi,pepsodent,ciptadent,close up,formula,lifebuoy,nuvo,dettol,lux,giv,shinzui,sunsilk,clear,pantene,head shoulders,dove,rejoice,emeron,zinc,rexona,nivea,vaseline,citra,marina,gatsby,ponds,wardah,rinso,attack,daia,so klin,molto,downy,sunlight,mama lemon,wipol,super pell,bayclin,vixal,harpic,baygon,hit,vape,stella,kispray,paseo,nice,tessa,tisu,mamypoko,sweety,merries,pampers,popok,charm,laurier,softex,pembalut,sgm,bebelac,nutrilon,lactogen,milna,cerelac,promina,susu bayi,minyak telon,minyak kayu putih,madu,sarden,kornet,sosis,nugget,bakso,tepung bumbu,sasa,ladaku,cabe bubuk,kecap ikan' }}
       MAX: ${{ inputs.max || '1200' }}
       STORE_CODE: ${{ inputs.store_code || 'TJKT' }}
