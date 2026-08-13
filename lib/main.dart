@@ -114,9 +114,10 @@ const PromoBanner kPromoPopupDefault = PromoBanner(
 );
 
 // ---------- palette ----------
-const kGreen = Color(0xFF1E6E4F);
-const kGreenInk = Color(0xFF134A34);
-const kGreenSoft = Color(0xFFE4F0E9);
+// Brand = dark blue (kGreen* names kept for stability; values are navy).
+const kGreen = Color(0xFF1D4E8F);
+const kGreenInk = Color(0xFF0E2C57);
+const kGreenSoft = Color(0xFFE5EDF7);
 const kMango = Color(0xFFE4952A);
 const kMangoSoft = Color(0xFFFBEAD1);
 const kGround = Color(0xFFF6F5F1);
