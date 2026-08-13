@@ -550,7 +550,8 @@ class _HomeShellState extends State<HomeShell> {
     final pages = [
       ShopPage(products: _products, cart: _cart, activeCat: _shopCat, onCat: _setCat,
           onAdd: (i) => _addToCart(i, 1), onOpen: _openSheet, onGoOrders: () => setState(() => _tab = 3),
-          promos: _promos, notifUnread: _notifUnread, onBell: _openNotifications),
+          promos: _promos, notifUnread: _notifUnread, onBell: _openNotifications,
+          deliverAddress: _profile.address, onTapAddress: () => setState(() => _tab = 4)),
       CategoryPage(products: _products, onPick: _setCat),
       CartPage(products: _products, cart: _cart, onQty: _setQty, subtotal: subtotal, ongkir: ongkir, onCheckout: _openCheckout),
       _session
@@ -660,9 +661,11 @@ class ShopPage extends StatefulWidget {
   final List<PromoBanner> promos;
   final int notifUnread;
   final VoidCallback onBell;
+  final String deliverAddress;
+  final VoidCallback onTapAddress;
   const ShopPage({super.key, required this.products, required this.cart, required this.activeCat,
       required this.onCat, required this.onAdd, required this.onOpen, required this.onGoOrders, required this.promos,
-      this.notifUnread = 0, required this.onBell});
+      this.notifUnread = 0, required this.onBell, this.deliverAddress = '', required this.onTapAddress});
   @override
   State<ShopPage> createState() => _ShopPageState();
 }
@@ -719,9 +722,9 @@ class _ShopPageState extends State<ShopPage> {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _header()),
+        SliverPadding(padding: const EdgeInsets.only(top: 14), sliver: SliverToBoxAdapter(child: PromoCarousel(promos: widget.promos, onAction: _onPromoAction))),
         SliverToBoxAdapter(child: _quickMenu()),
         SliverToBoxAdapter(child: _catChips()),
-        SliverPadding(padding: const EdgeInsets.only(top: 12), sliver: SliverToBoxAdapter(child: PromoCarousel(promos: widget.promos, onAction: _onPromoAction))),
         if (idxs.isNotEmpty) SliverToBoxAdapter(child: _sortBar(idxs.length)),
         if (idxs.isEmpty)
           SliverToBoxAdapter(
@@ -808,23 +811,47 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   Widget _header() {
+    final addr = widget.deliverAddress.trim();
     return Container(
-      padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 12, 16, 14),
-      decoration: const BoxDecoration(color: kGreen, borderRadius: BorderRadius.vertical(bottom: Radius.circular(20))),
+      padding: EdgeInsets.fromLTRB(16, MediaQuery.of(context).padding.top + 12, 16, 16),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [kGreen, kGreenInk]),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           const _LogoBox(),
           const SizedBox(width: 10),
-          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-            Text('Belanja online di Paramall — kami antar ke rumah', style: TextStyle(color: Colors.white70, fontSize: 11)),
-          ])),
+          const Expanded(child: Text('Paramall', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800))),
           _bell(),
         ]),
         const SizedBox(height: 12),
+        // Gojek-style delivery-location pill (tap to set your address).
+        GestureDetector(
+          onTap: widget.onTapAddress,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(13)),
+            child: Row(children: [
+              const Icon(Icons.location_on, color: Colors.white, size: 18),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  const Text('Antar ke', style: TextStyle(color: Colors.white70, fontSize: 10.5, fontWeight: FontWeight.w700, letterSpacing: 0.3)),
+                  Text(addr.isEmpty ? 'Atur alamat pengiriman' : addr,
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 13.5, fontWeight: FontWeight.w800)),
+                ]),
+              ),
+              const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 20),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(13)),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(13), boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 10, offset: Offset(0, 4))]),
           child: TextField(
             controller: _searchCtrl,
             onChanged: (v) => setState(() => _search = v),
