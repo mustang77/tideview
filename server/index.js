@@ -43,6 +43,10 @@ db.notifs = db.notifs || [];
 db.hiburan = db.hiburan || [];
 // Chat Layanan Pelanggan: daftar pesan datar {phone, fromAdmin, ...}.
 db.chats = db.chats || [];
+// No. WA per admin (tujuan notifikasi pesanan baru) — migrasi.
+(db.admins || []).forEach((x) => {
+  if (x.phone === undefined) x.phone = '';
+});
 // Info toko (layar "Tentang") — bisa diedit pemilik dari aplikasi.
 db.about = Object.assign(
     {
@@ -370,7 +374,10 @@ app.get('/api/state', (req, res) => {
           }
         : null,
     services: db.services,
-    adminNames: db.admins.map(({ id, name }) => ({ id, name })),
+    // No. WA admin hanya dibuka untuk sesama admin (privasi).
+    adminNames: db.admins.map((x) => a
+        ? { id: x.id, name: x.name, phone: x.phone || '' }
+        : { id: x.id, name: x.name }),
     orders,
     posts: db.posts.map((p) => postView(p, custPhone)),
     notifs,
@@ -1082,19 +1089,25 @@ app.post('/api/orders', (req, res) => {
       `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
       'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
       'statusnya lewat aplikasi ya 💧');
-  // Kabari admin juga — admin tidak selalu membuka aplikasi. Nomor
-  // tujuan = "No. WhatsApp" di Info Toko (layar Tentang, mode pemilik).
-  const adminWaRaw = String(db.about.wa || '').trim();
-  if (adminWaRaw) {
-    const adminWa = normPhone(adminWaRaw);
-    if (adminWa.length >= 10) {
-      queueWa(adminWa,
-          `🔔 *PESANAN BARU* ${order.id}\n` +
-          `Dari: ${order.customerName} (+${order.phone})\n\n` +
-          `${waItems(order)}${waContents(order)}\n` +
-          `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
-          'Buka aplikasi untuk memproses ya.');
-    }
+  // Kabari para admin — admin tidak selalu membuka aplikasi. Tujuan:
+  // No. WA tiap admin (Kelola Admin) + No. WhatsApp Info Toko, tanpa
+  // duplikat.
+  const alertTo = new Set();
+  for (const adm of db.admins) {
+    const p = String(adm.phone || '').trim();
+    if (p && normPhone(p).length >= 10) alertTo.add(normPhone(p));
+  }
+  const tokoWa = String(db.about.wa || '').trim();
+  if (tokoWa && normPhone(tokoWa).length >= 10) {
+    alertTo.add(normPhone(tokoWa));
+  }
+  for (const to of alertTo) {
+    queueWa(to,
+        `🔔 *PESANAN BARU* ${order.id}\n` +
+        `Dari: ${order.customerName} (+${order.phone})\n\n` +
+        `${waItems(order)}${waContents(order)}\n` +
+        `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
+        'Buka aplikasi untuk memproses ya.');
   }
   res.json(order);
 });
@@ -1831,7 +1844,7 @@ app.get('/api/admins', (req, res) => {
 app.post('/api/admins', (req, res) => {
   const a = requireAdmin(req, res);
   if (!a) return;
-  const { name, pin } = req.body || {};
+  const { name, pin, phone } = req.body || {};
   if (!name || !/^[0-9]{4,6}$/.test(String(pin))) {
     return res.status(400).json({ error: 'Nama wajib; PIN 4-6 angka' });
   }
@@ -1839,10 +1852,11 @@ app.post('/api/admins', (req, res) => {
     id: `admin_${Date.now()}`,
     name: String(name),
     pin: String(pin),
+    phone: String(phone || '').trim() ? normPhone(phone) : '',
   };
   db.admins.push(adminUser);
   save();
-  res.json({ id: adminUser.id, name: adminUser.name });
+  res.json({ id: adminUser.id, name: adminUser.name, phone: adminUser.phone });
 });
 
 app.put('/api/admins/:id', (req, res) => {
@@ -1850,7 +1864,7 @@ app.put('/api/admins/:id', (req, res) => {
   if (!a) return;
   const target = db.admins.find((x) => x.id === req.params.id);
   if (!target) return res.status(404).json({ error: 'Admin tidak ditemukan' });
-  const { name, pin } = req.body || {};
+  const { name, pin, phone } = req.body || {};
   if (name) target.name = String(name);
   if (pin) {
     if (!/^[0-9]{4,6}$/.test(String(pin))) {
@@ -1858,8 +1872,11 @@ app.put('/api/admins/:id', (req, res) => {
     }
     target.pin = String(pin);
   }
+  if (phone !== undefined) {
+    target.phone = String(phone).trim() ? normPhone(phone) : '';
+  }
   save();
-  res.json({ id: target.id, name: target.name });
+  res.json({ id: target.id, name: target.name, phone: target.phone || '' });
 });
 
 app.delete('/api/admins/:id', (req, res) => {

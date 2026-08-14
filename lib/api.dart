@@ -386,18 +386,20 @@ class ApiClient {
       _post('/api/admin/login', {'id': id, 'pin': pin});
 
   Future<Map<String, dynamic>> createAdmin(String name, String pin,
-          {String? adminId, String? adminPin}) =>
-      _post('/api/admins', {'name': name, 'pin': pin},
+          {String phone = '', String? adminId, String? adminPin}) =>
+      _post('/api/admins', {'name': name, 'pin': pin, 'phone': phone},
           adminId: adminId, adminPin: adminPin);
 
   Future<Map<String, dynamic>> updateAdmin(String id,
           {String? name,
           String? pin,
+          String? phone,
           String? adminId,
           String? adminPin}) =>
       _put('/api/admins/$id', {
         if (name != null && name.isNotEmpty) 'name': name,
         if (pin != null && pin.isNotEmpty) 'pin': pin,
+        'phone': ?phone,
       }, adminId: adminId, adminPin: adminPin);
 
   Future<void> deleteAdmin(String id,

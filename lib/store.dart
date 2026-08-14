@@ -220,6 +220,7 @@ class LaundryStore extends ChangeNotifier {
               id: (e as Map)['id'] as String,
               name: e['name'] as String,
               pin: '',
+              phone: e['phone'] as String? ?? '',
             )));
       orders
         ..clear()
@@ -1054,15 +1055,19 @@ class LaundryStore extends ChangeNotifier {
 
   // ---- Admin (Mode Pemilik) ----
 
-  Future<AdminUser?> addAdmin(String name, String pin) async {
+  Future<AdminUser?> addAdmin(String name, String pin,
+      {String phone = ''}) async {
     final a = api;
     AdminUser? created;
     if (a != null) {
       try {
         final m = await a.createAdmin(name, pin,
-            adminId: currentAdminId, adminPin: _adminPin);
-        created =
-            AdminUser(id: m['id'] as String, name: m['name'] as String, pin: '');
+            phone: phone, adminId: currentAdminId, adminPin: _adminPin);
+        created = AdminUser(
+            id: m['id'] as String,
+            name: m['name'] as String,
+            pin: '',
+            phone: m['phone'] as String? ?? '');
         serverOk = true;
       } catch (_) {
         serverOk = false;
@@ -1087,13 +1092,15 @@ class LaundryStore extends ChangeNotifier {
     return created;
   }
 
-  Future<void> updateAdmin(AdminUser admin, {String? name, String? pin}) async {
+  Future<void> updateAdmin(AdminUser admin,
+      {String? name, String? pin, String? phone}) async {
     final a = api;
     if (a != null) {
       try {
         await a.updateAdmin(admin.id,
             name: name,
             pin: pin,
+            phone: phone,
             adminId: currentAdminId,
             adminPin: _adminPin);
         serverOk = true;
@@ -1103,6 +1110,7 @@ class LaundryStore extends ChangeNotifier {
         return;
       }
     }
+    if (phone != null) admin.phone = phone;
     if (name != null && name.isNotEmpty) admin.name = name;
     if (pin != null && pin.isNotEmpty) {
       if (api == null) admin.pin = pin;

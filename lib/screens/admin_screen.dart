@@ -12,6 +12,7 @@ class AdminScreen extends StatelessWidget {
     final name = TextEditingController(
         text: admin?.name ?? 'Admin ${store.admins.length + 1}');
     final pin = TextEditingController();
+    final phone = TextEditingController(text: admin?.phone ?? '');
     String? error;
 
     final saved = await showDialog<bool>(
@@ -41,6 +42,17 @@ class AdminScreen extends StatelessWidget {
                       ? null
                       : 'Kosongkan bila PIN tidak diganti',
                   prefixIcon: const Icon(Icons.lock_outline),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: phone,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'No. WA (notifikasi pesanan)',
+                  helperText: 'Dapat 🔔 WA tiap ada pesanan baru; '
+                      'kosongkan bila tidak perlu',
+                  prefixIcon: Icon(Icons.chat_outlined),
                 ),
               ),
             ],
@@ -73,9 +85,11 @@ class AdminScreen extends StatelessWidget {
     final nm = name.text.trim();
     if (nm.isEmpty) return;
     if (admin == null) {
-      await store.addAdmin(nm, pin.text.trim());
+      await store.addAdmin(nm, pin.text.trim(),
+          phone: phone.text.trim());
     } else {
-      await store.updateAdmin(admin, name: nm, pin: pin.text.trim());
+      await store.updateAdmin(admin,
+          name: nm, pin: pin.text.trim(), phone: phone.text.trim());
     }
   }
 
@@ -277,7 +291,9 @@ class AdminScreen extends StatelessWidget {
                             ],
                           ],
                         ),
-                        subtitle: const Text('PIN ••••'),
+                        subtitle: Text(a.phone.isEmpty
+                            ? 'PIN •••• • tanpa notifikasi WA'
+                            : 'PIN •••• • 🔔 +${a.phone}'),
                         trailing: IconButton(
                           tooltip: 'Hapus ${a.name}',
                           onPressed: () => _confirmDelete(context, a),

@@ -95,18 +95,28 @@ class StatusEntry {
 /// Admin yang boleh masuk Mode Pemilik. Selama belum ada admin
 /// terdaftar, pintu 7-ketukan terbuka tanpa PIN.
 class AdminUser {
-  AdminUser({required this.id, required this.name, required this.pin});
+  AdminUser(
+      {required this.id,
+      required this.name,
+      required this.pin,
+      this.phone = ''});
 
   final String id;
   String name;
   String pin;
 
-  Map<String, dynamic> toMap() => {'id': id, 'name': name, 'pin': pin};
+  /// No. WA admin — tujuan notifikasi pesanan baru (hanya terlihat
+  /// sesama admin).
+  String phone;
+
+  Map<String, dynamic> toMap() =>
+      {'id': id, 'name': name, 'pin': pin, 'phone': phone};
 
   factory AdminUser.fromMap(Map<String, dynamic> m) => AdminUser(
         id: m['id'] as String,
         name: m['name'] as String,
         pin: m['pin'] as String,
+        phone: m['phone'] as String? ?? '',
       );
 }
 
