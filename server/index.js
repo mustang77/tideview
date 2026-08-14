@@ -65,10 +65,10 @@ if (!String(db.about.hours || '').trim()) {
 }
 // Permintaan pemilik (Agu 2026): pasang nomor WA toko, sekali saja —
 // setelah itu nilainya sepenuhnya milik editan layar Tentang.
-// (v2: koreksi nomor dari pemilik, berlaku sekali lagi.)
-if (!db.waTokoSeeded2) {
-  db.about.wa = '082327922345';
-  db.waTokoSeeded2 = true;
+// (v3: koreksi nomor dari pemilik, berlaku sekali lagi.)
+if (!db.waTokoSeeded3) {
+  db.about.wa = '082327923455';
+  db.waTokoSeeded3 = true;
 }
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
