@@ -358,6 +358,13 @@ class ApiClient {
       _post('/api/notifs/read', {},
           custPhone: custPhone, custPin: custPin);
 
+  Future<void> deleteNotif(String id,
+          {String? custPhone, String? custPin}) =>
+      _delete('/api/notifs/$id', custPhone: custPhone, custPin: custPin);
+
+  Future<void> clearNotifs({String? custPhone, String? custPin}) =>
+      _delete('/api/notifs', custPhone: custPhone, custPin: custPin);
+
   // ---- Katalog ----
 
   Future<Map<String, dynamic>> createService(Map<String, dynamic> s,

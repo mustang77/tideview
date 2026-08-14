@@ -1007,6 +1007,29 @@ app.post('/api/chat/:phone/read', (req, res) => {
   res.json({ ok: true });
 });
 
+// Hapus satu notifikasi milik pelanggan.
+app.delete('/api/notifs/:id', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  const before = db.notifs.length;
+  db.notifs = db.notifs.filter(
+      (n) => !(n.phone === c.phone && n.id === req.params.id));
+  if (db.notifs.length === before) {
+    return res.status(404).json({ error: 'Notifikasi tidak ditemukan' });
+  }
+  save();
+  res.json({ ok: true });
+});
+
+// Bersihkan semua notifikasi pelanggan.
+app.delete('/api/notifs', (req, res) => {
+  const c = customer(req);
+  if (!c) return res.status(401).json({ error: 'Sesi tidak valid' });
+  db.notifs = db.notifs.filter((n) => n.phone !== c.phone);
+  save();
+  res.json({ ok: true });
+});
+
 // Tandai semua notifikasi pelanggan sudah dibaca.
 app.post('/api/notifs/read', (req, res) => {
   const c = customer(req);

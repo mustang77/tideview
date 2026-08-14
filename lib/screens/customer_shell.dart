@@ -821,7 +821,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifikasi')),
+      appBar: AppBar(
+        title: const Text('Notifikasi'),
+        actions: [
+          ListenableBuilder(
+            listenable: store,
+            builder: (context, _) => store.notifs.isEmpty
+                ? const SizedBox.shrink()
+                : IconButton(
+                    tooltip: 'Bersihkan semua',
+                    icon: const Icon(Icons.delete_sweep_outlined),
+                    onPressed: () async {
+                      final yes = await showDialog<bool>(
+                        context: context,
+                        builder: (d) => AlertDialog(
+                          title: const Text('Bersihkan semua notifikasi?'),
+                          actions: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(d, false),
+                                child: const Text('Batal')),
+                            FilledButton(
+                                onPressed: () => Navigator.pop(d, true),
+                                child: const Text('Bersihkan')),
+                          ],
+                        ),
+                      );
+                      if (yes == true) await store.clearNotifs();
+                    },
+                  ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: store,
@@ -842,7 +872,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         const Divider(height: 1, indent: 68),
                     itemBuilder: (context, i) {
                       final n = store.notifs[i];
-                      return ListTile(
+                      // Geser ke kiri untuk menghapus satu notifikasi.
+                      return Dismissible(
+                        key: ValueKey(n.id),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) => store.deleteNotif(n),
+                        background: Container(
+                          color: const Color(0xFFDC2626),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          child: const Icon(Icons.delete_outline,
+                              color: Colors.white),
+                        ),
+                        child: ListTile(
                         tileColor: n.read
                             ? null
                             : const Color(0xFFE9F6FA),
@@ -866,6 +908,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               style: theme.textTheme.bodySmall),
                         ),
                         onTap: () => _open(n),
+                        ),
                       );
                     },
                   ),

@@ -679,6 +679,30 @@ class LaundryStore extends ChangeNotifier {
     } catch (_) {}
   }
 
+  /// Hapus satu notifikasi (optimis; server menyusul).
+  Future<void> deleteNotif(AppNotif n) async {
+    notifs.removeWhere((x) => x.id == n.id);
+    notifyListeners();
+    final a = api;
+    if (a == null || _custPin == null) return;
+    try {
+      await a.deleteNotif(n.id,
+          custPhone: profile.phone, custPin: _custPin);
+    } catch (_) {}
+  }
+
+  /// Bersihkan semua notifikasi.
+  Future<void> clearNotifs() async {
+    if (notifs.isEmpty) return;
+    notifs.clear();
+    notifyListeners();
+    final a = api;
+    if (a == null || _custPin == null) return;
+    try {
+      await a.clearNotifs(custPhone: profile.phone, custPin: _custPin);
+    } catch (_) {}
+  }
+
   /// Tandai semua notifikasi terbaca (dipanggil saat layar
   /// notifikasi dibuka).
   Future<void> markNotifsRead() async {
