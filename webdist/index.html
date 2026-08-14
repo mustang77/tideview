@@ -36,19 +36,43 @@
        (banner "Instal aplikasi" Chrome sering tidak muncul sendiri). -->
   <script>
     let _h2oInstallEvent = null;
+    let _h2oWantInstall = false;
+    let _h2oPrompted = false;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       _h2oInstallEvent = e;
+      // Pengguna tadi mengetuk Install sebelum event siap? Langsung.
+      if (_h2oWantInstall) {
+        _h2oWantInstall = false;
+        _h2oInstallEvent = null;
+        _h2oPrompted = true;
+        e.prompt();
+      }
     });
+    window.h2oDidPrompt = () => _h2oPrompted;
     window.h2oCanInstall = () => !!_h2oInstallEvent;
     window.h2oIsStandalone = () =>
         window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true;
     window.h2oInstall = () => {
-      if (!_h2oInstallEvent) return false;
+      if (!_h2oInstallEvent) {
+        _h2oWantInstall = true; // antre: prompt begitu event datang
+        return false;
+      }
+      _h2oPrompted = true;
       _h2oInstallEvent.prompt();
       _h2oInstallEvent = null;
       return true;
+    };
+    // true bila PWA ini sudah terpasang di perangkat (Chrome Android).
+    window.h2oIsInstalled = async () => {
+      try {
+        if (navigator.getInstalledRelatedApps) {
+          const apps = await navigator.getInstalledRelatedApps();
+          return apps.length > 0;
+        }
+      } catch (e) {}
+      return false;
     };
   </script>
 </head>

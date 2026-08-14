@@ -268,15 +268,30 @@ class _HomeTabState extends State<_HomeTab> {
 
 /// Pil ungu "Download Aplikasi": memicu dialog install PWA (atau
 /// panduan manual bila browser belum siap). Kembaran gaya pil chat.
-class _DownloadAppBanner extends StatelessWidget {
+/// Otomatis hilang bila PWA terdeteksi sudah terpasang di perangkat.
+class _DownloadAppBanner extends StatefulWidget {
   const _DownloadAppBanner();
 
   @override
+  State<_DownloadAppBanner> createState() => _DownloadAppBannerState();
+}
+
+class _DownloadAppBannerState extends State<_DownloadAppBanner> {
+  bool _installed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    pwaIsInstalled().then((v) {
+      if (mounted && v) setState(() => _installed = true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_installed) return const SizedBox.shrink();
     return InkWell(
-      onTap: () {
-        if (!pwaTriggerInstall()) showInstallHelp(context);
-      },
+      onTap: () => attemptPwaInstall(context),
       borderRadius: BorderRadius.circular(999),
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
@@ -327,23 +342,39 @@ class _DownloadAppBanner extends StatelessWidget {
   }
 }
 
-/// Panduan install manual saat dialog otomatis tidak tersedia
-/// (iPhone, atau Chrome belum mengirim event install).
+/// Alur pasang PWA satu-ketuk: coba dialog otomatis Chrome dulu;
+/// kalau eventnya telat, tunggu sebentar (permintaan diantre di JS
+/// dan prompt muncul sendiri); baru terakhir jatuh ke panduan singkat.
+Future<void> attemptPwaInstall(BuildContext context) async {
+  if (pwaTriggerInstall()) return; // dialog Chrome langsung tampil
+  final messenger = ScaffoldMessenger.of(context);
+  messenger.showSnackBar(const SnackBar(
+      duration: Duration(seconds: 3),
+      content: Text('Menyiapkan pemasangan...')));
+  await Future<void>.delayed(const Duration(seconds: 3));
+  // Event datang saat menunggu? Prompt sudah tampil otomatis.
+  if (pwaDidPrompt()) return;
+  if (await pwaIsInstalled()) {
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(const SnackBar(
+        content: Text('Aplikasi sudah terpasang — buka "H2O Laundry" '
+            'dari layar utama HP Anda 👍')));
+    return;
+  }
+  if (context.mounted) showInstallHelp(context);
+}
+
+/// Panduan install manual — jalan terakhir bila dialog otomatis
+/// benar-benar tidak tersedia (mis. iPhone/Safari).
 void showInstallHelp(BuildContext context) {
   showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Cara Install Aplikasi'),
+      title: const Text('Pasang Manual (30 detik)'),
       content: const Text(
-        'Android (Chrome):\n'
-        '1. Ketuk menu ⋮ di kanan atas browser\n'
-        '2. Pilih "Tambahkan ke layar utama" / "Instal aplikasi"\n\n'
-        'iPhone (Safari):\n'
-        '1. Ketuk tombol Bagikan (kotak dengan panah ke atas)\n'
-        '2. Pilih "Tambah ke Layar Utama"\n\n'
-        'Setelah terpasang, H2O Laundry terbuka layar penuh '
-        'seperti aplikasi biasa.',
-        style: TextStyle(fontSize: 13.5, height: 1.45),
+        'Android: menu ⋮ Chrome → "Tambahkan ke layar utama".\n\n'
+        'iPhone: tombol Bagikan → "Tambah ke Layar Utama".',
+        style: TextStyle(fontSize: 14, height: 1.5),
       ),
       actions: [
         FilledButton(
@@ -1029,7 +1060,7 @@ class _ProfileTabState extends State<_ProfileTab> {
                           const Text('Pasang di layar utama HP Anda'),
                       onTap: () {
                         Navigator.pop(sheetCtx);
-                        if (!pwaTriggerInstall()) _showInstallHelp();
+                        attemptPwaInstall(context);
                       },
                     ),
                   ],
@@ -1053,8 +1084,6 @@ class _ProfileTabState extends State<_ProfileTab> {
       },
     );
   }
-
-  void _showInstallHelp() => showInstallHelp(context);
 
   Future<void> _confirmLogout(BuildContext context) async {
     final yes = await showDialog<bool>(

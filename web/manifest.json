@@ -8,6 +8,12 @@
     "description": "H2O Laundry Parakan - lacak status cucian Anda.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "related_applications": [
+        {
+            "platform": "webapp",
+            "url": "https://app.h2olaundry.com/manifest.json"
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
