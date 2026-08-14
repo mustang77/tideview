@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../format.dart';
 import '../models.dart';
 import '../receipt.dart';
+import '../receipt_bt.dart';
 import '../store.dart';
 import '../widgets.dart';
 
@@ -102,7 +103,7 @@ class OwnerOrderDetailScreen extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Cetak Struk',
-            onPressed: () => printReceipt(order),
+            onPressed: () => showPrintSheet(context, order),
             icon: const Icon(Icons.print_outlined),
           ),
           IconButton(

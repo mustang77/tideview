@@ -60,6 +60,16 @@ class LaundryStore extends ChangeNotifier {
     receiptWidth = mm == 80 ? 80 : 58;
     await _save();
   }
+
+  /// Printer thermal Bluetooth pilihan (cetak langsung), per perangkat.
+  String btPrinterMac = '';
+  String btPrinterName = '';
+
+  Future<void> setBtPrinter(String mac, String name) async {
+    btPrinterMac = mac;
+    btPrinterName = name;
+    await _save();
+  }
   CustomerProfile profile = CustomerProfile();
 
   /// 'customer' | 'owner' | null (belum memilih mode).
@@ -118,6 +128,8 @@ class LaundryStore extends ChangeNotifier {
         _adminPin = m['adminPin'] as String?;
         _custPin = m['custPin'] as String?;
         receiptWidth = (m['receiptWidth'] as num? ?? 58).toInt();
+        btPrinterMac = m['btPrinterMac'] as String? ?? '';
+        btPrinterName = m['btPrinterName'] as String? ?? '';
       } catch (_) {
         // Data korup: mulai bersih daripada crash saat startup.
         orders.clear();
@@ -146,6 +158,8 @@ class LaundryStore extends ChangeNotifier {
       'adminPin': _adminPin,
       'custPin': _custPin,
       'receiptWidth': receiptWidth,
+      'btPrinterMac': btPrinterMac,
+      'btPrinterName': btPrinterName,
     };
     await _prefs?.setString(_storageKey, jsonEncode(m));
   }

@@ -25,6 +25,9 @@ dependencies:
   chewie: ^1.14.0
   # Lembar bagikan sistem (tombol Share di reels).
   share_plus: ^13.3.0
+  # Cetak struk langsung ke printer thermal Bluetooth (ESC/POS).
+  print_bluetooth_thermal: ^1.1.9
+  permission_handler: ^11.4.0
   audioplayers: ^6.8.1
   flutter_tts: ^4.2.5
   chess: ^0.8.1
