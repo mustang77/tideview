@@ -1082,6 +1082,20 @@ app.post('/api/orders', (req, res) => {
       `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
       'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
       'statusnya lewat aplikasi ya 💧');
+  // Kabari admin juga — admin tidak selalu membuka aplikasi. Nomor
+  // tujuan = "No. WhatsApp" di Info Toko (layar Tentang, mode pemilik).
+  const adminWaRaw = String(db.about.wa || '').trim();
+  if (adminWaRaw) {
+    const adminWa = normPhone(adminWaRaw);
+    if (adminWa.length >= 10) {
+      queueWa(adminWa,
+          `🔔 *PESANAN BARU* ${order.id}\n` +
+          `Dari: ${order.customerName} (+${order.phone})\n\n` +
+          `${waItems(order)}${waContents(order)}\n` +
+          `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
+          'Buka aplikasi untuk memproses ya.');
+    }
+  }
   res.json(order);
 });
 
