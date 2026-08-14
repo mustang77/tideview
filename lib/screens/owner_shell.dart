@@ -24,6 +24,9 @@ class OwnerShell extends StatefulWidget {
 
 class _OwnerShellState extends State<OwnerShell> {
   int _index = 0;
+
+  /// Filter awal tab Pesanan saat dibuka dari kartu Dashboard.
+  OrderStatus? _ordersFilter;
   Timer? _poll;
 
   @override
@@ -53,8 +56,16 @@ class _OwnerShellState extends State<OwnerShell> {
               // Flutter sehingga tab tidak ikut rebuild saat data store
               // berubah.
               child: switch (_index) {
-                0 => _DashboardTab(),
-                1 => _OwnerOrdersTab(),
+                0 => _DashboardTab(
+                    onShowOrders: (f) => setState(() {
+                          _ordersFilter = f;
+                          _index = 1;
+                        }),
+                    onShowReport: () => setState(() => _index = 3),
+                  ),
+                1 => _OwnerOrdersTab(
+                    key: ValueKey('orders-${_ordersFilter?.name}'),
+                    initialFilter: _ordersFilter),
                 2 => _CustomersTab(),
                 3 => _ReportTab(),
                 _ => _PricingTab(),
@@ -80,7 +91,10 @@ class _OwnerShellState extends State<OwnerShell> {
                   activeIcon: Icons.receipt_long,
                   label: 'Pesanan',
                   selected: _index == 1,
-                  onTap: () => setState(() => _index = 1)),
+                  onTap: () => setState(() {
+                        _ordersFilter = null; // nav = mulai dari Semua
+                        _index = 1;
+                      })),
               NavIcon(
                   icon: Icons.people_outline,
                   activeIcon: Icons.people,
@@ -110,7 +124,12 @@ class _OwnerShellState extends State<OwnerShell> {
 // -------------------------------------------------------------- Dashboard
 
 class _DashboardTab extends StatelessWidget {
-  const _DashboardTab();
+  const _DashboardTab(
+      {required this.onShowOrders, required this.onShowReport});
+
+  /// Buka tab Pesanan dengan filter status tertentu (null = semua).
+  final void Function(OrderStatus?) onShowOrders;
+  final VoidCallback onShowReport;
 
   @override
   Widget build(BuildContext context) {
@@ -212,22 +231,26 @@ class _DashboardTab extends StatelessWidget {
                 label: 'Pesanan Baru',
                 value: '$baru',
                 icon: Icons.fiber_new,
-                color: statusColor(OrderStatus.menunggu)),
+                color: statusColor(OrderStatus.menunggu),
+                onTap: () => onShowOrders(OrderStatus.menunggu)),
             StatTile(
                 label: 'Sedang Diproses',
                 value: '$proses',
                 icon: Icons.local_laundry_service,
-                color: statusColor(OrderStatus.diproses)),
+                color: statusColor(OrderStatus.diproses),
+                onTap: () => onShowOrders(OrderStatus.diproses)),
             StatTile(
                 label: 'Siap Diambil',
                 value: '$siap',
                 icon: Icons.inventory_2,
-                color: statusColor(OrderStatus.siap)),
+                color: statusColor(OrderStatus.siap),
+                onTap: () => onShowOrders(OrderStatus.siap)),
             StatTile(
                 label: 'Pendapatan Hari Ini',
                 value: rupiah(store.incomeOn(now)),
                 icon: Icons.payments,
-                color: const Color(0xFF16A34A)),
+                color: const Color(0xFF16A34A),
+                onTap: onShowReport),
           ],
         ),
         const SizedBox(height: 20),
@@ -290,14 +313,17 @@ class _DashboardTab extends StatelessWidget {
 // -------------------------------------------------------------- Pesanan
 
 class _OwnerOrdersTab extends StatefulWidget {
-  const _OwnerOrdersTab();
+  const _OwnerOrdersTab({super.key, this.initialFilter});
+
+  /// Filter yang langsung aktif saat tab dibuka (dari kartu Dashboard).
+  final OrderStatus? initialFilter;
 
   @override
   State<_OwnerOrdersTab> createState() => _OwnerOrdersTabState();
 }
 
 class _OwnerOrdersTabState extends State<_OwnerOrdersTab> {
-  OrderStatus? _filter;
+  late OrderStatus? _filter = widget.initialFilter;
 
   @override
   Widget build(BuildContext context) {
