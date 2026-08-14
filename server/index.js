@@ -63,6 +63,12 @@ db.about = Object.assign(
 if (!String(db.about.hours || '').trim()) {
   db.about.hours = 'Setiap hari, 07.00 – 20.00 WIB';
 }
+// Permintaan pemilik (Agu 2026): pasang nomor WA toko, sekali saja —
+// setelah itu nilainya sepenuhnya milik editan layar Tentang.
+if (!db.waTokoSeeded) {
+  db.about.wa = '0823279223455';
+  db.waTokoSeeded = true;
+}
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
