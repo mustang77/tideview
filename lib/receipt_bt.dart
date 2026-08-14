@@ -100,30 +100,70 @@ List<int> buildEscposReceipt(Order order, {int width = 58}) {
 
 // ---- Alur cetak ------------------------------------------------------
 
+/// MAC printer yang koneksinya sedang kita pegang. Koneksi sengaja
+/// DIBIARKAN terbuka setelah mencetak: menyambung ulang tiap cetak
+/// adalah sumber utama "susah connect" di printer thermal murah.
+String _connectedMac = '';
+
+/// Pastikan tersambung ke printer tersimpan; coba sampai 3 kali.
+/// null = tersambung; teks = pesan error.
+Future<String?> _ensureConnected() async {
+  final mac = store.btPrinterMac;
+  try {
+    if (_connectedMac == mac &&
+        await PrintBluetoothThermal.connectionStatus) {
+      return null; // masih tersambung dari cetakan sebelumnya
+    }
+  } catch (_) {}
+  try {
+    await PrintBluetoothThermal.disconnect;
+  } catch (_) {}
+  _connectedMac = '';
+  for (var attempt = 1; attempt <= 3; attempt++) {
+    try {
+      final ok = await PrintBluetoothThermal.connect(
+              macPrinterAddress: mac)
+          .timeout(const Duration(seconds: 8), onTimeout: () => false);
+      if (ok) {
+        _connectedMac = mac;
+        return null;
+      }
+    } catch (_) {}
+    // Printer murah sering menolak percobaan pertama — jeda lalu ulang.
+    if (attempt < 3) {
+      await Future<void>.delayed(Duration(milliseconds: 600 * attempt));
+    }
+  }
+  return 'Tidak bisa tersambung ke ${store.btPrinterName} '
+      '(3x percobaan). Matikan-nyalakan printernya lalu coba lagi.';
+}
+
 /// Cetak langsung ke printer tersimpan. null = sukses; teks = error.
 Future<String?> _printDirect(Order order) async {
-  final mac = store.btPrinterMac;
-  if (mac.isEmpty) return 'BELUM_PILIH';
+  if (store.btPrinterMac.isEmpty) return 'BELUM_PILIH';
   try {
     final on = await PrintBluetoothThermal.bluetoothEnabled;
     if (!on) return 'Bluetooth HP mati. Nyalakan dulu ya.';
-    // Pastikan tidak ada koneksi nyangkut dari cetakan sebelumnya.
+  } catch (_) {}
+  var err = await _ensureConnected();
+  if (err != null) return err;
+  final bytes = buildEscposReceipt(order, width: store.receiptWidth);
+  var sent = false;
+  try {
+    sent = await PrintBluetoothThermal.writeBytes(bytes);
+  } catch (_) {}
+  if (!sent) {
+    // Koneksi lama basi (printer sempat mati/menjauh): sambung ulang
+    // sekali, lalu coba kirim lagi.
+    _connectedMac = '';
+    err = await _ensureConnected();
+    if (err != null) return err;
     try {
-      await PrintBluetoothThermal.disconnect;
+      sent = await PrintBluetoothThermal.writeBytes(bytes);
     } catch (_) {}
-    final ok =
-        await PrintBluetoothThermal.connect(macPrinterAddress: mac);
-    if (!ok) {
-      return 'Tidak bisa tersambung ke ${store.btPrinterName}. '
-          'Printer menyala?';
-    }
-    final sent = await PrintBluetoothThermal.writeBytes(
-        buildEscposReceipt(order, width: store.receiptWidth));
-    await PrintBluetoothThermal.disconnect;
-    return sent ? null : 'Gagal mengirim data ke printer.';
-  } catch (e) {
-    return 'Cetak gagal: printer tidak merespons.';
   }
+  // Koneksi dibiarkan hidup — cetakan berikutnya langsung jalan.
+  return sent ? null : 'Gagal mengirim data ke printer.';
 }
 
 /// Pilih printer dari daftar perangkat Bluetooth yang sudah di-pair.
@@ -182,8 +222,9 @@ Future<void> _directFlow(BuildContext context, Order order) async {
   }
   final messenger = ScaffoldMessenger.of(context);
   messenger.showSnackBar(SnackBar(
-      duration: const Duration(seconds: 20),
-      content: Text('Mencetak ke ${store.btPrinterName}...')));
+      duration: const Duration(seconds: 30),
+      content: Text('Menyambung ke ${store.btPrinterName} & mencetak... '
+          '(bisa ±10 detik pada cetakan pertama)')));
   final err = await _printDirect(order);
   messenger.hideCurrentSnackBar();
   messenger.showSnackBar(
