@@ -205,15 +205,22 @@ function waItems(o) {
 const waTotal = (o) =>
     (o.items || []).reduce((s, i) => s + i.price * i.qty, 0);
 
+// Isi cucian yang dideklarasikan pelanggan: "- 5 kaos", "- 2 kemeja".
+function waContents(o) {
+  const c = (o.contents || []).map((x) => String(x).trim()).filter(Boolean);
+  if (!c.length) return '';
+  return `\nIsi cucian:\n${c.map((x) => `- ${x}`).join('\n')}`;
+}
+
 const WA_STATUS_MSG = {
   diterima: (o) =>
       `Cucian pesanan *${o.id}* sudah kami terima di counter dan segera ` +
-      `diproses. 💧\n\n${waItems(o)}\nTotal: *${waRp(waTotal(o))}*\n\n` +
-      '_H2O Laundry Parakan_',
+      `diproses. 💧\n\n${waItems(o)}${waContents(o)}\n` +
+      `Total: *${waRp(waTotal(o))}*\n\n_H2O Laundry Parakan_`,
   siap: (o) =>
       `Kabar gembira! 🎉\nCucian pesanan *${o.id}* sudah *SIAP DIAMBIL* ` +
-      `di H2O Laundry Parakan.\n\n${waItems(o)}\nTotal: ` +
-      `*${waRp(waTotal(o))}*${o.paid ? ' (LUNAS)' : ''}\n\n` +
+      `di H2O Laundry Parakan.\n\n${waItems(o)}${waContents(o)}\n` +
+      `Total: *${waRp(waTotal(o))}*${o.paid ? ' (LUNAS)' : ''}\n\n` +
       'Sampai jumpa di counter!',
   selesai: (o) =>
       `Pesanan *${o.id}* selesai. Terima kasih sudah laundry di H2O ` +
@@ -1048,8 +1055,8 @@ app.post('/api/orders', (req, res) => {
   save();
   queueWa(order.phone,
       `Halo ${order.customerName}! Pesanan *${order.id}* berhasil ` +
-      `dibuat.\n\n${waItems(order)}\nPerkiraan total: ` +
-      `*${waRp(waTotal(order))}*\n\n` +
+      `dibuat.\n\n${waItems(order)}${waContents(order)}\n` +
+      `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
       'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
       'statusnya lewat aplikasi ya 💧');
   res.json(order);
