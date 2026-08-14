@@ -3,7 +3,7 @@
 // dirakit sendiri (struknya sederhana), koneksi lewat plugin
 // print_bluetooth_thermal ke printer yang sudah di-pair.
 
-import 'dart:convert' show latin1;
+import 'dart:convert' show base64Encode, latin1;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 
 import 'format.dart';
 import 'models.dart';
+import 'pwa/pwa.dart';
 import 'receipt.dart';
 import 'store.dart';
 
@@ -231,12 +232,80 @@ Future<void> _directFlow(BuildContext context, Order order) async {
       SnackBar(content: Text(err ?? 'Struk tercetak ✅')));
 }
 
+/// Cetak dari PWA/web lewat Web Bluetooth (BLE). Hanya berhasil bila
+/// printernya punya mode BLE; printer SPP-saja tidak muncul di pemilih.
+Future<void> _webBtFlow(BuildContext context, Order order) async {
+  final messenger = ScaffoldMessenger.of(context);
+  if (!webBtReady()) {
+    final name = await webBtPick();
+    if (name.isEmpty) {
+      messenger.showSnackBar(const SnackBar(
+          content: Text('Printer tidak terpilih. Catatan: lewat web '
+              'hanya printer ber-BLE yang terlihat — bila punya Anda '
+              'tidak muncul, pakai "Dialog Print Browser" atau '
+              'aplikasi Android.')));
+      return;
+    }
+    messenger.showSnackBar(
+        SnackBar(content: Text('Tersambung ke $name')));
+  }
+  messenger.showSnackBar(const SnackBar(
+      duration: Duration(seconds: 20),
+      content: Text('Mengirim ke printer...')));
+  final ok = await webBtPrint(base64Encode(
+      buildEscposReceipt(order, width: store.receiptWidth)));
+  messenger.hideCurrentSnackBar();
+  messenger.showSnackBar(SnackBar(
+      content: Text(ok
+          ? 'Struk tercetak ✅'
+          : 'Gagal mencetak. Printer menyala dan dekat? Coba lagi.')));
+}
+
 /// Lembar pilihan cetak untuk layar pesanan pemilik: cetak langsung
 /// Bluetooth (utama), ganti printer, atau dialog sistem/PDF (cadangan).
 Future<void> showPrintSheet(BuildContext context, Order order) async {
-  // Di web tidak ada Bluetooth SPP — langsung jalur PDF seperti biasa.
+  // Web/PWA: tawarkan Web Bluetooth (BLE) bila browser mendukung;
+  // selain itu jatuh ke dialog print browser.
   if (kIsWeb) {
-    await printReceipt(order);
+    if (!webBtSupported()) {
+      await printReceipt(order);
+      return;
+    }
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading:
+                  const Icon(Icons.flash_on, color: Color(0xFFD97706)),
+              title: const Text('Cetak Langsung (Bluetooth)',
+                  style: TextStyle(fontWeight: FontWeight.w800)),
+              subtitle: Text(webBtReady()
+                  ? 'Printer sudah tersambung'
+                  : 'Pilih printer BLE dari daftar browser'),
+              onTap: () => Navigator.pop(sheet, 'ble'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: const Text('Dialog Print Browser (PDF)'),
+              subtitle: const Text('Printer biasa / simpan PDF'),
+              onTap: () => Navigator.pop(sheet, 'pdf'),
+            ),
+            const SizedBox(height: 6),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    switch (choice) {
+      case 'ble':
+        await _webBtFlow(context, order);
+      case 'pdf':
+        await printReceipt(order);
+    }
     return;
   }
   final choice = await showModalBottomSheet<String>(

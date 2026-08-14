@@ -74,6 +74,73 @@
       } catch (e) {}
       return false;
     };
+
+    // ---- Web Bluetooth: cetak struk ke printer thermal BLE ----
+    // Hanya BLE (batasan browser); printer SPP-saja tidak akan muncul
+    // di pemilihnya. Layanan/karakteristik umum printer thermal murah.
+    let _btDev = null;
+    let _btChar = null;
+    const _BT_SERVICES = [0x18f0, 0xffe0, 0xff00,
+      'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
+      '49535343-fe7d-4ae5-8fa9-9fafd205e455'];
+    window.h2oBtSupported = () => !!navigator.bluetooth;
+    window.h2oBtReady = () =>
+        !!(_btDev && _btDev.gatt.connected && _btChar);
+    async function _h2oBtConnect() {
+      if (!_btDev) return false;
+      try {
+        const gatt = await _btDev.gatt.connect();
+        for (const s of await gatt.getPrimaryServices()) {
+          try {
+            for (const c of await s.getCharacteristics()) {
+              if (c.properties.writeWithoutResponse ||
+                  c.properties.write) {
+                _btChar = c;
+                return true;
+              }
+            }
+          } catch (e) {}
+        }
+      } catch (e) {}
+      _btChar = null;
+      return false;
+    }
+    // Harus dipanggil dari ketukan pengguna. Balik nama printer / ''.
+    window.h2oBtPick = async () => {
+      try {
+        const dev = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: _BT_SERVICES,
+        });
+        _btDev = dev;
+        _btChar = null;
+        return (await _h2oBtConnect()) ? (dev.name || 'Printer BLE') : '';
+      } catch (e) {
+        return '';
+      }
+    };
+    // Kirim byte ESC/POS (base64), dicicil kecil-kecil khas BLE.
+    window.h2oBtPrint = async (b64) => {
+      try {
+        if (!window.h2oBtReady() && !(await _h2oBtConnect())) return false;
+        const bin = atob(b64);
+        const data = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i);
+        const chunk = 120;
+        for (let i = 0; i < data.length; i += chunk) {
+          const slice = data.slice(i, i + chunk);
+          if (_btChar.properties.writeWithoutResponse) {
+            await _btChar.writeValueWithoutResponse(slice);
+          } else {
+            await _btChar.writeValueWithResponse(slice);
+          }
+          await new Promise((r) => setTimeout(r, 25));
+        }
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
   </script>
 </head>
 <body>

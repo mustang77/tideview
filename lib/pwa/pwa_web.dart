@@ -18,6 +18,18 @@ external JSPromise<JSBoolean> _isInstalled();
 @JS('h2oDidPrompt')
 external bool _didPrompt();
 
+@JS('h2oBtSupported')
+external bool _btSupported();
+
+@JS('h2oBtReady')
+external bool _btReady();
+
+@JS('h2oBtPick')
+external JSPromise<JSString> _btPick();
+
+@JS('h2oBtPrint')
+external JSPromise<JSBoolean> _btPrint(JSString b64);
+
 /// Sudah berjalan sebagai aplikasi terpasang (bukan tab browser)?
 bool pwaIsStandalone() {
   try {
@@ -61,6 +73,43 @@ bool pwaDidPrompt() {
 Future<bool> pwaIsInstalled() async {
   try {
     return (await _isInstalled().toDart).toDart;
+  } catch (_) {
+    return false;
+  }
+}
+
+// ---- Web Bluetooth (cetak struk BLE dari PWA) ----
+
+bool webBtSupported() {
+  try {
+    return _btSupported();
+  } catch (_) {
+    return false;
+  }
+}
+
+bool webBtReady() {
+  try {
+    return _btReady();
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Buka pemilih perangkat BLE browser (wajib dari ketukan pengguna).
+/// Mengembalikan nama printer, atau '' bila batal/gagal.
+Future<String> webBtPick() async {
+  try {
+    return (await _btPick().toDart).toDart;
+  } catch (_) {
+    return '';
+  }
+}
+
+/// Kirim byte ESC/POS (base64) ke printer BLE terpilih.
+Future<bool> webBtPrint(String b64) async {
+  try {
+    return (await _btPrint(b64.toJS).toDart).toDart;
   } catch (_) {
     return false;
   }
