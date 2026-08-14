@@ -2,7 +2,9 @@
 library;
 
 /// Alur pesanan layanan di gerai (pelanggan datang ke counter):
-/// menunggu diantar → diterima → diproses → siap diambil → selesai.
+/// pesanan dibuat → diterima → diproses → siap diambil → selesai.
+/// (Tanpa layanan antar-jemput — "menunggu" = menunggu pelanggan
+/// membawa cuciannya ke counter.)
 enum OrderStatus { menunggu, diterima, diproses, siap, selesai }
 
 OrderStatus statusFromName(String s) {
@@ -14,7 +16,7 @@ OrderStatus statusFromName(String s) {
 String statusLabel(OrderStatus status) {
   switch (status) {
     case OrderStatus.menunggu:
-      return 'Menunggu Diantar';
+      return 'Pesanan Dibuat';
     case OrderStatus.diterima:
       return 'Diterima di Laundry';
     case OrderStatus.diproses:

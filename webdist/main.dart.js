@@ -35884,7 +35884,7 @@ a0N:function a0N(a){this.a=a},
 aAW:function aAW(){},
 bks(a){if(a==="dijemput")return B.vR
 return A.bdl(B.kz,a)},
-TQ(a){switch(a.a){case 0:return"Menunggu Diantar"
+TQ(a){switch(a.a){case 0:return"Pesanan Dibuat"
 case 1:return"Diterima di Laundry"
 case 2:return"Sedang Diproses"
 case 3:return"Siap Diambil"
