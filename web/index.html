@@ -90,8 +90,11 @@
       if (!_btDev) return false;
       try {
         const gatt = await _btDev.gatt.connect();
-        for (const s of await gatt.getPrimaryServices()) {
+        // Hanya layanan printer yang dikenal — perangkat BLE lain
+        // (earbuds/TV) tidak akan dianggap "tersambung".
+        for (const u of _BT_SERVICES) {
           try {
+            const s = await gatt.getPrimaryService(u);
             for (const c of await s.getCharacteristics()) {
               if (c.properties.writeWithoutResponse ||
                   c.properties.write) {
