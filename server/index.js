@@ -819,6 +819,57 @@ app.get('/api/musikvideo', async (req, res) => {
   res.json({ items: ytMusicCache.items });
 });
 
+// Pencarian video musik: baca halaman hasil publik YouTube (tanpa API
+// key) dan ambil daftar videoRenderer dari ytInitialData. Pemutaran
+// tetap lewat player embed resmi. Cache per kata kunci 30 menit.
+const ytSearchCache = new Map();
+
+app.get('/api/musikvideo/search', async (req, res) => {
+  const q = String(req.query.q || '').trim().slice(0, 80);
+  if (q.length < 2) return res.json({ items: [] });
+  const key = q.toLowerCase();
+  const hit = ytSearchCache.get(key);
+  if (hit && Date.now() - hit.at < 30 * 60 * 1000) {
+    return res.json({ items: hit.items });
+  }
+  try {
+    // sp=EgIQAQ%3D%3D = filter "hanya video" (bukan channel/playlist).
+    const url = 'https://www.youtube.com/results?search_query=' +
+        encodeURIComponent(q) + '&hl=id&sp=' +
+        encodeURIComponent('EgIQAQ==');
+    const { buffer } = await fetchUrl(url, { maxBytes: 3 * 1024 * 1024 });
+    const m = buffer.toString('utf8')
+        .match(/ytInitialData = (\{[\s\S]*?\});<\/script>/);
+    const items = [];
+    if (m) {
+      const walk = (n) => {
+        if (!n || typeof n !== 'object' || items.length >= 20) return;
+        if (n.videoRenderer && n.videoRenderer.videoId) {
+          const v = n.videoRenderer;
+          const title = (((v.title || {}).runs || [{}])[0]).text || '';
+          if (/^[\w-]{6,20}$/.test(v.videoId) && title) {
+            // Tanpa `at`: waktu unggah tidak tersedia di hasil cari.
+            items.push({
+              id: v.videoId,
+              title,
+              channel: (((v.ownerText || {}).runs || [{}])[0]).text || '',
+            });
+          }
+          return;
+        }
+        for (const k in n) walk(n[k]);
+      };
+      walk(JSON.parse(m[1]));
+    }
+    if (ytSearchCache.size > 200) ytSearchCache.clear();
+    ytSearchCache.set(key, { at: Date.now(), items });
+    res.json({ items });
+  } catch (e) {
+    console.error('YT cari gagal:', e.message);
+    res.status(502).json({ error: 'Pencarian gagal. Coba lagi.' });
+  }
+});
+
 // Proxy thumbnail YouTube (hanya ID video yang valid — bukan proxy bebas).
 app.get('/api/ytimg', async (req, res) => {
   const v = String(req.query.v || '');

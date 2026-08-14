@@ -26,14 +26,13 @@ class MusikVideo {
   final String id;
   final String title;
   final String channel;
-  final DateTime at;
+  final DateTime? at; // null utk hasil cari (waktu unggah tak diketahui)
 
   factory MusikVideo.fromMap(Map<String, dynamic> m) => MusikVideo(
         id: m['id'] as String? ?? '',
         title: m['title'] as String? ?? '',
         channel: m['channel'] as String? ?? '',
-        at: DateTime.tryParse(m['at'] as String? ?? '')?.toLocal() ??
-            DateTime.now(),
+        at: DateTime.tryParse(m['at'] as String? ?? '')?.toLocal(),
       );
 }
 
@@ -42,12 +41,61 @@ String musikVideoThumb(String id) => '${store.apiUrl}/api/ytimg?v=$id';
 
 class _VideoMusikScreenState extends State<VideoMusikScreen> {
   List<MusikVideo>? _items;
+  List<MusikVideo>? _results; // hasil pencarian; null = mode pilihan
+  bool _searching = false;
   String? _error;
+  final _query = TextEditingController();
+  int _searchSeq = 0; // buang balasan pencarian yang telat datang
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  Future<void> _search(String q) async {
+    final a = store.api;
+    q = q.trim();
+    if (a == null || q.length < 2) return;
+    final seq = ++_searchSeq;
+    setState(() {
+      _searching = true;
+      _error = null;
+    });
+    try {
+      final m = await a.searchMusikVideo(q);
+      if (!mounted || seq != _searchSeq) return;
+      setState(() {
+        _results = ((m['items'] as List?) ?? [])
+            .map((e) =>
+                MusikVideo.fromMap((e as Map).cast<String, dynamic>()))
+            .where((v) => v.id.isNotEmpty)
+            .toList();
+        _searching = false;
+      });
+    } catch (_) {
+      if (!mounted || seq != _searchSeq) return;
+      setState(() {
+        _searching = false;
+        _error = 'Pencarian gagal. Coba lagi.';
+      });
+    }
+  }
+
+  void _clearSearch() {
+    _searchSeq++;
+    _query.clear();
+    setState(() {
+      _results = null;
+      _searching = false;
+      _error = null;
+    });
   }
 
   Future<void> _load() async {
@@ -75,57 +123,96 @@ class _VideoMusikScreenState extends State<VideoMusikScreen> {
   }
 
   void _openPlayer(MusikVideo v) {
-    final items = _items ?? [];
+    final items = _results ?? _items ?? [];
     Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => VideoPlayerScreen(video: v, playlist: items)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final items = _items;
+    final items = _results ?? _items;
+    Widget body;
+    if (_searching) {
+      body = const Center(child: CircularProgressIndicator());
+    } else if (_error != null) {
+      body = Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_error!),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+                onPressed: () {
+                  setState(() => _error = null);
+                  if (_results != null || _query.text.trim().length > 1) {
+                    _search(_query.text);
+                  } else {
+                    _load();
+                  }
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Coba lagi')),
+          ],
+        ),
+      );
+    } else if (items == null) {
+      body = const Center(child: CircularProgressIndicator());
+    } else if (items.isEmpty) {
+      body = const Center(child: Text('Tidak ada hasil. Coba kata lain.'));
+    } else {
+      final grid = GridView.builder(
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: MediaQuery.sizeOf(context).width > 680
+              ? 3
+              : MediaQuery.sizeOf(context).width > 440
+                  ? 2
+                  : 1,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 16 / 13.5,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, i) =>
+            _VideoCard(v: items[i], onTap: _openPlayer),
+      );
+      // Tarik-untuk-segarkan hanya di mode pilihan (bukan hasil cari).
+      body = _results == null
+          ? RefreshIndicator(onRefresh: _load, child: grid)
+          : grid;
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Video Musik')),
       body: SafeArea(
-        child: _error != null
-            ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(_error!),
-                    const SizedBox(height: 12),
-                    FilledButton.icon(
-                        onPressed: () {
-                          setState(() => _error = null);
-                          _load();
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Coba lagi')),
-                  ],
-                ),
-              )
-            : items == null
-                ? const Center(child: CircularProgressIndicator())
-                : RefreshIndicator(
-                    onRefresh: _load,
-                    child: GridView.builder(
-                      padding: const EdgeInsets.all(14),
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            MediaQuery.sizeOf(context).width > 680
-                                ? 3
-                                : MediaQuery.sizeOf(context).width > 440
-                                    ? 2
-                                    : 1,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 16 / 13.5,
-                      ),
-                      itemCount: items.length,
-                      itemBuilder: (context, i) =>
-                          _VideoCard(v: items[i], onTap: _openPlayer),
-                    ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 4),
+              child: TextField(
+                controller: _query,
+                textInputAction: TextInputAction.search,
+                onSubmitted: _search,
+                decoration: InputDecoration(
+                  hintText: 'Cari video musik…',
+                  isDense: true,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: ListenableBuilder(
+                    listenable: _query,
+                    builder: (context, _) => _query.text.isEmpty &&
+                            _results == null
+                        ? const SizedBox.shrink()
+                        : IconButton(
+                            tooltip: 'Bersihkan',
+                            icon: const Icon(Icons.close),
+                            onPressed: _clearSearch,
+                          ),
                   ),
+                ),
+              ),
+            ),
+            Expanded(child: body),
+          ],
+        ),
       ),
     );
   }
@@ -195,7 +282,9 @@ class _VideoCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${v.channel} • ${timeAgo(v.at)}',
+                      v.at == null
+                          ? v.channel
+                          : '${v.channel} • ${timeAgo(v.at!)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall,
@@ -291,8 +380,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_current.channel} • ${timeAgo(_current.at)} • '
-                    'YouTube',
+                    _current.at == null
+                        ? '${_current.channel} • YouTube'
+                        : '${_current.channel} • '
+                            '${timeAgo(_current.at!)} • YouTube',
                     style: const TextStyle(
                         color: Color(0xFF94A3B8), fontSize: 12.5),
                   ),

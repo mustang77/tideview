@@ -320,6 +320,14 @@ class ApiClient {
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
+  Future<Map<String, dynamic>> searchMusikVideo(String q) async {
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/musikvideo/search'
+            '?q=${Uri.encodeQueryComponent(q)}'))
+        .timeout(const Duration(seconds: 30));
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
   // ---- Musik Indonesia (netlabel CC via server) ----
 
   Future<Map<String, dynamic>> getMusikIndonesia() async {
