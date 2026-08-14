@@ -743,6 +743,100 @@ app.get('/api/newsimg', async (req, res) => {
   }
 });
 
+// ---- Video Musik Indonesia (YouTube) ----
+// Daftar video diambil dari RSS publik channel musisi/label resmi
+// Indonesia (tanpa API key). Pemutaran di klien memakai player embed
+// resmi YouTube sehingga lisensi tetap dipegang YouTube/pemilik
+// channel. Thumbnail dilewatkan proxy /api/ytimg (i.ytimg.com tidak
+// mengirim header CORS). Cache 6 jam.
+
+const YT_MUSIC_CHANNELS = [
+  { id: 'UCRggxhdYIz0zSvUgJmCWMGg', name: 'Tulus' },
+  { id: 'UC8xcPPVYvUxv1CPoEcqj4fQ', name: 'Raisa' },
+  { id: 'UCY1bGdpom5tXC9M8-Ahu8dQ', name: 'Bernadya' },
+  { id: 'UCbctSuCowVV5nyQqlHSY9ZA', name: 'Juicy Luicy' },
+  { id: 'UCgVRSxTc-ZCJkf49xKfRzZA', name: 'NOAH' },
+  { id: 'UC9mnKuwm9QVCOaFZpkqS_DQ', name: 'Dewa 19' },
+  { id: 'UCmgVKwwObSDquaJD7aaTUTQ', name: 'Fourtwnty' },
+  { id: 'UCVbDyLu0MatwYdm2Bh8E79w', name: 'Lyodra' },
+  { id: 'UC6B6N7-2yNGDZtLhAeTj6mA', name: 'Tiara Andini' },
+  { id: 'UCrmQersjl9ooC0JZfp9CrtQ', name: 'Andmesh' },
+  { id: 'UCaIbbu5Xg3DpHsn_3Zw2m9w', name: 'JKT48' },
+  { id: 'UCpJRmMTfdv0iPbnjo6qBw_g', name: 'Aquarius Musikindo' },
+  { id: 'UCebb7o98FEA73WjNsCja5Xg', name: 'Trinity Optima' },
+];
+let ytMusicCache = { at: 0, items: [] };
+let ytMusicBusy = null;
+
+async function refreshYtMusic() {
+  const perChannel = [];
+  await Promise.all(YT_MUSIC_CHANNELS.map(async (c) => {
+    try {
+      const { buffer } = await fetchUrl(
+          `https://www.youtube.com/feeds/videos.xml?channel_id=${c.id}`,
+          { maxBytes: 1024 * 1024, allowTruncate: true });
+      const vids = [];
+      for (const m of buffer.toString('utf8')
+          .matchAll(/<entry>[\s\S]*?<\/entry>/gi)) {
+        const b = m[0];
+        const id =
+            (b.match(/<yt:videoId>([\w-]{6,20})<\/yt:videoId>/) || [])[1];
+        const title = rssText(b, 'title');
+        if (!id || !title) continue;
+        const d = new Date(rssText(b, 'published'));
+        vids.push({
+          id,
+          title,
+          channel: c.name,
+          at: isNaN(d.getTime()) ? now() : d.toISOString(),
+        });
+        if (vids.length >= 6) break;
+      }
+      if (vids.length) perChannel.push(vids);
+    } catch (e) {
+      console.error('YT musik gagal:', c.name, '-', e.message);
+    }
+  }));
+  // Selang-seling antar-channel supaya channel yang rajin mengunggah
+  // (mis. JKT48) tidak mendominasi seluruh halaman.
+  perChannel.sort((a, b) => b[0].at.localeCompare(a[0].at));
+  const items = [];
+  for (let i = 0; i < 6; i++) {
+    for (const vids of perChannel) if (vids[i]) items.push(vids[i]);
+  }
+  // Feed gagal semua? Pertahankan cache lama, coba lagi 30 menit lagi.
+  if (items.length) ytMusicCache = { at: Date.now(), items };
+  else ytMusicCache.at = Date.now() - 5.5 * 60 * 60 * 1000;
+}
+
+app.get('/api/musikvideo', async (req, res) => {
+  if (Date.now() - ytMusicCache.at > 6 * 60 * 60 * 1000) {
+    // Satu penyegaran untuk semua permintaan yang datang bersamaan.
+    ytMusicBusy = ytMusicBusy ||
+        refreshYtMusic().finally(() => (ytMusicBusy = null));
+    await ytMusicBusy;
+  }
+  res.json({ items: ytMusicCache.items });
+});
+
+// Proxy thumbnail YouTube (hanya ID video yang valid — bukan proxy bebas).
+app.get('/api/ytimg', async (req, res) => {
+  const v = String(req.query.v || '');
+  if (!/^[\w-]{6,20}$/.test(v)) {
+    return res.status(400).json({ error: 'ID video tidak valid' });
+  }
+  try {
+    const { buffer, type } = await fetchUrl(
+        `https://i.ytimg.com/vi/${v}/hqdefault.jpg`,
+        { maxBytes: 1024 * 1024 });
+    res.set('Content-Type', type || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.end(buffer);
+  } catch (e) {
+    res.status(502).json({ error: 'Gagal memuat gambar' });
+  }
+});
+
 // ---- Musik Indonesia (netlabel Creative Commons di archive.org) ----
 // Yes No Wave (Yogyakarta), Mindblasting, dan Hujan! Rekords merilis
 // musik Indonesia legal-gratis; arsipnya publik di archive.org.

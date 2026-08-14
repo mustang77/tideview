@@ -9,6 +9,7 @@ import 'hiburan_ext/music_screen.dart';
 import 'hiburan_ext/news_screen.dart';
 import 'hiburan_ext/radio_screen.dart';
 import 'hiburan_ext/tv_screen.dart';
+import 'hiburan_ext/video_musik_screen.dart';
 import 'hiburan_ext/zodiac_screen.dart';
 
 /// Bagian Hiburan di Beranda: kisi ubin tautan (musik, game, dll)
@@ -54,6 +55,12 @@ class HiburanSection extends StatelessWidget {
               title: 'Musik',
               colors: const [Color(0xFF0E7490), Color(0xFF06B6D4)],
               builder: () => const MusicScreen(),
+            ),
+            _BuiltinTileCard(
+              emoji: '🎬',
+              title: 'Video Musik',
+              colors: const [Color(0xFFB91C1C), Color(0xFFEF4444)],
+              builder: () => const VideoMusikScreen(),
             ),
             _BuiltinTileCard(
               emoji: '🔮',

@@ -31,6 +31,7 @@ dependencies:
   audioplayers: ^6.8.1
   flutter_tts: ^4.2.5
   chess: ^0.8.1
+  youtube_player_iframe: ^6.0.2
 
 dev_dependencies:
   flutter_test:

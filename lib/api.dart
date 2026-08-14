@@ -311,6 +311,15 @@ class ApiClient {
     return (_decode(r) as Map).cast<String, dynamic>();
   }
 
+  // ---- Video Musik Indonesia (YouTube via server) ----
+
+  Future<Map<String, dynamic>> getMusikVideo() async {
+    final r = await http
+        .get(Uri.parse('$baseUrl/api/musikvideo'))
+        .timeout(const Duration(seconds: 30));
+    return (_decode(r) as Map).cast<String, dynamic>();
+  }
+
   // ---- Musik Indonesia (netlabel CC via server) ----
 
   Future<Map<String, dynamic>> getMusikIndonesia() async {
