@@ -54,11 +54,15 @@ db.about = Object.assign(
       tagline: 'Laundry bersih, wangi, dan rapi',
       address: 'Parakan, Temanggung, Jawa Tengah',
       wa: '',
-      hours: '',
+      hours: 'Setiap hari, 07.00 – 20.00 WIB',
       maps: '',
       instagram: '',
     },
     db.about || {});
+// Isi jam buka bila masih kosong (data lama tersimpan dengan '').
+if (!String(db.about.hours || '').trim()) {
+  db.about.hours = 'Setiap hari, 07.00 – 20.00 WIB';
+}
 
 // Reaksi pos promo: nomor HP -> emoji. Migrasi dari 'likes' lama
 // (array nomor HP) menjadi reaksi hati.
