@@ -194,13 +194,27 @@ function queueWa(phone, text) {
           console.error('Notif WA gagal ke', phone, '-', e.message));
 }
 
+// Rincian item pesanan untuk pesan WA: "- Cuci + Setrika 3 kg".
+const waRp = (n) => `Rp ${Number(n).toLocaleString('id-ID')}`;
+function waItems(o) {
+  return (o.items || [])
+      .map((i) => `- ${i.name} ${String(i.qty).replace('.', ',')} ` +
+          `${i.unit} = ${waRp(i.price * i.qty)}`)
+      .join('\n');
+}
+const waTotal = (o) =>
+    (o.items || []).reduce((s, i) => s + i.price * i.qty, 0);
+
 const WA_STATUS_MSG = {
   diterima: (o) =>
       `Cucian pesanan *${o.id}* sudah kami terima di counter dan segera ` +
-      'diproses. 💧\n_H2O Laundry Parakan_',
+      `diproses. 💧\n\n${waItems(o)}\nTotal: *${waRp(waTotal(o))}*\n\n` +
+      '_H2O Laundry Parakan_',
   siap: (o) =>
       `Kabar gembira! 🎉\nCucian pesanan *${o.id}* sudah *SIAP DIAMBIL* ` +
-      'di H2O Laundry Parakan.\nSampai jumpa di counter!',
+      `di H2O Laundry Parakan.\n\n${waItems(o)}\nTotal: ` +
+      `*${waRp(waTotal(o))}*${o.paid ? ' (LUNAS)' : ''}\n\n` +
+      'Sampai jumpa di counter!',
   selesai: (o) =>
       `Pesanan *${o.id}* selesai. Terima kasih sudah laundry di H2O ` +
       'Laundry Parakan! 🙏',
@@ -1032,10 +1046,10 @@ app.post('/api/orders', (req, res) => {
   };
   db.orders.unshift(order);
   save();
-  const total = order.items.reduce((s, i) => s + i.price * i.qty, 0);
   queueWa(order.phone,
-      `Halo ${order.customerName}! Pesanan *${order.id}* berhasil dibuat` +
-      ` dengan perkiraan total *Rp ${total.toLocaleString('id-ID')}*.\n` +
+      `Halo ${order.customerName}! Pesanan *${order.id}* berhasil ` +
+      `dibuat.\n\n${waItems(order)}\nPerkiraan total: ` +
+      `*${waRp(waTotal(order))}*\n\n` +
       'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
       'statusnya lewat aplikasi ya 💧');
   res.json(order);
