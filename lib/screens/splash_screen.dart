@@ -72,12 +72,13 @@ class _SplashScreenState extends State<SplashScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 96,
-                        height: 96,
+                        width: 168,
+                        height: 168,
                         alignment: Alignment.center,
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(26),
+                          borderRadius: BorderRadius.circular(34),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.15),
@@ -86,19 +87,10 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.local_laundry_service,
-                            size: 54, color: Color(0xFF0E7490)),
+                        child: Image.asset('assets/logo.png',
+                            fit: BoxFit.contain),
                       ),
                       const SizedBox(height: 22),
-                      const Text(
-                        'H2O LAUNDRY',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
-                        ),
-                      ),
                       Text(
                         'PARAKAN',
                         style: TextStyle(
