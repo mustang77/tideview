@@ -95,15 +95,26 @@ flutter pub get
 flutter run
 
 # Bangun APK untuk dibagikan lewat WhatsApp
-flutter build apk --release
-# hasilnya: build/app/outputs/flutter-apk/app-release.apk
+flutter build apk --release --split-per-abi
+# hasilnya di build/app/outputs/flutter-apk/ :
+#   app-arm64-v8a-release.apk    ~21 MB  <- kirim yang ini
+#   app-armeabi-v7a-release.apk  ~18 MB  <- untuk HP lama
+#   app-x86_64-release.apk       ~22 MB  <- emulator, tidak perlu dibagikan
 
 # Versi web
 flutter build web --release
 ```
 
-APK hasil `build apk --release` bisa langsung dikirim lewat WhatsApp. Warga
-perlu mengizinkan "Instal dari sumber tidak dikenal" satu kali saat memasang.
+Pakai `--split-per-abi`. Tanpa itu satu APK berisi kode untuk semua jenis
+prosesor sekaligus dan ukurannya jadi 55 MB — tiga kali lebih besar, dan
+kuota warga yang menanggungnya.
+
+Hampir semua HP Android sejak 2018 memakai **arm64-v8a**. Kirim yang itu
+dulu; kalau ada warga yang HP-nya menolak memasang, baru kirimkan versi
+`armeabi-v7a`.
+
+Warga perlu mengizinkan "Instal dari sumber tidak dikenal" satu kali saat
+memasang.
 
 ---
 
