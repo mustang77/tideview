@@ -1,40 +1,103 @@
 rules_version = '2';
 
+// ============================================================================
 // Aturan keamanan Firebase Storage untuk Balai.
 //
-// Pasang lewat Firebase Console:
-//   Storage > Rules > ganti semua > Publish
+// Memasang:
+//   Firebase Console > Storage > Rules > ganti semua isinya > Publish
+//
+// PERINGATAN: berkas ini menggantikan SELURUH aturan Storage proyek tersebut.
+// Kalau proyeknya juga dipakai aplikasi lain, aturan aplikasi itu ikut
+// terhapus dan unggahannya langsung berhenti. Pakai proyek Firebase
+// tersendiri untuk Balai, atau gabungkan dulu dengan aturan yang sudah ada.
+//
+// Yang dijaga di sini:
+//   1. Hanya warga yang sudah masuk yang bisa membaca foto desa.
+//   2. Warga hanya bisa menaruh dan menghapus fotonya sendiri.
+//   3. Yang diunggah harus benar-benar gambar, bukan berkas lain yang
+//      namanya diubah jadi .jpg.
+//   4. Ukuran dibatasi, supaya satu orang tidak menghabiskan jatah gratis
+//      desa dalam semalam.
+//   5. Jalur yang tidak disebut di sini otomatis tertutup.
+//
+// Catatan jujur: tautan unduh yang dibuat getDownloadURL() membawa token dan
+// bisa dibuka siapa saja yang memegang tautannya, tanpa melewati aturan ini.
+// Jadi anggap foto di beranda desa "tidak rahasia" - aturan di bawah menjaga
+// siapa yang boleh MENGUNGGAH dan MENGHAPUS, dan itu bagian yang penting.
+// ============================================================================
+
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // ---- Alat bantu --------------------------------------------------------
 
     function masuk() {
       return request.auth != null;
     }
 
-    // Foto tidak boleh lebih dari 6 MB, dan harus benar-benar gambar.
-    // Batas ini penting: tanpa itu satu orang bisa menghabiskan jatah
-    // penyimpanan gratis desa dalam semalam.
-    function gambarWajar() {
-      return request.resource.size < 6 * 1024 * 1024
+    function milik(uid) {
+      return masuk() && request.auth.uid == uid;
+    }
+
+    // Batas 6 MB. Foto dari aplikasi sudah diperkecil ke sisi 1600 piksel
+    // (lihat BalaiConfig.maksSisiFoto), jadi biasanya di bawah 1 MB - angka
+    // ini hanya pagar untuk unggahan yang tidak lewat aplikasi.
+    function ukuranWajar() {
+      return request.resource.size > 0
+        && request.resource.size < 6 * 1024 * 1024;
+    }
+
+    // Harus benar-benar gambar. contentType diperiksa Firebase dari isi
+    // berkasnya, bukan dari nama berkas, jadi berkas lain yang namanya
+    // diganti jadi .jpg tetap ditolak.
+    function benarGambar() {
+      return request.resource.contentType != null
         && request.resource.contentType.matches('image/.*');
     }
 
-    // Foto kiriman: hanya pemiliknya yang boleh menaruh di map namanya.
-    match /kiriman/{uid}/{berkas} {
-      allow read: if masuk();
-      allow write: if masuk() && request.auth.uid == uid && gambarWajar();
+    function gambarWajar() {
+      return ukuranWajar() && benarGambar();
     }
 
-    // Foto profil.
+    // ---- Foto kiriman ------------------------------------------------------
     //
-    // Satu ruas jalur tidak boleh mencampur wildcard dan tulisan biasa, jadi
-    // `/profil/{uid}.jpg` ditolak Firebase. Yang benar: tangkap seluruh nama
-    // berkasnya, lalu cocokkan namanya dengan uid pemiliknya.
+    // Jalurnya: kiriman/{uid}/{waktu}.jpg
+    // Nama map = uid pemiliknya, jadi kepemilikan terbaca dari jalur saja.
+    match /kiriman/{uid}/{berkas} {
+      allow read: if masuk();
+
+      // create dan update dipisah dari delete dengan sengaja. Saat menghapus,
+      // request.resource kosong - kalau delete ikut memakai gambarWajar(),
+      // pemeriksaan ukuran dan tipe gagal dan warga tidak bisa menghapus
+      // fotonya sendiri.
+      allow create, update: if milik(uid) && gambarWajar();
+      allow delete: if milik(uid);
+    }
+
+    // ---- Foto profil -------------------------------------------------------
+    //
+    // Jalurnya: profil/{uid}.jpg - satu berkas per warga, tertimpa setiap kali
+    // ganti foto, jadi foto lama tidak menumpuk.
+    //
+    // Satu ruas jalur tidak boleh mencampur wildcard dengan tulisan biasa,
+    // jadi `match /profil/{uid}.jpg` DITOLAK Firebase ("Missing 'match'
+    // keyword before path"). Yang benar: tangkap seluruh nama berkasnya, lalu
+    // cocokkan namanya dengan uid pemiliknya.
     match /profil/{berkas} {
       allow read: if masuk();
-      allow write: if masuk()
+      allow create, update: if masuk()
         && berkas == request.auth.uid + '.jpg'
         && gambarWajar();
+      allow delete: if masuk() && berkas == request.auth.uid + '.jpg';
+    }
+
+    // ---- Sisanya tertutup --------------------------------------------------
+    //
+    // Firebase sebenarnya sudah menolak jalur yang tidak disebutkan. Baris ini
+    // ditulis terang-terangan supaya siapa pun yang membaca berkas ini tahu
+    // itu memang disengaja, bukan kelupaan.
+    match /{jalur=**} {
+      allow read, write: if false;
     }
   }
 }
