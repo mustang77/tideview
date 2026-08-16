@@ -118,6 +118,27 @@ memasang.
 
 ---
 
+## Mencoba tanpa menyentuh data desa
+
+Firebase Emulator Suite menjalankan Auth, Firestore, dan Storage di komputer
+sendiri. Semua warga dan kiriman yang dibuat di sini palsu, dan hilang saat
+emulator ditutup — jadi aman untuk coba-coba.
+
+```bash
+# jendela 1
+firebase emulators:start --project demo-balai
+
+# jendela 2
+flutter run --dart-define=EMULATOR=true
+```
+
+Aplikasi akan menampilkan garis merah "Running in emulator mode" di bawah
+layar. Panel emulator bisa dibuka di http://localhost:4000 untuk melihat isi
+database dan menyetujui warga tanpa membuka Firebase Console.
+
+Tanpa `--dart-define=EMULATOR=true`, tidak satu pun kode emulator berjalan,
+jadi APK yang dibagikan ke warga tidak mungkin nyasar ke sana.
+
 ## Mengubah untuk desa Anda
 
 Semua yang khas satu desa dikumpulkan di

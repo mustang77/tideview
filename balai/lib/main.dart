@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import 'core/config.dart';
+import 'core/emulator.dart';
 import 'core/theme.dart';
 import 'screens/gerbang_screen.dart';
 
@@ -10,7 +12,18 @@ Future<void> main() async {
 
   // Setelan Firebase dibaca dari android/app/google-services.json (Android)
   // dan web/index.html (web). Lihat README untuk cara membuatnya.
-  await Firebase.initializeApp();
+  //
+  // Kalau dijalankan dengan --dart-define=EMULATOR=true, aplikasi memakai
+  // Firebase Emulator Suite di komputer sendiri. Lihat core/emulator.dart.
+  await Firebase.initializeApp(
+    options: Emulator.aktif ? Emulator.opsi : null,
+  );
+  if (Emulator.aktif) {
+    await Emulator.sambungkan();
+    // Menyalakan pohon aksesibilitas supaya aplikasi bisa dikemudikan oleh
+    // skrip pengujian di peramban. Hanya saat memakai emulator.
+    SemanticsBinding.instance.ensureSemantics();
+  }
 
   runApp(const BalaiApp());
 }

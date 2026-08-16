@@ -278,6 +278,15 @@ class BalaiThemeData {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(foregroundColor: merek),
       ),
+      // Material 3 memberi tombol tambah bentuk kotak tumpul berwarna pucat.
+      // Di beranda hijau ini tombol itu jadi tidak terbaca sebagai tombol
+      // utama, jadi dikembalikan ke bulat dan berwarna merek.
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: merek,
+        foregroundColor: diAtasMerek,
+        shape: const CircleBorder(),
+        elevation: 3,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: ekstensi.permukaan2,

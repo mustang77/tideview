@@ -42,6 +42,22 @@ class Waktu {
     return '${saat.day} ${_bulan[saat.month - 1]} ${saat.year}';
   }
 
+  static const List<String> _bulanPanjang = <String>[
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+  ];
+
+  /// "Agustus 2026" - dipakai untuk tanggal bergabung di profil.
+  ///
+  /// Bukan [lalu], karena "Bergabung Baru saja" terbaca aneh dan sebulan lagi
+  /// jadi "Bergabung 30 hari lalu" - bukan itu yang ingin dilihat orang di
+  /// profil tetangganya.
+  static String bulanTahun(int ms) {
+    if (ms <= 0) return '';
+    final saat = DateTime.fromMillisecondsSinceEpoch(ms);
+    return '${_bulanPanjang[saat.month - 1]} ${saat.year}';
+  }
+
   /// "Minggu, 24 Agu" - dipakai di kartu acara.
   static String hariTanggal(int ms) {
     if (ms <= 0) return '';

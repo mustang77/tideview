@@ -48,7 +48,7 @@ class SayaScreen extends StatelessWidget {
                 if (orang.bergabung > 0) ...<Widget>[
                   const SizedBox(height: 2),
                   Text(
-                    'Bergabung ${Waktu.lalu(orang.bergabung)}',
+                    'Bergabung ${Waktu.bulanTahun(orang.bergabung)}',
                     style: TextStyle(fontSize: 12, color: t.tinta3),
                   ),
                 ],
