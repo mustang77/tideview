@@ -1,0 +1,46 @@
+{
+  "_catatan": [
+    "Setelan Firebase PALSU, khusus untuk mencoba aplikasi memakai Firebase",
+    "Emulator Suite di komputer sendiri.",
+    "",
+    "Gunanya: plugin Gradle google-services menolak membangun aplikasi",
+    "Android kalau berkas google-services.json tidak ada - padahal saat",
+    "memakai emulator, setelan sungguhan tidak diperlukan.",
+    "",
+    "Cara pakai:",
+    "  cp tools/google-services.demo.json android/app/google-services.json",
+    "  firebase emulators:start --project demo-balai",
+    "  flutter run --dart-define=EMULATOR=true",
+    "",
+    "JANGAN dipakai untuk APK yang dibagikan ke warga. Proyek 'demo-balai'",
+    "tidak ada, jadi aplikasinya tidak bisa masuk sama sekali. Untuk APK",
+    "sungguhan, timpa dengan google-services.json dari Firebase Console."
+  ],
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "demo-balai",
+    "storage_bucket": "demo-balai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "id.desa.balai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
