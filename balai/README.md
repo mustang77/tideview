@@ -125,12 +125,30 @@ sendiri. Semua warga dan kiriman yang dibuat di sini palsu, dan hilang saat
 emulator ditutup — jadi aman untuk coba-coba.
 
 ```bash
+# sekali saja: plugin Gradle google-services menolak membangun aplikasi
+# Android kalau berkas ini tidak ada, walaupun sedang memakai emulator
+cp tools/google-services.demo.json android/app/google-services.json
+
 # jendela 1
 firebase emulators:start --project demo-balai
 
-# jendela 2
+# jendela 2 — di HP atau emulator Android
 flutter run --dart-define=EMULATOR=true
+
+# atau di peramban, tidak perlu google-services.json sama sekali
+flutter run -d chrome --dart-define=EMULATOR=true
 ```
+
+Kalau `flutter run` di HP tidak bisa menyentuh emulator, ganti `localhost`
+dengan alamat IP komputer Anda:
+
+```bash
+flutter run --dart-define=EMULATOR=true --dart-define=EMULATOR_HOST=192.168.1.5
+```
+
+HP dan komputer harus berada di jaringan WiFi yang sama. (`localhost` di HP
+berarti HP itu sendiri, bukan komputer Anda — ini jebakan yang paling sering
+bikin bingung.)
 
 Aplikasi akan menampilkan garis merah "Running in emulator mode" di bawah
 layar. Panel emulator bisa dibuka di http://localhost:4000 untuk melihat isi
