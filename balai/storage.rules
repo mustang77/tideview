@@ -26,9 +26,15 @@ service firebase.storage {
     }
 
     // Foto profil.
-    match /profil/{uid}.jpg {
+    //
+    // Satu ruas jalur tidak boleh mencampur wildcard dan tulisan biasa, jadi
+    // `/profil/{uid}.jpg` ditolak Firebase. Yang benar: tangkap seluruh nama
+    // berkasnya, lalu cocokkan namanya dengan uid pemiliknya.
+    match /profil/{berkas} {
       allow read: if masuk();
-      allow write: if masuk() && request.auth.uid == uid && gambarWajar();
+      allow write: if masuk()
+        && berkas == request.auth.uid + '.jpg'
+        && gambarWajar();
     }
   }
 }
