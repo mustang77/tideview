@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// Aturan keamanan Firebase Storage untuk Balai.
+//
+// Pasang lewat Firebase Console:
+//   Storage > Rules > ganti semua > Publish
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function masuk() {
+      return request.auth != null;
+    }
+
+    // Foto tidak boleh lebih dari 6 MB, dan harus benar-benar gambar.
+    // Batas ini penting: tanpa itu satu orang bisa menghabiskan jatah
+    // penyimpanan gratis desa dalam semalam.
+    function gambarWajar() {
+      return request.resource.size < 6 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Foto kiriman: hanya pemiliknya yang boleh menaruh di map namanya.
+    match /kiriman/{uid}/{berkas} {
+      allow read: if masuk();
+      allow write: if masuk() && request.auth.uid == uid && gambarWajar();
+    }
+
+    // Foto profil.
+    match /profil/{uid}.jpg {
+      allow read: if masuk();
+      allow write: if masuk() && request.auth.uid == uid && gambarWajar();
+    }
+  }
+}

@@ -1,0 +1,122 @@
+rules_version = '2';
+
+// Aturan keamanan Firestore untuk Balai.
+//
+// Pasang lewat Firebase Console:
+//   Firestore Database > Rules > ganti semua > Publish
+//
+// Aturan ini yang sebenarnya menjaga desa. Aplikasi juga memeriksa hal yang
+// sama, tapi pemeriksaan di aplikasi bisa dilewati orang yang tahu caranya -
+// aturan di sini tidak bisa.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function masuk() {
+      return request.auth != null;
+    }
+
+    function diriSendiri(uid) {
+      return masuk() && request.auth.uid == uid;
+    }
+
+    function profilSaya() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function kepalaDesa() {
+      return masuk() && profilSaya().get('kepalaDesa', false) == true;
+    }
+
+    // Boleh menulis kiriman, komentar, acara: sudah disetujui kepala desa.
+    function disetujui() {
+      return masuk() &&
+        (profilSaya().get('disetujui', false) == true || kepalaDesa());
+    }
+
+    // ---- Warga -----------------------------------------------------------
+    match /users/{uid} {
+      // Semua yang sudah masuk boleh membaca buku warga.
+      allow read: if masuk();
+
+      // Warga membuat profilnya sendiri saat mendaftar, tapi TIDAK boleh
+      // langsung menyetujui dirinya sendiri atau mengangkat diri jadi
+      // kepala desa.
+      allow create: if diriSendiri(uid)
+        && request.resource.data.get('disetujui', false) == false
+        && request.resource.data.get('kepalaDesa', false) == false;
+
+      // Warga boleh mengubah datanya sendiri, asal dua bidang penjaga itu
+      // tidak ikut berubah. Kepala desa boleh mengubah apa saja.
+      allow update: if kepalaDesa() || (diriSendiri(uid)
+        && request.resource.data.get('disetujui', false)
+             == resource.data.get('disetujui', false)
+        && request.resource.data.get('kepalaDesa', false)
+             == resource.data.get('kepalaDesa', false));
+
+      allow delete: if kepalaDesa();
+    }
+
+    // ---- Kiriman ---------------------------------------------------------
+    match /posts/{postId} {
+      allow read: if masuk();
+
+      // Hanya warga yang sudah disetujui yang bisa mengirim, dan hanya atas
+      // namanya sendiri. Menyematkan kiriman khusus kepala desa.
+      allow create: if disetujui()
+        && request.resource.data.penulisUid == request.auth.uid
+        && (request.resource.data.get('disematkan', false) == false
+            || kepalaDesa());
+
+      // Penulis boleh mengubah kirimannya, kepala desa boleh mengubah semua.
+      // Penghitung suka dan komentar ikut diubah warga lain lewat transaksi,
+      // jadi pembaruan yang hanya menyentuh angka itu diizinkan.
+      allow update: if kepalaDesa()
+        || (masuk() && resource.data.penulisUid == request.auth.uid)
+        || (disetujui() && request.resource.data
+              .diff(resource.data).affectedKeys()
+              .hasOnly(['jumlahSuka', 'jumlahKomentar']));
+
+      allow delete: if kepalaDesa()
+        || (masuk() && resource.data.penulisUid == request.auth.uid);
+
+      // Suka: satu dokumen per warga, dan hanya warga itu yang boleh
+      // membuat atau menghapusnya.
+      match /likes/{uid} {
+        allow read: if masuk();
+        allow create, delete: if diriSendiri(uid) && disetujui();
+      }
+
+      // Komentar.
+      match /comments/{commentId} {
+        allow read: if masuk();
+        allow create: if disetujui()
+          && request.resource.data.penulisUid == request.auth.uid;
+        allow delete: if kepalaDesa()
+          || (masuk() && resource.data.penulisUid == request.auth.uid)
+          || (masuk() && get(/databases/$(database)/documents/posts/$(postId))
+                .data.penulisUid == request.auth.uid);
+        allow update: if false;
+      }
+    }
+
+    // ---- Acara -----------------------------------------------------------
+    match /events/{eventId} {
+      allow read: if masuk();
+      allow create: if disetujui()
+        && request.resource.data.pembuatUid == request.auth.uid;
+
+      allow update: if kepalaDesa()
+        || (masuk() && resource.data.pembuatUid == request.auth.uid)
+        || (disetujui() && request.resource.data
+              .diff(resource.data).affectedKeys().hasOnly(['jumlahIkut']));
+
+      allow delete: if kepalaDesa()
+        || (masuk() && resource.data.pembuatUid == request.auth.uid);
+
+      match /rsvps/{uid} {
+        allow read: if masuk();
+        allow create, delete: if diriSendiri(uid) && disetujui();
+      }
+    }
+  }
+}

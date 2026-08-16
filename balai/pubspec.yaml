@@ -1,0 +1,33 @@
+name: balai
+description: Aplikasi warga desa - beranda, acara, dan buku warga.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase: akun, database, dan penyimpanan foto.
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+  firebase_storage: ^12.3.4
+
+  # Ambil foto dari kamera atau galeri.
+  image_picker: ^1.1.2
+
+  # Cache foto supaya beranda tidak mengunduh ulang tiap gulir.
+  cached_network_image: ^3.4.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
