@@ -41,6 +41,26 @@ Veo paling payah membuat interior kapal yang lebar dan konsisten. Foto alumni as
 
 > ⚠️ **Minta izin tertulis singkat dari siswa yang fotonya dipakai**, dan sebutkan bahwa videonya akan dipost publik. Ini drama yang menampilkan kegagalan, teguran atasan, dan orang tua sakit — wajah seseorang bisa ikut terbaca sebagai bagian dari cerita itu. Satu pesan WA yang disimpan sudah cukup, dan itu melindungi kamu kalau videonya viral.
 
+---
+
+## LORONG KRU — "I-95"
+
+Lorong utama kru membentang sepanjang kapal dan kru menyebutnya **"I-95"**, diambil dari nama jalan tol pantai timur Amerika. Ini istilah asli. Siapa pun yang pernah bekerja di kapal akan langsung percaya pada drama yang memakai kata itu — dan mereka penonton inti WCA.
+
+**Wujudnya bukan lorong sempit yang sesak.** Kebalikannya: lebar, terang benderang, klinis, dan panjangnya tidak habis-habis. Dinding besi putih, deretan pintu besi putih, lantai vinil krem yang memantul, barisan lampu neon memanjang sampai titik lenyap yang jauh sekali, tanda exit hijau menyala di beberapa titik, troli stainless dan keranjang plastik biru berjajar di satu sisi. Beberapa bentang dinding dicat mural warna-warni.
+
+Itu justru lebih baik untuk Ep 1. Lorong sempit membuat orang merasa terjepit; **lorong terang sepanjang satu kapal membuat orang merasa kecil dan sendirian.** Manfaatkan: tempatkan Bima jauh dari kamera, biarkan lorongnya mendominasi frame.
+
+**Alternatif kalimat hook Klip 1** — pakai kalau mau menaruh penanda keaslian di detik pertama:
+
+```
+"Kru nyebut lorong ini I-95. Panjangnya satu kapal. Nggak ada penumpang yang pernah lihat."
+```
+
+Versi asli — *"Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya."* — lebih puitis dan lebih pendek. Versi I-95 lebih meyakinkan bagi orang dalam. Pilih salah satu, jangan dua-duanya.
+
+> ⚠️ **Jangan pakai footage kreator lain.** Video lorong kapal yang beredar di TikTok adalah konten milik akun lain, sering dengan caption yang sudah menempel di gambar. Dipost ulang di akun lembaga pendidikan, itu terbaca sebagai repost dan risikonya tidak sebanding. Video semacam itu dipakai **hanya sebagai referensi untuk menulis prompt** — persis seperti deskripsi di atas, yang diturunkan dari menonton, bukan dari menyalin.
+
 ## KARAKTER
 
 Dua aset lama dipakai ulang: `bima.png` dan `bapak.png` dari Season 1.
@@ -144,7 +164,7 @@ Reference `bima-dish.png` di setiap klip.
 
 **KLIP 1 — Ingredient: `bima-dish.png`** — hook
 ```
-bima-dish.png berapron karet hijau toska dan sarung tangan karet hijau mendorong troli berisi tumpukan piring kotor menyusuri lorong kru kapal yang sempit dan panas, pipa-pipa di langit-langit, wajah lelah berkeringat, dini hari. Berbicara pelan hampir pada dirinya sendiri: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih kapal yang keras dan tidak merata, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+bima-dish.png berapron karet hijau toska dan sarung tangan karet hijau mendorong troli berisi tumpukan piring kotor menyusuri lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujungnya, dinding besi putih dan deretan pintu besi putih, lantai vinil krem yang memantul, langit-langit panel putih dengan barisan lampu neon panjang memanjang ke kejauhan, tanda exit hijau menyala di beberapa titik, troli stainless steel dan keranjang plastik biru berjajar rapat di satu sisi dinding, wajah lelah berkeringat, dini hari. Berbicara pelan hampir pada dirinya sendiri: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih yang terang dan rata sampai terasa klinis, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 
 **KLIP 2 (REAL — foto/footage asli area dishwashing)** — 3–8 detik
@@ -185,7 +205,7 @@ Close-up supervisor.png berseragam perwira putih menatap lurus dengan wajah data
 
 **KLIP 5 — Ingredients: `bima-dish.png` + `supervisor.png`** — cliffhanger
 ```
-Lorong kru kapal yang sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-dish.png berapron hijau berdiri sendirian di latar dengan tangan turun lemas di samping badan. Supervisor berbicara tanpa menoleh dalam bahasa Inggris: "One more mistake, and you go home." Musik hening, cahaya neon lorong yang redup, handheld, candid, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+Ujung lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujungnya, dinding besi putih dan deretan pintu besi putih, lantai vinil krem yang memantul, langit-langit panel putih dengan barisan lampu neon panjang memanjang ke kejauhan, tanda exit hijau menyala di beberapa titik, troli stainless steel dan keranjang plastik biru berjajar rapat di satu sisi dinding. supervisor.png berjalan menjauh membelakangi kamera menyusuri lorong yang panjang, bima-dish.png berapron hijau berdiri sendirian di latar dengan tangan turun lemas di samping badan. Supervisor berbicara tanpa menoleh dalam bahasa Inggris: "One more mistake, and you go home." Musik hening, cahaya neon lorong yang terang dan rata, tokoh terlihat kecil di dalam lorong yang terlalu besar, handheld, candid, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 > Blocking-nya sengaja meniru Ep 1 Season 1 — figur otoritas berjalan menjauh membelakangi, kalimat penghancur dijatuhkan tanpa menoleh, tokoh utama ditinggal sendirian di frame. Penonton lama akan merasakan gemanya. Jangan diubah.
 
@@ -194,13 +214,13 @@ Lorong kru kapal yang sempit. supervisor.png berjalan menjauh membelakangi kamer
 ```
 Episode drama pendek vertikal bahasa Indonesia dengan sebagian dialog bahasa Inggris. Konsisten dengan gambar: bima-dish.png (pemuda Indonesia 20 tahun, topi kain hitam, kaos putih, apron karet hijau toska, sarung tangan karet hijau), supervisor.png (pria asing 42 tahun berseragam perwira kapal putih).
 
-Shot 1: Lorong kru kapal sempit dan panas, pipa di langit-langit, dini hari. bima-dish.png berapron hijau mendorong troli piring kotor, wajah lelah berkeringat. Berbicara pelan: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih keras, handheld, candid, tekstur kulit natural, sinematik muram. 9:16, 8 detik.
+Shot 1: Lorong kru kapal lebar dan sangat panjang, dinding dan pintu besi putih, lantai vinil krem, barisan lampu neon memanjang ke kejauhan, tanda exit hijau, troli stainless dan keranjang biru di satu sisi, dini hari. bima-dish.png berapron hijau mendorong troli piring kotor, wajah lelah berkeringat. Berbicara pelan: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih keras, handheld, candid, tekstur kulit natural, sinematik muram. 9:16, 8 detik.
 
 Shot 2: Dapur kapal stainless steel yang sibuk. bima-dish.png membawa nampan gelas, menabrak sudut meja, nampan terlepas, wajahnya membeku. supervisor.png berbalik menatapnya dari seberang dapur. Cahaya terang dingin, handheld, candid. 9:16, 8 detik.
 
 Shot 3: Close-up supervisor.png menatap datar tanpa amarah, berbicara pelan dalam bahasa Inggris: "You are not in your village anymore." Cahaya keras dari atas, kamera diam menegangkan, candid. 9:16, 8 detik.
 
-Shot 4: Lorong kru sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-dish.png berdiri sendirian dengan tangan turun lemas. Supervisor berbicara tanpa menoleh: "One more mistake, and you go home." Cahaya neon redup, handheld, candid, sinematik muram. 9:16, 8 detik.
+Shot 4: Ujung lorong kru yang panjang dan terang. supervisor.png berjalan menjauh membelakangi kamera, bima-dish.png berdiri sendirian dengan tangan turun lemas, terlihat kecil di dalam lorong. Supervisor berbicara tanpa menoleh: "One more mistake, and you go home." Cahaya neon terang dan rata, handheld, candid, sinematik muram. 9:16, 8 detik.
 
 Jaga konsistensi wajah dan pakaian kerja bima-dish.png dan supervisor.png di semua shot. Dialog Bima bahasa Indonesia logat Jawa halus, dialog supervisor bahasa Inggris. Vertikal 9:16.
 ```
