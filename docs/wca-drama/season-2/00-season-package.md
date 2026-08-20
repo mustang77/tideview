@@ -37,7 +37,7 @@ Veo paling payah membuat interior kapal yang lebar dan konsisten. Foto alumni as
 
 **4. Kartu CTA di Ep 8.** Di atas foto alumni asli berseragam di kapal asli, bukan di atas footage AI. Setelah delapan episode cerita, bukti nyata di detik terakhir adalah hal yang mengubah penonton jadi pendaftar.
 
-**Yang TIDAK boleh:** jangan pakai foto siswa asli sebagai wajah Bima. Bima harus tetap `bima-kru.png` di semua episode — begitu wajahnya berganti-ganti antara AI dan orang asli, serialnya bubar. Foto siswa dipakai untuk **kru lain, latar, lingkungan, dan bukti** — tidak pernah untuk tokoh utama.
+**Yang TIDAK boleh:** jangan pakai foto siswa asli sebagai wajah Bima. Bima harus tetap `bima-dish.png` / `bima-servis.png` di semua episode — begitu wajahnya berganti-ganti antara AI dan orang asli, serialnya bubar. Foto siswa dipakai untuk **kru lain, latar, lingkungan, dan bukti** — tidak pernah untuk tokoh utama.
 
 > ⚠️ **Minta izin tertulis singkat dari siswa yang fotonya dipakai**, dan sebutkan bahwa videonya akan dipost publik. Ini drama yang menampilkan kegagalan, teguran atasan, dan orang tua sakit — wajah seseorang bisa ikut terbaca sebagai bagian dari cerita itu. Satu pesan WA yang disimpan sudah cukup, dan itu melindungi kamu kalau videonya viral.
 
@@ -49,13 +49,33 @@ Dua aset lama dipakai ulang: `bima.png` dan `bapak.png` dari Season 1.
 
 Di Season 1, wajah Bima berubah **tiga kali** begitu masuk adegan berkemeja putih dan dasi, karena satu aset berkaos lusuh tidak cukup kuat menahan wajah di lingkungan formal. Season ini hampir seluruhnya berseragam. Jadi:
 
-**Generate `bima-kru.png` dengan `bima.png` sebagai referensi wajah.** Jangan pakai `bima.png` untuk adegan di kapal. Hal yang sama berlaku untuk bapak di rumah sakit.
+**Generate aset kapal dengan `bima.png` sebagai referensi wajah.** Jangan pakai `bima.png` langsung untuk adegan di kapal. Hal yang sama berlaku untuk bapak di rumah sakit.
 
-### `bima-kru.png` — Bima, 20 tahun, kru kapal
+### ⚠️ Bima butuh DUA pakaian kerja, dan bedanya adalah busur ceritanya
+
+Kru yang berdiri di stasiun cuci piring tidak memakai seragam servis yang licin — mereka pakai apron karet dan sarung tangan. Kalau Ep 1 berlatar area dishwashing tapi Bima berseragam servis rapi, siapa pun yang pernah kerja di kapal langsung tahu itu palsu. Dan mereka justru penonton inti WCA.
+
+Jadikan perbedaan itu alat cerita, bukan sekadar akurasi:
+
+| Episode | Pakaian | Yang dibaca penonton |
+|---|---|---|
+| Ep 1, 3, 6, 7 | apron hijau + sarung tangan + topi | dasar — belum jadi siapa-siapa |
+| Ep 2, 4 | kemeja servis putih + name tag | naik ke depan, dilihat tamu |
+| Ep 8 | seragam lengkap, pulang | selesai |
+
+Penonton membaca kenaikannya tanpa satu kalimat penjelasan pun.
+
+### `bima-dish.png` — Bima di belakang (Ep 1, 3, 6, 7)
 ```
-Foto iPhone candid seorang laki-laki Indonesia berusia 20 tahun, kulit sawo matang, rambut hitam pendek dipotong rapi, wajah muda yang mulai lelah, tanpa makeup, mengenakan seragam kru kapal pesiar putih yang licin dengan name tag di dada, berdiri di lorong kru kapal yang sempit dengan pipa dan pintu besi di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya lampu neon putih kapal yang rata dan sedikit dingin. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang berusaha terlihat profesional. Realisme gaya editorial.
+Foto iPhone candid seorang laki-laki Indonesia berusia 20 tahun, kulit sawo matang, rambut hitam pendek, wajah muda yang mulai lelah, tanpa makeup, mengenakan topi kain hitam, kaos seragam putih lengan pendek, apron karet hijau toska, dan sarung tangan karet hijau panjang sampai siku, berdiri di stasiun pencucian piring kapal dengan tumpukan piring putih dan keranjang plastik biru di sekelilingnya. Diambil dari sudut rendah, sedikit dari samping. Cahaya neon putih keras memantul di stainless steel. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang bekerja keras. Realisme gaya editorial.
 ```
-> Generate dengan `bima.png` sebagai referensi wajah. Kalau wajahnya meleset, ulangi — aset ini menanggung tujuh dari delapan episode.
+> Ini aset yang paling banyak dipakai di paruh pertama season. Generate dengan `bima.png` sebagai referensi wajah.
+
+### `bima-servis.png` — Bima di depan (Ep 2, 4, 8)
+```
+Foto iPhone candid seorang laki-laki Indonesia berusia 20 tahun, kulit sawo matang, rambut hitam pendek dipotong rapi, wajah muda yang mulai lelah, tanpa makeup, mengenakan kemeja seragam kru kapal pesiar putih yang licin dengan name tag di dada, berdiri di lorong kru kapal yang sempit dengan pipa dan pintu besi di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya lampu neon putih kapal yang rata dan sedikit dingin. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang berusaha terlihat profesional. Realisme gaya editorial.
+```
+> Generate dengan `bima.png` sebagai referensi wajah — **wajah yang sama persis dengan `bima-dish.png`**. Kalau meleset, ulangi; dua aset ini menanggung seluruh season.
 
 ### `bapak-sakit.png` — Pak Karno di rumah sakit
 ```
@@ -114,17 +134,17 @@ Bukan kapal mewah. Lorong kru. Ini janji season yang harus disampaikan di delapa
 
 Character sheet — salin persis ke setiap prompt:
 ```
-bima-kru.png = laki-laki Indonesia 20 tahun, kulit sawo matang, rambut hitam pendek rapi, seragam kru kapal pesiar putih dengan name tag
+bima-dish.png = laki-laki Indonesia 20 tahun, kulit sawo matang, rambut hitam pendek, topi kain hitam, kaos putih, apron karet hijau toska, sarung tangan karet hijau sampai siku
 supervisor.png = pria asing 42 tahun, seragam perwira putih dengan epaulet, wajah keras profesional
 ```
 
 ### METODE B — 1 KLIP = 1 SCENE ⭐
 
-Reference `bima-kru.png` di setiap klip.
+Reference `bima-dish.png` di setiap klip.
 
-**KLIP 1 — Ingredient: `bima-kru.png`** — hook
+**KLIP 1 — Ingredient: `bima-dish.png`** — hook
 ```
-bima-kru.png berseragam kru kapal pesiar putih mendorong troli berisi tumpukan piring kotor menyusuri lorong kru kapal yang sempit dan panas, pipa-pipa di langit-langit, wajah lelah berkeringat, dini hari. Berbicara pelan hampir pada dirinya sendiri: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih kapal yang keras dan tidak merata, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+bima-dish.png berapron karet hijau toska dan sarung tangan karet hijau mendorong troli berisi tumpukan piring kotor menyusuri lorong kru kapal yang sempit dan panas, pipa-pipa di langit-langit, wajah lelah berkeringat, dini hari. Berbicara pelan hampir pada dirinya sendiri: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih kapal yang keras dan tidak merata, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 
 **KLIP 2 (REAL — foto/footage asli area dishwashing)** — 3–8 detik
@@ -137,7 +157,7 @@ bima-kru.png berseragam kru kapal pesiar putih mendorong troli berisi tumpukan p
 Kalau klip AI ditulis dari ruangan yang sama dengan footage aslinya, sambungan antara keduanya jadi tidak kelihatan. Ini prompt yang sudah diturunkan dari area dishwashing asli, pakai sebagai dasar untuk semua klip di ruangan itu:
 
 ```
-Lorong dishwashing kapal yang sempit, dinding dan langit-langit stainless steel, mesin cuci piring konveyor besar dengan tirai plastik biru muda menggantung di mulutnya, rak berisi puluhan piring putih menunggu masuk, lampu neon panjang dan ventilasi kotak berkisi di langit-langit, uap tipis menggantung di udara. bima-kru.png berseragam kru menyusun piring ke dalam rak, wajah lelah berkeringat. Diambil dari sudut rendah mendongak. Cahaya neon putih keras memantul di stainless steel, handheld, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+Lorong dishwashing kapal yang sempit, dinding dan langit-langit stainless steel, mesin cuci piring konveyor besar dengan tirai plastik biru muda menggantung di mulutnya, rak berisi puluhan piring putih menunggu masuk, lampu neon panjang dan ventilasi kotak berkisi di langit-langit, semprotan pre-rinse bergagang selang spiral menggantung di atas bak cuci, keranjang plastik biru dan tumpukan piring putih di meja stainless, uap tipis menggantung di udara. bima-dish.png bertopi kain hitam, berapron karet hijau toska dan sarung tangan karet hijau menyemprot piring kotor di atas bak cuci, wajah lelah berkeringat. Diambil dari sudut rendah mendongak. Cahaya neon putih keras memantul di stainless steel, handheld, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 
 **Sudut rendah mendongak itu jangan diubah** — pertahankan di semua klip AI di ruangan ini supaya menyambung dengan footage aslinya. Sudut itu juga yang membuat tokohnya terlihat kecil di dalam mesin besar, dan itu tema Ep 1.
@@ -152,9 +172,9 @@ Lorong dishwashing kapal yang sempit, dinding dan langit-langit stainless steel,
 | Meja restoran tertata, close-up gelas dan cutlery | Ep 2, Ep 4 |
 | Tangan menata piring atau melipat serbet, potong di pergelangan | sisipan universal, episode mana saja |
 
-**KLIP 3 — Ingredients: `bima-kru.png` + `supervisor.png`** — kesalahan
+**KLIP 3 — Ingredients: `bima-dish.png` + `supervisor.png`** — kesalahan
 ```
-Dapur kapal berbahan stainless steel yang sibuk. bima-kru.png berjalan tergesa membawa nampan berisi gelas-gelas, lalu menabrak sudut meja — nampan terlepas dari tangannya. Wajahnya membeku. supervisor.png berseragam perwira putih berbalik menatapnya dari seberang dapur. Cahaya dapur kapal yang terang dan dingin, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+Dapur kapal berbahan stainless steel yang sibuk. bima-dish.png berapron hijau berjalan tergesa membawa nampan berisi gelas-gelas, lalu menabrak sudut meja — nampan terlepas dari tangannya. Wajahnya membeku. supervisor.png berseragam perwira putih berbalik menatapnya dari seberang dapur. Cahaya dapur kapal yang terang dan dingin, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
 ```
 > Suara gelas pecah ditambahkan di editor. Jangan minta Veo membuat pecahan kaca beterbangan — hasilnya hampir selalu rusak. Cukup nampan terlepas, lalu potong.
 
@@ -163,26 +183,26 @@ Dapur kapal berbahan stainless steel yang sibuk. bima-kru.png berjalan tergesa m
 Close-up supervisor.png berseragam perwira putih menatap lurus dengan wajah datar dan lelah, tanpa amarah, justru itu yang membuatnya dingin. Berbicara pelan dan jelas dalam bahasa Inggris: "You are not in your village anymore." Cahaya dapur kapal yang keras dari atas, handheld, candid, tekstur kulit natural, kamera diam menegangkan. Vertikal 9:16, 8 detik.
 ```
 
-**KLIP 5 — Ingredients: `bima-kru.png` + `supervisor.png`** — cliffhanger
+**KLIP 5 — Ingredients: `bima-dish.png` + `supervisor.png`** — cliffhanger
 ```
-Lorong kru kapal yang sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-kru.png berdiri sendirian di latar dengan tangan turun lemas di samping badan. Supervisor berbicara tanpa menoleh dalam bahasa Inggris: "One more mistake, and you go home." Musik hening, cahaya neon lorong yang redup, handheld, candid, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-dish.png berapron hijau berdiri sendirian di latar dengan tangan turun lemas di samping badan. Supervisor berbicara tanpa menoleh dalam bahasa Inggris: "One more mistake, and you go home." Musik hening, cahaya neon lorong yang redup, handheld, candid, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 > Blocking-nya sengaja meniru Ep 1 Season 1 — figur otoritas berjalan menjauh membelakangi, kalimat penghancur dijatuhkan tanpa menoleh, tokoh utama ditinggal sendirian di frame. Penonton lama akan merasakan gemanya. Jangan diubah.
 
 ### BRIEFING AGENT MODE (cadangan — tempel utuh)
 
 ```
-Episode drama pendek vertikal bahasa Indonesia dengan sebagian dialog bahasa Inggris. Konsisten dengan gambar: bima-kru.png (pemuda Indonesia 20 tahun berseragam kru kapal pesiar putih), supervisor.png (pria asing 42 tahun berseragam perwira kapal putih).
+Episode drama pendek vertikal bahasa Indonesia dengan sebagian dialog bahasa Inggris. Konsisten dengan gambar: bima-dish.png (pemuda Indonesia 20 tahun, topi kain hitam, kaos putih, apron karet hijau toska, sarung tangan karet hijau), supervisor.png (pria asing 42 tahun berseragam perwira kapal putih).
 
-Shot 1: Lorong kru kapal sempit dan panas, pipa di langit-langit, dini hari. bima-kru.png mendorong troli piring kotor, wajah lelah berkeringat. Berbicara pelan: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih keras, handheld, candid, tekstur kulit natural, sinematik muram. 9:16, 8 detik.
+Shot 1: Lorong kru kapal sempit dan panas, pipa di langit-langit, dini hari. bima-dish.png berapron hijau mendorong troli piring kotor, wajah lelah berkeringat. Berbicara pelan: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih keras, handheld, candid, tekstur kulit natural, sinematik muram. 9:16, 8 detik.
 
-Shot 2: Dapur kapal stainless steel yang sibuk. bima-kru.png membawa nampan gelas, menabrak sudut meja, nampan terlepas, wajahnya membeku. supervisor.png berbalik menatapnya dari seberang dapur. Cahaya terang dingin, handheld, candid. 9:16, 8 detik.
+Shot 2: Dapur kapal stainless steel yang sibuk. bima-dish.png membawa nampan gelas, menabrak sudut meja, nampan terlepas, wajahnya membeku. supervisor.png berbalik menatapnya dari seberang dapur. Cahaya terang dingin, handheld, candid. 9:16, 8 detik.
 
 Shot 3: Close-up supervisor.png menatap datar tanpa amarah, berbicara pelan dalam bahasa Inggris: "You are not in your village anymore." Cahaya keras dari atas, kamera diam menegangkan, candid. 9:16, 8 detik.
 
-Shot 4: Lorong kru sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-kru.png berdiri sendirian dengan tangan turun lemas. Supervisor berbicara tanpa menoleh: "One more mistake, and you go home." Cahaya neon redup, handheld, candid, sinematik muram. 9:16, 8 detik.
+Shot 4: Lorong kru sempit. supervisor.png berjalan menjauh membelakangi kamera, bima-dish.png berdiri sendirian dengan tangan turun lemas. Supervisor berbicara tanpa menoleh: "One more mistake, and you go home." Cahaya neon redup, handheld, candid, sinematik muram. 9:16, 8 detik.
 
-Jaga konsistensi wajah dan seragam bima-kru.png dan supervisor.png di semua shot. Dialog Bima bahasa Indonesia logat Jawa halus, dialog supervisor bahasa Inggris. Vertikal 9:16.
+Jaga konsistensi wajah dan pakaian kerja bima-dish.png dan supervisor.png di semua shot. Dialog Bima bahasa Indonesia logat Jawa halus, dialog supervisor bahasa Inggris. Vertikal 9:16.
 ```
 
 ### VOICEOVER ElevenLabs
@@ -234,9 +254,9 @@ Struktur sama. Lingkungan dan aset tambahan per episode:
 
 | Ep | Lingkungan baru | Aset | Klip kampung |
 |----|-----------------|------|--------------|
-| 2 | Restoran kapal, meja tamu | `supervisor.png` | — |
+| 2 | Restoran kapal, meja tamu | `bima-servis.png`, `supervisor.png` | — |
 | 3 | Kabin kru 4 ranjang; teras rumah kampung | `rekan.png`, `bapak.png` | ✓ video call |
-| 4 | Ballroom banquet; **footage asli ruang praktik WCA + foto siswa dianimasikan** | `supervisor.png` | — |
+| 4 | Ballroom banquet; **footage asli ruang praktik WCA + foto siswa dianimasikan** | `bima-servis.png`, `supervisor.png` | — |
 | 5 | Dek malam; lorong rumah sakit daerah | `ibu.png` | ✓ telepon |
 | 6 | Kantor perwira; pagar dek malam | `supervisor.png` | — |
 | 7 | Kabin kru; ranjang rumah sakit | `bapak-sakit.png`, `ibu.png` | ✓ |
