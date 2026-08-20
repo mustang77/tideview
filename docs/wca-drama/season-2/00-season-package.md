@@ -127,8 +127,30 @@ Reference `bima-kru.png` di setiap klip.
 bima-kru.png berseragam kru kapal pesiar putih mendorong troli berisi tumpukan piring kotor menyusuri lorong kru kapal yang sempit dan panas, pipa-pipa di langit-langit, wajah lelah berkeringat, dini hari. Berbicara pelan hampir pada dirinya sendiri: "Semua orang lihat kapalnya. Nggak ada yang lihat lorongnya." Cahaya neon putih kapal yang keras dan tidak merata, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 
-**KLIP 2 (REAL — footage HP ruang praktik WCA)** — 5–8 detik
-> Ruang praktik F&B atau mock cabin kampus. Tanpa dialog, jadi establishing shot. Taruh di antara Klip 1 dan 3. Penonton akan membacanya sebagai interior kapal — dan secara fungsional memang itu.
+**KLIP 2 (REAL — foto/footage asli area dishwashing)** — 3–8 detik
+> Tanpa dialog, jadi establishing shot. Taruh di antara Klip 1 dan 3 — langsung setelah kalimat "Nggak ada yang lihat lorongnya", sebagai bukti visual untuk kalimat itu.
+>
+> Kalau berupa foto diam: crop sepertiga atas (langit-langit kosong, dan bagian atas frame sering tertutup UI TikTok), lalu zoom pelan 3 detik di editor — nol kredit. Kalau mau dianimasikan di Flow, **gerakan sangat kecil saja**: kamera mendorong pelan, uap tipis bergerak. Jangan minta tangan bekerja atau piring berjalan; tangan yang melakukan tugas rumit selalu rusak.
+
+**⚠️ Patokan lingkungan — tulis prompt AI dari ruangan asli**
+
+Kalau klip AI ditulis dari ruangan yang sama dengan footage aslinya, sambungan antara keduanya jadi tidak kelihatan. Ini prompt yang sudah diturunkan dari area dishwashing asli, pakai sebagai dasar untuk semua klip di ruangan itu:
+
+```
+Lorong dishwashing kapal yang sempit, dinding dan langit-langit stainless steel, mesin cuci piring konveyor besar dengan tirai plastik biru muda menggantung di mulutnya, rak berisi puluhan piring putih menunggu masuk, lampu neon panjang dan ventilasi kotak berkisi di langit-langit, uap tipis menggantung di udara. bima-kru.png berseragam kru menyusun piring ke dalam rak, wajah lelah berkeringat. Diambil dari sudut rendah mendongak. Cahaya neon putih keras memantul di stainless steel, handheld, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+**Sudut rendah mendongak itu jangan diubah** — pertahankan di semua klip AI di ruangan ini supaya menyambung dengan footage aslinya. Sudut itu juga yang membuat tokohnya terlihat kecil di dalam mesin besar, dan itu tema Ep 1.
+
+**Daftar foto yang menutup hampir semua interior Season 2** — semuanya bisa diambil tanpa wajah siapa pun, jadi bebas urusan izin. Ambil vertikal, tahan HP diam 5 detik per shot supaya bisa dipakai sebagai klip, bukan cuma foto:
+
+| Foto | Dipakai di |
+|------|-----------|
+| Lorong kru sempit dengan pipa di langit-langit | Ep 1 Klip 1 dan Klip 5 |
+| Ranjang susun kabin kru | Ep 3, Ep 7 |
+| Dapur stainless steel dari sudut rendah | Ep 1 Klip 3 |
+| Meja restoran tertata, close-up gelas dan cutlery | Ep 2, Ep 4 |
+| Tangan menata piring atau melipat serbet, potong di pergelangan | sisipan universal, episode mana saja |
 
 **KLIP 3 — Ingredients: `bima-kru.png` + `supervisor.png`** — kesalahan
 ```
