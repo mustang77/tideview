@@ -66,8 +66,15 @@
   display:grid;
   gap:clamp(18px,2.4vw,28px);
   justify-items:start;
+  pointer-events:none;
 }
-#wca-hero .wca-col{max-width:34rem;display:grid;gap:inherit;justify-items:start}
+#wca-hero .wca-col{
+  max-width:34rem;
+  display:grid;
+  gap:inherit;
+  justify-items:start;
+  pointer-events:auto;
+}
 
 #wca-hero .wca-eyebrow{
   margin:0;
@@ -276,7 +283,6 @@
   <div class="wca-hud" aria-hidden="true">
     <i class="warm">Yogyakarta</i>
     <i>Rute penempatan</i>
-    <span>Tarik untuk memutar</span>
   </div>
 </section>
 
@@ -427,7 +433,7 @@
 
   /* ---------- view state ---------- */
   var yaw = 1.25, pitch = 0.30, spin = reduce ? 0 : 0.00035;
-  var dragging = false, lastX = 0, lastY = 0, idle = 0;
+  var dragging = false, hover = false, lastX = 0, lastY = 0, idle = 0;
   var W = 0, Hh = 0, cx = 0, cy = 0, R = 0, dpr = 1;
 
   function resize() {
@@ -584,9 +590,11 @@
 
     /* limb light */
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832);
-    ctx.strokeStyle = 'rgba(87,230,200,0.28)'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.strokeStyle = (hover || dragging) ? 'rgba(140,245,220,0.55)' : 'rgba(87,230,200,0.28)';
+    ctx.lineWidth = (hover || dragging) ? 1.8 : 1.2;
+    ctx.stroke();
     var halo = ctx.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.16);
-    halo.addColorStop(0, 'rgba(63,169,245,0.11)');
+    halo.addColorStop(0, (hover || dragging) ? 'rgba(87,230,200,0.20)' : 'rgba(63,169,245,0.11)');
     halo.addColorStop(1, 'rgba(63,169,245,0)');
     ctx.beginPath(); ctx.arc(cx, cy, R * 1.16, 0, 6.2832); ctx.fillStyle = halo; ctx.fill();
   }
@@ -597,7 +605,7 @@
     raf = null;
     if (!dragging) {
       idle++;
-      if (idle > 40 || spin === 0) yaw += spin * (time - last || 16);
+      if (idle > 40) yaw += spin * Math.min(32, last ? time - last : 16);
     }
     last = time;
     draw(time);
@@ -605,20 +613,42 @@
   }
   function startLoop() { if (running && !raf) raf = requestAnimationFrame(frame); }
 
-  /* drag to spin */
+  /* the globe itself is the control: grab anywhere on the sphere to turn it */
   canvas.style.touchAction = 'pan-y';
+  function onGlobe(e) {
+    var r = canvas.getBoundingClientRect();
+    var dx = e.clientX - r.left - cx, dy = e.clientY - r.top - cy;
+    var reach = R * 1.06;
+    return dx * dx + dy * dy <= reach * reach;
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    dragging = true; idle = 0; lastX = e.clientX; lastY = e.clientY;
+    if (!onGlobe(e)) return;
+    dragging = true; hover = true; idle = 0;
+    lastX = e.clientX; lastY = e.clientY;
+    canvas.style.cursor = 'grabbing';
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!dragging) return;
+    if (!dragging) {
+      hover = onGlobe(e);
+      canvas.style.cursor = hover ? 'grab' : 'default';
+      return;
+    }
     yaw -= (e.clientX - lastX) * 0.005;
     pitch = Math.max(-1.05, Math.min(1.05, pitch + (e.clientY - lastY) * 0.004));
     lastX = e.clientX; lastY = e.clientY;
   });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
-    canvas.addEventListener(ev, function () { dragging = false; idle = 0; });
+  ['pointerup', 'pointercancel'].forEach(function (ev) {
+    canvas.addEventListener(ev, function (e) {
+      if (!dragging) return;
+      dragging = false; idle = 0;
+      hover = onGlobe(e);
+      canvas.style.cursor = hover ? 'grab' : 'default';
+    });
+  });
+  canvas.addEventListener('pointerleave', function () {
+    if (dragging) { dragging = false; idle = 0; }
+    hover = false; canvas.style.cursor = 'default';
   });
 
   /* pause off-screen */

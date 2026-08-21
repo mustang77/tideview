@@ -43,4 +43,8 @@ Pelabuhan dan rute ada di array `PORTS`, `TRUNK`, dan `FEEDER` di dalam
 - Animasi berhenti saat section keluar layar (IntersectionObserver).
 - `prefers-reduced-motion` mematikan rotasi dan pulsa.
 - Canvas menyesuaikan devicePixelRatio (dibatasi 2x).
-- Bisa diputar dengan drag; scroll vertikal di HP tetap normal.
+- Globe-nya sendiri yang jadi kontrol: sentuh/drag di atas bola untuk
+  memutar. Di luar bola tidak bereaksi, jadi teks tetap bisa diseleksi dan
+  tombol tetap bisa diklik. Kursor berubah jadi "grab" dan tepi bola
+  menyala saat disentuh — tidak perlu tulisan petunjuk.
+- Scroll vertikal di HP tetap normal (`touch-action: pan-y`).
