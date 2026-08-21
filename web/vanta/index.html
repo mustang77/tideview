@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VANTA V-01</title>
+<meta name="description" content="Reveal page for the VANTA V-01 tri-motor hypercar: salt-flat hero, live instrument HUD, and full spec sheet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap">
+<style>
+:root{
+  --void:#07090C;
+  --panel:#101620;
+  --hair:#1B2430;
+  --ice:#E6EDF3;
+  --mute:#7C8B9C;
+  --beam:#3FE0C8;
+  --dusk:#E8853F;
+
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+
+  --gut:clamp(20px,4vw,64px);
+  --rule:1px solid var(--hair);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--ice);
+  font-family:var(--body);
+  font-weight:300;
+  font-size:clamp(15px,1.05vw,17px);
+  line-height:1.65;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--beam);outline-offset:3px}
+
+/* ---------- shared type ---------- */
+.display{
+  font-family:var(--display);
+  font-weight:900;
+  font-stretch:122%;
+  text-transform:uppercase;
+  letter-spacing:-.005em;
+  line-height:.88;
+  text-wrap:balance;
+  margin:0;
+}
+.eyebrow{
+  font-family:var(--data);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--mute);
+  margin:0;
+}
+.eyebrow .mark{color:var(--beam)}
+.lede{
+  font-size:clamp(17px,1.5vw,21px);
+  line-height:1.55;
+  max-width:34ch;
+  color:#C3CEDA;
+  margin:0;
+}
+p{margin:0}
+.num{font-family:var(--data);font-variant-numeric:tabular-nums}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  background:linear-gradient(180deg,#05070B 0%,#080C13 24%,#070A10 58%,#07090C 100%);
+  min-height:100svh;
+  min-height:100vh;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+  isolation:isolate;
+}
+.scene{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+}
+.scene svg{width:100%;height:100%}
+
+@media (max-aspect-ratio:5/6){
+  .scene{
+    top:20%;bottom:auto;height:38%;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 82%,transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0,#000 14%,#000 82%,transparent 100%);
+  }
+  .hero__body{padding-bottom:clamp(20px,3vh,40px)}
+}
+@media (max-aspect-ratio:5/9){
+  .scene{top:24%;height:30%}
+}
+
+/* HUD rails */
+.rail{
+  position:relative;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px var(--gut);
+  border-bottom:var(--rule);
+  background:linear-gradient(to bottom,rgba(7,9,12,.72),rgba(7,9,12,0));
+  backdrop-filter:blur(2px);
+}
+.rail--foot{
+  border-bottom:0;
+  border-top:var(--rule);
+  background:linear-gradient(to top,rgba(7,9,12,.72),rgba(7,9,12,0));
+}
+.wordmark{
+  font-family:var(--display);
+  font-weight:900;
+  font-stretch:125%;
+  font-size:19px;
+  letter-spacing:.42em;
+  text-transform:uppercase;
+  text-indent:.42em;
+  margin:0;
+}
+.rail .eyebrow{white-space:nowrap}
+.rail__mid{display:none}
+@media (min-width:820px){.rail__mid{display:block}}
+
+/* headline block */
+.hero__body{
+  position:relative;
+  z-index:2;
+  align-self:end;
+  display:grid;
+  gap:22px;
+  padding:0 var(--gut) clamp(28px,5vh,60px);
+  max-width:min(1500px,100%);
+}
+.hero h1{
+  font-size:clamp(40px,6.2vw,98px);
+  max-width:15ch;
+  color:var(--ice);
+  text-shadow:0 2px 40px rgba(4,6,9,.75);
+}
+.hero h1 .thin{
+  display:block;
+  font-weight:400;
+  font-stretch:112%;
+  color:#A6B5C4;
+}
+.scrim{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    linear-gradient(100deg,rgba(5,7,10,.72) 0%,rgba(5,7,10,.30) 26%,rgba(5,7,10,0) 50%),
+    linear-gradient(to top,rgba(5,7,10,.72) 0%,rgba(5,7,10,0) 38%);
+}
+.hero__meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:14px 34px;
+}
+.hero__meta .lede{max-width:46ch}
+
+/* instrument cluster */
+.cluster{
+  position:absolute;
+  z-index:2;
+  top:clamp(96px,13vh,150px);
+  right:var(--gut);
+  display:grid;
+  justify-items:end;
+  gap:clamp(18px,4vh,44px);
+  pointer-events:none;
+}
+.gauge{position:relative;width:clamp(88px,12vw,146px);aspect-ratio:1}
+.gauge svg{width:100%;height:100%;overflow:visible}
+.gauge__read{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-content:center;
+  justify-items:center;
+  gap:1px;
+}
+.gauge__val{
+  font-family:var(--display);
+  font-weight:800;
+  font-stretch:112%;
+  font-variant-numeric:tabular-nums;
+  font-size:clamp(28px,3.3vw,40px);
+  line-height:1;
+}
+.gauge__unit{
+  font-family:var(--data);
+  font-size:9.5px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--mute);
+}
+.track{fill:none;stroke:#1E2833;stroke-width:3}
+.arc{
+  fill:none;
+  stroke:var(--beam);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-dasharray:326;
+  stroke-dashoffset:326;
+  transition:stroke-dashoffset 2.4s cubic-bezier(.16,.9,.3,1) .45s;
+}
+body.ready .arc{stroke-dashoffset:78}
+
+.core{width:clamp(100px,14vw,178px);aspect-ratio:1;position:relative}
+@media (max-aspect-ratio:5/6){.cluster{gap:14px;top:clamp(84px,11vh,130px)}}
+.core svg{width:100%;height:100%}
+.core__label{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-content:center;
+  justify-items:center;
+  gap:3px;
+  text-align:center;
+}
+.core__label b{
+  font-family:var(--display);
+  font-weight:900;
+  font-stretch:118%;
+  font-size:15px;
+  letter-spacing:.16em;
+}
+.core__label span{
+  font-family:var(--data);
+  font-size:9px;
+  letter-spacing:.18em;
+  color:var(--beam);
+}
+.spin-a{transform-origin:50% 50%;animation:spin 26s linear infinite}
+.spin-b{transform-origin:50% 50%;animation:spin 17s linear infinite reverse}
+.spin-c{transform-origin:50% 50%;animation:spin 44s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* load choreography */
+.lift{opacity:0;transform:translateY(20px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.8,.25,1)}
+body.ready .lift{opacity:1;transform:none}
+body.ready .lift.d1{transition-delay:.12s}
+body.ready .lift.d2{transition-delay:.26s}
+body.ready .lift.d3{transition-delay:.40s}
+body.ready .lift.d4{transition-delay:.56s}
+#car{opacity:0;transform:translateY(26px);transition:opacity 1.3s ease .1s,transform 1.6s cubic-bezier(.18,.85,.25,1) .1s}
+body.ready #car{opacity:1;transform:none}
+.ignite{opacity:0;transition:opacity 1.1s ease 1.15s}
+body.ready .ignite{opacity:1}
+
+/* ---------- telemetry strip ---------- */
+.telemetry{
+  border-top:var(--rule);
+  border-bottom:var(--rule);
+  background:linear-gradient(180deg,#0A0E14,#07090C);
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+}
+@media (min-width:760px){.telemetry{grid-template-columns:repeat(5,1fr)}}
+.tel{
+  padding:clamp(20px,3vw,34px) clamp(16px,2.4vw,30px);
+  border-right:var(--rule);
+  border-bottom:var(--rule);
+  display:grid;
+  gap:6px;
+}
+@media (min-width:760px){.tel{border-bottom:0}.tel:last-child{border-right:0}}
+.tel b{
+  font-family:var(--display);
+  font-weight:800;
+  font-stretch:118%;
+  font-variant-numeric:tabular-nums;
+  font-size:clamp(30px,3.6vw,50px);
+  line-height:.95;
+  letter-spacing:-.01em;
+}
+.tel b i{font-style:normal;font-size:.42em;color:var(--mute);margin-left:.35em;letter-spacing:.08em}
+
+/* ---------- sections ---------- */
+.sec{padding:clamp(72px,10vh,144px) var(--gut)}
+.sec__head{display:grid;gap:18px;max-width:62ch;margin-bottom:clamp(38px,6vh,72px)}
+.sec h2{font-size:clamp(34px,5.4vw,76px)}
+.rule{height:1px;background:var(--hair);border:0;margin:0}
+
+.grid3{display:grid;gap:1px;background:var(--hair);border:var(--rule)}
+@media (min-width:860px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.card{
+  background:var(--void);
+  padding:clamp(24px,3vw,40px);
+  display:grid;
+  gap:14px;
+  align-content:start;
+}
+.card h3{
+  font-family:var(--display);
+  font-weight:800;
+  font-stretch:118%;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  font-size:clamp(20px,2.2vw,27px);
+  line-height:1.02;
+  text-wrap:balance;
+  margin:0;
+}
+.card p{color:#A9B7C5;font-size:15.5px}
+.card .stat{
+  font-family:var(--data);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--beam);
+}
+
+/* instrument section */
+.split{display:grid;gap:clamp(34px,6vw,84px);align-items:center}
+@media (min-width:900px){.split{grid-template-columns:.85fr 1fr}}
+.dial-stage{
+  position:relative;
+  aspect-ratio:1;
+  max-width:420px;
+  width:100%;
+  justify-self:center;
+  border:1px solid #24333F;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 44%,rgba(63,224,200,.16),rgba(63,224,200,.03) 52%,transparent 70%),
+    radial-gradient(circle at 50% 100%,rgba(232,133,63,.10),transparent 60%),
+    #080C12;
+  box-shadow:0 0 0 1px rgba(63,224,200,.06),0 30px 90px -30px rgba(63,224,200,.35);
+}
+.dial-stage svg{position:absolute;inset:0;width:100%;height:100%}
+.readouts{display:grid;gap:0;border-top:var(--rule)}
+.ro{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:16px;
+  align-items:baseline;
+  padding:16px 0;
+  border-bottom:var(--rule);
+}
+.ro dt{font-family:var(--data);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.ro dd{margin:0;color:#B7C4D1;font-size:15px}
+.ro .v{font-family:var(--data);font-variant-numeric:tabular-nums;color:var(--beam);font-size:14px;text-align:right}
+
+/* spec sheet */
+.sheet{width:100%;border-collapse:collapse;font-size:15px}
+.sheet caption{
+  text-align:left;
+  font-family:var(--data);
+  font-size:11px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--mute);
+  padding-bottom:18px;
+}
+.sheet th,.sheet td{
+  text-align:left;
+  padding:15px 18px 15px 0;
+  border-bottom:var(--rule);
+  vertical-align:baseline;
+}
+.sheet th{
+  font-family:var(--data);
+  font-weight:400;
+  font-size:11.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--mute);
+  width:38%;
+}
+.sheet td{font-family:var(--data);font-variant-numeric:tabular-nums;color:var(--ice)}
+.sheet tr:last-child th,.sheet tr:last-child td{border-bottom:0}
+.sheet-wrap{overflow-x:auto}
+
+/* allocation */
+.alloc{
+  border:var(--rule);
+  background:
+    radial-gradient(120% 140% at 8% 0%,rgba(232,133,63,.10),transparent 58%),
+    linear-gradient(180deg,#0B1017,#07090C);
+  padding:clamp(30px,5vw,72px);
+  display:grid;
+  gap:28px;
+}
+@media (min-width:900px){.alloc{grid-template-columns:1.15fr .85fr;align-items:end;gap:56px}}
+.alloc h2{font-size:clamp(32px,4.6vw,62px)}
+.meter{display:grid;gap:12px}
+.meter__bar{height:6px;background:#151D27;overflow:hidden}
+.meter__fill{height:100%;width:0;background:linear-gradient(90deg,var(--dusk),var(--beam));transition:width 1.8s cubic-bezier(.16,.9,.3,1)}
+.meter.on .meter__fill{width:72.3%}
+.meter__row{display:flex;justify-content:space-between;gap:12px;font-family:var(--data);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.meter__row b{color:var(--ice);font-weight:500;font-variant-numeric:tabular-nums}
+.cta{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+  justify-self:start;
+  padding:17px 30px;
+  background:var(--beam);
+  color:#04120F;
+  font-family:var(--data);
+  font-size:12.5px;
+  font-weight:500;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  text-decoration:none;
+  transition:background .25s ease,transform .25s ease;
+}
+.cta:hover{background:#63EBD6;transform:translateX(3px)}
+.cta span{font-size:15px;line-height:1}
+.fineprint{font-size:13px;color:var(--mute);max-width:40ch}
+
+/* footer */
+.foot{
+  border-top:var(--rule);
+  padding:34px var(--gut);
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px 32px;
+  align-items:center;
+  justify-content:space-between;
+}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .9s cubic-bezier(.2,.8,.25,1)}
+.reveal.seen{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .spin-a,.spin-b,.spin-c{animation:none}
+  .lift,#car,.ignite,.reveal,.arc,.meter__fill,.cta{transition:none}
+  .lift,#car,.reveal{opacity:1;transform:none}
+  .ignite{opacity:1}
+  .arc{stroke-dashoffset:78}
+  .meter__fill{width:72.3%}
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" role="presentation">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#05070B"/>
+          <stop offset=".55" stop-color="#0A111C"/>
+          <stop offset="1" stop-color="#1A2331"/>
+        </linearGradient>
+        <radialGradient id="dusk" cx=".42" cy="1" r=".72">
+          <stop offset="0" stop-color="#E8853F" stop-opacity=".55"/>
+          <stop offset=".38" stop-color="#B4603A" stop-opacity=".22"/>
+          <stop offset="1" stop-color="#E8853F" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1C2733"/>
+          <stop offset="1" stop-color="#0B111A"/>
+        </linearGradient>
+        <linearGradient id="ridgeBack" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#243040"/>
+          <stop offset="1" stop-color="#141C27"/>
+        </linearGradient>
+        <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2B3A49" stop-opacity="0"/>
+          <stop offset=".5" stop-color="#2B3A49" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#2B3A49" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="flat" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#222E3B"/>
+          <stop offset=".16" stop-color="#1A2430"/>
+          <stop offset=".52" stop-color="#0D131A"/>
+          <stop offset="1" stop-color="#06080C"/>
+        </linearGradient>
+        <linearGradient id="paint" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#67798B"/>
+          <stop offset=".16" stop-color="#3C4B5A"/>
+          <stop offset=".42" stop-color="#212C38"/>
+          <stop offset=".74" stop-color="#101821"/>
+          <stop offset="1" stop-color="#28333F"/>
+        </linearGradient>
+        <radialGradient id="separate" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#9DB4C6" stop-opacity=".46"/>
+          <stop offset=".55" stop-color="#6E8598" stop-opacity=".16"/>
+          <stop offset="1" stop-color="#5E7488" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#35485B"/>
+          <stop offset=".5" stop-color="#131C26"/>
+          <stop offset="1" stop-color="#05080C"/>
+        </linearGradient>
+        <radialGradient id="lamp" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#7CFFEA" stop-opacity=".85"/>
+          <stop offset=".45" stop-color="#3FE0C8" stop-opacity=".30"/>
+          <stop offset="1" stop-color="#3FE0C8" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="contact" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#000" stop-opacity=".82"/>
+          <stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="vig" cx=".5" cy=".46" r=".78">
+          <stop offset=".45" stop-color="#000" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".72"/>
+        </radialGradient>
+        <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity=".68"/>
+          <stop offset=".55" stop-color="#fff" stop-opacity=".08"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="mirror" maskUnits="userSpaceOnUse">
+          <rect x="0" y="723" width="1600" height="240" fill="url(#fade)"/>
+        </mask>
+        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="7"/>
+        </filter>
+        <filter id="bloom" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="9" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <g id="car">
+          <!-- underbody contact shadow -->
+          <ellipse cx="600" cy="350" rx="520" ry="26" fill="url(#contact)"/>
+          <!-- wheels -->
+          <g fill="#070A0E">
+            <circle cx="250" cy="290" r="62"/>
+            <circle cx="930" cy="290" r="62"/>
+          </g>
+          <g fill="none" stroke="#232E3A" stroke-width="2">
+            <circle cx="250" cy="290" r="61"/>
+            <circle cx="930" cy="290" r="61"/>
+          </g>
+          <g fill="#0E141C" stroke="#2A3644" stroke-width="1.5">
+            <circle cx="250" cy="290" r="38"/>
+            <circle cx="930" cy="290" r="38"/>
+          </g>
+          <g stroke="#1A222C" stroke-width="4" stroke-linecap="round">
+            <path d="M250 254v72M218 271l64 38M218 309l64-38"/>
+            <path d="M930 254v72M898 271l64 38M898 309l64-38"/>
+          </g>
+          <g fill="#3FE0C8" opacity=".55">
+            <path d="M268 272a30 30 0 0 1 0 36l7 5a38 38 0 0 0 0-46z"/>
+            <path d="M948 272a30 30 0 0 1 0 36l7 5a38 38 0 0 0 0-46z"/>
+          </g>
+          <!-- body -->
+          <path d="M70 262C100 232 140 214 210 206c50-6 90-6 138-8 52-12 104-42 192-50l150 2c110 8 190 28 256 40 84 6 150 12 182 24l8 38-16 20c-30 14-70 20-116 20a74 74 0 0 0-148 0c-76 4-216 10-336 8-80-2-140-6-196-8a74 74 0 0 0-148-4c-36-4-76-12-106-26z"
+                fill="url(#paint)"/>
+          <!-- shoulder highlight -->
+          <path d="M92 258C130 232 168 216 232 210c56-4 96-6 140-10" fill="none" stroke="#4A5B6C" stroke-width="2" opacity=".55"/>
+          <path d="M372 196c58-24 112-42 190-46l148 2c104 8 182 26 244 38" fill="none" stroke="#8CA3B6" stroke-width="2.5" opacity=".7"/>
+          <path d="M348 198c52-12 104-42 192-50l150 2c110 8 190 28 256 40" fill="none" stroke="#B9CBDA" stroke-width="1.6" opacity=".38"/>
+          <!-- greenhouse -->
+          <path d="M392 194c56-22 106-38 178-42l142 2c96 8 168 24 226 36-52 8-118 12-198 12-124 2-268-2-348-8z" fill="url(#glass)"/>
+          <path d="M508 152l-88 44M636 150l-24 48" fill="none" stroke="#0A0F15" stroke-width="3" opacity=".7"/>
+          <!-- side blade + intake -->
+          <path d="M330 268c96 6 200 10 300 10" fill="none" stroke="#0A0F15" stroke-width="3" opacity=".8"/>
+          <path d="M700 246c70 4 128 12 176 24" fill="none" stroke="#0A0F15" stroke-width="6" opacity=".55"/>
+          <path d="M842 214c34 6 62 14 84 22" fill="none" stroke="#2E3B49" stroke-width="3" opacity=".8"/>
+          <path d="M1004 292a74 74 0 0 0-148 0c-76 4-216 10-336 8-80-2-140-6-196-8a74 74 0 0 0-148-4"
+                fill="none" stroke="#54677A" stroke-width="2" opacity=".55"/>
+          <path d="M1074 205c30 5 48 10 54 15l8 32" fill="none" stroke="#E8853F" stroke-width="2.5" opacity=".45" stroke-linecap="round"/>
+          <!-- diffuser -->
+          <path d="M1064 288h72l-6 18h-70z" fill="#0A0F15"/>
+          <!-- light bar -->
+          <g class="ignite">
+            <path d="M74 254c36-10 66-16 102-18" fill="none" stroke="#3FE0C8" stroke-width="7" stroke-linecap="round" filter="url(#bloom)"/>
+            <path d="M1104 218c14 1 24 3 32 6" fill="none" stroke="#E8853F" stroke-width="6" stroke-linecap="round" filter="url(#bloom)"/>
+            <ellipse cx="120" cy="252" rx="150" ry="86" fill="url(#lamp)"/>
+            <path d="M74 262L-360 322l0 44L74 300z" fill="#3FE0C8" opacity=".10" filter="url(#soft)"/>
+          </g>
+        </g>
+      </defs>
+
+      <!-- sky -->
+      <rect width="1600" height="562" fill="url(#sky)"/>
+      <rect y="150" width="1600" height="412" fill="url(#dusk)"/>
+      <g fill="#C9D6E2" opacity=".55">
+        <circle cx="180" cy="96" r="1.4"/><circle cx="368" cy="52" r="1"/><circle cx="512" cy="128" r="1.2"/>
+        <circle cx="742" cy="66" r="1"/><circle cx="905" cy="120" r="1.5"/><circle cx="1108" cy="58" r="1.1"/>
+        <circle cx="1290" cy="142" r="1.3"/><circle cx="1442" cy="88" r="1"/><circle cx="1536" cy="188" r="1.2"/>
+        <circle cx="96" cy="212" r="1"/><circle cx="640" cy="220" r="1"/><circle cx="1010" cy="248" r=".9"/>
+      </g>
+      <!-- ridges -->
+      <path d="M0 520l150-72 96 44 132-86 118 66 140-52 156 78 128-58 150 70 132-46 148 62 150-40v76H0z" fill="url(#ridgeBack)" opacity=".55"/>
+      <path d="M0 562l186-58 122 34 154-62 130 50 168-40 142 56 156-52 142 46 190-42 210 40v90H0z" fill="url(#ridge)"/>
+      <rect y="498" width="1600" height="132" fill="url(#haze)"/>
+      <!-- horizon glow line -->
+      <rect y="558" width="1600" height="2" fill="#E8853F" opacity=".30"/>
+      <!-- salt flat -->
+      <rect y="560" width="1600" height="340" fill="url(#flat)"/>
+      <g stroke="#5D7181" opacity=".14">
+        <path d="M0 604h1600M0 646h1600M0 706h1600M0 786h1600"/>
+      </g>
+      <ellipse cx="840" cy="608" rx="600" ry="150" fill="url(#separate)"/>
+      <!-- reflection + car -->
+      <g mask="url(#mirror)" opacity=".52" filter="url(#soft)">
+        <use href="#car" transform="translate(390,1054) scale(.94,-.94)"/>
+      </g>
+      <use href="#car" transform="translate(390,392) scale(.94)"/>
+      <rect width="1600" height="900" fill="url(#vig)"/>
+    </svg>
+  </div>
+
+  <div class="scrim" aria-hidden="true"></div>
+
+  <header class="rail lift">
+    <p class="wordmark">Vanta</p>
+    <p class="eyebrow rail__mid">Reel 20 <span class="mark">&mdash;</span> The Salt Run</p>
+    <p class="eyebrow">Chapter 04 / 07</p>
+  </header>
+
+  <div class="cluster" aria-hidden="true">
+    <div class="gauge lift d2">
+      <svg viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="52"/>
+        <circle class="arc" cx="60" cy="60" r="52" transform="rotate(135 60 60)"/>
+        <g stroke="#33404E" stroke-width="1.5">
+          <path d="M60 4v9M116 60h-9M60 116v-9M4 60h9"/>
+        </g>
+      </svg>
+      <div class="gauge__read">
+        <div class="gauge__val num" id="speed">0</div>
+        <div class="gauge__unit">km/h</div>
+      </div>
+    </div>
+
+    <div class="core lift d3">
+      <svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="94" fill="none" stroke="#18222D" stroke-width="1"/>
+        <g class="spin-a">
+          <circle cx="100" cy="100" r="84" fill="none" stroke="#3FE0C8" stroke-width="1.5"
+                  stroke-dasharray="42 14 6 14" opacity=".7"/>
+        </g>
+        <g class="spin-b">
+          <circle cx="100" cy="100" r="68" fill="none" stroke="#E8853F" stroke-width="1.2"
+                  stroke-dasharray="3 11" opacity=".55"/>
+        </g>
+        <g class="spin-c">
+          <circle cx="100" cy="100" r="52" fill="none" stroke="#3FE0C8" stroke-width="1"
+                  stroke-dasharray="90 250" opacity=".9"/>
+          <circle cx="100" cy="48" r="3" fill="#3FE0C8"/>
+        </g>
+        <circle cx="100" cy="100" r="38" fill="#070B10" stroke="#1E2A36" stroke-width="1"/>
+      </svg>
+      <div class="core__label">
+        <b>V&mdash;01</b>
+        <span>TRI-MOTOR</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__body">
+    <h1 class="display lift d1">Faster than<span class="thin">the earth turns</span></h1>
+    <div class="hero__meta lift d3">
+      <p class="lede">Three motors, one carbon spine, and a light bar you will see long before you hear anything. Three hundred cars will exist.</p>
+      <p class="eyebrow">Bonneville <span class="mark">/</span> 04:51 <span class="mark">/</span> &minus;3&deg;C</p>
+    </div>
+  </div>
+
+  <footer class="rail rail--foot lift d4">
+    <p class="eyebrow">Scroll for the sheet</p>
+    <p class="eyebrow">Run 12 <span class="mark">&mdash;</span> Clean</p>
+  </footer>
+</section>
+
+<section class="telemetry" aria-label="Headline figures">
+  <div class="tel"><b class="num">1.9<i>s</i></b><p class="eyebrow">0&ndash;100 km/h</p></div>
+  <div class="tel"><b class="num">402<i>km/h</i></b><p class="eyebrow">Top speed</p></div>
+  <div class="tel"><b class="num">1,914<i>hp</i></b><p class="eyebrow">Combined output</p></div>
+  <div class="tel"><b class="num">612<i>km</i></b><p class="eyebrow">Range, WLTP</p></div>
+  <div class="tel"><b class="num">1,684<i>kg</i></b><p class="eyebrow">Dry mass</p></div>
+</section>
+
+<section class="sec reveal">
+  <div class="sec__head">
+    <p class="eyebrow">Reel 01 <span class="mark">&mdash;</span> Powertrain</p>
+    <h2 class="display">Torque, placed by the wheel</h2>
+    <p class="lede">Nothing here is borrowed. The pack is the floor, the floor is the chassis, and every wheel gets its own argument about grip.</p>
+  </div>
+  <div class="grid3">
+    <article class="card">
+      <p class="stat">One front / two rear</p>
+      <h3>Three motors</h3>
+      <p>Axial-flux units spinning to 22,000 rpm. The rear pair act independently, so the car rotates on power instead of waiting for the brakes.</p>
+    </article>
+    <article class="card">
+      <p class="stat">118 kWh structural</p>
+      <h3>The floor is the battery</h3>
+      <p>Cells bond directly into the monocoque. That removes a pack case, 61 kg, and the flex that used to sit between your seat and the road.</p>
+    </article>
+    <article class="card">
+      <p class="stat">1,050 kg at 250 km/h</p>
+      <h3>Downforce, no wing</h3>
+      <p>A full-length venturi tunnel does the work a rear wing usually does, and keeps the silhouette flat enough to hit 402 km/h.</p>
+    </article>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section class="sec reveal">
+  <div class="split">
+    <div class="dial-stage" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <g class="spin-a">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#3FE0C8" stroke-width="1"
+                  stroke-dasharray="1 7" opacity=".5"/>
+        </g>
+        <g class="spin-c">
+          <circle cx="100" cy="100" r="74" fill="none" stroke="#2A3846" stroke-width="10"
+                  stroke-dasharray="120 345"/>
+          <circle cx="100" cy="100" r="74" fill="none" stroke="#3FE0C8" stroke-width="2"
+                  stroke-dasharray="52 413"/>
+        </g>
+        <g class="spin-b">
+          <circle cx="100" cy="100" r="56" fill="none" stroke="#E8853F" stroke-width="1.4"
+                  stroke-dasharray="4 12" opacity=".6"/>
+        </g>
+        <circle cx="100" cy="100" r="40" fill="none" stroke="#1E2A36"/>
+        <path d="M100 60v22M100 118v22M60 100h22M118 100h22" stroke="#33424F" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="5" fill="#3FE0C8"/>
+      </svg>
+      <div class="core__label">
+        <b>Vector</b>
+        <span>LIVE</span>
+      </div>
+    </div>
+    <div>
+      <div class="sec__head">
+        <p class="eyebrow">Reel 02 <span class="mark">&mdash;</span> The instrument</p>
+        <h2 class="display">One dial, six truths</h2>
+        <p class="lede">The cluster shows what the car is doing to itself, not what it thinks you want to see. Six values, refreshed two hundred times a second.</p>
+      </div>
+      <dl class="readouts">
+        <div class="ro"><dt>Vector</dt><dd>Torque split, rear axle</dd><span class="v">61 / 39</span></div>
+        <div class="ro"><dt>Pack</dt><dd>Cell temperature, hottest module</dd><span class="v">34 &deg;C</span></div>
+        <div class="ro"><dt>Aero</dt><dd>Downforce, current speed</dd><span class="v">318 kg</span></div>
+        <div class="ro"><dt>Regen</dt><dd>Recovered on this run</dd><span class="v">4.2 kWh</span></div>
+        <div class="ro"><dt>Grip</dt><dd>Estimated surface friction</dd><span class="v">0.71 &mu;</span></div>
+        <div class="ro"><dt>Reserve</dt><dd>Power held back for thermal headroom</dd><span class="v">9 %</span></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section class="sec reveal">
+  <div class="sec__head">
+    <p class="eyebrow">Reel 03 <span class="mark">&mdash;</span> The sheet</p>
+    <h2 class="display">Everything, measured</h2>
+  </div>
+  <div class="sheet-wrap">
+    <table class="sheet">
+      <caption>VANTA V-01 &mdash; homologated specification, build 7</caption>
+      <tbody>
+        <tr><th scope="row">Architecture</th><td>800 V, carbon monocoque</td></tr>
+        <tr><th scope="row">Motors</th><td>3 &times; axial flux &mdash; 1 front, 2 rear</td></tr>
+        <tr><th scope="row">Output</th><td>1,914 hp / 1,427 kW</td></tr>
+        <tr><th scope="row">Torque</th><td>2,310 Nm, vectored per wheel</td></tr>
+        <tr><th scope="row">0&ndash;100 km/h</th><td>1.9 s</td></tr>
+        <tr><th scope="row">0&ndash;200 km/h</th><td>4.4 s</td></tr>
+        <tr><th scope="row">Top speed</th><td>402 km/h, electronically held</td></tr>
+        <tr><th scope="row">Battery</th><td>118 kWh structural pack</td></tr>
+        <tr><th scope="row">Range</th><td>612 km WLTP</td></tr>
+        <tr><th scope="row">Charge</th><td>10&ndash;80 % in 12 min at 350 kW</td></tr>
+        <tr><th scope="row">Dry mass</th><td>1,684 kg</td></tr>
+        <tr><th scope="row">Brakes</th><td>Carbon ceramic, 410 mm front</td></tr>
+        <tr><th scope="row">Tyres</th><td>Bespoke 265 / 325, 21 in</td></tr>
+        <tr><th scope="row">Production</th><td>300 units, 2027&ndash;2029</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="sec reveal">
+  <div class="alloc">
+    <div style="display:grid;gap:22px">
+      <p class="eyebrow">Reel 04 <span class="mark">&mdash;</span> Allocation</p>
+      <h2 class="display">Ask for a car</h2>
+      <p class="lede" style="max-width:44ch">Allocations open by region and close when the run is spoken for. A specification session in Modena follows within four weeks.</p>
+      <a class="cta" href="mailto:allocations@vanta.example?subject=V-01%20allocation">Request an allocation <span>&rarr;</span></a>
+      <p class="fineprint">Writes to allocations@vanta.example. Deposits are taken only after the specification session, and are refundable until the body is bonded.</p>
+    </div>
+    <div class="meter">
+      <div class="meter__bar"><div class="meter__fill"></div></div>
+      <div class="meter__row"><span>Allocated <b class="num">217</b></span><span>Run of <b class="num">300</b></span></div>
+      <p class="fineprint">Europe and Middle East are closed. North America and Asia&nbsp;Pacific remain open for the 2028 build slot.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <p class="wordmark" style="font-size:15px">Vanta</p>
+  <p class="eyebrow">V-01 <span class="mark">/</span> Bonneville test programme <span class="mark">/</span> Figures are prototype-verified</p>
+  <p class="eyebrow">Concept page</p>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var speed = document.getElementById("speed");
+  var meter = document.querySelector(".meter");
+
+  function start(){
+    document.body.classList.add("ready");
+    if(reduce){ speed.textContent = "402"; if(meter) meter.classList.add("on"); return; }
+    var t0 = null, dur = 2400, target = 402;
+    function step(ts){
+      if(t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      var e = 1 - Math.pow(1 - p, 3);
+      speed.textContent = Math.round(target * e);
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(function(ts){ t0 = ts + 450; step(ts); });
+  }
+
+  if(document.readyState === "complete") start();
+  else window.addEventListener("load", start);
+
+  var targets = document.querySelectorAll(".reveal");
+  if(!("IntersectionObserver" in window) || reduce){
+    targets.forEach(function(el){ el.classList.add("seen"); });
+    if(meter) meter.classList.add("on");
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return;
+        en.target.classList.add("seen");
+        if(en.target.contains(meter)) meter.classList.add("on");
+        io.unobserve(en.target);
+      });
+    }, {threshold:.16, rootMargin:"0px 0px -8% 0px"});
+    targets.forEach(function(el){ io.observe(el); });
+  }
+})();
+</script>
+
+</body>
+</html>
