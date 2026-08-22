@@ -235,7 +235,7 @@ Lorong rumah sakit daerah. Seorang dokter perempuan berjas putih, wajah diambil 
 
 ## EP 8 (FINAL) — "DELAPAN JAM"
 
-Operasi berjalan saat Bima sedang shift. Beda zona waktu. Dia harus mencuci piring delapan jam sambil tidak tahu bapaknya hidup atau tidak. Penonton tahu operasinya berjalan; Bima tidak tahu hasilnya.
+Operasi berjalan saat Bima sedang shift. Beda zona waktu. Dia mencuci piring delapan jam sambil tidak tahu bapaknya hidup atau tidak — lalu menelepon, dan operasinya gagal.
 
 ### Klip 1 — Ingredient: `bima-dish.png`
 ```
@@ -255,46 +255,67 @@ Lorong kru kapal yang lebar dan terang, dinding besi putih, lantai vinil krem, b
 >
 > Kekuatan dialognya ada di "Bima baru selesai kerja." Dia membuka dengan basa-basi karena takut menanyakan yang sebenarnya.
 
-### Klip 4 — Ingredient: `bapak-sakit.png`
+### Klip 4 — Ingredient: `ibu.png`
 ```
-Close-up bapak-sakit.png berbaju pasien rumah sakit bergaris pudar, berbaring setengah duduk di ranjang rumah sakit daerah dengan tiang infus di samping, wajah kurus dan pucat, memegang HP dengan tangan bergetar di depan wajahnya. Ia tersenyum sangat lemah, matanya basah, lalu berbicara dengan suara parau dan terputus-putus: "Dulu Bapak tanya... biayanya dari mana." Ia berhenti sebentar, menahan napas. "Sekarang Bapak tahu." Cahaya lampu rumah sakit yang datar dan pucat bercampur sedikit cahaya jendela pagi, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+Lorong rumah sakit daerah yang sepi dan pucat, dinding krem dan pintu-pintu tertutup, tanda exit hijau di kejauhan. ibu.png berdaster bermotif bunga pudar dan berkerudung longgar berdiri bersandar di dinding, menempelkan HP ke telinga dengan satu tangan sementara tangan lain menekan dadanya sendiri, air mata mengalir tanpa suara. Ia berbicara dengan suara pecah dan terputus-putus, berusaha menahan tangis: "Le... maafin Ibu." Ia berhenti, menahan napas. "Bapak... nggak ketolong, Le." Cahaya lampu lorong rumah sakit yang datar dan pucat, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
 ```
+> Sembilan kata. Jangan ditambah. Jeda antara "maafin Ibu" dan "nggak ketolong" itu tempat penonton kehilangan napas.
 
-> Kalimat penutup itu pembalikan langsung dari penolakan bapak di Season 1 Episode 1 — *"Biayanya dari mana? Sadar diri, Le."* Jangan diubah, jangan ditambahi apa pun sesudahnya.
->
-> Tambahkan suara ibu di luar layar sebagai audio di editor, sebelum bapak bicara: *"Ini, Le... sama Bapak."* Jangan masukkan ke prompt Flow — frame harus tetap fokus ke wajah bapak.
+### Klip 5 — Ingredient: `bima-dish.png`
+```
+Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png duduk di lantai bersandar di dinding, apron karet hijau toska masih dipakai, HP masih menempel di telinga. Wajahnya tidak berubah sama sekali selama beberapa detik, seolah tidak mengerti, lalu tangannya yang memegang HP turun pelan-pelan ke pangkuan dan matanya mulai basah tanpa satu suara pun keluar. Tidak ada dialog. Musik hening total, cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Kuncinya "wajahnya tidak berubah sama sekali selama beberapa detik". Orang yang baru menerima kabar seperti ini diam dulu; menangis seketika akan terasa akting.
 
-### Voiceover Klip 3 dan 4
+### Klip 6 — Ingredient: `bima-dish.png` — penutup
+```
+Lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujungnya, barisan lampu neon memanjang ke kejauhan. bima-dish.png berapron karet hijau toska memungut sarung tangan karet hijau dari lantai, memakainya kembali satu per satu dengan gerakan pelan, lalu berdiri dan berjalan menjauh dari kamera menyusuri lorong yang panjang menuju arah dapur, punggungnya membungkuk. Tidak ada dialog. Cahaya neon terang dan rata, tokoh semakin kecil di ujung lorong, kamera diam, handheld, candid, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Ini penutup sebenarnya. Bapaknya meninggal sepuluh ribu kilometer jauhnya, dan yang bisa dia lakukan cuma memakai kembali sarung tangannya dan kembali bekerja. Tidak ada kalimat yang bisa menandingi gambar itu.
+
+### Voiceover Klip 3–6
 ```
 [Klip 3 — Bima: serak, hati-hati, hampir tidak berani]
 "Bu... Bima baru selesai kerja."
    (jeda 1,5 detik — napas berat)
 "Bapak gimana, Bu?"
-   (diam total sampai klip habis — jangan diisi apa pun)
+   (diam total sampai klip habis)
 
-[Klip 4 — suara IBU di luar layar: lembut, bergetar]
-"Ini, Le... sama Bapak."
+[Klip 4 — suara IBU: pecah, terputus, menahan tangis]
+"Le... maafin Ibu."
+   (jeda 2 detik)
+"Bapak... nggak ketolong, Le."
+
+[Klip 5 — tanpa dialog, hening total]
+( ekspresi saja )
+
+[Klip 6 — suara IBU dari telepon, jauh dan bergema, sementara Bima berjalan]
+"Tapi Bapak nitip pesan, Le."
    (jeda)
-[suara BAPAK: parau, lemah, terputus]
-"Dulu Bapak tanya... biayanya dari mana."
-"Sekarang Bapak tahu."
+"Katanya... sekarang Bapak tahu. Biayanya dari mana."
 ```
 
-### Klip 5 — KARTU CTA (dibuat di editor, bukan di Flow)
+> Pesan terakhir bapak diletakkan di **Klip 6, bukan Klip 4**. Bima sudah menurunkan HP dari telinganya waktu kalimat itu terdengar — penonton mendengarnya, Bima tidak. Kalimat itu sendiri adalah pembalikan penolakan bapak di Season 1 Episode 1: *"Biayanya dari mana? Sadar diri, Le."*
+
+### Klip 7 — KARTU PENUTUP (dibuat di editor) — bukan CTA jualan
 ```
-Baris 1 (besar):  "Dia tidak pernah naik pangkat. Dia cuma tidak pernah berhenti."
-Baris 2 (sedang): "Mulai kisahmu di World Cruise Academy — Jogja."
-Baris 3 (kecil):  "Daftar: [nomor WA WCA]"
+Baris 1 (besar):   "Untuk semua yang bekerja jauh dari rumah,"
+Baris 2 (besar):   "dan pulang terlambat."
+                   (jeda 2 detik, layar hitam)
+Baris 3 (kecil):   "World Cruise Academy — Jogja"
 ```
+> Setelah kematian, CTA jualan terbaca memanfaatkan duka. Nama WCA muncul kecil tanpa nomor dan tanpa ajakan mendaftar; nomor pendaftaran ditaruh di **komentar pinned**, bukan di layar.
 
 ### Musik Ep 8 — ini yang menentukan episode
-Klip 1–3 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan suara Bima sendiri. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong. Dua puluh empat detik hening akan terasa tidak nyaman — itu tujuannya. Musik masuk **tepat saat wajah bapak muncul di Klip 4**, pelan, piano tunggal.
+Klip 1–5 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan suara ibu di telepon. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong.
 
-**Frame terakhir:** tahan 2 detik, teks `TAMAT`, font serif putih sederhana. Bukan "THE END".
+Musik masuk **hanya di Klip 6**, satu nada piano tunggal, tepat saat Bima memakai kembali sarung tangannya. Sebelum itu, hening total.
+
+**Frame terakhir:** tahan 2 detik, teks `TAMAT`, font serif putih sederhana.
 
 **Caption TikTok:**
 ```
-Ep 8 TAMAT — "Dulu Bapak tanya, biayanya dari mana." 😭 Delapan jam nyuci piring sambil nggak tahu bapaknya hidup atau nggak. #dramapendek #kapalpesiar #wcajogja #bapak
+Ep 8 TAMAT — dia cuma bisa pakai sarung tangannya lagi, dan balik kerja. 🕯️ #dramapendek #kapalpesiar #wcajogja #perantauan
 ```
 
 ---
