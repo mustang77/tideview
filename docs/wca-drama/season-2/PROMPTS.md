@@ -263,9 +263,11 @@ Lorong rumah sakit daerah yang sepi dan pucat, dinding krem dan pintu-pintu tert
 
 ### Klip 5 — Ingredient: `bima-dish.png`
 ```
-Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png duduk di lantai bersandar di dinding, apron karet hijau toska masih dipakai, HP masih menempel di telinga. Wajahnya tidak berubah sama sekali selama beberapa detik, seolah tidak mengerti, lalu tangannya yang memegang HP turun pelan-pelan ke pangkuan dan matanya mulai basah tanpa satu suara pun keluar. Tidak ada dialog. Musik hening total, cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png duduk di lantai bersandar di dinding, apron karet hijau toska masih dipakai. Selama dua detik pertama wajahnya kosong dan diam, seolah belum mengerti. Lalu HP terlepas dari tangannya jatuh ke lantai dan wajahnya hancur seketika: alis naik, mulut terbuka lebar, air mata mengalir deras, bahunya berguncang hebat, napasnya tersedak-sedak. Ia menunduk dan meraung memanggil bapaknya dengan suara pecah dan serak: "Bapaaaakk... Bapaakk..." Kedua tangannya menutupi wajah. Musik hening total, cahaya neon terang dan rata, kamera diam intim tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
 ```
-> Kuncinya "wajahnya tidak berubah sama sekali selama beberapa detik". Orang yang baru menerima kabar seperti ini diam dulu; menangis seketika akan terasa akting.
+> **Dua detik kosong dulu, baru pecah.** Bukan menahan emosinya — memberi ancang-ancang. Wajah kosong yang tiba-tiba hancur lebih menghantam daripada menangis sejak detik pertama.
+>
+> Kalau prompt cuma ditulis "menangis", Veo akan memberi satu air mata dan wajah tenang. Dia butuh disuruh secara fisik: alis naik, mulut terbuka lebar, bahu berguncang, napas tersedak. Dan jangan biarkan kamera bergerak — adegan orang hancur diambil dengan kamera yang diam total.
 
 ### Klip 6 — Ingredient: `bima-dish.png` — penutup
 ```
@@ -286,8 +288,14 @@ Lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujung
    (jeda 2 detik)
 "Bapak... nggak ketolong, Le."
 
-[Klip 5 — tanpa dialog, hening total]
-( ekspresi saja )
+[Klip 5 — meraung, suara pecah dan serak, tersedak]
+"Bapaaaakk... Bapaakk..."
+
+⚠️ Raungan adalah suara yang paling sering gagal di Veo — biasanya keluar seperti mengerang datar.
+Paling baik: REKAM SENDIRI pakai HP. Minta siapa pun meraung "Bapaaaakk" sambil menangis di ruangan
+sepi. Suara manusia asli mengalahkan TTS mana pun, dan wajahnya tertutup tangan jadi sinkron bibir
+tidak masalah. Kalau pakai ElevenLabs, turunkan Stability ke 0.3 supaya suaranya boleh pecah —
+Stability tinggi bikin raungannya terdengar tenang, kebalikan dari yang dibutuhkan.
 
 [Klip 6 — suara IBU dari telepon, jauh dan bergema, sementara Bima berjalan]
 "Tapi Bapak nitip pesan, Le."
@@ -307,7 +315,7 @@ Baris 3 (kecil):   "World Cruise Academy — Jogja"
 > Setelah kematian, CTA jualan terbaca memanfaatkan duka. Nama WCA muncul kecil tanpa nomor dan tanpa ajakan mendaftar; nomor pendaftaran ditaruh di **komentar pinned**, bukan di layar.
 
 ### Musik Ep 8 — ini yang menentukan episode
-Klip 1–5 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan suara ibu di telepon. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong.
+Klip 1–5 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, suara ibu di telepon, dan raungan Bima. Raungan di atas keheningan total jauh lebih menghantam daripada raungan di atas musik sedih — jangan tergoda mengisinya. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong.
 
 Musik masuk **hanya di Klip 6**, satu nada piano tunggal, tepat saat Bima memakai kembali sarung tangannya. Sebelum itu, hening total.
 
