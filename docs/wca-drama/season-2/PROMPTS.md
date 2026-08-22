@@ -15,11 +15,6 @@ Generate sekali di ChatGPT Images / Nano Banana Pro / Gemini. Simpan dengan nama
 Foto iPhone candid seorang laki-laki Indonesia berusia 20 tahun, kulit sawo matang, rambut hitam pendek, wajah muda yang mulai lelah, tanpa makeup, mengenakan topi kain hitam, kaos seragam putih lengan pendek, apron karet hijau toska, dan sarung tangan karet hijau panjang sampai siku, berdiri di stasiun pencucian piring kapal dengan tumpukan piring putih dan keranjang plastik biru di sekelilingnya. Diambil dari sudut rendah, sedikit dari samping. Cahaya neon putih keras memantul di stainless steel. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang bekerja keras. Realisme gaya editorial.
 ```
 
-### `bima-servis.png`
-```
-Foto iPhone candid seorang laki-laki Indonesia berusia 20 tahun, kulit sawo matang, rambut hitam pendek dipotong rapi, wajah muda yang mulai lelah, tanpa makeup, mengenakan kemeja seragam kru kapal pesiar putih yang licin dengan name tag di dada, berdiri di lorong kru kapal dengan pintu besi putih di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya lampu neon putih kapal yang rata dan sedikit dingin. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang berusaha terlihat profesional. Realisme gaya editorial.
-```
-
 ### `bapak-sakit.png`
 ```
 Foto iPhone candid seorang laki-laki Indonesia berusia 53 tahun, wajah petani berkerut yang kini jauh lebih kurus dan pucat, kumis beruban, kantung mata gelap, mengenakan baju pasien rumah sakit bergaris pudar, berbaring setengah duduk di ranjang rumah sakit daerah dengan tiang infus di samping. Diambil sedikit di atas level mata. Cahaya lampu rumah sakit yang datar dan pucat. Eksposur sedikit tidak sempurna. Tekstur kulit nyata. Bukan aktor, wajah bapak-bapak kampung sungguhan. Realisme gaya editorial.
@@ -40,7 +35,9 @@ Foto iPhone candid seorang laki-laki asing berusia 42 tahun, wajah Eropa Selatan
 Foto iPhone candid seorang laki-laki Filipina berusia 26 tahun, wajah ramah dan mudah tertawa, rambut hitam berantakan, kulit sawo matang, mengenakan kaos dalam putih dan celana seragam kru, duduk di tepi ranjang susun kabin kru yang sempit. Diambil dari sudut sedikit rendah. Cahaya lampu kabin kuning redup. Eksposur sedikit tidak sempurna. Tekstur kulit nyata. Bukan model, wajah kru kapal biasa. Realisme gaya editorial.
 ```
 
-`bima-dish.png` dan `bima-servis.png` digenerate dengan `bima.png` Season 1 sebagai referensi wajah. `bapak-sakit.png` dengan `bapak.png`.
+`bima-dish.png` digenerate dengan `bima.png` Season 1 sebagai referensi wajah. `bapak-sakit.png` dengan `bapak.png`.
+
+> **Bima tukang cuci piring dari awal sampai akhir season.** Tidak ada seragam servis, tidak ada promosi. Satu aset kerja saja — dan itu justru intinya: yang berubah bukan pangkatnya, tapi keadaan di rumah.
 
 ---
 
@@ -82,24 +79,24 @@ Ujung lorong kru kapal yang lebar, panjang, dan terang, dinding besi putih dan b
 
 ## EP 2 — "BAHASA KEDUA"
 
-### Klip 1 — Ingredient: `bima-servis.png`
+### Klip 1 — Ingredient: `bima-dish.png`
 ```
-Restoran kapal pesiar yang ramai, meja-meja tertata rapi dengan taplak putih. bima-servis.png berkemeja seragam putih dengan name tag menuang air ke gelas seorang tamu, senyum sopan yang tegang. Tamu berbicara cepat dalam bahasa Inggris beraksen kental, wajah tamu tidak terlihat jelas karena diambil dari belakang bahu. Cahaya restoran kapal yang hangat, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
-```
-
-### Klip 2 — Ingredient: `bima-servis.png`
-```
-Close-up bima-servis.png berkemeja seragam putih di restoran kapal, senyumnya perlahan hilang, mata bergerak panik karena tidak menangkap satu kata pun. Berbicara terbata dalam bahasa Inggris: "Sorry sir... could you repeat?" Cahaya restoran hangat, kamera diam, handheld, candid, tekstur kulit natural, sinematik canggung. Vertikal 9:16, 8 detik.
+Koridor belakang restoran kapal pesiar, pintu ayun dapur dan rak piring bersih di latar. bima-dish.png bertopi kain hitam dan berapron karet hijau toska mendorong troli piring bersih, lalu seorang perwira restoran menghentikannya dan berbicara cepat dalam bahasa Inggris beraksen kental, wajah perwira tidak terlihat jelas karena diambil dari belakang bahu. Cahaya restoran kapal yang hangat, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 3 — Ingredient: `bima-servis.png`
+### Klip 2 — Ingredient: `bima-dish.png`
 ```
-Restoran kapal. Seorang tamu paruh baya berjas, wajah tidak terlihat jelas karena membelakangi kamera, mengangkat tangan memanggil ke arah kejauhan sambil menggeleng kesal. bima-servis.png berdiri di belakangnya memegang teko air, menunduk. Cahaya restoran hangat, handheld, candid, framing tidak sempurna. Vertikal 9:16, 8 detik.
+Close-up bima-dish.png bertopi kain hitam dan berapron karet hijau toska di koridor belakang restoran kapal, wajahnya perlahan berubah panik karena tidak menangkap satu kata pun. Berbicara terbata dalam bahasa Inggris: "Sorry sir... could you repeat?" Cahaya neon koridor yang rata, kamera diam, handheld, candid, tekstur kulit natural, sinematik canggung. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 4 — Ingredients: `supervisor.png` + `bima-servis.png`
+### Klip 3 — Ingredient: `bima-dish.png`
 ```
-Lorong kru kapal yang terang. Close-up supervisor.png berseragam perwira putih menulis sesuatu di clipboard tanpa menatap, lalu mengangkat wajah sekilas. Berbicara datar dalam bahasa Inggris: "I'll note your name." bima-servis.png berdiri kaku di latar belakang yang blur. Cahaya neon rata, handheld, candid, tekstur kulit natural, kamera diam menegangkan. Vertikal 9:16, 8 detik.
+Koridor belakang restoran kapal. Seorang perwira restoran berseragam, wajah tidak terlihat jelas karena membelakangi kamera, mengangkat tangan memanggil ke arah kejauhan sambil menggeleng kesal. bima-dish.png berdiri di belakangnya memegang gagang troli, menunduk. Cahaya neon koridor yang rata, handheld, candid, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredients: `supervisor.png` + `bima-dish.png`
+```
+Lorong kru kapal yang terang. Close-up supervisor.png berseragam perwira putih menulis sesuatu di clipboard tanpa menatap, lalu mengangkat wajah sekilas. Berbicara datar dalam bahasa Inggris: "I'll note your name." bima-dish.png berapron hijau berdiri kaku di latar belakang yang blur. Cahaya neon rata, handheld, candid, tekstur kulit natural, kamera diam menegangkan. Vertikal 9:16, 8 detik.
 ```
 
 **Frame terakhir:** `"Episode 3: Kamar Empat Orang. BERSAMBUNG."`
@@ -134,24 +131,24 @@ Teras rumah kampung Jawa saat sore. bapak.png berkemeja batik pudar duduk di kur
 
 ## EP 4 — "YANG DIAJARKAN DI KELAS"
 
-### Klip 1 — Ingredient: `bima-servis.png`
+### Klip 1 — Ingredient: `bima-dish.png`
 ```
-Ballroom kapal pesiar yang besar sedang disiapkan untuk banquet, ratusan piring dan gelas menumpuk di meja panjang, kru berseragam bergerak cepat dan panik di latar belakang yang blur. bima-servis.png berkemeja seragam putih berdiri diam di tengah kekacauan itu, menatap tumpukan piring. Cahaya ballroom yang terang dan mewah, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+Stasiun pencucian piring kapal saat banquet besar, piring kotor menumpuk sampai meluber dari meja stainless dan keranjang, uap tebal memenuhi ruangan, kru lain berlarian panik di latar belakang yang blur. bima-dish.png bertopi kain hitam dan berapron karet hijau toska berdiri diam di tengah kekacauan itu, menatap tumpukan piring. Cahaya neon putih keras memantul di stainless steel, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 2 — Ingredient: `bima-servis.png`
+### Klip 2 — Ingredient: `bima-dish.png`
 ```
-Close-up tangan dan tubuh bagian atas bima-servis.png berkemeja seragam putih menata piring, sendok, dan gelas di atas taplak putih dengan gerakan cepat, rapi, dan otomatis seperti sudah dilatih ratusan kali. Wajahnya tenang dan fokus. Cahaya ballroom terang, kamera mengikuti tangannya, handheld, candid, tekstur kulit natural, sinematik penuh percaya diri. Vertikal 9:16, 8 detik.
+Close-up tangan dan tubuh bagian atas bima-dish.png bersarung tangan karet hijau menyusun piring kotor ke dalam rak mesin cuci dengan gerakan cepat, rapi, dan otomatis seperti sudah dilatih ratusan kali, satu rak penuh selesai dalam sekejap. Wajahnya tenang dan fokus. Cahaya neon keras memantul di stainless steel, kamera mengikuti tangannya, handheld, candid, tekstur kulit natural, sinematik penuh percaya diri. Vertikal 9:16, 8 detik.
 ```
 
 ### Klip 3 — Ingredient: `supervisor.png`
 ```
-Close-up supervisor.png berseragam perwira putih berdiri di tepi ballroom, mula-mula wajahnya keras, lalu perlahan berubah menjadi terkejut saat menatap sesuatu di luar frame. Ia tidak berkata apa-apa. Cahaya ballroom terang, kamera perlahan mendekat, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+Close-up supervisor.png berseragam perwira putih berdiri di pintu area pencucian piring, mula-mula wajahnya keras, lalu perlahan berubah menjadi terkejut saat menatap sesuatu di luar frame. Ia tidak berkata apa-apa. Cahaya neon keras, kamera perlahan mendekat, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 4 — Ingredients: `supervisor.png` + `bima-servis.png`
+### Klip 4 — Ingredients: `supervisor.png` + `bima-dish.png`
 ```
-Ballroom kapal yang sudah tertata rapi. supervisor.png berseragam perwira putih berdiri di depan bima-servis.png, menatapnya beberapa saat, lalu bertanya pelan dalam bahasa Inggris: "Where did you train?" bima-servis.png menegakkan punggung dan menjawab singkat dengan bangga: "World Cruise Academy." Cahaya ballroom hangat, handheld, candid, tekstur kulit natural, sinematik penuh harapan. Vertikal 9:16, 8 detik.
+Area pencucian piring yang sudah bersih dan rapi, rak-rak piring bersih tersusun. supervisor.png berseragam perwira putih berdiri di depan bima-dish.png yang masih berapron karet hijau, menatapnya beberapa saat, lalu bertanya pelan dalam bahasa Inggris: "Where did you train?" bima-dish.png menegakkan punggung dan menjawab singkat dengan bangga: "World Cruise Academy." Cahaya neon yang melembut, handheld, candid, tekstur kulit natural, sinematik penuh harapan. Vertikal 9:16, 8 detik.
 ```
 
 **Frame terakhir:** `"Episode 5: Telepon Jam Tiga Pagi. BERSAMBUNG."`
@@ -236,34 +233,47 @@ Lorong rumah sakit daerah. Seorang dokter perempuan berjas putih, wajah diambil 
 
 ---
 
-## EP 8 (FINAL) — "PULANG"
+## EP 8 (FINAL) — "DELAPAN JAM"
 
-### Klip 1 — Ingredient: `bima-servis.png`
-```
-Pintu keluar terminal kedatangan bandara Indonesia, siang hari. bima-servis.png berkemeja seragam kru kapal pesiar putih dengan name tag berjalan keluar mendorong koper besar, wajahnya lelah tetapi matanya cerah, menatap ke luar. Cahaya siang terang masuk dari pintu kaca, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik hangat. Vertikal 9:16, 8 detik.
-```
+Operasi berjalan saat Bima sedang shift. Beda zona waktu. Dia harus mencuci piring delapan jam sambil tidak tahu bapaknya hidup atau tidak. Penonton tahu operasinya berjalan; Bima tidak tahu hasilnya.
 
-### Klip 2 — Ingredient: `bima-servis.png`
+### Klip 1 — Ingredient: `bima-dish.png`
 ```
-Jalan tanah kampung Jawa saat sore, rumah-rumah bata dan pohon pisang di kiri kanan, jemuran di latar. bima-servis.png berkemeja seragam kru putih berjalan menyusuri jalan sambil menarik koper, langkahnya melambat saat mendekati sesuatu di depan. Cahaya sore keemasan tidak merata, handheld, candid, tekstur kulit natural, framing tidak sempurna, sinematik hangat. Vertikal 9:16, 8 detik.
+Stasiun pencucian piring kapal yang penuh uap, dinding stainless steel, mesin cuci konveyor dengan tirai plastik biru, tumpukan piring putih dan keranjang plastik biru. bima-dish.png bertopi kain hitam, berapron karet hijau toska dan sarung tangan karet hijau menyemprot piring kotor di atas bak cuci, gerakannya mekanis, wajahnya kosong dan matanya merah. Berbicara pelan hampir pada dirinya sendiri: "Bapak dioperasi jam segini. Dan aku cuma bisa nyuci piring." Cahaya neon putih keras memantul di stainless steel, uap tipis, nuansa handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 3 — Ingredients: `bapak.png` + `bima-servis.png`
+### Klip 2 — Ingredient: `bima-dish.png`
 ```
-Teras rumah kampung Jawa saat sore, kursi kayu dan meja kecil dengan segelas kopi hitam di atasnya, sudut dan komposisi persis sama dengan adegan penolakan di episode pertama. bapak.png berkemeja batik pudar berdiri dari kursinya dan melangkah maju menyambut, bukan berbalik masuk. bima-servis.png berhenti di halaman memegang gagang koper. Tidak ada dialog. Cahaya sore keemasan, handheld, candid, tekstur kulit natural, sinematik mengharukan. Vertikal 9:16, 8 detik.
+Close-up tangan bima-dish.png bersarung tangan karet hijau memegang sebuah piring putih di bawah air mengalir, tangannya gemetar sampai piring itu hampir terlepas, lalu ia menangkapnya kembali dan menahannya erat di dada. Kamera naik pelan ke wajahnya yang menatap ke arah jam dinding di luar frame. Tidak ada dialog. Cahaya neon putih keras, uap tipis, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
 ```
 
-### Klip 4 — Ingredient: `bapak.png`
+### Klip 3 — Ingredient: `bima-dish.png`
 ```
-Close-up bapak.png berkemeja batik pudar di teras rumah kampung, wajah petani berkerut dengan mata yang basah, bibir bergetar menahan haru, tersenyum. Berbicara pelan dan parau: "Dulu Bapak bilang mimpi. Ternyata Bapak yang salah." Cahaya sore keemasan hangat, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang lebar dan terang, dinding besi putih, lantai vinil krem, barisan lampu neon memanjang ke kejauhan. bima-dish.png duduk di lantai bersandar di dinding lorong, apron karet hijau masih dipakai, sarung tangan sudah dilepas dan tergeletak di sampingnya, tubuhnya lunglai kelelahan. Ia menempelkan HP ke telinga dan menunggu, dadanya naik turun, matanya menatap kosong ke ujung lorong. Tidak ada dialog, hanya nada sambung. Musik hening total, cahaya neon terang dan rata, tokoh terlihat kecil di lorong yang terlalu besar, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
 ```
+
+### Klip 4 — Ingredient: `bapak-sakit.png`
+```
+Close-up bapak-sakit.png berbaju pasien rumah sakit bergaris pudar, berbaring setengah duduk di ranjang rumah sakit daerah dengan tiang infus di samping, wajah kurus dan pucat, memegang HP dengan tangan bergetar di depan wajahnya. Ia tersenyum sangat lemah, matanya basah, lalu berbicara dengan suara parau dan terputus-putus: "Dulu Bapak tanya... biayanya dari mana." Ia berhenti sebentar, menahan napas. "Sekarang Bapak tahu." Cahaya lampu rumah sakit yang datar dan pucat bercampur sedikit cahaya jendela pagi, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+
+> Kalimat penutup itu pembalikan langsung dari penolakan bapak di Season 1 Episode 1 — *"Biayanya dari mana? Sadar diri, Le."* Jangan diubah, jangan ditambahi apa pun sesudahnya.
 
 ### Klip 5 — KARTU CTA (dibuat di editor, bukan di Flow)
-Teks di atas foto alumni asli berseragam di kapal:
 ```
-Baris 1 (besar):  "Yang menyelamatkan Bima bukan keberuntungan. Tapi latihannya."
+Baris 1 (besar):  "Dia tidak pernah naik pangkat. Dia cuma tidak pernah berhenti."
 Baris 2 (sedang): "Mulai kisahmu di World Cruise Academy — Jogja."
 Baris 3 (kecil):  "Daftar: [nomor WA WCA]"
+```
+
+### Musik Ep 8 — ini yang menentukan episode
+Klip 1–3 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan nada sambung telepon. Dua puluh empat detik hening akan terasa tidak nyaman — itu tujuannya. Musik masuk **tepat saat wajah bapak muncul di Klip 4**, pelan, piano tunggal.
+
+**Frame terakhir:** tahan 2 detik, teks `TAMAT`, font serif putih sederhana. Bukan "THE END".
+
+**Caption TikTok:**
+```
+Ep 8 TAMAT — "Dulu Bapak tanya, biayanya dari mana." 😭 Delapan jam nyuci piring sambil nggak tahu bapaknya hidup atau nggak. #dramapendek #kapalpesiar #wcajogja #bapak
 ```
 
 ---
