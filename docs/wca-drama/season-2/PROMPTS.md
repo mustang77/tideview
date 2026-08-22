@@ -263,11 +263,21 @@ Lorong rumah sakit daerah yang sepi dan pucat, dinding krem dan pintu-pintu tert
 
 ### Klip 5 — Ingredient: `bima-dish.png`
 ```
-Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png duduk di lantai bersandar di dinding, apron karet hijau toska masih dipakai. Selama dua detik pertama wajahnya kosong dan diam, seolah belum mengerti. Lalu HP terlepas dari tangannya jatuh ke lantai dan wajahnya hancur seketika: alis naik, mulut terbuka lebar, air mata mengalir deras, bahunya berguncang hebat, napasnya tersedak-sedak. Ia menunduk dan meraung memanggil bapaknya dengan suara pecah dan serak: "Bapaaaakk... Bapaakk..." Kedua tangannya menutupi wajah. Musik hening total, cahaya neon terang dan rata, kamera diam intim tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png duduk di lantai bersandar di dinding, apron karet hijau toska masih dipakai. Selama dua detik pertama wajahnya kosong dan diam, seolah belum mengerti. Lalu HP terlepas dari tangannya jatuh ke lantai dan wajahnya hancur seketika: alis naik, mulut terbuka lebar, wajah memerah, urat leher menegang, air mata mengalir deras, bahunya berguncang hebat, napasnya tersedak-sedak. Ia menunduk dan meraung dengan suara pecah dan serak: "Bapaaaakk...! Bapaaakk...! Maafin Bima, Pak..." Tubuhnya melipat ke depan, kedua tangannya menutupi wajah. Musik hening total, cahaya neon terang dan rata, kamera diam intim tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
 ```
 > **Dua detik kosong dulu, baru pecah.** Bukan menahan emosinya — memberi ancang-ancang. Wajah kosong yang tiba-tiba hancur lebih menghantam daripada menangis sejak detik pertama.
 >
-> Kalau prompt cuma ditulis "menangis", Veo akan memberi satu air mata dan wajah tenang. Dia butuh disuruh secara fisik: alis naik, mulut terbuka lebar, bahu berguncang, napas tersedak. Dan jangan biarkan kamera bergerak — adegan orang hancur diambil dengan kamera yang diam total.
+> Kalau prompt cuma ditulis "menangis", Veo akan memberi satu air mata dan wajah tenang. Dia butuh disuruh secara fisik: alis naik, mulut terbuka lebar, wajah memerah, urat leher menegang, bahu berguncang, napas tersedak, tubuh melipat ke depan. Veo merespons perintah tubuh, bukan perintah perasaan. Dan jangan biarkan kamera bergerak — adegan orang hancur diambil dengan kamera yang diam total.
+
+### Klip 5B — Ingredient: `bima-dish.png` — gelombang kedua
+```
+Lorong kru kapal yang terang. Close-up bima-dish.png masih duduk di lantai bersandar di dinding, wajah basah dan memerah, mata bengkak, napas tersengal tidak beraturan. Ia mengangkat wajahnya menatap langit-langit lorong, dagunya bergetar, lalu berbicara terputus-putus di sela tangis dengan suara serak: "Bima belum sempat pulang, Pak..." Ia tersedak, menarik napas. "Bima masih nyuci piring, Pak... waktu Bapak pergi." Air matanya mengalir tanpa dia usap. Musik hening total, cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Orang yang berduka menangis bergelombang: meraung dulu, reda sebentar, lalu pecah lagi dengan kalimat yang lebih jelas dan lebih menyakitkan. Klip 5B **lebih pelan** dari Klip 5 — tangis yang sudah kehabisan tenaga. Kalau dua-duanya sama kencang, gelombang keduanya tidak terasa.
+>
+> Bedakan juga gerakannya: Klip 5 dia menunduk dan menutup wajah, Klip 5B dia mengangkat wajah menatap langit-langit. Arah yang berlawanan itu yang membuatnya terasa beda, bukan pengulangan.
+>
+> **"Bima masih nyuci piring, Pak... waktu Bapak pergi."** adalah puncak dua season sekaligus — seluruh episode dibangun dari premis itu, dan di kalimat ini dia sendiri yang menyadarinya. Jangan diubah satu kata pun.
 
 ### Klip 6 — Ingredient: `bima-dish.png` — penutup
 ```
@@ -288,8 +298,14 @@ Lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujung
    (jeda 2 detik)
 "Bapak... nggak ketolong, Le."
 
-[Klip 5 — meraung, suara pecah dan serak, tersedak]
-"Bapaaaakk... Bapaakk..."
+[Klip 5 — meraung, pecah, serak, tersedak]
+"Bapaaaakk...! Bapaaakk...!"
+"Maafin Bima, Pak..."
+
+[Klip 5B — lebih pelan tapi lebih hancur, terputus-putus di sela tangis]
+"Bima belum sempat pulang, Pak..."
+   (tersedak, tarik napas)
+"Bima masih nyuci piring, Pak... waktu Bapak pergi."
 
 ⚠️ Raungan adalah suara yang paling sering gagal di Veo — biasanya keluar seperti mengerang datar.
 Paling baik: REKAM SENDIRI pakai HP. Minta siapa pun meraung "Bapaaaakk" sambil menangis di ruangan
@@ -315,7 +331,7 @@ Baris 3 (kecil):   "World Cruise Academy — Jogja"
 > Setelah kematian, CTA jualan terbaca memanfaatkan duka. Nama WCA muncul kecil tanpa nomor dan tanpa ajakan mendaftar; nomor pendaftaran ditaruh di **komentar pinned**, bukan di layar.
 
 ### Musik Ep 8 — ini yang menentukan episode
-Klip 1–5 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, suara ibu di telepon, dan raungan Bima. Raungan di atas keheningan total jauh lebih menghantam daripada raungan di atas musik sedih — jangan tergoda mengisinya. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong.
+Klip 1–5B **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, suara ibu di telepon, dan raungan Bima. Raungan di atas keheningan total jauh lebih menghantam daripada raungan di atas musik sedih — jangan tergoda mengisinya. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong.
 
 Musik masuk **hanya di Klip 6**, satu nada piano tunggal, tepat saat Bima memakai kembali sarung tangannya. Sebelum itu, hening total.
 
