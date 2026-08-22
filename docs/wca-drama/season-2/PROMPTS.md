@@ -344,6 +344,55 @@ Ep 8 TAMAT — dia cuma bisa pakai sarung tangannya lagi, dan balik kerja. 🕯�
 
 ---
 
+## EP 9 — "TUJUH MALAM"
+
+Pemakaman adalah salah satu adegan tersulit di Veo: banyak orang dalam frame, keranda dan kain kafan hampir pasti berhalusinasi, gerakan menurunkan jenazah butuh koordinasi banyak tubuh, ditambah risiko detail keagamaan yang meleset. **Tahlilan menyelesaikan semuanya** — orang duduk diam bersila, cahaya lampu kuning, sebagian besar frame berisi punggung dan tangan, bukan wajah.
+
+Alasan utamanya bukan teknis. Pemakaman menunjukkan jenazah; tahlilan menunjukkan **tempat kosong**. Yang diceritakan episode ini bukan kematian bapak, tapi ketidakhadiran Bima. Susun semua shot di sekitar kekosongan itu.
+
+### Klip 1 — tanpa aset
+```
+Ruang tamu rumah kampung Jawa pada malam hari, lantai beralas tikar pandan, belasan laki-laki mengenakan sarung dan peci hitam duduk bersila berjajar rapat menghadap satu arah, kepala menunduk, tangan menengadah. Diambil dari belakang barisan sehingga hampir semua yang terlihat adalah punggung dan peci, wajah tidak terlihat jelas. Bibir mereka bergerak melafalkan tahlil bersama-sama. Cahaya lampu bohlam kuning hangat dari langit-langit, asap tipis dari dupa dan uap teh. Nuansa handheld, sedikit goyangan kamera, candid, tekstur kain natural, framing tidak sempurna, sinematik khusyuk. Vertikal 9:16, 8 detik.
+```
+> Diambil dari belakang barisan bukan sekadar gaya — itu yang membuat adegan belasan orang jadi aman di Veo. Wajah yang tidak terlihat tidak bisa rusak.
+
+### Klip 2 — tanpa aset
+```
+Close-up deretan tangan laki-laki tua bersarung menengadah berdampingan di atas pangkuan, kulit keriput dan urat menonjol, sebagian memegang tasbih kayu yang bergerak pelan butir demi butir. Wajah tidak masuk frame sama sekali. Cahaya lampu bohlam kuning hangat dari samping, latar belakang gelap dan blur. Kamera diam, handheld, candid, tekstur kulit dan kain natural, sinematik khusyuk. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `ibu.png`
+```
+Ruang dalam rumah kampung Jawa pada malam hari, beberapa perempuan berkerudung duduk bersila di atas tikar dengan wajah blur di latar belakang. Close-up ibu.png berkerudung dan berbaju gelap duduk bersila menunduk, di depannya sebuah HP disandarkan tegak pada tumpukan buku yasin dengan layar menyala menampilkan panggilan video. Ia mengusap layar HP itu pelan dengan ibu jari, matanya basah. Tidak ada dialog. Cahaya lampu bohlam kuning hangat bercampur cahaya layar HP, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Shot terpenting di episode.** Ibu menyandarkan HP supaya Bima bisa "ikut" tahlilan dari kapal. Keluarga Indonesia betulan melakukan ini, dan tidak ada penonton perantau yang bisa melewatinya tanpa merasakan sesuatu.
+
+### Klip 4 — tanpa aset — callback Season 1
+```
+Teras rumah kampung Jawa pada malam hari, terdengar samar suara orang melafalkan tahlil dari dalam rumah. Sebuah kursi kayu tua kosong menghadap halaman, di meja kecil di sampingnya tergeletak sebuah peci hitam yang dilipat rapi di atas sarung batik terlipat, dan segelas kopi hitam yang sudah dingin tanpa uap. Tidak ada orang dalam frame. Kamera diam perlahan mendekat ke kursi kosong itu. Cahaya kuning redup tumpah dari pintu rumah, sisanya gelap. Handheld sangat halus, candid, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Kursi kayu dan kopi hitam itu persis kursi tempat bapak menolak Bima di Season 1 Episode 1. Sekarang kosong. Penonton lama tidak perlu diberi tahu.
+
+### Klip 5 — Ingredient: `bima-dish.png`
+```
+Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. bima-dish.png berapron karet hijau toska duduk sendirian di lantai bersandar di dinding, memegang HP di depan wajahnya dengan dua tangan, menatap layar yang menampilkan panggilan video berisi orang-orang duduk bersila melafalkan tahlil. Bibirnya ikut bergerak pelan mengikuti bacaan, air mata mengalir tanpa suara. Cahaya neon putih terang dan rata dari atas, cahaya layar HP dari depan, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Kontrasnya yang bekerja: satu dunia kuning, hangat, penuh orang. Satu dunia putih, dingin, sendirian. Momen yang sama, dua tempat.
+
+### Suara Ep 9 — ini yang paling menentukan
+**Jangan andalkan Veo untuk suara tahlil.** Rekam yang asli — satu tahlilan tetangga sudah cukup, atau minta beberapa orang melafalkan bersama di satu ruangan.
+
+Lalu kuncinya: suara tahlil dipasang di **seluruh** episode, termasuk di Klip 5 di lorong kapal — tapi kecil dan tipis, seperti keluar dari speaker HP. Penonton mendengar kampung terus-menerus sementara yang dilihat lorong kapal yang kosong. Di situ letak sakitnya.
+
+**Tidak ada musik sama sekali di episode ini.** Hanya suara tahlil. Menambahkan piano di atas lantunan doa akan terasa salah, dan sebagian penonton akan tersinggung.
+
+**Caption TikTok:**
+```
+Ep 9 — tujuh malam tahlilan, dan kursi itu kosong. 🕯️ #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
