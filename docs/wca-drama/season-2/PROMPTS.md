@@ -249,8 +249,11 @@ Close-up tangan bima-dish.png bersarung tangan karet hijau memegang sebuah pirin
 
 ### Klip 3 — Ingredient: `bima-dish.png`
 ```
-Lorong kru kapal yang lebar dan terang, dinding besi putih, lantai vinil krem, barisan lampu neon memanjang ke kejauhan. bima-dish.png duduk di lantai bersandar di dinding lorong, apron karet hijau masih dipakai, sarung tangan sudah dilepas dan tergeletak di sampingnya, tubuhnya lunglai kelelahan. Ia menempelkan HP ke telinga dan menunggu, dadanya naik turun, matanya menatap kosong ke ujung lorong. Tidak ada dialog, hanya nada sambung. Musik hening total, cahaya neon terang dan rata, tokoh terlihat kecil di lorong yang terlalu besar, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang lebar dan terang, dinding besi putih, lantai vinil krem, barisan lampu neon memanjang ke kejauhan. bima-dish.png duduk di lantai bersandar di dinding lorong, apron karet hijau toska masih dipakai, sarung tangan karet hijau sudah dilepas dan tergeletak di lantai di sampingnya, tubuhnya lunglai kelelahan. Ia menempelkan HP ke telinga, menelan ludah, lalu berbicara dengan suara serak dan hati-hati seperti takut pada jawabannya: "Bu... Bima baru selesai kerja." Ia berhenti, napasnya berat. "Bapak gimana, Bu?" Setelah itu ia terdiam total menunggu, matanya menatap kosong ke ujung lorong. Cahaya neon terang dan rata, tokoh terlihat kecil di lorong yang terlalu besar, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
 ```
+> **Ibunya tidak menjawab di klip ini.** Bima bertanya, lalu diam sampai klip habis — jawabannya datang di Klip 4, dari suara bapaknya sendiri. Kalau ibunya menjawab di sini, seluruh ketegangan episode habis sebelum waktunya.
+>
+> Kekuatan dialognya ada di "Bima baru selesai kerja." Dia membuka dengan basa-basi karena takut menanyakan yang sebenarnya.
 
 ### Klip 4 — Ingredient: `bapak-sakit.png`
 ```
@@ -258,6 +261,24 @@ Close-up bapak-sakit.png berbaju pasien rumah sakit bergaris pudar, berbaring se
 ```
 
 > Kalimat penutup itu pembalikan langsung dari penolakan bapak di Season 1 Episode 1 — *"Biayanya dari mana? Sadar diri, Le."* Jangan diubah, jangan ditambahi apa pun sesudahnya.
+>
+> Tambahkan suara ibu di luar layar sebagai audio di editor, sebelum bapak bicara: *"Ini, Le... sama Bapak."* Jangan masukkan ke prompt Flow — frame harus tetap fokus ke wajah bapak.
+
+### Voiceover Klip 3 dan 4
+```
+[Klip 3 — Bima: serak, hati-hati, hampir tidak berani]
+"Bu... Bima baru selesai kerja."
+   (jeda 1,5 detik — napas berat)
+"Bapak gimana, Bu?"
+   (diam total sampai klip habis — jangan diisi apa pun)
+
+[Klip 4 — suara IBU di luar layar: lembut, bergetar]
+"Ini, Le... sama Bapak."
+   (jeda)
+[suara BAPAK: parau, lemah, terputus]
+"Dulu Bapak tanya... biayanya dari mana."
+"Sekarang Bapak tahu."
+```
 
 ### Klip 5 — KARTU CTA (dibuat di editor, bukan di Flow)
 ```
@@ -267,7 +288,7 @@ Baris 3 (kecil):  "Daftar: [nomor WA WCA]"
 ```
 
 ### Musik Ep 8 — ini yang menentukan episode
-Klip 1–3 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan nada sambung telepon. Dua puluh empat detik hening akan terasa tidak nyaman — itu tujuannya. Musik masuk **tepat saat wajah bapak muncul di Klip 4**, pelan, piano tunggal.
+Klip 1–3 **tanpa musik sama sekali**: hanya dengung mesin kapal, suara air, dan suara Bima sendiri. Jeda 4 detik di ujung Klip 3, setelah "Bapak gimana, Bu?", adalah bagian paling penting di episode ini — biarkan benar-benar kosong. Dua puluh empat detik hening akan terasa tidak nyaman — itu tujuannya. Musik masuk **tepat saat wajah bapak muncul di Klip 4**, pelan, piano tunggal.
 
 **Frame terakhir:** tahan 2 detik, teks `TAMAT`, font serif putih sederhana. Bukan "THE END".
 
