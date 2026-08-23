@@ -469,7 +469,7 @@ class _EditorScreenState extends State<EditorScreen>
       (Icons.emoji_emotions, "Sticker", _showStickers),
       (Icons.speed, "Speed", _showSpeed),
       (Icons.volume_up, "Volume", _showVolume),
-      (Icons.transition_enterexit, "Transition", _showTransitions),
+      (Icons.animation, "Transition", _showTransitions),
     ];
     return Container(
       color: const Color(0xFF181818),
