@@ -614,6 +614,54 @@ Ep 13 — kakek itu cuma bilang "kasih tau bapakmu". Dia nggak tau. 🤍 #dramap
 
 ---
 
+## EP 14 — "KEDUA-DUANYA"
+
+Ada satu hal yang Bima belum pernah lakukan sepanjang tiga belas episode: **mengatakannya dengan suara sendiri.** Dia meraungkannya di lorong, mendengarnya dari ibunya, berbohong sopan ke kakek di Ep 13 — tapi belum pernah duduk di depan seseorang dan mengucapkannya sebagai kalimat biasa.
+
+Yang membuatnya keluar bukan pertanyaan besar, tapi Rendi menanyakan peci itu.
+
+### Klip 1 — Ingredients: `rekan.png` + `bima-servis.png`
+```
+Kabin kru kapal yang sempit pada malam hari, ranjang susun besi, cahaya lampu kabin kuning redup. bima-servis.png berkemeja seragam putih dengan dasi kupu-kupu sudah dilepas duduk di tepi ranjang bawah memegang sebuah peci hitam terlipat di pangkuannya. rekan.png berkaos dalam putih menjulurkan kepala dari ranjang atas sambil memegang gelas mi instan, menatap peci itu dengan penasaran, lalu bertanya santai dalam bahasa Inggris: "That thing. You always keep it." Cahaya kuning redup, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Close-up bima-servis.png berkaos seragam putih duduk di tepi ranjang kabin, menatap peci hitam terlipat di tangannya, tidak menatap lawan bicaranya. Wajahnya datar dan tenang, terlalu tenang. Ia berbicara pelan dalam bahasa Inggris yang sederhana dan sedikit terbata, seperti kalimat yang sudah lama disimpan: "My father died. I was still in the dishwash." Setelah itu ia diam, ibu jarinya mengusap tepi peci sekali. Cahaya lampu kabin kuning redup dari samping, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Kalimat tersulit dalam hidupnya, diucapkan dalam bahasa yang dulu tidak bisa dia ucapkan sama sekali. Di Ep 2 dia dilaporkan karena tidak bisa berbahasa Inggris; sekarang bahasa itu yang dia pakai untuk mengakui kematian bapaknya. Jangan dijelaskan ke penonton — cukup ada.
+
+### Klip 3 — Ingredients: `rekan.png` + `bima-servis.png`
+```
+Kabin kru sempit malam hari. rekan.png berkaos dalam putih turun dari ranjang susun atas dan duduk di lantai bersandar pada ranjang, di samping kaki bima-servis.png, tanpa menyentuhnya dan tanpa menatapnya. Ia menatap lurus ke depan lalu berbicara datar dan pelan dalam bahasa Inggris: "My mother. Second contract. I was in the laundry." Keduanya tidak menangis dan tidak saling menatap. Cahaya kuning redup, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Rendi tidak bilang "turut berduka".** Dia menyerahkan lukanya sendiri. Itu cara laki-laki menghibur laki-laki, dan itu yang menghancurkan penonton — Bima ternyata tidak sendirian, dan kapal ini penuh orang yang menyimpan hal yang sama.
+
+### Klip 4 — Ingredients: `bima-servis.png` + `rekan.png`
+```
+Dek kapal pesiar pada malam hari, pagar besi dan laut hitam pekat di bawah, langit berbintang. bima-servis.png dan rekan.png berdiri berdampingan bersandar di pagar dengan jarak satu langkah, keduanya menatap laut, tidak ada yang berbicara. Angin meniup baju mereka. Tidak ada dialog sama sekali. Cahaya lampu dek yang temaram dari atas, kamera diam tanpa bergerak, handheld sangat halus, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+
+### Klip 5 — Ingredients: `bima-servis.png` + `rekan.png` — cliffhanger
+```
+Lorong kru kapal yang terang, sebuah papan pengumuman logam menempel di dinding dengan lembaran kertas jadwal tertempel, diambil dari belakang bahu sehingga tulisannya tidak terbaca. bima-servis.png berkemeja seragam putih berdiri menatap papan itu, tubuhnya tiba-tiba berhenti bergerak. rekan.png berdiri di belakangnya membaca keras dengan nada gembira dalam bahasa Inggris: "Next month. We dock in Indonesia." Close-up wajah bima-servis.png yang perlahan berubah — bukan senang, tapi takut. Cahaya neon terang dan rata, kamera perlahan mendekat, handheld, candid, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Papan diambil **dari belakang bahu** supaya tulisannya tidak pernah terbaca; isinya disampaikan lewat kalimat Rendi. Satu-satunya cara aman.
+>
+> Reaksi Bima harus **takut, bukan gembira.** Kapalnya akan bersandar beberapa jam dari kampungnya, di rumah yang bapaknya sudah tidak ada. Itu pertanyaan Ep 15: boleh turun atau tidak, dan kalau boleh — sanggup atau tidak.
+
+### Nada dan musik Ep 14
+Tanpa musik di Klip 1–3. Kalimat Rendi di Klip 3 harus jatuh di ruangan yang benar-benar sunyi. Satu nada piano masuk di Klip 4 saat mereka berdiri di dek. Di Klip 5 musik membangun lalu terpotong mendadak bersamaan fade hitam.
+
+**Frame terakhir:** `"Episode 15. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 14 — pertama kalinya dia ngomong keras-keras. Dan ternyata temennya juga. 🤍 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
