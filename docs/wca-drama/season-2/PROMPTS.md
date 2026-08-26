@@ -561,6 +561,59 @@ Ep 12 — sepuluh bulan di kapal, baru hari ini ada tamu yang manggil namanya. �
 
 ---
 
+## EP 13 — "LIMA PULUH TAHUN LALU"
+
+Isi kertas dari Ep 12. Jawaban paling lemah adalah uang tip — transaksional, emosinya mati seketika. Yang benar: **kertas itu bukan intinya**, kertas itu hanya membawa Bima ke pertemuan kedua.
+
+Tamu tua muncul di tiga klip, jadi dia butuh aset sendiri.
+
+### Aset baru: `tamu-tua.png`
+```
+Foto iPhone candid seorang laki-laki asing berusia tujuh puluh dua tahun, wajah Eropa yang ramah dengan kerutan dalam di sekitar mata, rambut putih tipis disisir rapi, bahu sedikit membungkuk karena usia, mengenakan kemeja linen terang dan jaket katun tipis, berdiri di dek kapal pesiar dengan pagar besi dan laut di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya pagi di laut yang lembut dan agak menyilaukan. Eksposur sedikit tidak sempurna. Tekstur kulit nyata dengan bintik usia, tidak diretuh. Bukan model, wajah kakek-kakek biasa yang pernah bekerja keras. Realisme gaya editorial.
+```
+
+### Klip 1 — Ingredients: `bima-servis.png` + `rekan.png`
+```
+Kabin kru kapal yang sempit pada malam hari, ranjang susun besi. bima-servis.png berkemeja seragam putih dengan dasi kupu-kupu sudah dilonggarkan duduk di tepi ranjang bawah memegang selembar kertas kecil terlipat, kertas itu dipegang menghadap dirinya sehingga tulisannya tidak terlihat kamera. rekan.png berkaos dalam putih menjulurkan kepala dari ranjang atas. Bima berbicara pelan dengan bingung: "Dia nulis, temui saya di dek besok pagi." Cahaya lampu kabin kuning redup, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Kertas dipegang **menghadap dirinya** — itu cara menyampaikan isinya tanpa pernah menampilkan tulisan ke kamera.
+
+### Klip 2 — Ingredients: `tamu-tua.png` + `bima-servis.png`
+```
+Dek kapal pesiar pada pagi hari, pagar besi dan laut biru luas di latar belakang, angin lembut. tamu-tua.png berkemeja linen terang berdiri bersandar di pagar memegang cangkir kopi, menatap laut. bima-servis.png berkemeja seragam putih mendekat dengan ragu-ragu lalu berhenti beberapa langkah di belakangnya, tangannya menggenggam kertas terlipat. Tidak ada dialog. Cahaya pagi laut yang terang dan agak menyilaukan, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `tamu-tua.png`
+```
+Close-up tamu-tua.png di dek kapal, menoleh menatap ke arah kamera dengan senyum tipis yang sudah lama tidak dipakai, matanya menyipit karena cahaya laut. Ia berbicara pelan dan santai dalam bahasa Inggris: "Fifty years ago, I washed dishes. Same company." Lalu ia mengangkat cangkirnya sedikit seolah bersulang. Cahaya pagi laut yang hangat dari samping, angin menerbangkan rambut putihnya, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredients: `tamu-tua.png` + `bima-servis.png`
+```
+Dek kapal pesiar pagi hari. tamu-tua.png berkemeja linen menepuk lengan bima-servis.png sekali dengan hangat, lalu berbicara pelan dan ramah dalam bahasa Inggris tanpa tahu apa-apa: "When you get home, tell your father." Close-up wajah bima-servis.png yang membeku sepersekian detik, rahangnya menegang, lalu ia mengangguk sopan dan menjawab pelan: "Yes, sir." Ia tersenyum tipis yang tidak sampai ke matanya. Cahaya pagi laut, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Seluruh episodenya ada di sini.** Kakek itu tidak tahu apa-apa, maksudnya baik, dan justru itu yang membuatnya menghancurkan. Bima melakukan hal yang sama seperti di Ep 3 waktu bilang *"Di sini enak kok, Pak"* — berbohong dengan sopan supaya orang lain tidak repot.
+>
+> Senyum yang tidak sampai ke mata itu wajib. **Jangan ganti dengan air mata.**
+
+### Klip 5 — Ingredient: `bima-servis.png` — penutup
+```
+Dek kapal pesiar pagi hari yang kini kosong, hanya pagar besi dan laut biru luas. bima-servis.png berkemeja seragam putih berdiri sendirian bersandar di pagar, membuka telapak tangannya menatap kertas terlipat itu sejenak, lalu memasukkannya ke saku dada tempat sebuah peci hitam terlipat sudah berada di sana. Ia menatap laut, wajahnya tenang, matanya basah tanpa air mata jatuh. Tidak ada dialog. Cahaya pagi laut yang terang, kamera perlahan menjauh, handheld sangat halus, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Kertas dari kakek itu masuk ke saku yang sama dengan peci bapaknya. Dua benda, satu saku. Tidak perlu dijelaskan.
+
+### Nada dan musik Ep 13
+Tanpa musik sampai Klip 3. Satu nada piano masuk di Klip 4 **tepat setelah** "Yes, sir." — bukan sebelumnya. Di Klip 5 berkembang jadi hangat dan lega, string lembut.
+
+**Frame terakhir:** `"Episode 14. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 13 — kakek itu cuma bilang "kasih tau bapakmu". Dia nggak tau. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
