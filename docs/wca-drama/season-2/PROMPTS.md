@@ -662,6 +662,58 @@ Ep 14 — pertama kalinya dia ngomong keras-keras. Dan ternyata temennya juga. �
 
 ---
 
+## EP 15 — "DUA PULUH MENIT"
+
+Kapal bersandar, tapi kru hanya dapat izin turun beberapa jam dan kampungnya delapan jam perjalanan. **Dia tidak bisa pulang.** Jadi ibunya yang datang — naik bus semalaman, sendirian, untuk bertemu anaknya dua puluh menit di pagar pelabuhan.
+
+Yang menghancurkan bukan tangisan, tapi bahwa dia menempuh semalaman perjalanan untuk menonton anaknya makan.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Area gerbang kru pelabuhan pada pagi buta, pagar besi tinggi, tiang penambat dan peti kemas blur di latar belakang, lampu pelabuhan masih menyala. bima-servis.png berkemeja seragam kru putih berdiri di dalam pagar memegang sebuah amplop, berjalan mondar-mandir beberapa langkah lalu berhenti, menoleh berulang-ulang ke arah jalan masuk, sesekali melihat jam di pergelangan tangannya. Wajahnya gelisah. Cahaya pagi buta kebiruan bercampur lampu pelabuhan oranye, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `ibu.png`
+```
+Jalan masuk pelabuhan pada pagi buta. ibu.png berkerudung longgar dan berbaju gelap berjalan mendekat dengan langkah pelan dan lelah, tubuhnya kecil, menenteng kantong plastik berisi rantang susun dengan dua tangan. Rambutnya sedikit berantakan dan matanya sembab karena tidak tidur semalaman di bus. Ia berhenti, mencari-cari dengan matanya, lalu wajahnya berubah saat menemukan sesuatu. Cahaya pagi buta kebiruan, handheld, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredients: `ibu.png` + `bima-servis.png`
+```
+Pagar besi tinggi pelabuhan memisahkan keduanya. ibu.png berdiri di sisi luar pagar, bima-servis.png berkemeja seragam putih di sisi dalam. Mereka tidak berpelukan. ibu.png mengangkat tangannya menyentuh pagar besi itu, matanya menyusuri wajah anaknya dari atas ke bawah dengan pelan seolah menghafalkannya, lalu berbicara lirih dengan suara serak: "Kamu kurusan, Le." Cahaya pagi buta yang mulai terang, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredients: `bima-servis.png` + `ibu.png`
+```
+Di sisi pagar pelabuhan pagi hari. bima-servis.png berkemeja seragam putih berdiri makan nasi dari rantang susun dengan tangan, cepat dan tergesa karena waktunya sedikit, sesekali menunduk. ibu.png berdiri di sisi lain pagar hanya menatapnya makan tanpa ikut makan, tangannya menggenggam tepi pagar, wajahnya tenang dan puas. Ia berkata sangat pelan hampir seperti bisikan: "Pelan-pelan." Cahaya pagi yang mulai hangat, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Shot paling menghancurkan di episode.** Dia naik bus semalaman untuk berdiri di balik pagar dan menonton anaknya makan sepuluh menit. Satu kata — "Pelan-pelan" — dan tidak ada lagi. **Jangan tambahkan dialog apa pun di klip ini.**
+
+### Klip 5 — Ingredients: `bima-servis.png` + `ibu.png`
+```
+Pagar pelabuhan pagi hari, terdengar suara sirene kapal yang panjang dan rendah dari kejauhan. bima-servis.png berkemeja seragam putih menyelipkan sebuah amplop lewat celah pagar ke tangan ibu.png. ibu.png mendorongnya kembali sambil menggeleng, lalu bima-servis.png menutup jari-jari ibunya menggenggam amplop itu dengan dua tangannya. Ia bertanya cepat karena waktunya habis: "Ibu pulang naik apa?" ibu.png tersenyum tipis dan menjawab tenang: "Ada yang nganter." Cahaya pagi hangat, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> "Ada yang nganter" itu **bohong**, dan penonton tahu — dia akan naik bus malam sendirian lagi. Ini kebohongan ketiga dengan pola yang sama persis: Bima bilang "Di sini enak kok, Pak" di Ep 3, dan "Yes, sir" ke kakek di Ep 13. Keluarga ini berbohong satu sama lain supaya yang lain tidak khawatir. **Jangan pernah dijelaskan.**
+
+### Klip 6 — Ingredient: `ibu.png` — penutup
+```
+Area pelabuhan pagi hari yang luas dan sepi, pagar besi panjang membentang, kapal pesiar putih raksasa terlihat blur jauh di latar belakang. ibu.png berdiri sendirian di luar pagar menggenggam rantang susun yang sudah kosong dengan dua tangan di depan perutnya, menatap ke arah kapal, tidak bergerak sama sekali. Diambil dari jauh sehingga tubuhnya terlihat sangat kecil dibanding pagar dan kapal. Tidak ada dialog. Cahaya pagi yang terang dan kosong, kamera diam tanpa bergerak, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+### Nada dan musik Ep 15
+Tanpa musik sampai Klip 5. **Sirene kapal di Klip 5 menggantikan musik** — bunyi rendah panjang yang berarti waktunya habis.
+
+Satu nada piano masuk di Klip 6, lalu **berhenti sebelum klipnya selesai**, meninggalkan dua detik terakhir dalam sunyi total dengan ibu berdiri sendirian.
+
+**Frame terakhir:** `"Episode 16. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 15 — naik bus semalaman, cuma buat lihat anaknya makan dua puluh menit. 🥲 #dramapendek #kapalpesiar #wcajogja #ibu #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
