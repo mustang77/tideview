@@ -515,6 +515,52 @@ Ep 11 — sepuluh bulan nyuci piring, akhirnya lepas apron. Tapi orang yang pali
 
 ---
 
+## EP 12 — "MEJA TUJUH"
+
+Bahaya terbesar episode ini adalah menjadikannya montase kemenangan — Bima keren berseragam putih, semua lancar. Itu tidak akan ditonton sampai habis.
+
+Yang benar: hantu dari Ep 2 kembali. Dulu dia dilaporkan karena tidak menangkap ucapan tamu yang bicara terlalu cepat. Sekarang dia berdiri langsung di depan tamu, dan ketakutan itu ada di tangannya. Puncaknya satu hal kecil: sepuluh bulan di kapal, **belum pernah ada tamu yang memanggil namanya.**
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Restoran kapal pesiar sebelum jam buka, meja-meja tertata rapi dengan taplak putih, ruangan masih sepi. Close-up bima-servis.png berkemeja seragam putih berdasi kupu-kupu berdiri memegang nampan kosong dengan dua tangan, jari-jarinya terlihat gemetar halus di tepi nampan. Bibirnya bergerak pelan mengulang kalimat untuk dirinya sendiri dalam bahasa Inggris: "Good evening. May I take your order." Cahaya pagi hangat dari jendela besar menghadap laut, kamera diam, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Restoran kapal pesiar yang ramai pada jam makan malam, tamu-tamu duduk di meja dengan wajah blur di latar belakang, pelayan lain bergerak cepat. bima-servis.png berkemeja seragam putih berjalan membawa nampan berisi gelas air dengan langkah terlalu hati-hati dan kaku, hampir bersenggolan dengan pelayan lain, lalu menahan nampannya erat-erat. Wajahnya tegang. Cahaya restoran hangat, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `bima-servis.png`
+```
+Meja restoran kapal pesiar dekat jendela dengan laut gelap di luar. Seorang tamu laki-laki tua berusia sekitar tujuh puluh tahun berjas gelap duduk sendirian, wajahnya terlihat sebagian dari samping, rambut putih dan tangan berkerut di atas meja. bima-servis.png berkemeja seragam putih berdiri di sampingnya menuangkan air ke gelas dengan tangan yang kini mantap dan tidak gemetar. Tamu tua itu mengangkat wajah menatapnya dan berbicara pelan dan ramah dalam bahasa Inggris: "You are new here, aren't you?" Cahaya meja yang hangat dan lembut, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> Perhatikan tangannya: **gemetar di Klip 1, mantap di Klip 3.** Itu seluruh busur episodenya, disampaikan tanpa satu kalimat penjelasan.
+
+### Klip 4 — Ingredient: `bima-servis.png`
+```
+Close-up bima-servis.png berkemeja seragam putih berdiri di samping meja, menjawab dengan sopan dan sedikit gugup dalam bahasa Inggris: "Yes, sir. First day." Lalu terdengar suara tamu tua di luar frame membaca name tag di dadanya dan berkata hangat: "Thank you, Bima." Wajah bima-servis.png berhenti sejenak, matanya berkedip lebih lama dari biasanya, lalu ia mengangguk kecil dan tersenyum tipis. Cahaya meja yang hangat, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Puncaknya, dan sengaja sekecil mungkin.** Sepuluh bulan dia cuma "the dishwasher"; ini pertama kalinya ada tamu yang menyebut namanya. Jangan tambahkan air mata — cukup kedipan yang terlalu lama. Ini juga menyambung langsung ke gambar terakhir Ep 11, saat dia merapikan name tag itu.
+
+### Klip 5 — Ingredient: `bima-servis.png` — cliffhanger
+```
+Meja restoran yang sudah kosong setelah tamu pergi, piring dan gelas tersisa, laut gelap di luar jendela. bima-servis.png berkemeja seragam putih membereskan piring, lalu berhenti saat menemukan selembar kertas kecil terlipat yang diselipkan di bawah piring. Ia mengambilnya, menegakkan badan, dan membuka lipatannya perlahan dengan dua tangan sambil menatapnya. Wajahnya berubah. Tidak ada dialog. Cahaya restoran yang mulai diredupkan, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Potong tepat sebelum isinya terbaca. Isi kertas itu urusan Ep 13 — dan **jangan pernah minta Veo menampilkan tulisannya**, teks dalam frame selalu berantakan.
+
+### Nada dan musik Ep 12
+Musik masuk sangat tipis di Klip 2, tegang tapi tidak sedih. **Berhenti total di Klip 4** tepat saat tamu menyebut nama Bima — hening di momen itu — lalu satu nada hangat masuk setelah dia mengangguk. Di Klip 5 musik membangun lalu terpotong mendadak bersamaan fade hitam.
+
+**Frame terakhir:** `"Episode 13. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 12 — sepuluh bulan di kapal, baru hari ini ada tamu yang manggil namanya. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
