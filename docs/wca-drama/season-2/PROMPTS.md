@@ -475,8 +475,13 @@ Close-up supervisor.png berseragam perwira putih di area pencucian piring, wajah
 
 ### Klip 3 — Ingredient: `bima-dish.png`
 ```
-Area pencucian piring kapal yang sudah sepi, mesin sudah dimatikan, tanpa uap. bima-dish.png berdiri sendirian melepas apron karet hijau toska lewat kepalanya dengan gerakan pelan, lalu menggantungnya di kait besi di dinding bersama sarung tangan karet hijau. Ia berhenti sejenak menatap apron yang menggantung itu, tangannya masih memegang ujungnya. Tidak ada dialog. Cahaya neon putih yang kini terasa sepi, kamera diam, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+Area pencucian piring kapal yang sudah sepi, mesin sudah dimatikan, tanpa uap, hanya suara dengung mesin kapal dari kejauhan. bima-dish.png berdiri sendirian melepas apron karet hijau toska lewat kepalanya dengan gerakan sangat pelan, lalu menggantungnya di kait besi di dinding bersama sarung tangan karet hijau. Ia tidak langsung melepaskan tangannya — telapak tangannya tetap menempel rata di permukaan apron itu selama beberapa detik, kepalanya sedikit menunduk, seolah sedang berpamitan pada sesuatu. Di rak kecil di sampingnya tergeletak sebuah peci hitam terlipat rapi. Tidak ada dialog. Cahaya neon putih yang kini terasa sepi, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
 ```
+> **Apron ini yang dia pakai malam bapaknya meninggal** — di Ep 8 Klip 5B dia sendiri yang mengatakannya: *"Bima masih nyuci piring, Pak... waktu Bapak pergi."* Menggantungnya bukan pergantian seragam, tapi menyimpan benda yang terikat pada malam itu.
+>
+> Telapak tangan yang menempel dan tidak langsung dilepas adalah gerakan orang berpamitan di makam. Penonton tidak akan tahu kenapa mereka merasa sesak, tapi mereka akan merasakannya.
+>
+> Peci hitam di rak adalah peci bapak yang diserahkan ibunya di Ep 10 Klip 3 — dia membawanya ke kapal. Jangan disorot, jangan disebut, cukup ada di frame.
 
 ### Klip 4 — Ingredient: `bima-dish.png`
 ```
