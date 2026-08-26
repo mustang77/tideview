@@ -451,6 +451,65 @@ Ep 10 TAMAT — dia akhirnya duduk di kursi itu. 🕯️ #dramapendek #kapalpesi
 
 ---
 
+## EP 11 — "SERAGAM PUTIH" (pembuka Season 3)
+
+Season 2 sudah ditutup TAMAT di Ep 10, jadi ini pembuka Season 3.
+
+Inti episodenya bukan surat promosi — tapi **melepas apron**. Sepuluh episode penonton hanya melihat Bima berapron karet dan sarung tangan hijau, jadi kemeja putih itu sekarang punya bobot yang tidak akan dia punya kalau diberikan sejak awal. Dan lukanya sudah tersedia: satu-satunya orang yang paling ingin dia beri tahu sudah tidak ada.
+
+### Aset yang perlu digenerate ulang: `bima-servis.png`
+```
+Foto iPhone candid seorang laki-laki Indonesia berusia 21 tahun, kulit sawo matang, rambut hitam pendek dipotong rapi, wajah muda yang lelah namun tenang, tanpa makeup, mengenakan kemeja seragam restoran kapal pesiar putih yang licin dengan dasi kupu-kupu hitam dan name tag di dada, berdiri di lorong kru kapal dengan pintu besi putih di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya lampu neon putih kapal yang rata dan sedikit dingin. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang sedang berusaha terlihat profesional. Realisme gaya editorial.
+```
+> Generate dengan `bima.png` sebagai referensi wajah — wajah yang sama persis dengan `bima-dish.png`.
+
+### Klip 1 — Ingredients: `bima-dish.png` + `supervisor.png`
+```
+Stasiun pencucian piring kapal yang penuh uap, dinding stainless steel, tumpukan piring putih dan keranjang plastik biru. bima-dish.png bertopi kain hitam, berapron karet hijau toska dan sarung tangan karet hijau sedang menyemprot piring, lalu berhenti dan menoleh saat supervisor.png berseragam perwira putih masuk ke ruangan sambil membawa selembar kertas. Cahaya neon putih keras memantul di stainless steel, uap tipis, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `supervisor.png`
+```
+Close-up supervisor.png berseragam perwira putih di area pencucian piring, wajahnya yang biasanya keras kini melunak sedikit, hampir tersenyum. Ia menyodorkan selembar kertas ke arah kamera dan berbicara pelan dalam bahasa Inggris: "Restaurant. You start Monday." Cahaya neon keras memantul di stainless steel, uap tipis, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `bima-dish.png`
+```
+Area pencucian piring kapal yang sudah sepi, mesin sudah dimatikan, tanpa uap. bima-dish.png berdiri sendirian melepas apron karet hijau toska lewat kepalanya dengan gerakan pelan, lalu menggantungnya di kait besi di dinding bersama sarung tangan karet hijau. Ia berhenti sejenak menatap apron yang menggantung itu, tangannya masih memegang ujungnya. Tidak ada dialog. Cahaya neon putih yang kini terasa sepi, kamera diam, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredient: `bima-dish.png`
+```
+Lorong kru kapal yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan. Close-up bima-dish.png berkaos putih tanpa apron berdiri bersandar di dinding memegang HP, wajahnya cerah oleh kabar baik, lalu perlahan meredup saat ia menatap layar terlalu lama tanpa menekan apa pun. Ia menarik napas, lalu berbicara pelan setelah panggilan tersambung: "Bu... arahin HP-nya ke kursi Bapak." Cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Kalimat episodenya.** Dia tidak bisa menelepon bapaknya, jadi dia minta kursinya.
+
+### Klip 5 — Ingredient: `ibu.png`
+```
+Teras rumah kampung Jawa saat sore. Sebuah kursi kayu tua kosong menghadap halaman, dengan peci hitam terlipat di meja kecil di sampingnya. Tangan ibu.png masuk dari tepi frame mengarahkan HP ke arah kursi kosong itu, layar HP menyala menampilkan wajah anaknya. Kursi tetap kosong, tidak ada siapa-siapa di situ. Dari speaker HP terdengar suara laki-laki muda yang bergetar berkata: "Pak... Bima udah nggak nyuci piring lagi." Cahaya sore keemasan, kamera diam tanpa bergerak, handheld sangat halus, candid, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Restoran kapal pesiar sebelum jam buka, meja-meja tertata rapi dengan taplak putih dan gelas berkilau, sinar matahari masuk dari jendela besar menghadap laut. bima-servis.png berkemeja seragam putih licin berdasi kupu-kupu berdiri tegak, merapikan name tag di dadanya dengan dua jari, lalu mengangkat wajah menatap ke depan dengan tenang. Tidak ada dialog. Cahaya pagi hangat dari jendela laut, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sinematik penuh harapan. Vertikal 9:16, 8 detik.
+```
+
+### Nada dan musik Ep 11
+Episode ini **naik**, bukan turun. Setelah tiga episode duka, penonton butuh dilepaskan.
+
+Klip 1–3 tanpa musik, hanya suara ruangan. Piano tunggal masuk di Klip 4 saat wajahnya meredup. Klip 5 tetap piano, tipis. Klip 6 baru berkembang jadi hangat dan sedikit megah — bukan sedih.
+
+Satu kontras membawa seluruh episode: **Klip 3 dia menggantung apronnya, Klip 6 dia merapikan name tag-nya.** Dua gerakan tangan kecil, sepuluh episode di antaranya.
+
+**Frame terakhir:** `"Episode 12. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 11 — sepuluh bulan nyuci piring, akhirnya lepas apron. Tapi orang yang paling pengen dia kasih tau udah nggak ada. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
