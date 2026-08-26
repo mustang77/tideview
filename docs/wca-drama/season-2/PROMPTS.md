@@ -393,6 +393,64 @@ Ep 9 — tujuh malam tahlilan, dan kursi itu kosong. 🕯️ #dramapendek #kapal
 
 ---
 
+## EP 10 (FINAL) — "KURSI ITU"
+
+Pesan terakhir bapak belum sampai ke Bima — di Ep 8 sengaja diletakkan di Klip 6, saat HP-nya sudah turun dari telinga. Penonton sudah memikul kalimat itu dua episode. Di sini kalimat itu akhirnya sampai.
+
+Penutup visualnya sudah tersedia sejak Season 1 Episode 1: kursi kayu itu. Dulu bapak duduk di situ dan menolak Bima. Sekarang bapak tidak ada, dan Bima yang duduk di situ.
+
+### Klip 1 — Ingredient: `bima-dish.png`
+```
+Jalan tanah kampung Jawa saat sore, rumah-rumah bata dan pohon pisang di kiri kanan, jemuran di latar. bima-dish.png mengenakan kaos polo polos rapi tanpa apron, wajah lebih kurus dan lebih tua dari sebelumnya, berjalan menyusuri jalan sambil menarik koper besar. Langkahnya melambat lalu berhenti sama sekali saat melihat sesuatu di depan. Tidak ada dialog. Cahaya sore keemasan tidak merata, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `bima-dish.png`
+```
+Teras rumah kampung Jawa saat sore, sudut dan komposisi persis sama dengan adegan penolakan di Season 1 Episode 1. Sebuah kursi kayu tua kosong menghadap halaman dengan meja kecil di sampingnya. bima-dish.png berkaos polo berdiri di halaman menghadap kursi kosong itu, tangannya masih memegang gagang koper, tidak melangkah maju dan tidak duduk. Bahunya turun. Tidak ada dialog. Cahaya sore keemasan, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredients: `ibu.png` + `bima-dish.png`
+```
+Teras rumah kampung Jawa saat sore. ibu.png berkerudung longgar dan berbaju gelap keluar dari pintu rumah, berhenti melihat bima-dish.png, lalu berjalan mendekat sambil membawa sebuah peci hitam yang terlipat rapi di kedua tangannya dan menyerahkannya kepada anaknya. Bima menerimanya dengan dua tangan. Keduanya tidak menangis, hanya diam. Tidak ada dialog. Cahaya sore keemasan hangat, kamera diam, handheld, candid, tekstur kulit natural, sangat mengharukan. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredient: `ibu.png`
+```
+Close-up ibu.png berkerudung longgar di teras rumah kampung saat sore, wajah lelah yang sudah selesai menangis, matanya kering dan tenang. Ia menatap anaknya dan berbicara pelan dengan suara serak: "Bapak nitip pesan buat kamu, Le." Ia berhenti sebentar, menahan napas. "Katanya... sekarang Bapak tahu. Biayanya dari mana." Cahaya sore keemasan, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Bayaran dua season.** Ibu tidak menangis waktu mengucapkannya — dia sudah selesai menangis. Ketenangannya yang membuat penonton hancur. Kalimatnya adalah pembalikan penolakan bapak di Season 1 Episode 1: *"Biayanya dari mana? Sadar diri, Le."*
+
+### Klip 5 — Ingredient: `bima-dish.png` — penutup
+```
+Teras rumah kampung Jawa saat matahari hampir habis. bima-dish.png berkaos polo duduk di kursi kayu tua milik bapaknya untuk pertama kalinya, memegang peci hitam terlipat di pangkuannya dengan kedua tangan, menatap lurus ke halaman. Wajahnya tenang, matanya basah tanpa air mata jatuh. Ia tidak bergerak sama sekali. Diambil dari agak jauh sehingga terasnya terlihat luas dan sepi. Cahaya jingga terakhir sebelum gelap, kamera diam tanpa bergerak, handheld sangat halus, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Frame ini harus sudut yang **sama persis** dengan Season 1 Episode 1, waktu bapak duduk di kursi itu dan bilang "Sadar diri, Le." Tidak perlu satu kata pun untuk menjelaskan.
+
+### Klip 6 — KARTU PENUTUP (dibuat di editor)
+```
+                   (di atas frame terakhir, tahan 3 detik)
+Baris 1:  "Bima kembali berlayar dua bulan kemudian."
+                   (potong ke hitam, jeda 1 detik)
+Baris 2:  "Untuk semua yang bekerja jauh dari rumah."
+                   (jeda 2 detik)
+Baris 3 (kecil):  "World Cruise Academy — Jogja"
+```
+> Nomor WA tetap di komentar pinned, jangan di layar.
+
+### Musik dan nada Ep 10
+Episode ini **tidak boleh seberat Ep 8 dan 9.** Penonton sudah dua episode menahan napas; kalau Ep 10 sama beratnya, mereka lelah, bukan terharu.
+
+Musik masuk pelan sejak Klip 2 — piano tunggal yang sama dengan Ep 8 — lalu berkembang jadi **hangat** di Klip 5, string lembut, bukan sedih. Ini episode pelepasan, bukan episode duka.
+
+Tidak ada satu pun orang menangis di episode ini. Semua sudah selesai menangis. Itu yang membuatnya paling menghantam.
+
+**Caption TikTok:**
+```
+Ep 10 TAMAT — dia akhirnya duduk di kursi itu. 🕯️ #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
