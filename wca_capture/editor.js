@@ -1,6 +1,6 @@
 // editor.js — annotation editor. Loads the screenshot that background.js
-// stored under "pending", crops it if an area was selected, and lets the
-// user draw on it before downloading or copying.
+// stored under "pending", crops it if an area was selected, and offers a
+// full toolset: pen, marker, line, arrow, box, circle, text, blur.
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -12,8 +12,11 @@ let color = "#e53935";
 let size = 4;
 let drawing = false;
 let startX = 0, startY = 0;
+let lastX = 0, lastY = 0;
+let points = [];            // pen/marker stroke points
 let snapshot = null;        // canvas state at the start of the current stroke
-const undoStack = [];       // previous states (data URLs), max 20
+const undoStack = [];       // previous states (data URLs), max 30
+const redoStack = [];
 
 function showToast(msg) {
   toast.textContent = msg;
@@ -66,12 +69,24 @@ document.querySelectorAll("[data-tool]").forEach((btn) => {
 document.getElementById("color").addEventListener("input", (e) => (color = e.target.value));
 document.getElementById("size").addEventListener("input", (e) => (size = +e.target.value));
 
+function restoreFrom(dataUrl) {
+  const img = new Image();
+  img.onload = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); };
+  img.src = dataUrl;
+}
+
 document.getElementById("undo").addEventListener("click", () => {
   const prev = undoStack.pop();
   if (!prev) return;
-  const img = new Image();
-  img.onload = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); };
-  img.src = prev;
+  redoStack.push(canvas.toDataURL());
+  restoreFrom(prev);
+});
+
+document.getElementById("redo").addEventListener("click", () => {
+  const next = redoStack.pop();
+  if (!next) return;
+  undoStack.push(canvas.toDataURL());
+  restoreFrom(next);
 });
 
 /* ---------- Drawing ---------- */
@@ -87,7 +102,8 @@ function pos(e) {
 
 function pushUndo() {
   undoStack.push(canvas.toDataURL());
-  if (undoStack.length > 20) undoStack.shift();
+  if (undoStack.length > 30) undoStack.shift();
+  redoStack.length = 0; // a new action invalidates redo history
 }
 
 function styleCtx() {
@@ -96,6 +112,7 @@ function styleCtx() {
   ctx.lineWidth = size;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  ctx.globalAlpha = 1;
 }
 
 canvas.addEventListener("mousedown", (e) => {
@@ -111,7 +128,9 @@ canvas.addEventListener("mousedown", (e) => {
   }
 
   drawing = true;
-  startX = p.x; startY = p.y;
+  startX = lastX = p.x;
+  startY = lastY = p.y;
+  points = [p];
   snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
   if (tool === "pen") { ctx.beginPath(); ctx.moveTo(p.x, p.y); }
 });
@@ -119,6 +138,7 @@ canvas.addEventListener("mousedown", (e) => {
 canvas.addEventListener("mousemove", (e) => {
   if (!drawing) return;
   const p = pos(e);
+  lastX = p.x; lastY = p.y;
   styleCtx();
 
   if (tool === "pen") {
@@ -127,16 +147,56 @@ canvas.addEventListener("mousemove", (e) => {
     return;
   }
 
-  // Shape preview: restore the pre-stroke state, then draw the shape.
+  // All other tools redraw a live preview on top of the pre-stroke state.
   ctx.putImageData(snapshot, 0, 0);
-  if (tool === "rect") {
-    ctx.strokeRect(startX, startY, p.x - startX, p.y - startY);
+
+  if (tool === "marker") {
+    // One smooth translucent stroke: redraw the whole path each frame so
+    // overlapping segments don't stack up darker.
+    points.push(p);
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = size * 4;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    points.forEach((pt) => ctx.lineTo(pt.x, pt.y));
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  } else if (tool === "line") {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
   } else if (tool === "arrow") {
     drawArrow(startX, startY, p.x, p.y);
+  } else if (tool === "rect") {
+    ctx.strokeRect(startX, startY, p.x - startX, p.y - startY);
+  } else if (tool === "ellipse") {
+    ctx.beginPath();
+    ctx.ellipse(
+      (startX + p.x) / 2, (startY + p.y) / 2,
+      Math.abs(p.x - startX) / 2, Math.abs(p.y - startY) / 2,
+      0, 0, Math.PI * 2
+    );
+    ctx.stroke();
+  } else if (tool === "blur") {
+    // Preview: dashed rectangle over the area that will be pixelated.
+    ctx.save();
+    ctx.setLineDash([8, 6]);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#0c4a8a";
+    ctx.strokeRect(startX, startY, p.x - startX, p.y - startY);
+    ctx.restore();
   }
 });
 
-window.addEventListener("mouseup", () => (drawing = false));
+window.addEventListener("mouseup", () => {
+  if (!drawing) return;
+  drawing = false;
+  if (tool === "blur") {
+    ctx.putImageData(snapshot, 0, 0); // remove the dashed preview
+    applyPixelate(startX, startY, lastX, lastY);
+  }
+});
 
 function drawArrow(x1, y1, x2, y2) {
   const head = Math.max(12, size * 3.5);
@@ -151,6 +211,29 @@ function drawArrow(x1, y1, x2, y2) {
   ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
   ctx.closePath();
   ctx.fill();
+}
+
+// Mosaic/pixelate a region: draw it tiny, then scale it back up with
+// smoothing off. Great for hiding emails, names, keys in screenshots.
+function applyPixelate(x1, y1, x2, y2) {
+  const x = Math.round(Math.min(x1, x2));
+  const y = Math.round(Math.min(y1, y2));
+  const w = Math.round(Math.abs(x2 - x1));
+  const h = Math.round(Math.abs(y2 - y1));
+  if (w < 4 || h < 4) return;
+
+  const block = Math.max(6, Math.round(Math.max(w, h) / 24)); // pixel size
+  const tmp = document.createElement("canvas");
+  tmp.width = Math.max(1, Math.round(w / block));
+  tmp.height = Math.max(1, Math.round(h / block));
+  const tctx = tmp.getContext("2d");
+  tctx.imageSmoothingEnabled = false;
+  tctx.drawImage(canvas, x, y, w, h, 0, 0, tmp.width, tmp.height);
+
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(tmp, 0, 0, tmp.width, tmp.height, x, y, w, h);
+  ctx.restore();
 }
 
 /* ---------- Export ---------- */
