@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "WORLD CRUISE ACADEMY Screenshot & Screen Recorder",
+  "short_name": "WCA Capture",
+  "version": "1.0.0",
+  "description": "Capture screenshots of any page, annotate them with arrows, shapes and text, and record your screen — free and private.",
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WCA Screenshot & Screen Recorder"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "permissions": ["activeTab", "scripting", "storage"]
+}

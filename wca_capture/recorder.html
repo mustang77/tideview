@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WCA Capture — Screen Recorder</title>
+  <link rel="icon" href="icons/icon48.png">
+  <style>
+    body {
+      margin: 0; font: 15px system-ui, sans-serif; background: #eef2f7; color: #1c2733;
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    header {
+      width: 100%; box-sizing: border-box; padding: 12px 20px;
+      background: linear-gradient(160deg, #0c4a8a, #0288d1); color: #fff;
+    }
+    header h1 { font-size: 16px; margin: 0; }
+    main { width: min(720px, 92vw); padding: 28px 0; }
+    .card {
+      background: #fff; border-radius: 14px; padding: 22px;
+      box-shadow: 0 4px 24px rgba(12, 74, 138, .12);
+    }
+    label.opt { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
+    button {
+      padding: 12px 22px; border: none; border-radius: 10px; font: inherit; font-weight: 700;
+      cursor: pointer; margin-right: 8px; margin-top: 14px;
+    }
+    #start { background: #e53935; color: #fff; }
+    #stop { background: #0c4a8a; color: #fff; display: none; }
+    #timer { font-variant-numeric: tabular-nums; font-weight: 700; color: #e53935; margin-left: 8px; }
+    video { width: 100%; border-radius: 10px; margin-top: 18px; background: #000; display: none; }
+    #status { margin-top: 12px; color: #64748b; }
+    a.dl {
+      display: none; margin-top: 14px; padding: 12px 22px; border-radius: 10px;
+      background: #ffc107; color: #1c2733; font-weight: 700; text-decoration: none; width: fit-content;
+    }
+  </style>
+</head>
+<body>
+  <header><h1>🎥 WCA Screen Recorder</h1></header>
+  <main>
+    <div class="card">
+      <p>Record your screen, an application window, or a browser tab. When you click
+      <strong>Start</strong>, Chrome asks which one to share.</p>
+      <label class="opt"><input type="checkbox" id="mic"> Include my microphone</label>
+      <button id="start">● Start recording</button>
+      <button id="stop">■ Stop<span id="timer">00:00</span></button>
+      <p id="status"></p>
+      <video id="preview" controls></video>
+      <a id="dl" class="dl" download>⬇ Save video (.webm)</a>
+    </div>
+  </main>
+  <script src="recorder.js"></script>
+</body>
+</html>

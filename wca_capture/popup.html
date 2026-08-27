@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 240px; margin: 0; font: 14px system-ui, sans-serif;
+      background: #f6f9fc; color: #1c2733;
+    }
+    header {
+      display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+      background: linear-gradient(160deg, #0c4a8a, #0288d1); color: #fff;
+    }
+    header h1 { font-size: 13px; margin: 0; letter-spacing: .5px; }
+    main { padding: 10px; }
+    button {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      margin-bottom: 8px; padding: 10px 12px; border: 1px solid #dbe4ee;
+      border-radius: 10px; background: #fff; font: inherit; font-weight: 600;
+      cursor: pointer; text-align: left;
+    }
+    button:hover { border-color: #0288d1; background: #eef7fd; }
+    button .em { font-size: 18px; }
+    .note { font-size: 11px; color: #64748b; margin: 4px 2px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" width="22" height="22" alt="">
+    <h1>WCA CAPTURE</h1>
+  </header>
+  <main>
+    <button id="cap-visible"><span class="em">📸</span> Capture visible page</button>
+    <button id="cap-area"><span class="em">✂️</span> Capture selected area</button>
+    <button id="record"><span class="em">🎥</span> Record screen</button>
+    <p class="note">Screenshots open in the editor — annotate, then download or copy.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
