@@ -75,6 +75,78 @@ suaranya), energi sedikit naik di akhir kalimat, satu tawa kecil per short
 
 ---
 
+## Prompt karakter — Keluarga Karin
+
+Muncul di Shot 2 (perpisahan di bandara). Generate masing-masing sebagai
+referensi terpisah, lalu lampirkan bersama referensi Karin di prompt Shot 2.
+Kuncinya: kemiripan keluarga — sebutkan fitur yang "nurun" dari orang tua ke
+Karin dan adiknya supaya terlihat seperti satu keluarga sungguhan.
+
+### Ibu (52 tahun)
+
+```
+Foto iPhone candid seorang ibu Indonesia berusia 52 tahun, kulit sawo
+matang hangat seperti putrinya, wajah bulat lembut dengan garis senyum yang
+dalam, rambut hitam beruban sebahu diikat rendah sederhana, mengenakan
+kerudung tipis warna dusty rose yang disampirkan longgar, blus batik
+berwarna lembut dan celana bahan. Anting emas kecil sederhana. Berdiri di
+hall keberangkatan bandara yang ramai, sedikit blur di belakangnya. Mata
+berkaca-kaca tapi tersenyum bangga, tangan memegang tisu. Diambil di level
+mata, sedikit off-center. Cahaya bandara natural yang merata. Tekstur kulit
+nyata dan tidak diretuh, kerutan halus di sekitar mata terlihat. Tanpa
+pencahayaan studio. Realisme gaya editorial.
+```
+
+### Ayah (55 tahun)
+
+```
+Foto iPhone candid seorang ayah Indonesia berusia 55 tahun, kulit sawo
+matang, rambut pendek hitam beruban disisir rapi, kumis tipis beruban,
+kacamata baca berbingkai tipis, mengenakan kemeja batik lengan pendek
+warna coklat tua dan celana kain, jam tangan logam tua di pergelangan.
+Postur tegap tapi bahu sedikit turun menahan haru. Berdiri di hall
+keberangkatan bandara, troli koper di sampingnya sedikit blur. Ekspresi
+tenang khas ayah — senyum tipis menahan emosi, mata sedikit berkaca.
+Diambil di level mata, sedikit off-center. Cahaya bandara natural. Tekstur
+kulit nyata dan tidak diretuh, garis usia terlihat. Tanpa pencahayaan
+studio. Realisme gaya editorial.
+```
+
+### Adik laki-laki (9 tahun)
+
+```
+Foto iPhone candid seorang anak laki-laki Indonesia berusia 9 tahun, kulit
+sawo matang, rambut hitam pendek sedikit berantakan, mata coklat besar
+ekspresif mirip kakak perempuannya, gigi depan sedikit renggang saat
+tersenyum lebar. Mengenakan kaos dinosaurus warna hijau, celana pendek, dan
+sneakers kecil yang sudah kusam. Menggendong ransel kecil, memeluk erat
+kaki atau pinggang kakaknya di hall keberangkatan bandara. Energi anak
+kecil yang jujur — antara bangga dan tidak mau ditinggal. Diambil dari
+level mata anak, sedikit off-center. Cahaya bandara natural. Tekstur kulit
+nyata. Tanpa pencahayaan studio. Realisme gaya editorial.
+```
+
+### Foto grup keluarga (opsional, untuk konsistensi Shot 2)
+
+```
+Foto iPhone candid satu keluarga Indonesia di hall keberangkatan bandara:
+perempuan 28 tahun dengan jaket denim dan koper besar dipeluk ibunya yang
+berusia 52 tahun berkerudung dusty rose, ayah 55 tahun berkemeja batik
+coklat berdiri di samping menahan haru dengan senyum tipis, adik laki-laki
+9 tahun berkaos dinosaurus hijau memeluk pinggang kakaknya. Kemiripan
+wajah keluarga yang natural. Pelancong lain blur di latar belakang. Diambil
+handheld di level mata seperti dipotret kerabat. Cahaya bandara natural
+yang merata. Tekstur kulit nyata semua orang, tidak diretuh. Tanpa
+pencahayaan studio. Momen emosional yang tidak dipose. Realisme gaya
+editorial.
+```
+
+**Tips:** di Veo/Flow, lampirkan keempat referensi (Karin + 3 keluarga)
+sebagai ingredients di Shot 2. Kalau tool-nya hanya mendukung sedikit
+referensi, pakai foto grup keluarga sebagai satu referensi gabungan.
+
+---
+
 ## Logline
 
 Seorang perempuan muda berpamitan dengan rumahnya, naik pesawat ke San
@@ -112,10 +184,14 @@ cahaya natural, gaya vlog UGC.
 - **Visual:** Hall keberangkatan. Karin memeluk keluarga, melambai, berjalan
   menuju security sambil menarik koper.
 - **Prompt:** "Shot handheld vertikal 9:16 di hall keberangkatan bandara
-  yang ramai. Perempuan Indonesia berusia 28 tahun memeluk keluarganya
-  untuk berpamitan, lalu berjalan menuju security sambil menarik koper
-  besar, menoleh sekali ke belakang dengan mata berkaca-kaca tapi penuh
-  semangat, melambai dengan campuran semangat dan malu-malu."
+  yang ramai. Perempuan Indonesia berusia 28 tahun memeluk ibunya yang
+  berkerudung dusty rose dan menangis haru, ayahnya berkemeja batik coklat
+  menepuk bahunya dengan senyum tipis menahan emosi, adik laki-lakinya yang
+  berusia 9 tahun berkaos dinosaurus hijau memeluk erat pinggangnya tidak
+  mau lepas. Lalu dia berjalan menuju security sambil menarik koper besar,
+  menoleh sekali ke belakang dengan mata berkaca-kaca tapi penuh semangat,
+  melambai dengan campuran semangat dan malu-malu." *(lampirkan referensi:
+  Karin + ibu + ayah + adik)*
 - **VO:** "Enam bulan jauh dari semua orang yang aku sayang... demi
   petualangan yang selama ini aku impikan."
 - **Caption:** *Bagian tersulit: pamitan*
