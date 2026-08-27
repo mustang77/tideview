@@ -13,6 +13,10 @@ async function captureAndOpenEditor(rect, dpr) {
   } catch (e) {
     // Typically: a chrome:// page or the Web Store, where capture is forbidden.
     console.error("Capture failed:", e);
+    // Make the failure visible instead of silent: red badge on the icon.
+    chrome.action.setBadgeBackgroundColor({ color: "#e53935" });
+    chrome.action.setBadgeText({ text: "!" });
+    setTimeout(() => chrome.action.setBadgeText({ text: "" }), 5000);
   }
 }
 

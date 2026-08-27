@@ -6,6 +6,20 @@ async function activeTab() {
   return tab;
 }
 
+// Chrome forbids ALL extensions from capturing its own pages (New Tab,
+// chrome://, the Web Store). Detect that up front and say so, instead of
+// letting the buttons fail silently.
+(async () => {
+  const tab = await activeTab();
+  const capturable = /^(https?|file):/.test(tab?.url || "");
+  if (!capturable) {
+    document.getElementById("cap-visible").disabled = true;
+    document.getElementById("cap-area").disabled = true;
+    document.querySelector(".note").textContent =
+      "⚠️ Chrome pages (New Tab, chrome://, Web Store) can't be captured — open any normal website first. Screen recording still works!";
+  }
+})();
+
 document.getElementById("cap-visible").addEventListener("click", async () => {
   chrome.runtime.sendMessage({ type: "CAPTURE_VISIBLE", dpr: window.devicePixelRatio });
   window.close();
