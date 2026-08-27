@@ -714,6 +714,64 @@ Ep 15 — naik bus semalaman, cuma buat lihat anaknya makan dua puluh menit. �
 
 ---
 
+## EP 16 — "APRON ITU"
+
+Episode ini dimulai sedih tapi **harus berbelok**. Lima belas episode berturut-turut menekan, dan penonton mulai lelah, bukan terharu.
+
+Tujuan season sudah muncul di Ep 13: kakek yang lima puluh tahun lalu mencuci piring. Sekarang giliran Bima jadi kakek itu untuk orang lain. Gambar yang membawa episodenya: apron yang dia gantung di Ep 11, sekarang dipakai anak lain.
+
+### Aset baru: `anak-baru.png`
+```
+Foto iPhone candid seorang laki-laki Indonesia berusia 18 tahun, kulit sawo matang, rambut hitam pendek berantakan, wajah kampung yang sangat muda dan ketakutan, tubuh kurus, tanpa makeup, mengenakan topi kain hitam kebesaran, kaos putih, apron karet hijau toska yang terlalu besar untuk badannya, dan sarung tangan karet hijau panjang, berdiri di stasiun pencucian piring kapal dengan tumpukan piring di sekelilingnya. Diambil dari sudut sedikit tinggi sehingga ia terlihat kecil. Cahaya neon putih keras memantul di stainless steel. Eksposur sedikit tidak sempurna. Tekstur kulit nyata dengan jerawat, tidak diretuh. Bukan model, wajah anak kampung yang baru pertama kali jauh dari rumah. Realisme gaya editorial.
+```
+> Sudut **sedikit tinggi** untuk anak ini — kebalikan dari Bima yang selalu diambil dari sudut rendah. Itu yang membuatnya langsung terbaca sebagai yang paling bawah.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Dek belakang kapal pesiar pada malam hari, laut hitam dan lampu-lampu daratan Indonesia terlihat semakin kecil dan menjauh di kejauhan. bima-servis.png berkemeja seragam putih berdiri sendirian bersandar di pagar besi, menatap lampu-lampu daratan yang menghilang, tidak bergerak. Angin laut meniup kerah bajunya. Tidak ada dialog. Cahaya lampu dek yang temaram dan cahaya bulan di laut, kamera diam tanpa bergerak, handheld sangat halus, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `ibu.png`
+```
+Bagian dalam bus malam antarkota yang remang, kursi-kursi penumpang lain yang tertidur terlihat blur, jendela gelap dengan pantulan lampu jalan lewat. ibu.png berkerudung longgar duduk sendirian di kursi dekat jendela, dahinya menempel di kaca, memeluk sebuah amplop dan rantang kosong di pangkuannya dengan dua tangan. Matanya terbuka, tidak tidur. Tidak ada dialog. Cahaya lampu bus yang temaram bercampur cahaya jalan yang lewat, kamera diam, handheld, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Dia bilang "ada yang nganter" di Ep 15. Klip ini yang membuktikan itu bohong, dan tidak satu pun kata dibutuhkan.
+
+### Klip 3 — Ingredients: `anak-baru.png` + `bima-servis.png`
+```
+Stasiun pencucian piring kapal yang penuh uap. anak-baru.png bertopi kain hitam kebesaran dan berapron karet hijau toska yang terlalu besar berdiri panik di depan rak piring yang baru saja jatuh berantakan, tangannya gemetar, wajahnya pucat hampir menangis. bima-servis.png berkemeja seragam putih bersih berhenti di ambang pintu ruangan itu, menatap pemandangan tersebut tanpa bergerak. Cahaya neon putih keras memantul di stainless steel, uap tipis, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredients: `bima-servis.png` + `anak-baru.png`
+```
+Stasiun pencucian piring kapal. bima-servis.png berkemeja seragam putih berjongkok di lantai basah memungut piring-piring bersama anak-baru.png tanpa berkata apa-apa, kemejanya yang bersih ikut basah dan kotor. Setelah beberapa saat ia mengangkat wajah menatap anak itu dan bertanya pelan dalam bahasa Indonesia: "Kamu dari mana?" anak-baru.png menjawab terbata hampir berbisik: "Jawa, Mas." Cahaya neon keras, uap tipis, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Bahasa Indonesia di ruangan yang selama ini hanya berbahasa Inggris.** Untuk anak itu, itu kalimat pertama yang dia mengerti sejak naik ke kapal.
+
+### Klip 5 — Ingredients: `bima-servis.png` + `anak-baru.png`
+```
+Stasiun pencucian piring kapal. bima-servis.png berkemeja seragam putih yang kini basah berdiri dan meletakkan tumpukan piring terakhir ke meja stainless, lalu menoleh ke anak-baru.png yang masih menunduk. Ia berbicara pelan dan datar tanpa nada mengasihani: "Bulan pertama semua orang nangis." Lalu ia menepuk bahu anak itu satu kali. anak-baru.png mengangkat wajahnya. Cahaya neon keras memantul di stainless steel, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Kalimat itu **milik Rendi**, diucapkan dalam bahasa Inggris ke Bima di Ep 3 saat Bima paling hancur. Sekarang Bima mengucapkannya dalam bahasa Indonesia ke anak yang lebih hancur lagi. Kebaikan turun satu tingkat, dan diterjemahkan.
+
+### Klip 6 — Ingredients: `bima-servis.png` + `anak-baru.png` — penutup
+```
+Lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujungnya, barisan lampu neon memanjang ke kejauhan. bima-servis.png berkemeja seragam putih berjalan menjauh dari kamera menyusuri lorong itu, punggungnya tegak. Di latar depan, anak-baru.png berapron karet hijau toska berdiri di ambang pintu ruang cuci piring menatap kepergiannya. Tidak ada dialog. Cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld sangat halus, candid, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> **Frame yang sama persis dengan Ep 1 Klip 1**, saat Bima yang berapron mendorong troli di lorong itu. Sekarang dia yang berjalan menjauh berseragam putih, dan ada anak berapron yang menatapnya. Sudut kameranya harus sama.
+
+### Nada dan musik Ep 16
+Klip 1–2 tanpa musik, hanya angin laut dan dengung mesin bus. Piano tunggal masuk di Klip 4 saat Bima bertanya "Kamu dari mana?" Di Klip 6 berkembang jadi hangat — **pertama kalinya sejak Ep 8 musiknya boleh terdengar seperti harapan.**
+
+**Frame terakhir:** `"Episode 17. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 16 — apron yang dulu dia gantung, sekarang dipakai anak lain. 🤍 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
