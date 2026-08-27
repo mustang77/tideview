@@ -1,204 +1,218 @@
-# Short: "Karin's First Contract" ✈️🚢
+# Short: "Kontrak Pertama Karin" ✈️🚢
 
-**Format:** Vertical 9:16 short (YouTube Shorts / TikTok / Reels)
-**Length:** ~50 seconds
-**Character:** Karin, 28, Indonesian, warm and a little nervous-excited
-**Story:** Karin flies to San Francisco to join her first contract as an
-**Assistant Server** with Carnival Cruise Line.
+**Format:** Short vertikal 9:16 (YouTube Shorts / TikTok / Reels)
+**Durasi:** ±50 detik
+**Karakter:** Karin, 28 tahun, perempuan Indonesia, hangat, charming, dan
+sedikit gugup-bersemangat
+**Cerita:** Karin terbang ke San Francisco untuk memulai kontrak pertamanya
+sebagai **Assistant Server** di Carnival Cruise Line.
 
 ---
 
-## Character prompt — Karin
+## Prompt karakter — Karin
 
-Generate this FIRST (ChatGPT Images / Nano Banana Pro) and reuse the result
-as the character reference in every shot so Karin stays consistent.
+Generate ini DULUAN (ChatGPT Images / Nano Banana Pro), lalu pakai hasilnya
+sebagai referensi karakter di setiap shot supaya wajah Karin konsisten.
 
-### Master reference prompt
+### Prompt referensi utama
 
 ```
-Candid iPhone photo of a beautiful 28-year-old Indonesian woman, warm tan
-skin, long dark brown-black hair loosely tied back with natural flyaway
-strands framing her face, soft brown almond eyes, minimal makeup — light
-foundation and lip balm only, small gold stud earrings. She wears a
-relaxed white t-shirt under an open denim jacket. Standing in a bedroom
-with a packed suitcase and passport visible slightly blurred behind her.
-Shot at eye level, slightly off-center, as if she is holding the phone
-herself. Soft natural morning window light from the left, slightly uneven
-exposure. Real unretouched skin texture with visible pores. Nervous-excited
-genuine smile. No studio lighting. Editorial-style realism.
+Foto iPhone candid seorang perempuan Indonesia cantik berusia 28 tahun,
+kulit sawo matang hangat, rambut hitam kecoklatan panjang diikat longgar
+dengan helai-helai alami membingkai wajah, mata almond coklat lembut,
+makeup minimal — hanya foundation tipis dan lip balm, anting stud emas
+kecil. Mengenakan kaos putih santai dengan jaket denim terbuka. Berdiri di
+kamar tidur dengan koper yang sudah dipacking dan paspor terlihat sedikit
+blur di belakangnya. Diambil di level mata, sedikit off-center, seolah dia
+memegang ponselnya sendiri. Cahaya jendela pagi yang lembut dari kiri,
+eksposur sedikit tidak merata. Tekstur kulit nyata dan tidak diretuh dengan
+pori-pori terlihat. Senyum tulus gugup-bersemangat. Tanpa pencahayaan
+studio. Realisme gaya editorial.
 ```
 
-### Outfit variants (same face, same hair — change wardrobe only)
+### Varian outfit (wajah dan rambut sama — hanya ganti wardrobe)
 
-| Shots | Variant prompt addition |
+| Shot | Tambahan prompt varian |
 |---|---|
-| 1–4 (travel) | "...wearing a relaxed white t-shirt, open denim jacket, comfortable travel leggings, small backpack strap on one shoulder." |
-| 5 (port) | "...same travel outfit, hair slightly windblown from the sea breeze, sunglasses pushed up on her head." |
-| 6 (sign-on) | "...wearing a neat white collared shirt, hair in a tidy low bun, lanyard with a new crew ID card around her neck." |
-| 7 (deck closer) | "...wearing a navy crew polo shirt, hair in a low ponytail, golden-hour sunlight on her face." |
+| 1–4 (perjalanan) | "...mengenakan kaos putih santai, jaket denim terbuka, legging travel yang nyaman, tali ransel kecil di satu bahu." |
+| 5 (pelabuhan) | "...outfit travel yang sama, rambut sedikit tertiup angin laut, kacamata hitam disematkan di atas kepala." |
+| 6 (sign-on) | "...mengenakan kemeja putih berkerah yang rapi, rambut disanggul rendah rapi, lanyard dengan kartu ID kru baru di lehernya." |
+| 7 (penutup di dek) | "...mengenakan polo kru biru navy, rambut kuncir kuda rendah, cahaya golden hour di wajahnya." |
 
-**Consistency tips:** keep "28-year-old Indonesian woman", the hair
-description, and "real unretouched skin texture, no studio lighting" in
-every shot prompt, and attach the master reference image when the tool
-supports character references (Flow ingredients / Nano Banana Pro).
+**Tips konsistensi:** pertahankan "perempuan Indonesia berusia 28 tahun",
+deskripsi rambut, dan "tekstur kulit nyata tidak diretuh, tanpa pencahayaan
+studio" di setiap prompt shot, dan lampirkan gambar referensi utama saat
+tool-nya mendukung referensi karakter (ingredients Flow / Nano Banana Pro).
 
-### Personality — how to write "charming" into prompts
+### Kepribadian — cara menulis "charming" ke dalam prompt
 
-AI models can't render the word "charming" directly; you have to describe
-what charming *looks like* on camera. Append this block to any shot prompt:
+Model AI tidak bisa merender kata "charming" secara langsung; kamu harus
+mendeskripsikan seperti apa *terlihatnya* charming di kamera. Tempelkan
+blok ini ke prompt shot mana pun:
 
 ```
-Her energy is warm and charming: a bright genuine smile that reaches her
-eyes, expressive sparkling brown eyes, a soft playful laugh, relaxed open
-body language, occasionally tucking a loose strand of hair behind her ear.
-She talks to the camera like it's her best friend — leaning in slightly,
-eyebrows raised with excitement, natural hand gestures while speaking.
-Approachable, magnetic, effortlessly likable.
+Energinya hangat dan charming: senyum cerah yang tulus sampai ke matanya,
+mata coklat ekspresif yang berbinar, tawa kecil yang playful, bahasa tubuh
+rileks dan terbuka, sesekali menyelipkan helai rambut ke belakang telinga.
+Dia berbicara ke kamera seperti ke sahabatnya sendiri — sedikit condong ke
+depan, alis terangkat penuh semangat, gestur tangan alami saat bicara.
+Mudah didekati, magnetis, disukai tanpa usaha.
 ```
 
-Per-shot micro-cues (pick one or two per shot, don't stack them all):
+Micro-cue per shot (pilih satu atau dua per shot, jangan ditumpuk semua):
 
-| Charm cue | Use in |
+| Cue charming | Dipakai di |
 |---|---|
-| "smiles with her eyes, slight head tilt toward the camera" | any talking shot |
-| "covers a laugh with her hand, genuinely giggling" | Shot 5 (ship reveal) |
-| "bites her lip holding back a proud grin" | Shot 6 (crew ID) |
-| "playful wink at the camera before turning away" | Shot 7 (closer) |
-| "waves at the camera with both excitement and shyness" | Shot 2 (goodbye) |
+| "tersenyum dengan matanya, kepala sedikit miring ke arah kamera" | shot bicara mana pun |
+| "menutup tawa dengan tangannya, terkikik tulus" | Shot 5 (reveal kapal) |
+| "menggigit bibir menahan senyum bangga" | Shot 6 (kartu ID kru) |
+| "wink playful ke kamera sebelum berbalik" | Shot 7 (penutup) |
+| "melambai ke kamera dengan campuran semangat dan malu-malu" | Shot 2 (perpisahan) |
 
-**Voiceover delivery:** charming = smiling while she talks (you can hear
-it), light rising energy at the end of sentences, one small laugh per
-short — not more, or it stops feeling real.
+**Delivery voiceover:** charming = tersenyum sambil bicara (terdengar di
+suaranya), energi sedikit naik di akhir kalimat, satu tawa kecil per short
+— tidak lebih, atau jadi terasa tidak natural.
 
 ---
 
 ## Logline
 
-A young woman says goodbye to home, boards a flight to San Francisco, and
-steps onto a Carnival cruise ship for day one of her new life at sea.
+Seorang perempuan muda berpamitan dengan rumahnya, naik pesawat ke San
+Francisco, dan melangkah ke kapal pesiar Carnival untuk hari pertama
+kehidupan barunya di laut.
 
 ---
 
-## Hook (first 2 seconds)
+## Hook (2 detik pertama)
 
-On-screen text over a shot of a packed suitcase:
+Teks on-screen di atas shot koper yang sudah dipacking:
 
-> **"I just signed a 6-month contract... on a cruise ship."**
+> **"Aku baru tanda tangan kontrak 6 bulan... di kapal pesiar."**
 
 ---
 
-## Shot-by-shot storyboard
+## Storyboard shot-by-shot
 
-Each shot includes a generation prompt you can paste into Veo / Google Flow
-(or film yourself). Keep every prompt vertical 9:16, handheld, natural light,
-UGC vlog style.
+Setiap shot punya prompt generate yang bisa langsung ditempel ke Veo /
+Google Flow (atau difilmkan sendiri). Semua prompt vertikal 9:16, handheld,
+cahaya natural, gaya vlog UGC.
 
-### Shot 1 — The suitcase (0:00–0:05)
-- **Visual:** Bedroom, early morning. Karin zips an overstuffed suitcase,
-  Carnival contract papers and a passport on the bed.
-- **Prompt:** "Vertical 9:16 handheld vlog shot, soft morning light. A
-  beautiful 28-year-old Indonesian woman zips a large suitcase on her bed; a
-  passport and printed contract sit beside it. She looks at the camera, takes a deep breath and
-  smiles nervously. Realistic UGC style, no film grade."
-- **VO:** "Okay. This is really happening."
-- **Caption:** *Day 0 — leaving home*
+### Shot 1 — Koper (0:00–0:05)
+- **Visual:** Kamar tidur, pagi hari. Karin menutup resleting koper yang
+  penuh, dokumen kontrak Carnival dan paspor di atas kasur.
+- **Prompt:** "Shot vlog handheld vertikal 9:16, cahaya pagi lembut.
+  Perempuan Indonesia cantik berusia 28 tahun menutup resleting koper besar
+  di atas kasurnya; paspor dan kontrak tercetak tergeletak di sampingnya.
+  Dia menatap kamera, menarik napas dalam, dan tersenyum gugup. Gaya UGC
+  realistis, tanpa color grade film."
+- **VO:** "Oke. Ini beneran kejadian."
+- **Caption:** *Hari ke-0 — meninggalkan rumah*
 
-### Shot 2 — Airport goodbye (0:05–0:12)
-- **Visual:** Departures hall. Karin hugs family, waves, walks toward
-  security pulling her suitcase.
-- **Prompt:** "Vertical 9:16 handheld shot in a busy airport departures
-  hall. A woman hugs her family goodbye, then walks toward security pulling
-  a large suitcase, glancing back once with teary but excited eyes."
-- **VO:** "Six months away from everyone I love... for the adventure I've
-  always wanted."
-- **Caption:** *Hardest part: the goodbye*
+### Shot 2 — Perpisahan di bandara (0:05–0:12)
+- **Visual:** Hall keberangkatan. Karin memeluk keluarga, melambai, berjalan
+  menuju security sambil menarik koper.
+- **Prompt:** "Shot handheld vertikal 9:16 di hall keberangkatan bandara
+  yang ramai. Perempuan Indonesia berusia 28 tahun memeluk keluarganya
+  untuk berpamitan, lalu berjalan menuju security sambil menarik koper
+  besar, menoleh sekali ke belakang dengan mata berkaca-kaca tapi penuh
+  semangat, melambai dengan campuran semangat dan malu-malu."
+- **VO:** "Enam bulan jauh dari semua orang yang aku sayang... demi
+  petualangan yang selama ini aku impikan."
+- **Caption:** *Bagian tersulit: pamitan*
 
-### Shot 3 — In the air (0:12–0:18)
-- **Visual:** Window seat. Clouds outside. Karin films herself, then the
-  wing, boarding pass to SFO visible.
-- **Prompt:** "Vertical 9:16 selfie-style shot from an airplane window seat.
-  A woman shows her boarding pass to San Francisco, then points the camera
-  at clouds and the wing in golden light."
-- **VO:** "Next stop: San Francisco. My ship is waiting."
+### Shot 3 — Di udara (0:12–0:18)
+- **Visual:** Kursi dekat jendela. Awan di luar. Karin merekam dirinya, lalu
+  sayap pesawat, boarding pass tujuan SFO terlihat.
+- **Prompt:** "Shot gaya selfie vertikal 9:16 dari kursi dekat jendela
+  pesawat. Perempuan Indonesia berusia 28 tahun menunjukkan boarding pass
+  tujuan San Francisco ke kamera dengan senyum yang sampai ke matanya, lalu
+  mengarahkan kamera ke awan dan sayap pesawat dalam cahaya keemasan."
+- **VO:** "Tujuan berikutnya: San Francisco. Kapalku sudah menunggu."
 - **Caption:** *✈️ SFO*
 
-### Shot 4 — San Francisco arrival (0:18–0:26)
-- **Visual:** Quick montage — airport exit, glimpse of the bay, the Golden
-  Gate in the distance, taxi ride toward the port.
-- **Prompt:** "Vertical 9:16 UGC montage: a woman with a suitcase exits SFO
-  airport, rides in a taxi past San Francisco streets, the Golden Gate
-  Bridge visible in fog in the distance. Bright, real, unpolished."
-- **VO:** "I've never even been to California. And I'm only here for one
-  night — because tomorrow, I sign on."
-- **Caption:** *First time in San Francisco 🌉*
+### Shot 4 — Tiba di San Francisco (0:18–0:26)
+- **Visual:** Montage cepat — keluar bandara, sekilas teluk, Golden Gate di
+  kejauhan, naik taksi menuju pelabuhan.
+- **Prompt:** "Montage UGC vertikal 9:16: perempuan Indonesia berusia 28
+  tahun dengan koper keluar dari bandara SFO, naik taksi melewati
+  jalan-jalan San Francisco, Jembatan Golden Gate terlihat berkabut di
+  kejauhan. Cerah, nyata, tidak dipoles."
+- **VO:** "Aku bahkan belum pernah ke California. Dan aku cuma di sini satu
+  malam — karena besok, aku sign on."
+- **Caption:** *Pertama kali di San Francisco 🌉*
 
-### Shot 5 — First sight of the ship (0:26–0:34)
-- **Visual:** Port. Camera tilts up the side of the massive Carnival ship.
-  Karin's stunned face.
-- **Prompt:** "Vertical 9:16 handheld shot at a cruise port. The camera
-  tilts up the enormous white hull of a cruise ship with a red-and-blue
-  funnel. Cut to a woman's amazed face looking up, hand over her mouth."
-- **VO:** "Oh my gosh. She's HUGE. This is my home now."
-- **Caption:** *Meet my new home for 6 months 🚢*
+### Shot 5 — Pertama kali melihat kapal (0:26–0:34)
+- **Visual:** Pelabuhan. Kamera tilt ke atas menyusuri badan kapal Carnival
+  yang raksasa. Wajah Karin yang terpana.
+- **Prompt:** "Shot handheld vertikal 9:16 di pelabuhan kapal pesiar. Kamera
+  tilt ke atas menyusuri lambung putih raksasa kapal pesiar dengan cerobong
+  merah-biru. Cut ke wajah takjub perempuan Indonesia berusia 28 tahun yang
+  mendongak, menutup tawa dengan tangannya, terkikik tulus."
+- **VO:** "Ya ampun. Gede BANGET. Ini rumahku sekarang."
+- **Caption:** *Kenalin rumah baruku 6 bulan ke depan 🚢*
 
-### Shot 6 — Signing on (0:34–0:42)
-- **Visual:** Gangway, crew ID card in hand, walking into the crew corridor,
-  finding her cabin.
-- **Prompt:** "Vertical 9:16 handheld POV walking up a cruise ship gangway,
-  a new crew ID card held up to camera, then narrow crew corridors, then a
-  small twin-bunk crew cabin. Excited, authentic vlog energy."
-- **VO:** "Officially crew! Say hi to your new Assistant Server. Tiny cabin,
-  big dreams."
-- **Caption:** *Contract: Assistant Server, Carnival Cruise Line*
+### Shot 6 — Sign on (0:34–0:42)
+- **Visual:** Gangway, kartu ID kru di tangan, berjalan masuk koridor kru,
+  menemukan kabinnya.
+- **Prompt:** "POV handheld vertikal 9:16 berjalan naik gangway kapal
+  pesiar, kartu ID kru baru diangkat ke kamera oleh perempuan Indonesia
+  berusia 28 tahun yang menggigit bibir menahan senyum bangga, lalu koridor
+  kru yang sempit, lalu kabin kru kecil dengan ranjang susun. Energi vlog
+  autentik dan bersemangat."
+- **VO:** "Resmi jadi kru! Kenalin, Assistant Server baru kalian. Kabin
+  kecil, mimpi besar."
+- **Caption:** *Kontrak: Assistant Server, Carnival Cruise Line*
 
-### Shot 7 — Closer (0:42–0:50)
-- **Visual:** Sunset on the open deck, Karin in uniform polo, ocean behind
-  her, genuine smile.
-- **Prompt:** "Vertical 9:16 golden-hour shot on a cruise ship open deck. A
-  woman in a crew polo leans on the railing, ocean and sunset behind her,
-  smiles at the camera with pride."
-- **VO:** "Scared? A little. Excited? Completely. Follow along for ship
-  life — day one starts tomorrow."
-- **Caption:** *Follow for crew life at sea 💙 Part 1*
-
----
-
-## Voiceover script (full, for ElevenLabs or self-record)
-
-> Okay. This is really happening.
-> Six months away from everyone I love... for the adventure I've always
-> wanted.
-> Next stop: San Francisco. My ship is waiting.
-> I've never even been to California — and I'm only here for one night,
-> because tomorrow, I sign on.
-> Oh my gosh. She's HUGE. This is my home now.
-> Officially crew! Say hi to your new Assistant Server. Tiny cabin, big
-> dreams.
-> Scared? A little. Excited? Completely. Follow along for ship life — day
-> one starts tomorrow.
-
-**Delivery:** warm, breathy, real — like a voice note to a best friend.
-Slight nervous laugh on "She's HUGE."
+### Shot 7 — Penutup (0:42–0:50)
+- **Visual:** Sunset di dek terbuka, Karin memakai polo seragam, lautan di
+  belakangnya, senyum tulus.
+- **Prompt:** "Shot golden hour vertikal 9:16 di dek terbuka kapal pesiar.
+  Perempuan Indonesia berusia 28 tahun memakai polo kru bersandar di
+  railing, lautan dan sunset di belakangnya, tersenyum bangga ke kamera
+  lalu wink playful sebelum berbalik."
+- **VO:** "Takut? Dikit. Excited? Banget. Follow terus buat kehidupan di
+  kapal — hari pertama mulai besok."
+- **Caption:** *Follow buat kehidupan kru di laut 💙 Part 1*
 
 ---
 
-## Posting metadata
+## Skrip voiceover (lengkap, untuk ElevenLabs atau rekam sendiri)
 
-- **Title:** I flew to San Francisco to live on a cruise ship 🚢 | Karin's
-  first contract as an Assistant Server
-- **Description:** Karin says goodbye to home and flies to San Francisco to
-  join her first 6-month contract as an Assistant Server with Carnival
-  Cruise Line. Part 1 of her crew life series — sign-on day is next!
-- **Hashtags:** #cruiseship #crewlife #carnivalcruise #assistantserver
-  #shiplife #sanfrancisco #cruiseshipcrew #shorts
-- **Music:** soft uplifting acoustic / travel-vlog beat, ~90 BPM, ducked
-  under VO.
+> Oke. Ini beneran kejadian.
+> Enam bulan jauh dari semua orang yang aku sayang... demi petualangan yang
+> selama ini aku impikan.
+> Tujuan berikutnya: San Francisco. Kapalku sudah menunggu.
+> Aku bahkan belum pernah ke California — dan aku cuma di sini satu malam,
+> karena besok, aku sign on.
+> Ya ampun. Gede BANGET. Ini rumahku sekarang.
+> Resmi jadi kru! Kenalin, Assistant Server baru kalian. Kabin kecil, mimpi
+> besar.
+> Takut? Dikit. Excited? Banget. Follow terus buat kehidupan di kapal —
+> hari pertama mulai besok.
+
+**Delivery:** hangat, sedikit breathy, natural — seperti voice note ke
+sahabat. Tawa kecil gugup di "Gede BANGET."
 
 ---
 
-## Notes
+## Metadata posting
 
-- "Assistant Server" is Carnival's actual entry dining-team job title —
-  keep it on screen in Shot 6 for authenticity.
-- End on a loop-friendly beat: the last line teases "day one starts
-  tomorrow," setting up Part 2 (first day in the dining room).
+- **Judul:** Aku terbang ke San Francisco untuk tinggal di kapal pesiar 🚢 |
+  Kontrak pertama Karin sebagai Assistant Server
+- **Deskripsi:** Karin berpamitan dengan rumahnya dan terbang ke San
+  Francisco untuk memulai kontrak 6 bulan pertamanya sebagai Assistant
+  Server di Carnival Cruise Line. Part 1 dari series kehidupan kru — hari
+  sign-on menyusul!
+- **Hashtag:** #kapalpesiar #crewlife #carnivalcruise #assistantserver
+  #shiplife #sanfrancisco #krukapalpesiar #pelautindonesia #shorts
+- **Musik:** akustik uplifting lembut / beat travel-vlog, ±90 BPM,
+  di-duck di bawah VO.
+
+---
+
+## Catatan
+
+- "Assistant Server" adalah nama jabatan asli tim dining entry-level di
+  Carnival — tampilkan di layar pada Shot 6 untuk autentisitas.
+- Akhiri dengan beat yang loop-friendly: kalimat terakhir menggoda "hari
+  pertama mulai besok", menyiapkan Part 2 (hari pertama di dining room).
