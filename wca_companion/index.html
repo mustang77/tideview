@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Cruise Academy Companion — Tools & Guidance for Cruise Guests and Crew</title>
+  <meta name="description" content="Free cruise companion for guests and crew: step-by-step guides, packing checklists, cruise countdown, gratuity calculator, maritime glossary and quiz. By World Cruise Academy.">
+  <meta name="keywords" content="cruise guide, cruise crew, cruise tips, cruise packing list, cruise glossary, work on cruise ship, cruise line, world cruise academy">
+  <meta property="og:title" content="World Cruise Academy Companion">
+  <meta property="og:description" content="Tools & guidance for cruise guests and crew — guides, checklists, calculators, glossary, quiz.">
+  <link rel="icon" href="icons/icon48.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#home" data-nav="home">
+    <img src="icons/icon48.png" alt="" width="30" height="30">
+    <span>WORLD CRUISE ACADEMY <em>COMPANION</em></span>
+  </a>
+  <nav id="nav">
+    <a href="#guest" data-nav="guest">🧳 Guest Guide</a>
+    <a href="#crew" data-nav="crew">⚓ Crew Guide</a>
+    <a href="#tools" data-nav="tools">🛠 Tools</a>
+    <a href="#glossary" data-nav="glossary">📖 Glossary</a>
+    <a href="#quiz" data-nav="quiz">🎓 Quiz</a>
+  </nav>
+</header>
+
+<!-- ============ HOME ============ -->
+<section id="home" class="view">
+  <div class="hero">
+    <h1>Your companion at sea.</h1>
+    <p>Guides, checklists and tools for cruise <strong>guests</strong> and cruise <strong>crew</strong> —
+    free, works offline, nothing to install.</p>
+    <div class="hero-cards">
+      <a class="hero-card" href="#guest" data-nav="guest">
+        <span class="big">🧳</span>
+        <h2>I'm a Guest</h2>
+        <p>First cruise or fiftieth — sail prepared, from booking to disembarkation.</p>
+      </a>
+      <a class="hero-card" href="#crew" data-nav="crew">
+        <span class="big">⚓</span>
+        <h2>I'm Crew</h2>
+        <p>Getting hired, joining your ship, life on board, and your rights at sea.</p>
+      </a>
+    </div>
+    <div class="hero-tools">
+      <a href="#tools" data-nav="tools">⏳ Countdown</a>
+      <a href="#tools" data-nav="tools">✅ Checklists</a>
+      <a href="#tools" data-nav="tools">💵 Tip calculator</a>
+      <a href="#glossary" data-nav="glossary">📖 40+ cruise terms</a>
+      <a href="#quiz" data-nav="quiz">🎓 Ready-to-sail quiz</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUEST GUIDE ============ -->
+<section id="guest" class="view">
+  <h1>🧳 Guest Guide</h1>
+  <p class="lead">Everything a cruise guest needs, in sailing order. Tap a step to open it.</p>
+  <div id="guest-guide" class="accordion"></div>
+</section>
+
+<!-- ============ CREW GUIDE ============ -->
+<section id="crew" class="view">
+  <h1>⚓ Crew Guide</h1>
+  <p class="lead">From application to sign-off — how working at sea really works.</p>
+  <div id="crew-guide" class="accordion"></div>
+</section>
+
+<!-- ============ TOOLS ============ -->
+<section id="tools" class="view">
+  <h1>🛠 Tools</h1>
+
+  <div class="tool-grid">
+
+    <div class="tool card">
+      <h2>⏳ Countdown</h2>
+      <div id="cd-setup">
+        <label>What are you counting down to?
+          <input id="cd-name" type="text" placeholder="My cruise / My sign-on date" maxlength="60">
+        </label>
+        <label>Date <input id="cd-date" type="date"></label>
+        <button id="cd-save" class="primary">Start countdown</button>
+      </div>
+      <div id="cd-display" hidden>
+        <p id="cd-cruise-name"></p>
+        <div id="cd-days">–</div>
+        <p id="cd-label">days to go</p>
+        <button id="cd-reset" class="ghost">Change</button>
+      </div>
+    </div>
+
+    <div class="tool card">
+      <h2>✅ Packing checklist</h2>
+      <div class="seg">
+        <button class="seg-btn active" data-list="guest">Guest</button>
+        <button class="seg-btn" data-list="crew">Crew</button>
+      </div>
+      <p class="progress"><span id="cl-done">0</span>/<span id="cl-total">0</span> packed</p>
+      <div id="cl-groups"></div>
+    </div>
+
+    <div class="tool card">
+      <h2>💵 Gratuity calculator</h2>
+      <label>Guests <input id="tip-guests" type="number" min="1" value="2"></label>
+      <label>Nights <input id="tip-nights" type="number" min="1" value="7"></label>
+      <label>Daily gratuity per person ($)
+        <input id="tip-rate" type="number" min="0" step="0.5" value="16">
+      </label>
+      <div class="result">Service gratuities: <strong id="tip-total">$224.00</strong></div>
+      <label>Bar bill ($) <input id="bar-bill" type="number" min="0" value="0"></label>
+      <label>Auto-gratuity % <input id="bar-pct" type="number" min="0" max="30" value="18"></label>
+      <div class="result">Bar gratuity: <strong id="bar-total">$0.00</strong></div>
+      <p class="note">Typical 2026 rates: $15–$20 per person per day; bar auto-gratuity 18–20%. Check your cruise line.</p>
+    </div>
+
+    <div class="tool card">
+      <h2>🌊 Maritime converter</h2>
+      <label>Speed
+        <span class="row"><input id="cv-knots" type="number" step="any" placeholder="knots">
+        <output id="cv-speed">= km/h · mph</output></span>
+      </label>
+      <label>Distance
+        <span class="row"><input id="cv-nm" type="number" step="any" placeholder="nautical miles">
+        <output id="cv-dist">= km · mi</output></span>
+      </label>
+      <label>Depth / height
+        <span class="row"><input id="cv-m" type="number" step="any" placeholder="meters">
+        <output id="cv-len">= feet</output></span>
+      </label>
+      <label>Temperature
+        <span class="row"><input id="cv-c" type="number" step="any" placeholder="°C">
+        <output id="cv-temp">= °F</output></span>
+      </label>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ GLOSSARY ============ -->
+<section id="glossary" class="view">
+  <h1>📖 Cruise & Maritime Glossary</h1>
+  <div class="gl-controls">
+    <input id="gl-search" type="search" placeholder="Search terms… (e.g. muster, tender, STCW)">
+    <div id="gl-filters" class="seg"></div>
+  </div>
+  <dl id="gl-list"></dl>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" class="view">
+  <h1>🎓 Are you ready to sail?</h1>
+  <div class="card quiz-card">
+    <div id="quiz-intro">
+      <p>10 questions from the Academy. Guests and crew welcome — no uniform required.</p>
+      <button id="quiz-start" class="primary">Start the quiz</button>
+    </div>
+    <div id="quiz-q" hidden>
+      <p id="quiz-progress" class="note"></p>
+      <h2 id="quiz-question"></h2>
+      <div id="quiz-answers"></div>
+    </div>
+    <div id="quiz-done" hidden>
+      <h2 id="quiz-score"></h2>
+      <p id="quiz-verdict"></p>
+      <button id="quiz-again" class="primary">Try again</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>WORLD CRUISE ACADEMY</strong> — learn the ways of the sea.</p>
+  <p class="note">General guidance only — always follow your cruise line's and ship command's instructions.
+  Content works offline; your checklists and countdown are saved on this device only.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
