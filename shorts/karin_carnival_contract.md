@@ -2,9 +2,45 @@
 
 **Format:** Vertical 9:16 short (YouTube Shorts / TikTok / Reels)
 **Length:** ~50 seconds
-**Character:** Karin, late 20s, warm and a little nervous-excited
+**Character:** Karin, 28, Indonesian, warm and a little nervous-excited
 **Story:** Karin flies to San Francisco to join her first contract as an
 **Assistant Server** with Carnival Cruise Line.
+
+---
+
+## Character prompt — Karin
+
+Generate this FIRST (ChatGPT Images / Nano Banana Pro) and reuse the result
+as the character reference in every shot so Karin stays consistent.
+
+### Master reference prompt
+
+```
+Candid iPhone photo of a beautiful 28-year-old Indonesian woman, warm tan
+skin, long dark brown-black hair loosely tied back with natural flyaway
+strands framing her face, soft brown almond eyes, minimal makeup — light
+foundation and lip balm only, small gold stud earrings. She wears a
+relaxed white t-shirt under an open denim jacket. Standing in a bedroom
+with a packed suitcase and passport visible slightly blurred behind her.
+Shot at eye level, slightly off-center, as if she is holding the phone
+herself. Soft natural morning window light from the left, slightly uneven
+exposure. Real unretouched skin texture with visible pores. Nervous-excited
+genuine smile. No studio lighting. Editorial-style realism.
+```
+
+### Outfit variants (same face, same hair — change wardrobe only)
+
+| Shots | Variant prompt addition |
+|---|---|
+| 1–4 (travel) | "...wearing a relaxed white t-shirt, open denim jacket, comfortable travel leggings, small backpack strap on one shoulder." |
+| 5 (port) | "...same travel outfit, hair slightly windblown from the sea breeze, sunglasses pushed up on her head." |
+| 6 (sign-on) | "...wearing a neat white collared shirt, hair in a tidy low bun, lanyard with a new crew ID card around her neck." |
+| 7 (deck closer) | "...wearing a navy crew polo shirt, hair in a low ponytail, golden-hour sunlight on her face." |
+
+**Consistency tips:** keep "28-year-old Indonesian woman", the hair
+description, and "real unretouched skin texture, no studio lighting" in
+every shot prompt, and attach the master reference image when the tool
+supports character references (Flow ingredients / Nano Banana Pro).
 
 ---
 
@@ -32,9 +68,9 @@ UGC vlog style.
 ### Shot 1 — The suitcase (0:00–0:05)
 - **Visual:** Bedroom, early morning. Karin zips an overstuffed suitcase,
   Carnival contract papers and a passport on the bed.
-- **Prompt:** "Vertical 9:16 handheld vlog shot, soft morning light. A woman
-  in her late 20s zips a large suitcase on her bed; a passport and printed
-  contract sit beside it. She looks at the camera, takes a deep breath and
+- **Prompt:** "Vertical 9:16 handheld vlog shot, soft morning light. A
+  beautiful 28-year-old Indonesian woman zips a large suitcase on her bed; a
+  passport and printed contract sit beside it. She looks at the camera, takes a deep breath and
   smiles nervously. Realistic UGC style, no film grade."
 - **VO:** "Okay. This is really happening."
 - **Caption:** *Day 0 — leaving home*
