@@ -43,6 +43,12 @@ h1, h2, h3, .brand { font-family: var(--display); }
 }
 #nav a:hover { background: rgba(255,255,255,.15); }
 #nav a.active { background: #fff; color: var(--navy); }
+#lang-select {
+  margin-left: 6px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.4);
+  border-radius: 8px; background: rgba(255,255,255,.12); color: #fff;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+#lang-select option { color: var(--ink); }
 
 /* ---------- Views ---------- */
 .view { display: none; max-width: 980px; margin: 0 auto; padding: 26px 18px 60px; }
