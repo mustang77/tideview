@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "WORLD CRUISE ACADEMY",
+  "short_name": "WCA",
+  "version": "1.0.0",
+  "description": "Cruise countdown, packing checklist, cruise glossary & daily cruise tips. Your free cruise companion by World Cruise Academy.",
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "World Cruise Academy — Cruise Companion"
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "permissions": ["storage"]
+}

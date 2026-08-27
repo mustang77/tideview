@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" alt="" width="28" height="28">
+    <div>
+      <h1>WORLD CRUISE ACADEMY</h1>
+      <p class="tagline">Your cruise companion</p>
+    </div>
+  </header>
+
+  <nav>
+    <button class="tab active" data-tab="countdown">⏳<span>Countdown</span></button>
+    <button class="tab" data-tab="checklist">🧳<span>Packing</span></button>
+    <button class="tab" data-tab="glossary">📖<span>Glossary</span></button>
+    <button class="tab" data-tab="tips">💡<span>Tip</span></button>
+  </nav>
+
+  <!-- Countdown -->
+  <section id="countdown" class="panel active">
+    <div id="cd-setup">
+      <label for="cd-name">Cruise name</label>
+      <input id="cd-name" type="text" placeholder="e.g. Caribbean Dream 2026" maxlength="60">
+      <label for="cd-date">Sail date</label>
+      <input id="cd-date" type="date">
+      <button id="cd-save" class="primary">Start countdown</button>
+    </div>
+    <div id="cd-display" hidden>
+      <p id="cd-cruise-name"></p>
+      <div id="cd-days">–</div>
+      <p id="cd-label">days until you sail</p>
+      <button id="cd-reset" class="ghost">Change cruise</button>
+    </div>
+  </section>
+
+  <!-- Packing checklist -->
+  <section id="checklist" class="panel">
+    <p class="progress"><span id="cl-done">0</span>/<span id="cl-total">0</span> packed</p>
+    <div id="cl-groups"></div>
+  </section>
+
+  <!-- Glossary -->
+  <section id="glossary" class="panel">
+    <input id="gl-search" type="search" placeholder="Search cruise terms…">
+    <dl id="gl-list"></dl>
+  </section>
+
+  <!-- Tip of the day -->
+  <section id="tips" class="panel">
+    <div class="tip-card">
+      <p class="tip-kicker">Cruise tip of the day</p>
+      <p id="tip-text"></p>
+      <button id="tip-next" class="ghost">Show another tip</button>
+    </div>
+  </section>
+
+  <footer>
+    <!-- TODO: point this at your real website -->
+    <a href="https://www.worldcruiseacademy.com" target="_blank" rel="noopener">Learn more at World Cruise Academy →</a>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
