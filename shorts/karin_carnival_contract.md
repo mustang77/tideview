@@ -42,6 +42,34 @@ description, and "real unretouched skin texture, no studio lighting" in
 every shot prompt, and attach the master reference image when the tool
 supports character references (Flow ingredients / Nano Banana Pro).
 
+### Personality — how to write "charming" into prompts
+
+AI models can't render the word "charming" directly; you have to describe
+what charming *looks like* on camera. Append this block to any shot prompt:
+
+```
+Her energy is warm and charming: a bright genuine smile that reaches her
+eyes, expressive sparkling brown eyes, a soft playful laugh, relaxed open
+body language, occasionally tucking a loose strand of hair behind her ear.
+She talks to the camera like it's her best friend — leaning in slightly,
+eyebrows raised with excitement, natural hand gestures while speaking.
+Approachable, magnetic, effortlessly likable.
+```
+
+Per-shot micro-cues (pick one or two per shot, don't stack them all):
+
+| Charm cue | Use in |
+|---|---|
+| "smiles with her eyes, slight head tilt toward the camera" | any talking shot |
+| "covers a laugh with her hand, genuinely giggling" | Shot 5 (ship reveal) |
+| "bites her lip holding back a proud grin" | Shot 6 (crew ID) |
+| "playful wink at the camera before turning away" | Shot 7 (closer) |
+| "waves at the camera with both excitement and shyness" | Shot 2 (goodbye) |
+
+**Voiceover delivery:** charming = smiling while she talks (you can hear
+it), light rising energy at the end of sentences, one small laugh per
+short — not more, or it stops feeling real.
+
 ---
 
 ## Logline
