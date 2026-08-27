@@ -9,6 +9,9 @@
   <meta property="og:title" content="World Cruise Academy Companion">
   <meta property="og:description" content="Tools & guidance for cruise guests and crew — guides, checklists, calculators, glossary, quiz. EN / ID.">
   <link rel="icon" href="icons/icon48.png">
+  <link rel="apple-touch-icon" href="icons/icon128.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0c4a8a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,16 +25,17 @@
     <span>WORLD CRUISE ACADEMY <em>COMPANION</em></span>
   </a>
   <nav id="nav">
-    <a href="#guest" data-nav="guest" data-i18n="navGuest"></a>
-    <a href="#crew" data-nav="crew" data-i18n="navCrew"></a>
-    <a href="#tools" data-nav="tools" data-i18n="navTools"></a>
-    <a href="#glossary" data-nav="glossary" data-i18n="navGlossary"></a>
-    <a href="#quiz" data-nav="quiz" data-i18n="navQuiz"></a>
-    <select id="lang-select" title="Language / Bahasa">
-      <option value="en">🌐 English</option>
-      <option value="id">🌐 Bahasa Indonesia</option>
-    </select>
+    <a href="#home" data-nav="home" class="nav-home"><span class="ico">🏠</span><span class="lbl" data-i18n="navHome"></span></a>
+    <a href="#guest" data-nav="guest"><span class="ico">🧳</span><span class="lbl" data-i18n="navGuest"></span></a>
+    <a href="#crew" data-nav="crew"><span class="ico">⚓</span><span class="lbl" data-i18n="navCrew"></span></a>
+    <a href="#tools" data-nav="tools"><span class="ico">🛠</span><span class="lbl" data-i18n="navTools"></span></a>
+    <a href="#glossary" data-nav="glossary"><span class="ico">📖</span><span class="lbl" data-i18n="navGlossary"></span></a>
+    <a href="#quiz" data-nav="quiz"><span class="ico">🎓</span><span class="lbl" data-i18n="navQuiz"></span></a>
   </nav>
+  <select id="lang-select" title="Language / Bahasa">
+    <option value="en">🌐 EN</option>
+    <option value="id">🌐 ID</option>
+  </select>
 </header>
 
 <!-- ============ HOME ============ -->

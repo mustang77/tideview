@@ -64,7 +64,7 @@ function renderGuide(el, steps) {
     .map(
       (s, i) => `
       <details ${i === 0 ? "open" : ""}>
-        <summary>${s.icon} ${s.title}</summary>
+        <summary><span class="s-ico">${s.icon}</span> ${s.title}</summary>
         <div class="body">${s.html}</div>
       </details>`
     )

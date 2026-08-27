@@ -6,8 +6,8 @@ const I18N = {
 /* ================================================================ EN */
 en: {
   ui: {
-    navGuest: "🧳 Guest Guide", navCrew: "⚓ Crew Guide", navTools: "🛠 Tools",
-    navGlossary: "📖 Glossary", navQuiz: "🎓 Quiz",
+    navHome: "Home", navGuest: "Guest Guide", navCrew: "Crew Guide", navTools: "Tools",
+    navGlossary: "Glossary", navQuiz: "Quiz",
     heroTitle: "Your companion at sea.",
     heroSub: "Guides, checklists and tools for cruise <strong>guests</strong> and cruise <strong>crew</strong> — free, works offline, nothing to install.",
     guestCardTitle: "I'm a Guest",
@@ -209,8 +209,8 @@ en: {
 /* ================================================================ ID */
 id: {
   ui: {
-    navGuest: "🧳 Panduan Tamu", navCrew: "⚓ Panduan Kru", navTools: "🛠 Alat",
-    navGlossary: "📖 Glosarium", navQuiz: "🎓 Kuis",
+    navHome: "Beranda", navGuest: "Panduan Tamu", navCrew: "Panduan Kru", navTools: "Alat",
+    navGlossary: "Glosarium", navQuiz: "Kuis",
     heroTitle: "Teman setiamu di lautan.",
     heroSub: "Panduan, checklist, dan alat untuk <strong>tamu</strong> dan <strong>kru</strong> kapal pesiar — gratis, bisa offline, tanpa instal apa pun.",
     guestCardTitle: "Saya Tamu",
