@@ -94,15 +94,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineMedium),
                     const SizedBox(height: 24),
-                    TextField(
-                      controller: _server,
-                      decoration: const InputDecoration(
-                        labelText: 'Server',
-                        prefixIcon: Icon(Icons.dns_outlined),
-                        border: OutlineInputBorder(),
+                    if (!Brand.serverLocked) ...[
+                      TextField(
+                        controller: _server,
+                        decoration: const InputDecoration(
+                          labelText: 'Server',
+                          prefixIcon: Icon(Icons.dns_outlined),
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                    ],
                     TextField(
                       controller: _email,
                       keyboardType: TextInputType.emailAddress,

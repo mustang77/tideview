@@ -77,6 +77,25 @@ Hasil: `build\app\outputs\flutter-apk\app-release.apk` — kirim ke HP dan
 install. Catatan: kredensial disimpan polos di SharedPreferences perangkat —
 wajar untuk perangkat pribadi, jangan dipakai di HP orang lain.
 
+## Build khusus WCA MAIL (Android, server terkunci)
+
+Build dengan penanda brand — server terkunci ke mail.worldcruiseacademy.co.id
+dan kolom server disembunyikan (user cukup email + password):
+
+```powershell
+flutter build apk --release --dart-define=BRAND=wca
+```
+
+Supaya nama launcher-nya "WCA Mail": edit
+`android/app/src/main/AndroidManifest.xml`, ganti `android:label="..."`
+menjadi `android:label="WCA Mail"`.
+
+Tanpa `--dart-define`, build menghasilkan H2O Mail seperti biasa. Web build
+tidak butuh penanda — branding web mengikuti hostname secara runtime.
+Catatan: kedua varian memakai applicationId yang sama, jadi satu HP hanya
+bisa memasang salah satu; kalau butuh keduanya terpasang bersamaan, tambahkan
+product flavors di build.gradle (sesi terpisah).
+
 ## Arsitektur
 
 - `lib/jmap/jmap_client.dart` — klien JMAP (session, Mailbox/get, Email/query,
