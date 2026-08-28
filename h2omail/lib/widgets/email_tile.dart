@@ -22,7 +22,7 @@ class EmailTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final fromText =
         email.from.isNotEmpty ? email.from.first.display : '(tanpa pengirim)';
-    final bold = email.seen ? FontWeight.normal : FontWeight.w700;
+    final bold = email.seen ? FontWeight.w500 : FontWeight.w800;
     final initial =
         fromText.isNotEmpty ? fromText.characters.first.toUpperCase() : '?';
     return ListTile(
