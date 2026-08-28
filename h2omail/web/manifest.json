@@ -1,12 +1,15 @@
 {
-  "name": "H2O Mail",
-  "short_name": "H2O Mail",
+  "name": "WCA Mail",
+  "short_name": "WCA Mail",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0b1622",
-  "theme_color": "#0288D1",
-  "description": "Webmail untuk h2olaundry.com",
+  "theme_color": "#01579B",
+  "description": "Webmail World Cruise Academy",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
-  "icons": []
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
