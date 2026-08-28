@@ -278,6 +278,40 @@ class JmapClient {
     return EmailPage(emails: emails, total: total, position: position);
   }
 
+  Future<List<EmailHeader>> searchEmails(String text, {int limit = 50}) async {
+    final resp = await call([
+      [
+        'Email/query',
+        {
+          'accountId': accountId,
+          'filter': {'text': text},
+          'sort': [
+            {'property': 'receivedAt', 'isAscending': false}
+          ],
+          'limit': limit,
+        },
+        'q'
+      ],
+      [
+        'Email/get',
+        {
+          'accountId': accountId,
+          '#ids': {'resultOf': 'q', 'name': 'Email/query', 'path': '/ids'},
+          'properties': _listProperties,
+        },
+        'g'
+      ],
+    ]);
+    final list = (resp[1][1]['list'] as List).cast<Map<String, dynamic>>();
+    final emails = list.map(EmailHeader.fromJson).toList();
+    emails.sort((a, b) {
+      final da = a.receivedAt, db = b.receivedAt;
+      if (da == null || db == null) return 0;
+      return db.compareTo(da);
+    });
+    return emails;
+  }
+
   Future<EmailDetail> getEmail(String id) async {
     final resp = await call([
       [

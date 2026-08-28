@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
-import '../util/auth_store.dart';
-import '../util/format.dart';
+import '../util/accounts_store.dart';
+import '../widgets/email_tile.dart';
 import 'compose_screen.dart';
 import 'login_screen.dart';
 import 'message_view.dart';
+import 'search_screen.dart';
 
 class MailHomeScreen extends StatefulWidget {
   final JmapClient client;
@@ -107,7 +108,6 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
       final detail = await client.getEmail(h.id);
       if (!h.seen) {
         h.seen = true;
-        // Fire and forget; UI already updated.
         client.setSeen(h.id, true).catchError((_) {});
       }
       if (!mounted) return;
@@ -181,6 +181,16 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
     if (sentOk == true) _toast('Email terkirim ✓');
   }
 
+  void _openSearch() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => SearchScreen(
+        client: client,
+        sentMailboxId: _byRole('sent')?.id,
+        trashMailboxId: _byRole('trash')?.id,
+      ),
+    ));
+  }
+
   void _toast(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -188,12 +198,92 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
       ..showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Future<void> _logout() async {
-    await AuthStore.clear();
+  // ---------- Accounts (Gmail-style switcher) ----------
+
+  Future<void> _switchToAccount(SavedAccount a, int index) async {
+    _toast('Beralih ke ${a.email}...');
+    final newClient = JmapClient(
+        server: a.server, username: a.email, password: a.password);
+    try {
+      await newClient.connect();
+      await AccountsStore.setActive(index);
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => MailHomeScreen(client: newClient)),
+        (_) => false,
+      );
+    } on JmapException catch (e) {
+      _toast('Gagal masuk ${a.email}: ${e.message}');
+    }
+  }
+
+  Future<void> _signOutActive() async {
+    final remaining = await AccountsStore.removeActive();
     if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (_) => false,
+    if (remaining.isEmpty) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    } else {
+      await _switchToAccount(remaining.first, 0);
+    }
+  }
+
+  Future<void> _showAccountSheet() async {
+    final accounts = await AccountsStore.list();
+    final activeIdx = await AccountsStore.activeIndex();
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < accounts.length; i++)
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor:
+                      senderColor(accounts[i].email).withValues(alpha: 0.85),
+                  foregroundColor: Colors.white,
+                  child: Text(accounts[i].email.characters.first.toUpperCase()),
+                ),
+                title: Text(accounts[i].email,
+                    overflow: TextOverflow.ellipsis),
+                subtitle: Text(accounts[i].server,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall),
+                trailing: i == activeIdx
+                    ? Icon(Icons.check_circle,
+                        color: Theme.of(context).colorScheme.primary)
+                    : null,
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  if (i != activeIdx) _switchToAccount(accounts[i], i);
+                },
+              ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.person_add_alt),
+              title: const Text('Tambah akun'),
+              onTap: () {
+                Navigator.of(sheetCtx).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => const LoginScreen(adding: true)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: Text('Keluar dari ${client.username}'),
+              onTap: () {
+                Navigator.of(sheetCtx).pop();
+                _signOutActive();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -217,9 +307,14 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: Row(
             children: [
-              Icon(Icons.water_drop,
-                  color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
+              CircleAvatar(
+                radius: 16,
+                backgroundColor:
+                    senderColor(client.username).withValues(alpha: 0.85),
+                foregroundColor: Colors.white,
+                child: Text(client.username.characters.first.toUpperCase()),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(client.username,
                     overflow: TextOverflow.ellipsis,
@@ -242,13 +337,6 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
               _selectMailbox(m);
             },
           ),
-        const Divider(),
-        ListTile(
-          dense: true,
-          leading: const Icon(Icons.logout),
-          title: const Text('Keluar'),
-          onTap: _logout,
-        ),
       ],
     );
   }
@@ -281,49 +369,9 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
             );
           }
           final e = _emails[i];
-          final fromText =
-              e.from.isNotEmpty ? e.from.first.display : '(tanpa pengirim)';
-          final bold = e.seen ? FontWeight.normal : FontWeight.bold;
-          final selected = _openDetail?.header.id == e.id;
-          return ListTile(
-            selected: wide && selected,
-            leading: CircleAvatar(
-              child: Text(fromText.isNotEmpty
-                  ? fromText.characters.first.toUpperCase()
-                  : '?'),
-            ),
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(fromText,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: bold)),
-                ),
-                const SizedBox(width: 8),
-                Text(formatDateShort(e.receivedAt),
-                    style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(e.subject,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontWeight: bold)),
-                    ),
-                    if (e.hasAttachment)
-                      const Icon(Icons.attach_file, size: 14),
-                  ],
-                ),
-                Text(e.preview,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall),
-              ],
-            ),
+          return EmailTile(
+            email: e,
+            selected: wide && _openDetail?.header.id == e.id,
             onTap: () => _openEmail(e, wide: wide),
           );
         },
@@ -349,7 +397,7 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _selected?.name ?? 'H2O Mail';
+    final title = _selected?.name ?? '';
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 1100;
       final appBar = AppBar(
@@ -357,7 +405,7 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
         actions: [
           if (_loadingDetail)
             const Padding(
-              padding: EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: 8),
               child: Center(
                   child: SizedBox(
                       width: 18,
@@ -365,9 +413,27 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2))),
             ),
           IconButton(
+              onPressed: _openSearch,
+              tooltip: 'Cari',
+              icon: const Icon(Icons.search)),
+          IconButton(
               onPressed: _refresh,
               tooltip: 'Refresh',
               icon: const Icon(Icons.refresh)),
+          Padding(
+            padding: const EdgeInsets.only(right: 12, left: 4),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: _showAccountSheet,
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor:
+                    senderColor(client.username).withValues(alpha: 0.85),
+                foregroundColor: Colors.white,
+                child: Text(client.username.characters.first.toUpperCase()),
+              ),
+            ),
+          ),
         ],
       );
       final fab = FloatingActionButton.extended(

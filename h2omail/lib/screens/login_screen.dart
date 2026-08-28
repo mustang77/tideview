@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
-import '../util/auth_store.dart';
+import '../util/accounts_store.dart';
 import '../util/brand.dart';
 import 'mail_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// When true this screen adds another account (no auto-login).
+  final bool adding;
+  const LoginScreen({super.key, this.adding = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,17 +19,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
-  bool _remember = true;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _tryAutoLogin();
+    if (!widget.adding) _tryAutoLogin();
   }
 
   Future<void> _tryAutoLogin() async {
-    final saved = await AuthStore.load();
+    final saved = await AccountsStore.active();
     if (saved == null || !mounted) return;
     _server.text = saved.server;
     _email.text = saved.email;
@@ -53,15 +54,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
     try {
       await client.connect();
-      if (_remember) {
-        await AuthStore.save(SavedLogin(
-            server: client.server, email: email, password: password));
-      } else {
-        await AuthStore.clear();
-      }
+      await AccountsStore.upsert(SavedAccount(
+          server: client.server, email: email, password: password));
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => MailHomeScreen(client: client)),
+        (_) => false,
       );
     } on JmapException catch (e) {
       setState(() => _error = e.message);
@@ -76,6 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
+      appBar: widget.adding
+          ? AppBar(title: const Text('Tambah Akun'))
+          : null,
       body: Center(
         child: SingleChildScrollView(
           child: ConstrainedBox(
@@ -111,7 +112,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       autofillHints: const [AutofillHints.username],
                       decoration: const InputDecoration(
                         labelText: 'Email',
-                        hintText: 'nama@h2olaundry.com',
                         prefixIcon: Icon(Icons.alternate_email),
                         border: OutlineInputBorder(),
                       ),
@@ -127,15 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefixIcon: Icon(Icons.lock_outline),
                         border: OutlineInputBorder(),
                       ),
-                    ),
-                    CheckboxListTile(
-                      value: _remember,
-                      onChanged: (v) =>
-                          setState(() => _remember = v ?? true),
-                      title: const Text('Ingat saya'),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 12),
