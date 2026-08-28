@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Tools by World Cruise Academy — Merge, Split, Compress PDF Online Free</title>
+  <meta name="description" content="Free online PDF tools: merge, split, compress, rotate, watermark, page numbers, JPG to PDF, PDF to JPG, extract text. 100% private — files never leave your device. Gratis: gabungkan, pisahkan, kompres PDF.">
+  <meta name="keywords" content="pdf tools, merge pdf, split pdf, compress pdf, gabungkan pdf, pisahkan pdf, kompres pdf, jpg ke pdf, pdf ke jpg, world cruise academy">
+  <meta property="og:title" content="WCA PDF Tools — free & private PDF tools">
+  <meta name="theme-color" content="#0c4a8a">
+  <link rel="icon" href="icons/icon48.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#" id="brand-home">
+    <img src="icons/icon48.png" alt="" width="30" height="30">
+    <span>WCA <em>PDF TOOLS</em></span>
+  </a>
+  <select id="lang-select" title="Language / Bahasa">
+    <option value="en">🌐 EN</option>
+    <option value="id">🌐 ID</option>
+  </select>
+</header>
+
+<!-- ============ HOME GRID ============ -->
+<section id="grid-view">
+  <div class="hero">
+    <h1 data-i18n="heroTitle"></h1>
+    <p data-i18n="heroSub"></p>
+    <p class="privacy-badge" data-i18n="privacyBadge"></p>
+  </div>
+  <div class="tool-cards" id="tool-cards"></div>
+</section>
+
+<!-- ============ TOOL VIEW ============ -->
+<section id="tool-view" hidden>
+  <button id="back" class="ghost">← <span data-i18n="back"></span></button>
+  <div class="tool-panel card">
+    <h1 id="tool-title"></h1>
+    <p id="tool-desc" class="lead"></p>
+
+    <div id="dropzone">
+      <span class="dz-ico">📄</span>
+      <p><strong data-i18n="dropTitle"></strong></p>
+      <p class="note" data-i18n="dropSub"></p>
+      <input id="file-input" type="file" hidden>
+    </div>
+
+    <ul id="file-list"></ul>
+
+    <!-- per-tool options -->
+    <div class="opts" id="opt-split" hidden>
+      <label><span data-i18n="splitRange"></span>
+        <input id="split-range" type="text" placeholder="1-3, 5, 8-10">
+      </label>
+      <label class="check"><input id="split-zip" type="checkbox"> <span data-i18n="splitZip"></span></label>
+    </div>
+
+    <div class="opts" id="opt-compress" hidden>
+      <label><span data-i18n="cmpQuality"></span> <output id="cmp-q-out">70%</output>
+        <input id="cmp-quality" type="range" min="30" max="90" value="70">
+      </label>
+      <p class="note" data-i18n="cmpNote"></p>
+    </div>
+
+    <div class="opts" id="opt-rotate" hidden>
+      <label><span data-i18n="rotAngle"></span>
+        <select id="rot-angle">
+          <option value="90">90°</option>
+          <option value="180">180°</option>
+          <option value="270">270°</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="opts" id="opt-watermark" hidden>
+      <label><span data-i18n="wmText"></span>
+        <input id="wm-text" type="text" value="CONFIDENTIAL" maxlength="60">
+      </label>
+      <label><span data-i18n="wmOpacity"></span> <output id="wm-o-out">30%</output>
+        <input id="wm-opacity" type="range" min="10" max="80" value="30">
+      </label>
+    </div>
+
+    <div class="opts" id="opt-pagenum" hidden>
+      <label><span data-i18n="pnStart"></span>
+        <input id="pn-start" type="number" value="1" min="0">
+      </label>
+    </div>
+
+    <button id="process" class="primary" disabled></button>
+    <div id="status"></div>
+    <div id="results"></div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>WORLD CRUISE ACADEMY</strong> · <a href="https://worldcruiseacademy.co.id">worldcruiseacademy.co.id</a></p>
+  <p class="note" data-i18n="footerNote"></p>
+</footer>
+
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
