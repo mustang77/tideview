@@ -16,9 +16,20 @@ dependencies:
   url_launcher: ^6.3.0
   webview_flutter: ^4.9.0
   flutter_local_notifications: ^18.0.1
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#01579B"
+  adaptive_icon_foreground: "assets/icon/icon_fg.png"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/
