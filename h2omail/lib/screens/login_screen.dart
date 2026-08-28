@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
+import '../util/auth_store.dart';
 import 'mail_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,7 +16,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
+  bool _remember = true;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _tryAutoLogin();
+  }
+
+  Future<void> _tryAutoLogin() async {
+    final saved = await AuthStore.load();
+    if (saved == null || !mounted) return;
+    _server.text = saved.server;
+    _email.text = saved.email;
+    _password.text = saved.password;
+    await _login();
+  }
 
   Future<void> _login() async {
     final email = _email.text.trim();
@@ -35,6 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
     try {
       await client.connect();
+      if (_remember) {
+        await AuthStore.save(SavedLogin(
+            server: client.server, email: email, password: password));
+      } else {
+        await AuthStore.clear();
+      }
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => MailHomeScreen(client: client)),
@@ -101,6 +124,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefixIcon: Icon(Icons.lock_outline),
                         border: OutlineInputBorder(),
                       ),
+                    ),
+                    CheckboxListTile(
+                      value: _remember,
+                      onChanged: (v) =>
+                          setState(() => _remember = v ?? true),
+                      title: const Text('Ingat saya'),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 12),

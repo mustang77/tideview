@@ -40,6 +40,43 @@ Upload isi `build/web/` ke subdomain mana pun (mis. `webmail.h2olaundry.com`
 di server Webuzo, atau Cloudflare Pages). App ini murni file statis — tidak
 butuh backend sendiri; semua data langsung dari JMAP `mail.h2olaundry.com`.
 
+## Build APLIKASI ANDROID (untuk HP sendiri)
+
+Login tersimpan di perangkat ("Ingat saya", default aktif) — buka app langsung
+masuk inbox, seperti app Gmail.
+
+Satu kali saja, generate folder android/ (tidak menyentuh lib/):
+
+```powershell
+cd h2omail
+flutter create --platforms=android .
+flutter pub get
+```
+
+Lalu tambahkan izin internet untuk build release: buka
+`android/app/src/main/AndroidManifest.xml` dan tambahkan baris ini tepat di
+atas `<application`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+Jalankan ke HP (USB debugging aktif):
+
+```powershell
+flutter run -d <deviceId>
+```
+
+APK permanen untuk dipasang di HP:
+
+```powershell
+flutter build apk --release
+```
+
+Hasil: `build\app\outputs\flutter-apk\app-release.apk` — kirim ke HP dan
+install. Catatan: kredensial disimpan polos di SharedPreferences perangkat —
+wajar untuk perangkat pribadi, jangan dipakai di HP orang lain.
+
 ## Arsitektur
 
 - `lib/jmap/jmap_client.dart` — klien JMAP (session, Mailbox/get, Email/query,

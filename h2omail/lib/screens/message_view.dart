@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../jmap/jmap_client.dart';
 import '../util/format.dart';
@@ -99,8 +99,9 @@ class MessageView extends StatelessWidget {
                       ActionChip(
                         avatar: const Icon(Icons.attach_file, size: 16),
                         label: Text('${a.name} (${formatSize(a.size)})'),
-                        onPressed: () => web.window
-                            .open(client.downloadUrl(a), '_blank'),
+                        onPressed: () => launchUrl(
+                            Uri.parse(client.downloadUrl(a)),
+                            mode: LaunchMode.externalApplication),
                       ),
                   ],
                 ),

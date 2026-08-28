@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
+import '../util/auth_store.dart';
 import '../util/format.dart';
 import 'compose_screen.dart';
 import 'login_screen.dart';
@@ -187,7 +188,9 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
       ..showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  void _logout() {
+  Future<void> _logout() async {
+    await AuthStore.clear();
+    if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (_) => false,
