@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/login_screen.dart';
+import 'util/brand.dart';
 
 void main() => runApp(const H2OMailApp());
 
@@ -11,7 +12,7 @@ class H2OMailApp extends StatelessWidget {
   Widget build(BuildContext context) {
     const seed = Color(0xFF0288D1);
     return MaterialApp(
-      title: 'H2O Mail',
+      title: Brand.name,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: seed),

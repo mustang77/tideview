@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
 import '../util/auth_store.dart';
+import '../util/brand.dart';
 import 'mail_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _server = TextEditingController(text: 'mail.h2olaundry.com');
+  final _server = TextEditingController(text: Brand.defaultServer);
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busy = false;
@@ -87,9 +88,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.water_drop, size: 56, color: cs.primary),
+                    Icon(Brand.icon, size: 56, color: cs.primary),
                     const SizedBox(height: 8),
-                    Text('H2O Mail',
+                    Text(Brand.name,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineMedium),
                     const SizedBox(height: 24),
