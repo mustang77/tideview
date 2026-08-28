@@ -79,12 +79,16 @@ wajar untuk perangkat pribadi, jangan dipakai di HP orang lain.
 
 ## Build khusus WCA MAIL (Android, server terkunci)
 
-Build dengan penanda brand — server terkunci ke mail.worldcruiseacademy.co.id
-dan kolom server disembunyikan (user cukup email + password):
+Build Android DEFAULT-nya sudah WCA Mail — server terkunci ke
+mail.worldcruiseacademy.co.id dan kolom server disembunyikan (user cukup
+email + password):
 
 ```powershell
-flutter build apk --release --dart-define=BRAND=wca
+flutter build apk --release
 ```
+
+(Kalau suatu saat butuh varian H2O di Android: tambahkan
+`--dart-define=BRAND=h2o`.)
 
 Supaya nama launcher-nya "WCA Mail": edit
 `android/app/src/main/AndroidManifest.xml`, ganti `android:label="..."`
