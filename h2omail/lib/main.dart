@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'screens/login_screen.dart';
 import 'util/brand.dart';
+import 'util/notifier.dart';
 
-void main() => runApp(const H2OMailApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Notifier.init();
+  runApp(const H2OMailApp());
+}
 
 class H2OMailApp extends StatelessWidget {
   const H2OMailApp({super.key});

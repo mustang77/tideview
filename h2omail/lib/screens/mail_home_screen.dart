@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../jmap/jmap_client.dart';
 import '../util/accounts_store.dart';
+import '../util/notifier.dart';
 import '../widgets/email_tile.dart';
 import 'compose_screen.dart';
 import 'login_screen.dart';
@@ -25,6 +28,8 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
   bool _loadingMore = false;
   EmailDetail? _openDetail;
   bool _loadingDetail = false;
+  Timer? _pollTimer;
+  String? _newestSeenId;
 
   JmapClient get client => widget.client;
 
@@ -39,6 +44,48 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
   void initState() {
     super.initState();
     _bootstrap();
+    _pollTimer = Timer.periodic(
+        const Duration(seconds: 60), (_) => _checkNewMail());
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkNewMail() async {
+    final inbox = _byRole('inbox');
+    if (inbox == null) return;
+    try {
+      final page = await client.queryEmails(inbox.id, limit: 10);
+      final fresh = page.emails;
+      if (fresh.isEmpty) return;
+      final newestId = fresh.first.id;
+      if (_newestSeenId == null) {
+        _newestSeenId = newestId; // baseline on first check
+        return;
+      }
+      if (newestId == _newestSeenId) return;
+      final prevIdx = fresh.indexWhere((e) => e.id == _newestSeenId);
+      final newOnes = prevIdx == -1 ? fresh : fresh.sublist(0, prevIdx);
+      _newestSeenId = newestId;
+      final unseen = newOnes.where((e) => !e.seen).toList();
+      if (unseen.isEmpty) return;
+      final first = unseen.first;
+      Notifier.newMail(
+        from: first.from.isNotEmpty ? first.from.first.display : 'Email baru',
+        subject: first.subject,
+        count: unseen.length,
+      );
+      // Refresh the unread badges quietly.
+      try {
+        final boxes = await client.getMailboxes();
+        if (mounted) setState(() => _mailboxes = boxes);
+      } catch (_) {}
+    } catch (_) {
+      // Network hiccups during polling are ignored.
+    }
   }
 
   Future<void> _bootstrap() async {
