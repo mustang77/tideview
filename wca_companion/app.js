@@ -23,6 +23,14 @@ let lang = store.get("wca_lang", null) || (navigator.language?.startsWith("id") 
 if (!I18N[lang]) lang = "en";
 const T = () => I18N[lang];
 
+// Merge the Ships/Itinerary/Community content (extra.js) into the language table.
+for (const l of Object.keys(WCA_EXTRA)) {
+  Object.assign(I18N[l].ui, WCA_EXTRA[l].ui);
+  I18N[l].regions = WCA_EXTRA[l].regions;
+  I18N[l].lines = WCA_EXTRA[l].lines;
+  I18N[l].stories = WCA_EXTRA[l].stories;
+}
+
 /* ---------------- Language switching ---------------- */
 function applyLang() {
   document.documentElement.lang = lang;
@@ -39,6 +47,10 @@ function applyLang() {
   renderGlossary();
   refreshCountdownLabel();
   resetQuizToIntro();
+  renderLines();
+  renderShips();
+  renderItinerary();
+  renderStories();
 }
 
 $("#lang-select") && $("#lang-select").addEventListener("change", (e) => {
@@ -48,7 +60,7 @@ $("#lang-select") && $("#lang-select").addEventListener("change", (e) => {
 });
 
 /* ---------------- Navigation (hash-based views) ---------------- */
-const VIEWS = ["home", "guest", "crew", "tools", "glossary", "quiz"];
+const VIEWS = ["home", "guest", "crew", "ships", "tools", "academy", "community"];
 
 function show(view) {
   if (!VIEWS.includes(view)) view = "home";
@@ -289,6 +301,114 @@ function endQuiz() {
 
 $("#quiz-start").addEventListener("click", startQuiz);
 $("#quiz-again").addEventListener("click", startQuiz);
+
+/* ---------------- Academy sub-tabs (Glossary / Quiz) ---------------- */
+$$(".academy-seg .seg-btn").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    $$(".academy-seg .seg-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    $("#academy-glossary").hidden = btn.dataset.ac !== "glossary";
+    $("#academy-quiz").hidden = btn.dataset.ac !== "quiz";
+  })
+);
+
+/* ---------------- Ships: cruise line cards + searchable fleet ---------------- */
+function renderLines() {
+  $("#lines-grid").innerHTML = T().lines
+    .map(
+      (l) => `
+      <div class="line-card card">
+        <h3>${LINE_NAMES[l.key]}</h3>
+        <p>${l.blurb}</p>
+        <div class="line-regions">${l.regions.map((r) => `<span>${T().regions[r]}</span>`).join("")}</div>
+      </div>`
+    )
+    .join("");
+}
+
+function renderShips() {
+  const q = ($("#ship-search").value || "").trim().toLowerCase();
+  const rows = SHIPS.filter(
+    ([line, ship]) =>
+      !q || ship.toLowerCase().includes(q) || LINE_NAMES[line].toLowerCase().includes(q)
+  );
+  $("#ships-body").innerHTML = rows.length
+    ? rows
+        .map(
+          ([line, ship, year, gt, guests, region]) => `
+          <tr>
+            <td class="t-ship">${ship}</td>
+            <td>${LINE_NAMES[line]}</td>
+            <td>${year}</td>
+            <td>${gt.toLocaleString()}</td>
+            <td>~${guests.toLocaleString()}</td>
+            <td>${T().regions[region]}</td>
+          </tr>`
+        )
+        .join("")
+    : `<tr><td colspan="6">${T().ui.shipsNone}</td></tr>`;
+}
+$("#ship-search").addEventListener("input", renderShips);
+
+/* ---------------- My Itinerary (localStorage: wca_itin) ---------------- */
+function renderItinerary() {
+  const stops = store.get("wca_itin", []);
+  $("#itin-empty").style.display = stops.length ? "none" : "block";
+  $("#itin-list").innerHTML = stops
+    .map(
+      (s, i) => `
+      <li class="itin-stop">
+        <div class="it-day">${T().ui.itDay} ${i + 1}</div>
+        <div class="it-main">
+          <strong>${s.port}</strong>
+          <span class="it-times">${[s.date, s.arr && "⚓ " + s.arr, s.dep && "🕑 " + s.dep]
+            .filter(Boolean).join(" · ")}</span>
+          ${s.notes ? `<span class="it-notes">${s.notes}</span>` : ""}
+        </div>
+        <button class="it-del" data-del="${i}" title="Delete">✕</button>
+      </li>`
+    )
+    .join("");
+  $$("#itin-list .it-del").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const list = store.get("wca_itin", []);
+      list.splice(+btn.dataset.del, 1);
+      store.set("wca_itin", list);
+      renderItinerary();
+    })
+  );
+}
+
+$("#it-add").addEventListener("click", () => {
+  const port = $("#it-port").value.trim();
+  if (!port) { $("#it-port").focus(); return; }
+  const stop = {
+    port,
+    date: $("#it-date").value,
+    arr: $("#it-arr").value,
+    dep: $("#it-dep").value,
+    notes: $("#it-notes").value.trim(),
+  };
+  const list = store.get("wca_itin", []);
+  list.push(stop);
+  store.set("wca_itin", list);
+  ["it-port", "it-date", "it-arr", "it-dep", "it-notes"].forEach((id) => ($("#" + id).value = ""));
+  renderItinerary();
+});
+
+/* ---------------- Community stories ---------------- */
+function renderStories() {
+  $("#stories-grid").innerHTML = T().stories
+    .map(
+      (s) => `
+      <div class="story-card card">
+        <span class="sample">${T().ui.sampleTag}</span>
+        <p class="s-text">“${s.text}”</p>
+        <p class="s-who"><strong>${s.name}</strong> — ${s.role}</p>
+      </div>`
+    )
+    .join("");
+}
 
 /* ---------------- Boot ---------------- */
 applyLang();

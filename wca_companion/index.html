@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>World Cruise Academy Companion — Tools & Guidance for Cruise Guests and Crew</title>
-  <meta name="description" content="Free bilingual cruise companion for guests and crew: step-by-step guides, packing checklists, cruise countdown, gratuity calculator, maritime glossary and quiz. English & Bahasa Indonesia. By World Cruise Academy.">
-  <meta name="keywords" content="cruise guide, cruise crew, cruise tips, cruise packing list, cruise glossary, work on cruise ship, kerja di kapal pesiar, cruise line, world cruise academy">
+  <meta name="description" content="Free bilingual cruise companion for guests and crew: guides, cruise lines & ships, itinerary planner, packing checklists, calculators, maritime glossary, quiz and community. English & Bahasa Indonesia. By World Cruise Academy.">
+  <meta name="keywords" content="cruise guide, cruise crew, cruise ships, cruise lines, cruise itinerary, cruise tips, cruise packing list, cruise glossary, work on cruise ship, kerja di kapal pesiar, world cruise academy">
   <meta property="og:title" content="World Cruise Academy Companion">
-  <meta property="og:description" content="Tools & guidance for cruise guests and crew — guides, checklists, calculators, glossary, quiz. EN / ID.">
+  <meta property="og:description" content="Tools & guidance for cruise guests and crew — guides, ships, itinerary planner, community. EN / ID.">
   <link rel="icon" href="icons/icon48.png">
   <link rel="apple-touch-icon" href="icons/icon128.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -28,9 +28,10 @@
     <a href="#home" data-nav="home" class="nav-home"><span class="ico">🏠</span><span class="lbl" data-i18n="navHome"></span></a>
     <a href="#guest" data-nav="guest"><span class="ico">🧳</span><span class="lbl" data-i18n="navGuest"></span></a>
     <a href="#crew" data-nav="crew"><span class="ico">⚓</span><span class="lbl" data-i18n="navCrew"></span></a>
+    <a href="#ships" data-nav="ships"><span class="ico">🚢</span><span class="lbl" data-i18n="navShips"></span></a>
     <a href="#tools" data-nav="tools"><span class="ico">🛠</span><span class="lbl" data-i18n="navTools"></span></a>
-    <a href="#glossary" data-nav="glossary"><span class="ico">📖</span><span class="lbl" data-i18n="navGlossary"></span></a>
-    <a href="#quiz" data-nav="quiz"><span class="ico">🎓</span><span class="lbl" data-i18n="navQuiz"></span></a>
+    <a href="#academy" data-nav="academy"><span class="ico">🎓</span><span class="lbl" data-i18n="navAcademy"></span></a>
+    <a href="#community" data-nav="community"><span class="ico">🤝</span><span class="lbl" data-i18n="navCommunity"></span></a>
   </nav>
   <select id="lang-select" title="Language / Bahasa">
     <option value="en">🌐 EN</option>
@@ -56,11 +57,13 @@
       </a>
     </div>
     <div class="hero-tools">
+      <a href="#ships" data-nav="ships" data-i18n="chipShips"></a>
+      <a href="#ships" data-nav="ships" data-i18n="chipItin"></a>
       <a href="#tools" data-nav="tools" data-i18n="chipCountdown"></a>
       <a href="#tools" data-nav="tools" data-i18n="chipChecklists"></a>
-      <a href="#tools" data-nav="tools" data-i18n="chipTip"></a>
-      <a href="#glossary" data-nav="glossary" data-i18n="chipGlossary"></a>
-      <a href="#quiz" data-nav="quiz" data-i18n="chipQuiz"></a>
+      <a href="#academy" data-nav="academy" data-i18n="chipGlossary"></a>
+      <a href="#academy" data-nav="academy" data-i18n="chipQuiz"></a>
+      <a href="#community" data-nav="community" data-i18n="chipCommunity"></a>
     </div>
   </div>
 </section>
@@ -77,6 +80,43 @@
   <h1 data-i18n="crewTitle"></h1>
   <p class="lead" data-i18n="crewLead"></p>
   <div id="crew-guide" class="accordion"></div>
+</section>
+
+<!-- ============ SHIPS & ITINERARY ============ -->
+<section id="ships" class="view">
+  <h1 data-i18n="shipsTitle"></h1>
+  <p class="lead" data-i18n="shipsLead"></p>
+
+  <h2 class="sub" data-i18n="linesTitle"></h2>
+  <div id="lines-grid"></div>
+
+  <h2 class="sub" data-i18n="fleetTitle"></h2>
+  <input id="ship-search" type="search" data-i18n-ph="shipSearchPh">
+  <div class="table-wrap card">
+    <table id="ships-table">
+      <thead><tr>
+        <th data-i18n="thShip"></th><th data-i18n="thLine"></th><th data-i18n="thYear"></th>
+        <th data-i18n="thGT"></th><th data-i18n="thGuests"></th><th data-i18n="thRegion"></th>
+      </tr></thead>
+      <tbody id="ships-body"></tbody>
+    </table>
+  </div>
+  <p class="note" data-i18n="shipsNote"></p>
+
+  <div class="card itin-card">
+    <h2 data-i18n="itinTitle"></h2>
+    <p class="lead" data-i18n="itinLead"></p>
+    <div class="itin-form">
+      <label><span data-i18n="itPort"></span><input id="it-port" type="text" data-i18n-ph="itPortPh" maxlength="60"></label>
+      <label><span data-i18n="itDate"></span><input id="it-date" type="date"></label>
+      <label><span data-i18n="itArr"></span><input id="it-arr" type="time"></label>
+      <label><span data-i18n="itDep"></span><input id="it-dep" type="time"></label>
+      <label class="wide"><span data-i18n="itNotes"></span><input id="it-notes" type="text" data-i18n-ph="itNotesPh" maxlength="120"></label>
+      <button id="it-add" class="primary" data-i18n="itAdd"></button>
+    </div>
+    <ol id="itin-list"></ol>
+    <p id="itin-empty" class="note" data-i18n="itEmpty"></p>
+  </div>
 </section>
 
 <!-- ============ TOOLS ============ -->
@@ -149,34 +189,78 @@
   </div>
 </section>
 
-<!-- ============ GLOSSARY ============ -->
-<section id="glossary" class="view">
-  <h1 data-i18n="glTitle"></h1>
-  <div class="gl-controls">
-    <input id="gl-search" type="search" data-i18n-ph="glSearchPh">
-    <div id="gl-filters" class="seg"></div>
+<!-- ============ ACADEMY (Glossary + Quiz) ============ -->
+<section id="academy" class="view">
+  <h1 data-i18n="academyTitle"></h1>
+  <div class="seg academy-seg">
+    <button class="seg-btn active" data-ac="glossary" data-i18n="acGlossary"></button>
+    <button class="seg-btn" data-ac="quiz" data-i18n="acQuiz"></button>
   </div>
-  <dl id="gl-list"></dl>
+
+  <div id="academy-glossary">
+    <div class="gl-controls">
+      <input id="gl-search" type="search" data-i18n-ph="glSearchPh">
+      <div id="gl-filters" class="seg"></div>
+    </div>
+    <dl id="gl-list"></dl>
+  </div>
+
+  <div id="academy-quiz" hidden>
+    <div class="card quiz-card">
+      <div id="quiz-intro">
+        <p data-i18n="quizIntro"></p>
+        <button id="quiz-start" class="primary" data-i18n="quizStart"></button>
+      </div>
+      <div id="quiz-q" hidden>
+        <p id="quiz-progress" class="note"></p>
+        <h2 id="quiz-question"></h2>
+        <div id="quiz-answers"></div>
+      </div>
+      <div id="quiz-done" hidden>
+        <h2 id="quiz-score"></h2>
+        <p id="quiz-verdict"></p>
+        <button id="quiz-again" class="primary" data-i18n="quizAgain"></button>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ============ QUIZ ============ -->
-<section id="quiz" class="view">
-  <h1 data-i18n="quizTitle"></h1>
-  <div class="card quiz-card">
-    <div id="quiz-intro">
-      <p data-i18n="quizIntro"></p>
-      <button id="quiz-start" class="primary" data-i18n="quizStart"></button>
-    </div>
-    <div id="quiz-q" hidden>
-      <p id="quiz-progress" class="note"></p>
-      <h2 id="quiz-question"></h2>
-      <div id="quiz-answers"></div>
-    </div>
-    <div id="quiz-done" hidden>
-      <h2 id="quiz-score"></h2>
-      <p id="quiz-verdict"></p>
-      <button id="quiz-again" class="primary" data-i18n="quizAgain"></button>
-    </div>
+<!-- ============ COMMUNITY ============ -->
+<section id="community" class="view">
+  <h1 data-i18n="communityTitle"></h1>
+  <p class="lead" data-i18n="communityLead"></p>
+
+  <h2 class="sub" data-i18n="joinTitle"></h2>
+  <div class="join-grid">
+    <!-- TODO: replace href="#" with your real group invite links -->
+    <a class="join-card" href="#" data-join="wa">
+      <span class="j-ico">💬</span>
+      <strong data-i18n="joinWhatsApp"></strong>
+      <p data-i18n="joinWhatsAppDesc"></p>
+      <span class="j-soon" data-i18n="joinSoon"></span>
+    </a>
+    <a class="join-card" href="#" data-join="tg">
+      <span class="j-ico">📣</span>
+      <strong data-i18n="joinTelegram"></strong>
+      <p data-i18n="joinTelegramDesc"></p>
+      <span class="j-soon" data-i18n="joinSoon"></span>
+    </a>
+    <a class="join-card" href="#" data-join="fb">
+      <span class="j-ico">👥</span>
+      <strong data-i18n="joinFacebook"></strong>
+      <p data-i18n="joinFacebookDesc"></p>
+      <span class="j-soon" data-i18n="joinSoon"></span>
+    </a>
+  </div>
+
+  <h2 class="sub" data-i18n="storiesTitle"></h2>
+  <div id="stories-grid"></div>
+
+  <div class="card share-card">
+    <h2 data-i18n="shareTitle"></h2>
+    <p data-i18n="shareDesc"></p>
+    <!-- TODO: change to your real contact email -->
+    <a class="btn-link" href="mailto:hello@worldcruiseacademy.com?subject=My%20cruise%20story" data-i18n="shareBtn"></a>
   </div>
 </section>
 
@@ -186,6 +270,7 @@
 </footer>
 
 <script src="data.js"></script>
+<script src="extra.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

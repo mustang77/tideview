@@ -304,6 +304,104 @@ button.ghost:hover { border-color: var(--ocean); background: #f0f8fe; }
 #quiz-answers button.bad { background: #fde3e1; border-color: #e53935; }
 #quiz-score { font-size: 40px; color: var(--navy); margin: 6px 0; }
 
+/* ================= Ships & itinerary ================= */
+h2.sub {
+  font-size: 20px; color: var(--navy); margin: 28px 0 12px;
+}
+#lines-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+}
+.line-card h3 { margin: 0 0 6px; color: var(--navy); font-size: 17px; }
+.line-card p { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.line-regions { display: flex; gap: 6px; flex-wrap: wrap; }
+.line-regions span {
+  font-size: 11px; font-weight: 700; color: var(--ocean);
+  background: #eaf4fc; border: 1px solid #cfe6f7; border-radius: 999px; padding: 3px 10px;
+}
+
+#ship-search { margin-bottom: 12px; }
+.table-wrap { padding: 0; overflow-x: auto; }
+#ships-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+#ships-table th {
+  text-align: left; padding: 12px 14px; background: var(--navy); color: #fff;
+  font-family: var(--display); font-size: 13px; white-space: nowrap;
+}
+#ships-table td { padding: 10px 14px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+#ships-table tbody tr:hover { background: #f0f7fd; }
+#ships-table .t-ship { font-weight: 700; color: var(--navy); }
+
+.itin-card { margin-top: 28px; }
+.itin-card h2 { margin: 0 0 4px; color: var(--navy); }
+.itin-form {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; align-items: end;
+  margin: 14px 0 6px;
+}
+.itin-form label { margin: 0; }
+.itin-form label > span { display: block; margin-bottom: 4px; }
+.itin-form .wide { grid-column: 1 / 3; }
+.itin-form button { grid-column: 3 / 5; margin-top: 0; }
+#itin-list { list-style: none; margin: 14px 0 0; padding: 0; }
+.itin-stop {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 4px; border-top: 1px solid var(--line);
+}
+.it-day {
+  flex: none; font-family: var(--display); font-weight: 700; font-size: 12px;
+  color: #fff; background: var(--ocean); border-radius: 10px; padding: 6px 10px;
+  white-space: nowrap;
+}
+.it-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.it-main strong { color: var(--navy); }
+.it-times { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.it-notes { font-size: 13px; color: #46586a; }
+.it-del {
+  margin-left: auto; flex: none; border: none; background: none; cursor: pointer;
+  color: #b0bfcd; font-size: 15px; padding: 6px 8px; border-radius: 8px;
+}
+.it-del:hover { color: #e53935; background: #fde3e1; }
+
+/* ================= Community ================= */
+.join-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
+}
+.join-card {
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px; text-decoration: none; color: var(--ink);
+  box-shadow: var(--shadow-1); transition: transform .18s, box-shadow .18s;
+}
+.join-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+.join-card .j-ico { font-size: 30px; }
+.join-card strong { color: var(--navy); font-family: var(--display); }
+.join-card p { margin: 0; color: var(--muted); font-size: 13px; }
+.j-soon {
+  margin-top: 8px; width: fit-content; font-size: 11px; font-weight: 700;
+  color: var(--muted); background: var(--sand); border: 1px dashed #b9c8d6;
+  border-radius: 999px; padding: 3px 10px;
+}
+#stories-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;
+}
+.story-card { position: relative; }
+.story-card .sample {
+  position: absolute; top: 12px; right: 12px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted); background: var(--sand); border-radius: 999px; padding: 3px 9px;
+}
+.s-text { margin: 6px 0 10px; color: #35485c; }
+.s-who { margin: 0; font-size: 13px; color: var(--muted); }
+.s-who strong { color: var(--navy); }
+.share-card { margin-top: 24px; text-align: center; }
+.share-card h2 { color: var(--navy); margin: 0 0 6px; }
+.share-card p { color: var(--muted); margin: 0 auto 14px; max-width: 46ch; }
+.btn-link {
+  display: inline-block; padding: 12px 26px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--ocean), var(--navy)); color: #fff;
+  font-weight: 700; text-decoration: none; box-shadow: 0 4px 14px rgba(2,136,209,.35);
+  transition: transform .15s;
+}
+.btn-link:hover { transform: translateY(-1px); }
+
 /* Footer */
 footer {
   text-align: center; padding: 28px 18px 44px; border-top: 1px solid var(--line);
@@ -318,17 +416,17 @@ footer strong { color: var(--navy); letter-spacing: 1.2px; font-family: var(--di
 
   #nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
     background: #fff;
     border-top: 1px solid var(--line);
     box-shadow: 0 -4px 20px rgba(8, 44, 82, .12);
     padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
   }
   #nav a {
-    flex-direction: column; gap: 2px; padding: 5px 2px; border-radius: 12px;
-    color: var(--muted); font-size: 10px; font-weight: 600; text-align: center;
+    flex-direction: column; gap: 2px; padding: 5px 1px; border-radius: 12px;
+    color: var(--muted); font-size: 9px; font-weight: 600; text-align: center;
   }
-  #nav a .ico { font-size: 21px; }
+  #nav a .ico { font-size: 20px; }
   #nav a .lbl { line-height: 1.15; }
   #nav a:hover { background: transparent; }
   #nav a.active { background: #e8f4fd; color: var(--navy); box-shadow: none; }
@@ -337,4 +435,6 @@ footer strong { color: var(--navy); letter-spacing: 1.2px; font-family: var(--di
   body { padding-bottom: 76px; }
   .hero { padding: 46px 16px 110px; }
   .hero-card { width: 100%; max-width: 340px; }
+  .itin-form { grid-template-columns: 1fr 1fr; }
+  .itin-form .wide, .itin-form button { grid-column: 1 / 3; }
 }
