@@ -31,10 +31,12 @@ h1, h2, h3, .brand, strong { font-family: var(--display); }
   font-weight: 800; letter-spacing: .4px; font-size: 16px; }
 .brand em { font-style: normal; color: var(--gold); }
 #lang-select {
+  width: auto; margin-top: 0; flex: none;
   padding: 7px 9px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px;
   background: rgba(255,255,255,.14); color: #fff; font: inherit; font-size: 13px;
   font-weight: 700; cursor: pointer;
 }
+.brand { white-space: nowrap; }
 #lang-select option { color: var(--ink); }
 
 /* ---------- Hero ---------- */
