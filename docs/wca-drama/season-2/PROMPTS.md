@@ -883,6 +883,60 @@ Ep 18 — ibunya akhirnya minta dia pulang. Tiga jam setelah dia tanda tangan. �
 
 ---
 
+## EP 19 — "DUA HARI"
+
+Sembilan belas episode Bima menelan semuanya sendiri, dan yang akhirnya bertindak bukan dia — **Rendi**, tanpa izinnya.
+
+Yang bisa menolong ternyata satu-satunya orang yang menyaksikan semuanya dari awal: supervisor yang di Ep 1 bilang "You are not in your village anymore", dan di Ep 6 terpaksa bilang "You can go. But your contract ends today." Dulu tidak bisa menolong; sekarang bisa. Tapi harganya adalah seluruh Season 1.
+
+### Klip 1 — Ingredients: `rekan.png` + `bima-servis.png`
+```
+Kabin kru kapal yang sempit pada malam hari, ranjang susun besi. rekan.png berkaos dalam putih duduk di tepi ranjang atas menatap ke bawah dengan wajah bersalah namun mantap, lalu berbicara pelan dalam bahasa Inggris: "I told him. About your mother." bima-servis.png berkaos putih yang sedang melipat baju berhenti total, menoleh ke arahnya dengan wajah kaget bercampur marah, mulutnya terbuka tapi tidak ada suara keluar. Cahaya lampu kabin kuning redup, kamera diam, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal yang lebar dan terang, sebuah pintu besi putih bertanda di ujung. bima-servis.png berkemeja seragam putih berdiri di depan pintu itu, merapikan kerahnya sekali dengan tangan yang sedikit gemetar, menarik napas dalam, lalu mengangkat tangannya untuk mengetuk dan berhenti sesaat di udara sebelum benar-benar mengetuk. Tidak ada dialog. Cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `supervisor.png`
+```
+Kantor perwira kapal yang kecil dan rapi. Close-up supervisor.png berseragam perwira putih duduk di belakang meja, wajahnya yang biasanya keras kini terlihat lelah dan manusiawi. Ia menatap lurus ke arah kamera beberapa saat sebelum berbicara pelan dalam bahasa Inggris: "Last year, I could not help you." Ia berhenti sejenak. "Now I can." Cahaya kantor kapal yang rata dan dingin, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Membayar hutang dari **Ep 6**, saat dia terpaksa bilang "You can go. But your contract ends today." Wajahnya waktu itu sudah menyesal; sekarang penonton tahu kenapa.
+
+### Klip 4 — Ingredients: `supervisor.png` + `bima-servis.png`
+```
+Kantor perwira kapal. supervisor.png berseragam perwira putih menyandarkan punggungnya ke kursi lalu melanjutkan dengan nada yang lebih datar dan berat dalam bahasa Inggris: "But if you go, you don't come back. Not this company." Close-up wajah bima-servis.png berkemeja seragam putih berdiri di depan meja, harapan yang baru saja muncul di matanya perlahan padam, rahangnya menegang. Cahaya kantor yang dingin, kamera diam, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Seluruh Season 1 ditaruh di atas meja: motor yang dijual, kepercayaan bapaknya yang hilang, tiga bulan hafalan, dan operasi yang dibayar dari gaji ini. Kalau dia pulang, semuanya berakhir di sini.
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal yang lebar dan sangat panjang dengan titik lenyap jauh di ujungnya, barisan lampu neon memanjang ke kejauhan. bima-servis.png berkemeja seragam putih berdiri diam di tengah lorong, tidak berjalan ke mana-mana, tangannya menggantung di sisi badan, menatap kosong ke ujung lorong yang jauh. Kru lain berjalan cepat melewatinya di kiri dan kanan dalam gerakan blur. Tidak ada dialog. Musik hening total, cahaya neon terang dan rata, tokoh terlihat kecil di lorong yang terlalu besar, kamera diam tanpa bergerak, handheld, candid, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Blokingnya sengaja sama dengan **Ep 6 Klip 3**, saat dia berdiri diam memegang surat permohonan pulang sementara orang lain lewat. Setahun berlalu, lorong yang sama, pilihan yang sama.
+
+### Klip 6 — Ingredients: `bima-servis.png` + `rekan.png` — cliffhanger
+```
+Lorong kru kapal yang terang, sebuah papan pengumuman logam menempel di dinding dengan lembaran kertas jadwal tertempel, diambil dari belakang bahu sehingga tulisannya tidak terbaca. bima-servis.png berkemeja seragam putih berdiri menatap papan itu tanpa bergerak. rekan.png berdiri di sampingnya, menatap Bima bukan menatap papan, lalu berkata pelan dalam bahasa Inggris: "Two days, Bim." Close-up wajah bima-servis.png yang tidak menjawab. Cahaya neon terang dan rata, kamera perlahan mendekat, handheld, candid, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Papan yang sama dengan **Ep 14**, dan kali ini Rendi menatap Bima, bukan papannya.
+
+### Nada dan musik Ep 19
+Tanpa musik di Klip 1–2. Satu nada piano masuk di Klip 3 saat supervisor bilang "Now I can" — nada harapan — lalu **berhenti mendadak** di Klip 4 tepat pada kata "don't come back". Klip 5 hening total. Klip 6 membangun pelan lalu terpotong bersamaan fade hitam.
+
+Piano yang muncul lalu dibunuh dalam dua klip berturut-turut itu yang membuat penonton ikut merasakan harapan yang dicabut.
+
+**Frame terakhir:** `"Episode 20. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 19 — dia boleh pulang. Tapi kalau pulang, semuanya selesai. Dua hari buat mikir. 🥲 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
