@@ -772,6 +772,59 @@ Ep 16 — apron yang dulu dia gantung, sekarang dipakai anak lain. 🤍 #dramape
 
 ---
 
+## EP 17 — "MAS NGGAK PERNAH KANGEN?"
+
+Pertanyaan paling sederhana di seluruh serial, dan Bima tidak bisa menjawabnya. Anak baru itu kangen rumah — wajar, bulan pertama. Tapi saat dia balik bertanya, ketahuan sesuatu tentang Bima: **dia sudah lama berhenti membiarkan dirinya kangen.** Itu satu-satunya cara dia bertahan enam belas episode.
+
+### Klip 1 — Ingredients: `anak-baru.png` + `bima-servis.png`
+```
+Dek belakang kapal pesiar pada malam hari, pagar besi dan laut hitam pekat, lampu dek temaram. anak-baru.png berkaos putih tanpa apron duduk meringkuk di lantai dek bersandar pada dinding besi, lututnya ditekuk, bahunya berguncang pelan sambil menahan tangis dengan punggung tangannya. bima-servis.png berkemeja seragam putih muncul di tepi frame, berhenti melihatnya, lalu berjalan mendekat pelan-pelan. Tidak ada dialog. Cahaya lampu dek yang temaram, angin laut, kamera diam, handheld, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredients: `anak-baru.png` + `bima-servis.png`
+```
+Dek kapal malam hari. bima-servis.png berkemeja seragam putih duduk di lantai dek di samping anak-baru.png tanpa menyentuhnya, keduanya menghadap laut. anak-baru.png menunduk, wajahnya basah, lalu berbicara terbata sambil menahan isak: "Mas... aku pengen pulang." Bima tidak menjawab, hanya menatap laut. Cahaya lampu dek temaram, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Bima duduk di samping tanpa menyentuh — persis seperti Rendi di Ep 14. Dia meneruskan cara yang dia terima.
+
+### Klip 3 — Ingredients: `anak-baru.png` + `bima-servis.png`
+```
+Dek kapal malam hari, keduanya duduk berdampingan menghadap laut. anak-baru.png menoleh menatap bima-servis.png dan bertanya polos dengan suara serak: "Mas nggak pernah kangen?" Close-up wajah bima-servis.png yang menatap lurus ke laut, ekspresinya berhenti sepenuhnya, matanya bergerak sedikit seperti mencari jawaban yang tidak ada. Ia diam terlalu lama. Cahaya lampu dek temaram dari samping, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Diamnya itu isi klipnya.** Jangan diisi dialog, jangan dipotong lebih pendek. Delapan detik penuh, dan sebagian besarnya wajah orang yang baru sadar dia sudah lupa caranya merindukan sesuatu.
+
+### Klip 4 — Ingredient: `bima-servis.png`
+```
+Close-up bima-servis.png masih menatap laut di dek malam hari, akhirnya menjawab pelan tanpa menoleh, suaranya datar dan sedikit serak: "Udah lama nggak mikir." Setelah itu ia menelan ludah sekali. Cahaya lampu dek temaram, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Empat kata, dan itu diagnosis untuk enam belas episode.
+
+### Klip 5 — Ingredient: `ibu.png`
+```
+Teras rumah kampung Jawa pada malam hari, hanya diterangi satu lampu bohlam kuning, halaman gelap di belakangnya. ibu.png berkerudung longgar duduk sendirian di kursi kayu tua milik suaminya sambil memegang HP di depan wajahnya melakukan panggilan video, di sekelilingnya tidak ada siapa-siapa. Ia tersenyum lebar dan menjawab riang: "Nggak sendirian kok, Le. Rame." Setelah menjawab, senyumnya bertahan sebentar lalu perlahan hilang. Cahaya bohlam kuning redup, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Kebohongan keempat dengan pola yang sama, dan kali ini penonton melihat buktinya langsung: dia sendirian di frame, duduk di kursi suaminya, mengaku ramai. **Senyum yang bertahan sebentar lalu hilang itu wajib.**
+
+### Klip 6 — Ingredient: `bima-servis.png` — cliffhanger
+```
+Kabin kru kapal yang sempit pada malam hari. bima-servis.png berkaos putih duduk di tepi ranjang bawah memegang selembar formulir kontrak dan sebuah pulpen, kertas dipegang menghadap dirinya sehingga tulisannya tidak terlihat kamera. Ia menatap kertas itu lama sekali tanpa menulis apa pun, ujung pulpen menggantung beberapa sentimeter di atas kertas dan tidak turun. Tangannya bergetar halus. Tidak ada dialog. Cahaya lampu kabin kuning redup, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Formulir dipegang menghadap dirinya — tulisannya jangan pernah masuk frame. Kalau perlu diperjelas ke penonton, tambahkan teks di editor di sudut layar: `PERPANJANGAN KONTRAK — 2 TAHUN`.
+>
+> Pertanyaan Ep 18 sudah terpasang: tanda tangan, atau pulang ke ibunya yang sendirian.
+
+### Nada dan musik Ep 17
+Tanpa musik sama sekali di Klip 1–4, angin laut saja. Satu nada piano masuk di Klip 5 **tepat saat senyum ibu hilang.** Di Klip 6 musik membangun pelan lalu terpotong mendadak bersamaan fade hitam.
+
+**Frame terakhir:** `"Episode 18. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 17 — "Mas nggak pernah kangen?" Dan dia nggak bisa jawab. 🤍 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
