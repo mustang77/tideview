@@ -937,6 +937,68 @@ Ep 19 — dia boleh pulang. Tapi kalau pulang, semuanya selesai. Dua hari buat m
 
 ---
 
+## EP 20 — "MAAF, PAK"
+
+Gema langsung dari **Ep 1 Klip 3**, saat dia menjatuhkan nampan gelas di hari pertamanya dan supervisor menjawab dengan "You are not in your village anymore." Dua puluh episode kemudian dia menjatuhkan sesuatu lagi — bedanya, dulu karena tidak becus, sekarang karena besok pagi dia harus memilih antara ibunya dan seluruh hidupnya.
+
+Detail yang menghabisi penonton: saat panik, **dia minta maaf dalam bahasa Indonesia.** Bahasa yang mati-matian dia buang di Season 1 kembali sendiri saat dia hancur.
+
+> ⚠️ **Piring jatuh berisi saus adalah salah satu adegan tersulit di Veo** — cairan muncrat dan pecahan piring hampir selalu rusak. Jatuhnya tidak diperlihatkan penuh: yang diperlihatkan adalah tangan yang lepas, lalu potong ke akibatnya yang diam. Suara pecah ditambahkan di editor.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Restoran kapal pesiar pada jam makan malam yang ramai, meja bertaplak putih dan tamu-tamu dengan wajah blur di latar belakang. Close-up bima-servis.png berkemeja seragam putih berdasi kupu-kupu berjalan membawa sebuah piring berisi steak dan mashed potato dengan saus jamur, tetapi matanya tidak menatap piring itu maupun jalannya — tatapannya kosong menembus jauh ke depan, pikirannya jelas tidak ada di ruangan itu. Cahaya restoran hangat, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Kamera di **wajahnya**, bukan di piring. Penonton harus tahu dia tidak ada di situ sebelum piringnya jatuh.
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Restoran kapal pesiar. Close-up tangan bima-servis.png berkemeja seragam putih memegang piring, lalu jari-jarinya terlepas dan piring itu lolos keluar dari bawah frame. Kamera tetap di tangan yang kini kosong dan menggantung di udara, jari-jarinya masih terbuka dalam posisi memegang. Wajahnya masuk sebagian ke frame, membeku. Cahaya restoran hangat, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Piringnya keluar dari bawah frame dan **tidak pernah terlihat jatuh**. Suara pecah dan gemuruh ruangan yang mendadak diam ditambahkan di editor.
+
+### Klip 3 — tanpa aset
+```
+Close-up lantai karpet restoran kapal pesiar, sepotong steak tergeletak miring di atas karpet, mashed potato berhamburan dan saus jamur cokelat menggenang melebar, pecahan piring putih berserakan di sekitarnya. Ujung sepatu kulit hitam dan celana bahan seorang tamu terlihat di tepi frame dengan cipratan saus di bagian bawah celananya. Tidak ada gerakan. Cahaya restoran hangat dari atas, kamera diam menunduk ke lantai, handheld, candid, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Akibat yang diam jauh lebih aman untuk Veo daripada jatuhnya, dan jauh lebih mencekam.
+
+### Klip 4 — tanpa aset
+```
+Restoran kapal pesiar. Close-up seorang tamu laki-laki asing paruh baya berjas gelap berdiri dari kursinya dengan wajah merah karena marah, menunjuk ke bawah ke arah lantai sambil membentak keras dalam bahasa Inggris: "Look at this! Look what you did!" Serbet di tangannya dilempar ke atas meja. Tamu-tamu lain di latar belakang menoleh dengan wajah blur. Cahaya restoran hangat, kamera sedikit goyang, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Tamu ini hanya muncul jelas di klip ini saja, jadi tidak perlu dibuatkan aset. Di klip lain cukup terlihat dari belakang atau blur.
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Restoran kapal pesiar. bima-servis.png berkemeja seragam putih berlutut di atas karpet memunguti pecahan piring dan potongan steak dengan tangan gemetar, kepalanya menunduk dalam-dalam, sementara sepatu tamu yang marah terlihat berdiri di depannya. Ia mengulang-ulang permintaan maaf dengan suara panik, dan tanpa sadar keluar dalam bahasa Indonesia: "Maaf, Pak... maaf, Pak... maaf..." Matanya berkaca-kaca. Cahaya restoran hangat, kamera diam sedikit di atas level mata, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Jantung episodenya.** Dia minta maaf ke tamu asing yang tidak mengerti satu kata pun — dan kata "Pak" itu bukan sekadar sopan santun, itu kata yang dia pakai untuk bapaknya selama dua season.
+>
+> Sudut kamera **sedikit di atas level mata** — sudut yang selama ini dipakai untuk bapak Karno di Season 1. Sekarang dipakai untuk melihat Bima berlutut.
+
+### Klip 6 — Ingredients: `supervisor.png` + `bima-servis.png` — cliffhanger
+```
+Lorong belakang restoran kapal yang sepi setelah kejadian. supervisor.png berseragam perwira putih berdiri di depan bima-servis.png yang masih berkemeja putih bernoda saus, menatapnya lama tanpa marah sama sekali, lalu berbicara sangat pelan dalam bahasa Inggris: "Tomorrow morning. I need your answer." Ia pergi. bima-servis.png berdiri sendirian, lalu tangannya masuk ke saku dada dan memegang sesuatu di dalamnya, wajahnya berubah menjadi tenang dan pasti. Cahaya neon lorong yang rata, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Yang dia pegang di saku dada adalah **peci bapaknya**, dan penonton sudah tahu benda itu ada di sana sejak Ep 13. Tidak perlu diperlihatkan, tidak perlu disebut. Wajahnya yang berubah tenang itulah jawabannya — tapi penonton belum tahu jawabannya apa.
+>
+> Perhatikan juga: supervisor **tidak memarahinya sama sekali**. Kebalikan dari Ep 1. Dia tahu persis kenapa piring itu jatuh.
+
+### Nada dan musik Ep 20
+Musik latar restoran yang riang berjalan normal di Klip 1, lalu **berhenti total** tepat di Klip 2 saat tangannya terlepas. Klip 3–5 tanpa musik sama sekali — hanya suara ruangan, bentakan tamu, dan suara Bima. Keheningan setelah musik ceria itu yang membuat penonton ikut merasa ruangan berhenti.
+
+Satu nada piano masuk di Klip 6 tepat saat tangannya masuk ke saku.
+
+**Frame terakhir:** `"Episode 21. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 20 — dia minta maaf pakai bahasa Indonesia. Ke orang yang nggak ngerti sepatah pun. 🥲 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
