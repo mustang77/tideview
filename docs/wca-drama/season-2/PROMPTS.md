@@ -825,6 +825,64 @@ Ep 17 — "Mas nggak pernah kangen?" Dan dia nggak bisa jawab. 🤍 #dramapendek
 
 ---
 
+## EP 18 — "SEHARI TERLAMBAT"
+
+Jawaban dari pulpen yang menggantung di Ep 17: **dia tanda tangan.** Bukan karena mau — karena ibunya butuh uang, dan karena rumah yang bapaknya sudah tidak ada di sana lebih menakutkan daripada dua tahun lagi di laut.
+
+Lalu polanya patah. Empat episode ibunya berbohong bahwa dia baik-baik saja. Di sini, untuk pertama kalinya sepanjang serial, ibunya mengatakan yang sebenarnya — sehari terlambat.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Kabin kru kapal yang sempit pada malam hari. Close-up bima-servis.png berkaos putih duduk di tepi ranjang bawah, ujung pulpen akhirnya turun menyentuh kertas dan bergerak menandatangani, kertas dipegang menghadap dirinya sehingga tulisannya tidak terlihat kamera. Kamera tidak menyorot kertasnya melainkan wajahnya — datar, lelah, tanpa ekspresi sama sekali, seperti orang yang sudah selesai berdebat dengan dirinya sendiri. Tidak ada dialog. Cahaya lampu kabin kuning redup, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Kamera di wajah, bukan di kertas. Yang penting bukan tanda tangannya — tapi tidak adanya perlawanan di wajahnya.
+
+### Klip 2 — Ingredients: `supervisor.png` + `bima-servis.png`
+```
+Kantor perwira kapal yang kecil dan rapi pada siang hari. supervisor.png berseragam perwira putih menerima selembar formulir dari bima-servis.png berkemeja seragam putih, lalu tersenyum lebar dan mengulurkan tangan menjabat tangan Bima dengan hangat. Ia berbicara dengan nada senang dalam bahasa Inggris: "Two more years. Good man." bima-servis.png membalas jabat tangannya dan tersenyum sopan, tapi matanya kosong. Cahaya kantor kapal yang rata dan dingin, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal yang lebar dan terang. Close-up bima-servis.png berkemeja seragam putih berdiri bersandar di dinding memegang HP di depan wajahnya melakukan panggilan video, memaksakan nada riang dan senyum lebar: "Bu, Bima perpanjang kontrak. Dua tahun lagi." Ia melanjutkan cepat sebelum sempat ditanya: "Biar Ibu nggak usah mikir apa-apa." Cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredient: `ibu.png`
+```
+Teras rumah kampung Jawa pada sore hari, kursi kayu tua dan halaman kosong di latar belakang. Close-up ibu.png berkerudung longgar memegang HP di depan wajahnya, mula-mula tersenyum lebar seperti biasa, lalu senyum itu perlahan runtuh dan tidak bisa dia tahan lagi. Matanya basah. Ia berbicara pelan dan bergetar, untuk pertama kalinya tanpa berpura-pura: "Le..." Ia berhenti, menarik napas. "Ibu pengen kamu pulang." Cahaya sore keemasan, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Yang paling penting di seluruh episode.** Empat episode ibu ini berbohong — "ada yang nganter", "nggak sendirian kok, rame". Sekarang polanya patah, dan penonton yang mengikuti dari awal akan langsung merasakannya.
+>
+> Senyumnya harus **runtuh pelan**, bukan langsung hilang. Dia mencoba bertahan dulu, dan gagal.
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal yang terang. Close-up bima-servis.png berkemeja seragam putih masih memegang HP di depan wajahnya, senyum paksanya membeku lalu perlahan luruh sepenuhnya. Ia tidak menjawab apa pun. Mulutnya terbuka sedikit seperti akan bicara lalu tertutup lagi. Matanya basah tapi tidak ada air mata jatuh. Tidak ada dialog sama sekali. Musik hening total, cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Dia sudah tanda tangan tiga jam yang lalu. Tidak ada satu kalimat pun yang bisa dia ucapkan — itulah sebabnya klip ini tanpa dialog.
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Restoran kapal pesiar pada jam makan malam, meja-meja tertata rapi dengan taplak putih, tamu-tamu duduk dengan wajah blur di latar belakang. bima-servis.png berkemeja seragam putih berdasi kupu-kupu memasukkan HP ke saku, merapikan kerahnya sekali, lalu berjalan menghampiri sebuah meja dan tersenyum lebar dan hangat kepada tamu sambil berkata sopan dalam bahasa Inggris: "Good evening, sir." Senyumnya sempurna dan tidak ada bekas apa pun di wajahnya. Cahaya restoran hangat, kamera perlahan menjauh, handheld, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> **Penutupnya bukan tangisan — tapi topeng yang dipasang kembali.** Tiga menit setelah ibunya minta dia pulang, dia berdiri di depan tamu dan tersenyum sempurna. Penonton tahu apa yang ada di balik senyum itu, dan itu lebih menyakitkan daripada melihatnya menangis.
+>
+> Kamera **menjauh**, jangan mendekat. Kita meninggalkan dia di ruangan yang penuh orang.
+
+### Nada dan musik Ep 18
+Tanpa musik sama sekali dari Klip 1 sampai Klip 5. Kalimat ibu di Klip 4 harus jatuh di keheningan total.
+
+Di Klip 6, masukkan **musik latar restoran yang riang** — piano lounge atau jazz ringan yang biasa diputar di kapal. Kontras antara musik ceria dan apa yang baru terjadi itu yang menghabisi penonton. **Jangan pakai musik sedih di sini**; itu justru melemahkannya.
+
+**Frame terakhir:** `"Episode 19. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 18 — ibunya akhirnya minta dia pulang. Tiga jam setelah dia tanda tangan. 🥲 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
