@@ -135,6 +135,7 @@ class JmapClient {
 
   late String _apiUrl;
   late String _downloadTemplate;
+  late String _uploadTemplate;
   late String accountId;
   String? identityId;
 
@@ -169,6 +170,7 @@ class JmapClient {
     final j = jsonDecode(res.body) as Map<String, dynamic>;
     _apiUrl = j['apiUrl'] as String;
     _downloadTemplate = j['downloadUrl'] as String;
+    _uploadTemplate = (j['uploadUrl'] ?? '') as String;
     final primary = j['primaryAccounts'] as Map<String, dynamic>? ?? const {};
     accountId = (primary[_kMail] ??
         (j['accounts'] as Map<String, dynamic>).keys.first) as String;
@@ -405,18 +407,92 @@ class JmapClient {
     ]);
   }
 
+  /// Uploads [bytes] as a blob and returns its blobId (for inline images).
+  Future<String> uploadBlob(List<int> bytes, String type) async {
+    if (_uploadTemplate.isEmpty) {
+      throw JmapException('Server tidak mengizinkan upload.');
+    }
+    final url = _uploadTemplate.replaceAll(
+        '{accountId}', Uri.encodeComponent(accountId));
+    final http.Response res;
+    try {
+      res = await http.post(Uri.parse(url),
+          headers: {
+            'Authorization': _headers['Authorization']!,
+            'Content-Type': type,
+          },
+          body: bytes);
+    } catch (e) {
+      throw JmapException('Gagal upload logo. ($e)');
+    }
+    if (res.statusCode != 200) {
+      throw JmapException('Upload logo gagal (${res.statusCode}).');
+    }
+    final j = jsonDecode(res.body) as Map<String, dynamic>;
+    final id = j['blobId'] as String?;
+    if (id == null) throw JmapException('Upload logo: blobId kosong.');
+    return id;
+  }
+
   /// Creates the message in [sentMailboxId] and submits it for delivery.
+  ///
+  /// When [htmlBody] is supplied the message is multipart/alternative
+  /// (text + HTML). If [inlineLogoBlobId] is also set, an inline image is
+  /// wrapped in via multipart/related and referenced from the HTML as
+  /// `cid:<inlineLogoCid>`.
   Future<void> sendEmail({
     required String sentMailboxId,
     required List<String> to,
     List<String> cc = const [],
     required String subject,
     required String textBody,
+    String? htmlBody,
+    String? inlineLogoBlobId,
+    String? inlineLogoCid,
+    String inlineLogoType = 'image/png',
   }) async {
     if (identityId == null) {
       throw JmapException(
           'Akun ini tidak punya identitas pengirim (Identity). Hubungi admin.');
     }
+
+    final Map<String, dynamic> bodyStructure;
+    final Map<String, dynamic> bodyValues;
+    if (htmlBody == null) {
+      bodyStructure = {'type': 'text/plain', 'partId': 'text'};
+      bodyValues = {
+        'text': {'value': textBody}
+      };
+    } else {
+      final alternative = {
+        'type': 'multipart/alternative',
+        'subParts': [
+          {'type': 'text/plain', 'partId': 'text'},
+          {'type': 'text/html', 'partId': 'html'},
+        ],
+      };
+      bodyValues = {
+        'text': {'value': textBody},
+        'html': {'value': htmlBody},
+      };
+      if (inlineLogoBlobId != null && inlineLogoCid != null) {
+        bodyStructure = {
+          'type': 'multipart/related',
+          'subParts': [
+            alternative,
+            {
+              'type': inlineLogoType,
+              'blobId': inlineLogoBlobId,
+              'cid': inlineLogoCid,
+              'disposition': 'inline',
+            },
+          ],
+        };
+      } else {
+        bodyStructure = alternative;
+      }
+    }
+
     final create = {
       'draft': {
         'mailboxIds': {sentMailboxId: true},
@@ -432,10 +508,8 @@ class JmapClient {
             for (final a in cc) {'email': a}
           ],
         'subject': subject,
-        'bodyStructure': {'type': 'text/plain', 'partId': 'p1'},
-        'bodyValues': {
-          'p1': {'value': textBody}
-        },
+        'bodyStructure': bodyStructure,
+        'bodyValues': bodyValues,
       }
     };
     final resp = await call([

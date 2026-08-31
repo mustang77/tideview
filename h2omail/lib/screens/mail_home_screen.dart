@@ -10,6 +10,7 @@ import 'compose_screen.dart';
 import 'login_screen.dart';
 import 'message_view.dart';
 import 'search_screen.dart';
+import 'signature_screen.dart';
 
 class MailHomeScreen extends StatefulWidget {
   final JmapClient client;
@@ -311,6 +312,19 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
                 },
               ),
             const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.draw_outlined),
+              title: const Text('Tanda tangan email'),
+              subtitle: Text(client.username,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall),
+              onTap: () {
+                Navigator.of(sheetCtx).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) =>
+                        SignatureScreen(email: client.username)));
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.person_add_alt),
               title: const Text('Tambah akun'),

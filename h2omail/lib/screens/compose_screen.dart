@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 import '../jmap/jmap_client.dart';
+import '../util/brand.dart';
 import '../util/format.dart';
+import '../util/signature.dart';
 
 class ComposeScreen extends StatefulWidget {
   final JmapClient client;
@@ -26,9 +29,13 @@ class _ComposeScreenState extends State<ComposeScreen> {
   final _body = TextEditingController();
   bool _busy = false;
 
+  Signature _sig = const Signature(enabled: false);
+  bool _useSig = false;
+
   @override
   void initState() {
     super.initState();
+    _loadSignature();
     final r = widget.replyTo;
     if (r != null) {
       final h = r.header;
@@ -48,6 +55,28 @@ class _ComposeScreenState extends State<ComposeScreen> {
     }
   }
 
+  Future<void> _loadSignature() async {
+    final s = await SignatureStore.load(widget.client.username);
+    if (!mounted) return;
+    setState(() {
+      _sig = s;
+      _useSig = s.enabled;
+    });
+  }
+
+  bool get _hasSignature =>
+      !_sig.isEmpty || _sig.logoAvailableFor(widget.client.username);
+
+  String _plainToHtml(String s) {
+    final esc = s
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('\n', '<br>');
+    return '<div style="font-family:Arial,Helvetica,sans-serif;'
+        'font-size:14px;color:#222222;line-height:1.5;">$esc</div>';
+  }
+
   List<String> _splitAddresses(String raw) => raw
       .split(RegExp(r'[,;\s]+'))
       .map((s) => s.trim())
@@ -62,6 +91,28 @@ class _ComposeScreenState extends State<ComposeScreen> {
     }
     setState(() => _busy = true);
     try {
+      final email = widget.client.username;
+      final useSig = _useSig && _hasSignature;
+
+      var textBody = _body.text;
+      String? htmlBody;
+      String? logoBlobId;
+
+      if (useSig) {
+        textBody = '${_body.text}\n\n${_sig.toText(email)}';
+        if (_sig.logoAvailableFor(email)) {
+          try {
+            final data = await rootBundle.load(_sig.logoAssetFor(email)!);
+            logoBlobId = await widget.client
+                .uploadBlob(data.buffer.asUint8List(), 'image/png');
+          } catch (_) {
+            logoBlobId = null; // fall back to a signature without the logo
+          }
+        }
+        htmlBody = '${_plainToHtml(_body.text)}<br><br>'
+            '${_sig.toHtml(email, cidLogo: logoBlobId != null)}';
+      }
+
       await widget.client.sendEmail(
         sentMailboxId: widget.sentMailboxId,
         to: to,
@@ -69,7 +120,10 @@ class _ComposeScreenState extends State<ComposeScreen> {
         subject: _subject.text.trim().isEmpty
             ? '(tanpa subjek)'
             : _subject.text.trim(),
-        textBody: _body.text,
+        textBody: textBody,
+        htmlBody: htmlBody,
+        inlineLogoBlobId: logoBlobId,
+        inlineLogoCid: logoBlobId != null ? kSignatureLogoCid : null,
       );
       if (mounted) Navigator.of(context).pop(true);
     } on JmapException catch (e) {
@@ -140,6 +194,21 @@ class _ComposeScreenState extends State<ComposeScreen> {
                     border: UnderlineInputBorder(),
                   ),
                 ),
+                if (_hasSignature)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                    value: _useSig,
+                    onChanged: (v) => setState(() => _useSig = v),
+                    secondary: const Icon(Icons.draw_outlined),
+                    title: const Text('Sertakan tanda tangan'),
+                    subtitle: Text(
+                      _sig.name.isNotEmpty
+                          ? _sig.name
+                          : Brand.defFor(widget.client.username).companyName,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: TextField(
