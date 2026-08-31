@@ -16,7 +16,7 @@ class H2OMailApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const seed = Color(0xFF0288D1);
+    final seed = Brand.seed;
     TextTheme bolden(TextTheme t) => t.copyWith(
           bodySmall: t.bodySmall?.copyWith(fontWeight: FontWeight.w500),
           bodyMedium: t.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
