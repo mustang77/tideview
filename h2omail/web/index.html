@@ -20,6 +20,20 @@
   <style>
     html, body { margin: 0; padding: 0; height: 100%; background: #0b1622; }
   </style>
+
+  <!-- One deploy serves three hostnames; name the tab/PWA per brand. -->
+  <script>
+    (function () {
+      var h = location.hostname;
+      var t = h.indexOf('mayaresortsubud') >= 0 ? 'Maya Resort Mail'
+            : h.indexOf('worldcruiseacademy') >= 0 ? 'WCA Mail'
+            : h.indexOf('h2olaundry') >= 0 ? 'H2O Mail'
+            : 'Mail';
+      document.title = t;
+      var m = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (m) m.setAttribute('content', t);
+    })();
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
