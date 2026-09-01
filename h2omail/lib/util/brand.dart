@@ -46,6 +46,7 @@ const List<BrandDef> _brands = [
     server: 'mail.worldcruiseacademy.co.id',
     hostSuffix: 'worldcruiseacademy.co.id',
     company: 'World Cruise Academy',
+    logoAsset: 'assets/wca_logo_160.png',
   ),
   BrandDef(
     key: 'maya',
