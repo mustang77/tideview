@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 import '../jmap/jmap_client.dart';
 import '../util/brand.dart';
@@ -97,21 +96,11 @@ class _ComposeScreenState extends State<ComposeScreen> {
 
       var textBody = _body.text;
       String? htmlBody;
-      String? logoBlobId;
 
       if (useSig) {
         textBody = '${_body.text}\n\n${_sig.toText(email)}';
-        if (_sig.logoAvailableFor(email)) {
-          try {
-            final data = await rootBundle.load(_sig.logoAssetFor(email)!);
-            logoBlobId = await widget.client
-                .uploadBlob(data.buffer.asUint8List(), 'image/png');
-          } catch (_) {
-            logoBlobId = null; // fall back to a signature without the logo
-          }
-        }
-        htmlBody = '${_plainToHtml(_body.text)}<br><br>'
-            '${_sig.toHtml(email, cidLogo: logoBlobId != null)}';
+        htmlBody =
+            '${_plainToHtml(_body.text)}<br><br>${_sig.toHtml(email)}';
       }
 
       await widget.client.sendEmail(
@@ -124,8 +113,6 @@ class _ComposeScreenState extends State<ComposeScreen> {
         textBody: textBody,
         fromName: fromName,
         htmlBody: htmlBody,
-        inlineLogoBlobId: logoBlobId,
-        inlineLogoCid: logoBlobId != null ? kSignatureLogoCid : null,
       );
       if (mounted) Navigator.of(context).pop(true);
     } on JmapException catch (e) {

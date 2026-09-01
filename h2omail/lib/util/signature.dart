@@ -5,9 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'brand.dart';
 
-/// The inline logo is referenced from the signature HTML by this Content-ID.
-const String kSignatureLogoCid = 'brandlogo';
-
 String _hex(Color c) {
   String f(double v) =>
       (v * 255.0).round().clamp(0, 255).toRadixString(16).padLeft(2, '0');
@@ -115,12 +112,13 @@ class Signature {
       website.isEmpty &&
       address.isEmpty;
 
-  /// The logo asset for [email]'s brand, or null if none.
-  String? logoAssetFor(String email) => Brand.defFor(email).logoAsset;
+  /// The hosted logo URL for [email]'s brand, or null if none.
+  String? logoUrlFor(String email) => Brand.defFor(email).logoUrl;
 
-  /// Whether the logo can be embedded for [email] (enabled + brand has one).
+  /// Whether a logo can be shown in the signature for [email]
+  /// (toggle on + brand has a hosted logo).
   bool logoAvailableFor(String email) =>
-      includeLogo && logoAssetFor(email) != null;
+      includeLogo && logoUrlFor(email) != null;
 
   /// Plain-text signature (the text/plain alternative part).
   String toText(String email) {
@@ -138,9 +136,9 @@ class Signature {
     return lines.join('\n');
   }
 
-  /// HTML signature (the text/html alternative part). When [cidLogo] is true
-  /// and a brand logo exists, the logo is referenced as `cid:` (inline image).
-  String toHtml(String email, {required bool cidLogo}) {
+  /// HTML signature (the text/html alternative part). The brand logo, when
+  /// enabled, is embedded from its hosted https URL so it renders inline.
+  String toHtml(String email) {
     final brand = Brand.defFor(email);
     final accent = _hex(brand.seed);
     final web = website.isEmpty
@@ -150,10 +148,10 @@ class Signature {
             : 'https://$website';
     final webLabel = web.replaceFirst(RegExp(r'^https?://'), '');
 
-    final logoCell = (cidLogo && logoAvailableFor(email))
+    final logoCell = logoAvailableFor(email)
         ? '''
     <td style="padding-right:16px;vertical-align:middle;">
-      <img src="cid:$kSignatureLogoCid" width="64" height="64"
+      <img src="${_esc(brand.logoUrl!)}" width="64" height="64"
            alt="${_esc(brand.companyName)}" style="display:block;border:0;outline:none;">
     </td>'''
         : '';

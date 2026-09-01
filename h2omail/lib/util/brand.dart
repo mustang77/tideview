@@ -12,8 +12,12 @@ class BrandDef {
   /// If non-null, this hostname suffix selects the brand on web.
   final String? hostSuffix;
 
-  /// Bundled logo used in email signatures (PNG asset), if the brand has one.
+  /// Bundled logo used for in-app previews (PNG asset), if the brand has one.
   final String? logoAsset;
+
+  /// Public https URL of the logo, embedded in outgoing email signatures.
+  /// Hosted logos render inline in Gmail et al.; cid attachments do not.
+  final String? logoUrl;
 
   /// Short line under the company name in the signature (optional).
   final String? tagline;
@@ -29,6 +33,7 @@ class BrandDef {
     required this.server,
     this.hostSuffix,
     this.logoAsset,
+    this.logoUrl,
     this.tagline,
     this.company,
   });
@@ -47,6 +52,8 @@ const List<BrandDef> _brands = [
     hostSuffix: 'worldcruiseacademy.co.id',
     company: 'World Cruise Academy',
     logoAsset: 'assets/wca_logo_160.png',
+    logoUrl:
+        'https://webmail.worldcruiseacademy.co.id/assets/assets/wca_logo_160.png',
   ),
   BrandDef(
     key: 'maya',
@@ -56,6 +63,8 @@ const List<BrandDef> _brands = [
     server: 'mail.h2olaundry.com', // maya menumpang ke server h2olaundry
     hostSuffix: 'mayaresortsubud.com',
     logoAsset: 'assets/maya_logo_160.png',
+    logoUrl:
+        'https://webmail.mayaresortsubud.com/assets/assets/maya_logo_160.png',
     tagline: 'Serenity in the Heart of Bali',
     company: 'Maya Resort Ubud',
   ),
