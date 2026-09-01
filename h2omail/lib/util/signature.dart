@@ -25,6 +25,10 @@ String _esc(String s) => s
 class Signature {
   final bool enabled;
   final bool includeLogo;
+
+  /// Display name shown to recipients in the From header (e.g. Gmail's sender
+  /// column). Independent of [enabled]; empty falls back to the brand company.
+  final String senderName;
   final String name;
   final String title;
   final String phone;
@@ -34,6 +38,7 @@ class Signature {
   const Signature({
     this.enabled = true,
     this.includeLogo = true,
+    this.senderName = '',
     this.name = '',
     this.title = '',
     this.phone = '',
@@ -44,6 +49,7 @@ class Signature {
   Signature copyWith({
     bool? enabled,
     bool? includeLogo,
+    String? senderName,
     String? name,
     String? title,
     String? phone,
@@ -53,6 +59,7 @@ class Signature {
       Signature(
         enabled: enabled ?? this.enabled,
         includeLogo: includeLogo ?? this.includeLogo,
+        senderName: senderName ?? this.senderName,
         name: name ?? this.name,
         title: title ?? this.title,
         phone: phone ?? this.phone,
@@ -63,6 +70,7 @@ class Signature {
   Map<String, dynamic> toJson() => {
         'enabled': enabled,
         'logo': includeLogo,
+        'senderName': senderName,
         'name': name,
         'title': title,
         'phone': phone,
@@ -73,12 +81,20 @@ class Signature {
   factory Signature.fromJson(Map<String, dynamic> j) => Signature(
         enabled: (j['enabled'] ?? true) as bool,
         includeLogo: (j['logo'] ?? true) as bool,
+        senderName: (j['senderName'] ?? '') as String,
         name: (j['name'] ?? '') as String,
         title: (j['title'] ?? '') as String,
         phone: (j['phone'] ?? '') as String,
         website: (j['website'] ?? '') as String,
         address: (j['address'] ?? '') as String,
       );
+
+  /// The From display name for [email]: the configured [senderName], or the
+  /// brand's company name as a sensible default.
+  String senderNameFor(String email) =>
+      senderName.trim().isNotEmpty
+          ? senderName.trim()
+          : Brand.defFor(email).companyName;
 
   /// Sensible defaults for a brand-new account (website from the email domain).
   factory Signature.initial(String email) {

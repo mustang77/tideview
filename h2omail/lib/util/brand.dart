@@ -45,6 +45,7 @@ const List<BrandDef> _brands = [
     seed: Color(0xFF0288D1),
     server: 'mail.worldcruiseacademy.co.id',
     hostSuffix: 'worldcruiseacademy.co.id',
+    company: 'World Cruise Academy',
   ),
   BrandDef(
     key: 'maya',
@@ -65,6 +66,7 @@ const BrandDef _h2o = BrandDef(
   icon: Icons.water_drop,
   seed: Color(0xFF0288D1),
   server: 'mail.h2olaundry.com',
+  company: 'H2O Laundry',
 );
 
 /// Resolves the active brand from a build-time define or the web hostname.

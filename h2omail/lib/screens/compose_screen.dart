@@ -92,6 +92,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
     setState(() => _busy = true);
     try {
       final email = widget.client.username;
+      final fromName = _sig.senderNameFor(email);
       final useSig = _useSig && _hasSignature;
 
       var textBody = _body.text;
@@ -121,6 +122,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
             ? '(tanpa subjek)'
             : _subject.text.trim(),
         textBody: textBody,
+        fromName: fromName,
         htmlBody: htmlBody,
         inlineLogoBlobId: logoBlobId,
         inlineLogoCid: logoBlobId != null ? kSignatureLogoCid : null,

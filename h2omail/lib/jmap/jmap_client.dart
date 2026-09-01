@@ -446,6 +446,7 @@ class JmapClient {
     List<String> cc = const [],
     required String subject,
     required String textBody,
+    String? fromName,
     String? htmlBody,
     String? inlineLogoBlobId,
     String? inlineLogoCid,
@@ -498,7 +499,11 @@ class JmapClient {
         'mailboxIds': {sentMailboxId: true},
         'keywords': {r'$seen': true},
         'from': [
-          {'email': username}
+          {
+            if (fromName != null && fromName.trim().isNotEmpty)
+              'name': fromName.trim(),
+            'email': username,
+          }
         ],
         'to': [
           for (final a in to) {'email': a}

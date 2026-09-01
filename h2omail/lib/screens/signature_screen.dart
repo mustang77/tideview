@@ -13,6 +13,7 @@ class SignatureScreen extends StatefulWidget {
 }
 
 class _SignatureScreenState extends State<SignatureScreen> {
+  final _sender = TextEditingController();
   final _name = TextEditingController();
   final _title = TextEditingController();
   final _phone = TextEditingController();
@@ -35,6 +36,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
     final s = await SignatureStore.load(widget.email);
     if (!mounted) return;
     setState(() {
+      _sender.text = s.senderName;
       _name.text = s.name;
       _title.text = s.title;
       _phone.text = s.phone;
@@ -49,6 +51,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
   Signature get _current => Signature(
         enabled: _enabled,
         includeLogo: _logo,
+        senderName: _sender.text.trim(),
         name: _name.text.trim(),
         title: _title.text.trim(),
         phone: _phone.text.trim(),
@@ -69,6 +72,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
 
   @override
   void dispose() {
+    _sender.dispose();
     _name.dispose();
     _title.dispose();
     _phone.dispose();
@@ -106,6 +110,27 @@ class _SignatureScreenState extends State<SignatureScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    Text('Nama pengirim',
+                        style: Theme.of(context).textTheme.titleSmall),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Nama yang tampil di inbox penerima (mis. Gmail). '
+                      'Kosongkan untuk pakai "${Brand.defFor(widget.email).companyName}".',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _sender,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: 'Nama pengirim',
+                        hintText: Brand.defFor(widget.email).companyName,
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                    ),
+                    const Divider(height: 32),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
                       value: _enabled,
