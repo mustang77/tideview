@@ -21,17 +21,70 @@
     html, body { margin: 0; padding: 0; height: 100%; background: #0b1622; }
   </style>
 
-  <!-- One deploy serves three hostnames; name the tab/PWA per brand. -->
+  <!-- One deploy serves three hostnames; brand the tab, PWA name and icons
+       per hostname by swapping the title, apple-touch-icon and manifest. -->
   <script>
     (function () {
       var h = location.hostname;
-      var t = h.indexOf('mayaresortsubud') >= 0 ? 'Maya Resort Mail'
-            : h.indexOf('worldcruiseacademy') >= 0 ? 'WCA Mail'
-            : h.indexOf('h2olaundry') >= 0 ? 'H2O Mail'
-            : 'Mail';
-      document.title = t;
-      var m = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-      if (m) m.setAttribute('content', t);
+      var brand =
+          h.indexOf('mayaresortsubud') >= 0 ? {
+            name: 'Maya Resort Mail', theme: '#00897B', bg: '#ffffff',
+            p192: 'icons/maya-192.png', p512: 'icons/maya-512.png',
+            touch: 'icons/maya-180.png'
+          } :
+          h.indexOf('worldcruiseacademy') >= 0 ? {
+            name: 'WCA Mail', theme: '#0d2149', bg: '#ffffff',
+            p192: 'icons/wca-192.png', p512: 'icons/wca-512.png',
+            touch: 'icons/wca-180.png'
+          } :
+          h.indexOf('h2olaundry') >= 0 ? {
+            name: 'H2O Mail', theme: '#0288D1', bg: '#0b1622',
+            p192: 'icons/icon-192.png', p512: 'icons/icon-512.png',
+            touch: 'icons/apple-touch-icon.png'
+          } : {
+            name: 'Mail', theme: '#0288D1', bg: '#0b1622',
+            p192: 'icons/icon-192.png', p512: 'icons/icon-512.png',
+            touch: 'icons/apple-touch-icon.png'
+          };
+
+      document.title = brand.name;
+
+      var appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (appleTitle) appleTitle.setAttribute('content', brand.name);
+
+      var appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+      if (appleIcon) appleIcon.setAttribute('href', brand.touch);
+
+      var theme = document.querySelector('meta[name="theme-color"]');
+      if (!theme) {
+        theme = document.createElement('meta');
+        theme.setAttribute('name', 'theme-color');
+        document.head.appendChild(theme);
+      }
+      theme.setAttribute('content', brand.theme);
+
+      // Manifest is served as a blob: URL, so every URL inside must be
+      // absolute (relative paths would resolve against the blob, not the site).
+      var base = location.origin + location.pathname.replace(/[^/]*$/, '');
+      var manifest = {
+        name: brand.name,
+        short_name: brand.name,
+        start_url: base,
+        scope: base,
+        display: 'standalone',
+        background_color: brand.bg,
+        theme_color: brand.theme,
+        icons: [
+          { src: base + brand.p192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: base + brand.p512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: base + brand.p512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ]
+      };
+      var link = document.querySelector('link[rel="manifest"]');
+      if (link) {
+        var blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        link.setAttribute('href', URL.createObjectURL(blob));
+      }
     })();
   </script>
 </head>
