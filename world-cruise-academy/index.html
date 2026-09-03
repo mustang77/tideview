@@ -105,6 +105,25 @@
     .step h3 { font-size: 1.08rem; margin-bottom: 5px; }
     .step p { color: var(--muted); font-size: .94rem; }
 
+    /* ---------- Prep / extra income ---------- */
+    .prep { background: var(--sand); }
+    .prep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr)); gap: 26px; margin-top: 30px; }
+    .prep-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; display: flex; flex-direction: column; }
+    .prep-card .pico { font-size: 2rem; }
+    .prep-card h3 { font-size: 1.25rem; margin: 10px 0 8px; }
+    .prep-card p { color: var(--muted); font-size: .96rem; margin-bottom: 18px; }
+    .prep-card .pbtn { margin-top: auto; align-self: flex-start; background: var(--navy); color: #fff; text-decoration: none; font-weight: 700; padding: 11px 20px; border-radius: 9px; transition: background .14s; }
+    .prep-card .pbtn:hover { background: var(--navy-2); }
+
+    /* ---------- Newsletter ---------- */
+    .news { background: linear-gradient(135deg, var(--teal-dark), var(--teal)); color: #fff; border-radius: 18px; padding: 44px; text-align: center; }
+    .news h2 { color: #fff; }
+    .news p { color: #e6fff8; max-width: 560px; margin: 8px auto 22px; }
+    .news form { display: flex; gap: 10px; max-width: 480px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+    .news input { flex: 1 1 240px; border: none; border-radius: 9px; padding: 13px 16px; font-size: 1rem; }
+    .news button { border: none; background: var(--gold); color: #3a2a05; font-weight: 800; padding: 13px 24px; border-radius: 9px; cursor: pointer; }
+    .news .note { font-size: .78rem; color: #d7fff5; margin-top: 14px; }
+
     /* ---------- About ---------- */
     .about-card { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #dfeaf2; border-radius: 18px; padding: 44px; }
     .about-card h2 { color: #fff; }
@@ -141,6 +160,7 @@
       <nav class="nav-links">
         <a href="#ports">Port Guides</a>
         <a href="#why">Why Book Ahead</a>
+        <a href="#prep">Before You Sail</a>
         <a href="#how">How It Works</a>
         <a href="#about">About</a>
       </nav>
@@ -153,11 +173,11 @@
       <h1>See the best of every port — without paying the ship's markup.</h1>
       <p>Independent, honest guides to the highest-rated shore excursions at the world's top cruise ports. Save money, skip the crowds, and don't miss the highlights.</p>
       <div class="cta-row">
-        <a class="cta" href="#ports">Explore 12 Port Guides →</a>
+        <a class="cta" href="#ports">Explore 16 Port Guides →</a>
         <a class="cta ghost" href="#why">Why book independently?</a>
       </div>
       <div class="hero-stats">
-        <div class="s"><b>12</b><span>Top ports covered</span></div>
+        <div class="s"><b>16</b><span>Top ports covered</span></div>
         <div class="s"><b>30–50%</b><span>Typical savings vs ship</span></div>
         <div class="s"><b>Free</b><span>Cancellation on most</span></div>
       </div>
@@ -168,7 +188,7 @@
     <div class="wrap">
       <div class="kicker">Destination Guides</div>
       <h2>Top Cruise Ports &amp; Their Best Excursions</h2>
-      <p class="lede">Each guide highlights the tours worth your one day in port — the best-rated, best-value experiences you can book directly, with no onboard markup and free cancellation on most.</p>
+      <p class="lede">Each of our 16 guides highlights the tours worth your one day in port — the best-rated, best-value experiences you can book directly, with no onboard markup and free cancellation on most.</p>
 
       <div class="filter" id="filter">
         <button class="active" data-region="all">All ports</button>
@@ -214,6 +234,58 @@
         <div class="step"><h3>Compare top tours</h3><p>See the highest-rated, best-value excursions for your one day ashore.</p></div>
         <div class="step"><h3>Book direct</h3><p>Reserve in a couple of taps — free cancellation on most, so there's no risk.</p></div>
         <div class="step"><h3>Enjoy your day</h3><p>Skip the queues, see the highlights, and get back to the ship on time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="prep" class="prep">
+    <div class="wrap">
+      <div class="kicker">Before You Sail</div>
+      <h2>Two things smart cruisers sort out early</h2>
+      <p class="lede">A great port day starts before you leave home. These two extras save stress (and sometimes serious money) — book them once and forget about them.</p>
+      <div class="prep-grid">
+
+        <!-- Travel insurance — replace with your insurance affiliate link
+             (e.g. SafetyWing, World Nomads, Allianz partner link) -->
+        <div class="prep-card">
+          <div class="pico">🛡️</div>
+          <h3>Cruise travel insurance</h3>
+          <p>Missed ports, medical emergencies at sea and trip cancellations are exactly what cruise insurance covers. A single policy for the whole trip costs a fraction of one missed sailing — get quotes before you pay your final balance.</p>
+          <a class="pbtn" href="REPLACE_WITH_INSURANCE_LINK" target="_blank" rel="nofollow sponsored noopener">Compare cruise insurance →</a>
+        </div>
+
+        <!-- Airport transfers — Viator also sells transfers; generate a
+             transfer link in your Viator dashboard and paste it here -->
+        <div class="prep-card">
+          <div class="pico">🚐</div>
+          <h3>Airport &amp; port transfers</h3>
+          <p>Don't gamble on a taxi queue on embarkation day. A pre-booked private or shared transfer gets you from the airport to the ship (and back) on a fixed price with a driver waiting — one less thing to worry about.</p>
+          <a class="pbtn" href="REPLACE_WITH_TRANSFER_LINK" target="_blank" rel="nofollow sponsored noopener">Book a transfer →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="news">
+        <div class="kicker" style="color:#eafff9">Free Port Guides by Email</div>
+        <h2>Get our cruise port cheat-sheets</h2>
+        <p>Join free and we'll send the best-value excursion for each port, plus price-drop alerts — straight to your inbox before you sail.</p>
+        <!--
+          NEWSLETTER SETUP: point the form `action` at your email provider.
+          Easiest free options:
+            • Mailchimp: use your embedded form's action URL + input names
+            • MailerLite / ConvertKit: same idea
+            • Formspree (https://formspree.io): action="https://formspree.io/f/XXXX"
+          Until then the form just shows a thank-you message (see script).
+        -->
+        <form id="newsForm" action="" method="post" novalidate>
+          <input type="email" name="email" placeholder="you@email.com" aria-label="Your email" required />
+          <button type="submit">Send me the guides</button>
+        </form>
+        <div class="note" id="newsNote">No spam, unsubscribe anytime.</div>
       </div>
     </div>
   </section>
@@ -353,7 +425,19 @@
       tours:["El Arco & Lover's Beach cruise","Snorkel at Santa María Bay","Sunset sail with open bar"], link:"REPLACE_WITH_VIATOR_LINK" },
     { region:"Pacific & Mexico", name:"Honolulu, Hawaii",
       guide:"Your gateway to Oahu. Pearl Harbor is the essential visit, while the North Shore and a circle-island tour show off Hawaii beyond Waikiki in one day.",
-      tours:["Pearl Harbor & USS Arizona","Circle island & North Shore","Diamond Head & Waikiki tour"], link:"REPLACE_WITH_VIATOR_LINK" }
+      tours:["Pearl Harbor & USS Arizona","Circle island & North Shore","Diamond Head & Waikiki tour"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Caribbean", name:"Grand Turk",
+      guide:"A tiny island with one of the Caribbean's best beaches steps from the pier. The reef wall drops away just offshore, making it a top spot for snorkeling and diving.",
+      tours:["Reef snorkel & beach break","Island dune-buggy safari","Stingray encounter cruise"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Mediterranean", name:"Mykonos, Greece",
+      guide:"Whitewashed lanes, windmills and beach clubs. The old town is walkable from the tender, but a tour helps you beat the crowds to the famous windmills and Little Venice.",
+      tours:["Mykonos town & windmills walk","Delos ancient island trip","South-coast beach club day"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Alaska", name:"Sitka, Alaska",
+      guide:"A quieter, wildlife-rich port with Russian heritage. Sea otters, bald eagles and rescued raptors are the draw, along with some of Alaska's best whale watching.",
+      tours:["Wildlife & sea otter quest","Raptor center & Fortress of the Bear","Sea kayaking in the sound"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Pacific & Mexico", name:"Ensenada, Mexico",
+      guide:"Baja's wine-country port. La Bufadora blowhole is the classic excursion, while nearby Valle de Guadalupe offers tastings for a more relaxed day ashore.",
+      tours:["La Bufadora blowhole tour","Valle de Guadalupe wine tasting","City & tequila sampling tour"], link:"REPLACE_WITH_VIATOR_LINK" }
   ];
 
   /* ---------- Render cards ---------- */
@@ -381,6 +465,20 @@
     document.querySelectorAll('#grid .card').forEach(c => {
       c.style.display = (r === 'all' || c.dataset.region === r) ? '' : 'none';
     });
+  });
+
+  /* ---------- Newsletter: graceful fallback until a provider is wired ---------- */
+  const newsForm = document.getElementById('newsForm');
+  newsForm.addEventListener('submit', function(e){
+    // If no provider action is set yet, don't navigate away — just confirm.
+    if(!newsForm.getAttribute('action')){
+      e.preventDefault();
+      const email = newsForm.email.value.trim();
+      if(!email || !email.includes('@')){ document.getElementById('newsNote').textContent = 'Please enter a valid email.'; return; }
+      newsForm.style.display = 'none';
+      document.getElementById('newsNote').textContent = '🎉 Thanks! You’re on the list — port guides are on the way.';
+    }
+    // Once you set a real action= (Mailchimp/Formspree), this submits normally.
   });
 
   document.getElementById('year').textContent = new Date().getFullYear();

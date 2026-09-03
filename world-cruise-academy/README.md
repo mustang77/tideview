@@ -25,6 +25,22 @@ the bottom of `index.html`. Each entry has a `link:` field set to
 4. (Recommended) Add a SubID so you can see which port earns, e.g. append
    `&campaign=cozumel` to the link.
 
+## Other affiliate link placeholders (extra income)
+Besides the 12 port links, the site has three more revenue slots:
+- `REPLACE_WITH_INSURANCE_LINK` — cruise travel insurance (e.g. SafetyWing,
+  World Nomads, Allianz partner link).
+- `REPLACE_WITH_TRANSFER_LINK` — airport/port transfers (Viator sells these too;
+  generate a transfer link in your Viator dashboard).
+Replace them the same way as the port links.
+
+## Newsletter signup
+The email box uses a graceful fallback: until you connect a provider it just
+shows a thank-you message. To actually collect emails, set the form's `action`
+in `index.html` (search for `id="newsForm"`):
+- **Formspree** (fastest): `action="https://formspree.io/f/XXXX"`
+- **Mailchimp / MailerLite / ConvertKit**: paste your embedded form's action URL
+  and make sure the email input's `name` matches what your provider expects.
+
 ## Add / edit ports
 Edit the `PORTS` array — copy an entry, change `region`, `name`, `guide`, and
 `tours`. Use one of the existing region names so it picks up the scenic art and
