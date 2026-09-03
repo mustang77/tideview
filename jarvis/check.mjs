@@ -16,7 +16,9 @@ async function test(name, fn) {
   catch (err) { record(name, "FAIL", err.message); }
 }
 
-const child = spawn(process.execPath, [path.join(here, "server.mjs")], { env: { ...process.env, PORT: String(PORT) }, stdio: ["ignore", "pipe", "pipe"] });
+const TEST_STUDENT = { name: "Test Student", email: "test@example.com", pin: "1234" };
+const child = spawn(process.execPath, [path.join(here, "server.mjs")], { env: { ...process.env, PORT: String(PORT), JARVIS_STUDENTS: JSON.stringify([TEST_STUDENT]), JARVIS_AUTH_SECRET: "check" }, stdio: ["ignore", "pipe", "pipe"] });
+const H = { "Content-Type": "application/json" };   // Authorization is added after login
 let log = ""; child.stdout.on("data", d => log += d); child.stderr.on("data", d => log += d);
 
 async function waitForServer() {
@@ -30,8 +32,28 @@ async function waitForServer() {
 let health;
 await test("server starts", async () => { health = await waitForServer(); return `model ${health.model}, effort ${health.effort}`; });
 
+await test("login is required when students are configured", async () => {
+  const r = await fetch(BASE + "/api/notes", { headers: H });
+  if (r.status !== 401) throw new Error(`expected 401 without a token, got ${r.status}`);
+  return "";
+});
+
+await test("wrong PIN is rejected", async () => {
+  const r = await fetch(BASE + "/api/login", { method: "POST", headers: H, body: JSON.stringify({ email: TEST_STUDENT.email, pin: "0000" }) });
+  if (r.status !== 401) throw new Error(`expected 401, got ${r.status}`);
+  return "";
+});
+
+await test("student can sign in", async () => {
+  const r = await fetch(BASE + "/api/login", { method: "POST", headers: H, body: JSON.stringify({ email: TEST_STUDENT.email, pin: TEST_STUDENT.pin }) });
+  const data = await r.json();
+  if (!r.ok || !data.token) throw new Error(data.error || "no token");
+  H.Authorization = "Bearer " + data.token;
+  return `welcome ${data.name}`;
+});
+
 await test("notes are indexed", async () => {
-  const r = await (await fetch(BASE + "/api/notes")).json();
+  const r = await (await fetch(BASE + "/api/notes", { headers: H })).json();
   if (!r.notes.length) throw new Error(`no notes found in ${health.notesDir}`);
   const bad = r.notes.find(n => !n.title || !n.id);
   if (bad) throw new Error("a note is missing a title or id");
@@ -39,7 +61,7 @@ await test("notes are indexed", async () => {
 });
 
 await test("galaxy has links", async () => {
-  const r = await (await fetch(BASE + "/api/notes")).json();
+  const r = await (await fetch(BASE + "/api/notes", { headers: H })).json();
   if (r.notes.length > 1 && !r.links.length) throw new Error("no links between notes: add [[wikilinks]] or #tags");
   const ids = new Set(r.notes.map(n => n.id));
   const dangling = r.links.find(l => !ids.has(l.source) || !ids.has(l.target));
@@ -48,31 +70,31 @@ await test("galaxy has links", async () => {
 });
 
 await test("search finds the right note", async () => {
-  const notes = (await (await fetch(BASE + "/api/notes")).json()).notes;
+  const notes = (await (await fetch(BASE + "/api/notes", { headers: H })).json()).notes;
   const probe = notes[0];
   const words = probe.title.split(/\s+/).filter(w => w.length > 3).slice(0, 3).join(" ") || probe.title;
-  const r = await (await fetch(BASE + "/api/search?q=" + encodeURIComponent(words))).json();
+  const r = await (await fetch(BASE + "/api/search?q=" + encodeURIComponent(words), { headers: H })).json();
   if (!r.results.length) throw new Error(`no results for "${words}"`);
   if (!r.results.slice(0, 2).some(x => x.id === probe.id)) throw new Error(`"${words}" did not rank "${probe.title}" in the top 2`);
   return `"${words}" -> ${r.results[0].title}`;
 });
 
 await test("note bodies are served", async () => {
-  const notes = (await (await fetch(BASE + "/api/notes")).json()).notes;
-  const r = await (await fetch(BASE + "/api/note?id=" + encodeURIComponent(notes[0].id))).json();
+  const notes = (await (await fetch(BASE + "/api/notes", { headers: H })).json()).notes;
+  const r = await (await fetch(BASE + "/api/note?id=" + encodeURIComponent(notes[0].id), { headers: H })).json();
   if (!r.raw || r.raw.length < 10) throw new Error("empty note body");
   return "";
 });
 
 await test("web app is served", async () => {
   const html = await (await fetch(BASE + "/")).text();
-  for (const id of ["galaxy", "transcript", "askForm", "micBtn", "eyesBtn", "voiceBtn"]) if (!html.includes(`id="${id}"`)) throw new Error(`missing element #${id}`);
+  for (const id of ["galaxy", "transcript", "askForm", "micBtn", "eyesBtn", "voiceBtn", "loginForm"]) if (!html.includes(`id="${id}"`)) throw new Error(`missing element #${id}`);
   if (!html.includes("three.js") && !html.includes("three.min.js")) throw new Error("three.js not referenced");
   return "";
 });
 
 async function ask(question, extra = {}) {
-  const r = await fetch(BASE + "/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, history: [], ...extra }) });
+  const r = await fetch(BASE + "/api/ask", { method: "POST", headers: H, body: JSON.stringify({ question, history: [], ...extra }) });
   const text = await r.text();
   const events = text.split("\n\n").filter(Boolean).map(l => JSON.parse(l.replace(/^data: /, "")));
   const answer = events.filter(e => e.type === "text").map(e => e.text).join("");
@@ -81,7 +103,7 @@ async function ask(question, extra = {}) {
 }
 
 await test("ask streams an answer with sources", async () => {
-  const notes = (await (await fetch(BASE + "/api/notes")).json()).notes;
+  const notes = (await (await fetch(BASE + "/api/notes", { headers: H })).json()).notes;
   const r = await ask(`What do my notes say about ${notes[0].title}?`);
   if (r.error) throw new Error(r.error.message);
   if (!r.answer.trim()) throw new Error("empty answer");
@@ -91,7 +113,7 @@ await test("ask streams an answer with sources", async () => {
 });
 
 await test("ask cites a note", async () => {
-  const notes = (await (await fetch(BASE + "/api/notes")).json()).notes;
+  const notes = (await (await fetch(BASE + "/api/notes", { headers: H })).json()).notes;
   const r = await ask(`Quote one sentence from my note titled "${notes[0].title}" and tell me which note it is from.`);
   if (r.error) throw new Error(r.error.message);
   const cited = r.events.filter(e => e.type === "citation");
@@ -110,7 +132,7 @@ await test("eyes: image is accepted", async () => {
 });
 
 await test("bad request is rejected cleanly", async () => {
-  const r = await fetch(BASE + "/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  const r = await fetch(BASE + "/api/ask", { method: "POST", headers: H, body: "{}" });
   if (r.status !== 400) throw new Error(`expected 400, got ${r.status}`);
   return "";
 });

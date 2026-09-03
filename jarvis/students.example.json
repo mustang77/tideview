@@ -1,0 +1,6 @@
+{
+  "students": [
+    { "name": "Budi Santoso", "email": "budi@example.com", "pin": "4821" },
+    { "name": "Sari Dewi",    "email": "sari@example.com", "pin": "7730" }
+  ]
+}
