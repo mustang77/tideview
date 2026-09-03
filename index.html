@@ -125,7 +125,10 @@
       z-index: 2;
       pointer-events: none;
       background-image: var(--img-reveal);
-      filter: brightness(1.22) saturate(1.55) contrast(1.06);
+      /* With a single picture, this filter turns the spotlight area into a cool
+         electric "night mode" so the reveal is clearly different from the base.
+         If --img-reveal points at a genuinely different picture, set filter: none. */
+      filter: sepia(1) hue-rotate(160deg) saturate(2.4) contrast(1.2) brightness(1.1);
       /* layer 1: cursor spotlight (set by JS); layer 2: same edge fade as the base */
       -webkit-mask-image: radial-gradient(circle 0px at -999px -999px, #fff, transparent), var(--edge-fade);
       mask-image: radial-gradient(circle 0px at -999px -999px, #fff, transparent), var(--edge-fade);
