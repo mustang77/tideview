@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS</title>
+<style>
+  :root {
+    --bg: #05080d; --panel: rgba(8, 14, 22, 0.82); --line: rgba(64, 224, 255, 0.18);
+    --cyan: #40e0ff; --cyan-dim: rgba(64, 224, 255, 0.55); --text: #d6e6f2; --muted: #7c93a6;
+    --user: rgba(64, 224, 255, 0.10); --ok: #4ade80; --warn: #fbbf24; --err: #f87171;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  #galaxy { position: fixed; inset: 0; z-index: 0; }
+  #galaxy canvas { display: block; }
+  .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; letter-spacing: 0.06em; text-transform: uppercase; font-size: 11px; }
+
+  /* ---------- HUD top bar ---------- */
+  #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; align-items: center; gap: 14px; padding: 12px 18px; pointer-events: none; }
+  #hud > * { pointer-events: auto; }
+  #brand { display: flex; align-items: center; gap: 10px; color: var(--cyan); font-weight: 600; letter-spacing: 0.22em; font-size: 15px; }
+  #brand .ring { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--cyan); position: relative; box-shadow: 0 0 18px var(--cyan-dim); }
+  #brand .ring::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; background: var(--cyan); opacity: 0.85; animation: pulse 2.4s ease-in-out infinite; }
+  #brand .ring.talking::after { animation: pulse 0.5s ease-in-out infinite; }
+  #brand .ring.listening { border-color: var(--ok); box-shadow: 0 0 22px rgba(74, 222, 128, 0.6); }
+  #brand .ring.listening::after { background: var(--ok); animation: pulse 0.8s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(0.7); opacity: 0.5; } 50% { transform: scale(1); opacity: 1; } }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); backdrop-filter: blur(10px); color: var(--muted); }
+  .pill b { color: var(--text); font-weight: 500; }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+  .pill.on .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .pill.on { color: var(--text); border-color: rgba(74, 222, 128, 0.4); }
+  #status { margin-left: auto; color: var(--cyan); }
+
+  /* ---------- Left console ---------- */
+  #console { position: fixed; top: 64px; left: 18px; bottom: 18px; width: 400px; z-index: 4; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); }
+  #transcript { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+  .msg { max-width: 92%; padding: 10px 13px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.user { align-self: flex-end; background: var(--user); border: 1px solid var(--line); }
+  .msg.jarvis { align-self: flex-start; border-left: 2px solid var(--cyan); background: rgba(255,255,255,0.03); }
+  .msg.jarvis.error { border-left-color: var(--err); color: #fecaca; }
+  .msg.system { align-self: center; color: var(--muted); font-size: 12px; text-align: center; background: transparent; }
+  .sources { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 11px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--cyan); cursor: pointer; background: rgba(64,224,255,0.06); }
+  .chip:hover { background: rgba(64,224,255,0.16); }
+  .meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  #controls { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  #askForm { display: flex; gap: 8px; }
+  #askInput { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; outline: none; }
+  #askInput:focus { border-color: var(--cyan-dim); }
+  button { font: inherit; cursor: pointer; }
+  .btn { background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 9px 12px; display: inline-flex; align-items: center; gap: 8px; transition: background 0.2s, border-color 0.2s; }
+  .btn:hover { background: rgba(64,224,255,0.1); border-color: var(--cyan-dim); }
+  .btn.on { border-color: var(--cyan); color: var(--cyan); background: rgba(64,224,255,0.12); }
+  .btn.primary { border-color: var(--cyan); color: var(--cyan); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row .btn { flex: 1; justify-content: center; }
+  #micBtn.live { background: rgba(74,222,128,0.15); border-color: var(--ok); color: var(--ok); }
+  #camWrap { display: none; position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  #camWrap.on { display: block; }
+  #cam { width: 100%; display: block; background: #000; }
+  #camWrap .tag { position: absolute; top: 6px; left: 8px; color: var(--ok); }
+  .hint { color: var(--muted); font-size: 11px; }
+
+  /* ---------- Right tools ---------- */
+  #tools { position: fixed; top: 64px; right: 18px; z-index: 4; width: 280px; display: flex; flex-direction: column; gap: 10px; }
+  #tools .card { padding: 10px; }
+  #searchInput { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 8px 10px; font: inherit; outline: none; }
+  #legend { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+  #legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; background: var(--c); vertical-align: middle; }
+
+  /* ---------- Note reader ---------- */
+  #reader { position: fixed; top: 64px; right: 18px; bottom: 18px; width: 420px; z-index: 6; display: none; flex-direction: column; }
+  #reader.open { display: flex; }
+  #reader header { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  #reader header h2 { font-size: 14px; margin: 0; flex: 1; color: var(--cyan); }
+  #readerBody { flex: 1; overflow: auto; padding: 14px; white-space: pre-wrap; font-size: 13px; color: var(--text); }
+  #readerBody mark { background: rgba(64,224,255,0.25); color: inherit; border-radius: 3px; }
+
+  /* ---------- Galaxy labels ---------- */
+  .label { position: fixed; z-index: 2; pointer-events: none; transform: translate(-50%, -140%); font-size: 11px; color: var(--cyan); background: rgba(5,8,13,0.7); padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line); white-space: nowrap; }
+  .label.dim { color: var(--muted); border-color: transparent; background: transparent; }
+
+  @media (max-width: 900px) {
+    #console { width: auto; right: 18px; top: auto; height: 55vh; }
+    #tools, #reader { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="galaxy"></div>
+
+<div id="hud">
+  <div id="brand"><span class="ring" id="ring"></span>JARVIS</div>
+  <span class="pill mono" id="pillModel"><span class="dot"></span>model <b>…</b></span>
+  <span class="pill mono" id="pillNotes"><span class="dot"></span>brain <b>…</b></span>
+  <span class="pill mono" id="pillEyes"><span class="dot"></span>eyes <b>off</b></span>
+  <span class="pill mono" id="pillVoice"><span class="dot"></span>voice <b>on</b></span>
+  <span class="mono" id="status">online</span>
+</div>
+
+<div id="console">
+  <div class="card" id="transcript"></div>
+  <div class="card" id="controls">
+    <div id="camWrap"><video id="cam" autoplay muted playsinline></video><span class="tag mono">● eyes</span></div>
+    <form id="askForm" autocomplete="off">
+      <input id="askInput" placeholder="Ask JARVIS, or hold Space to talk…">
+      <button class="btn primary" type="submit" id="sendBtn">Send</button>
+    </form>
+    <div class="row">
+      <button class="btn" type="button" id="micBtn" title="Hold Space to talk">🎙 Listen</button>
+      <button class="btn" type="button" id="eyesBtn">👁 Eyes</button>
+      <button class="btn on" type="button" id="voiceBtn">🔊 Voice</button>
+    </div>
+    <div class="hint" id="hint">Hold <b>Space</b> to talk. Click a star to read a note.</div>
+  </div>
+</div>
+
+<div id="tools">
+  <div class="card">
+    <input id="searchInput" placeholder="Search the galaxy…">
+  </div>
+  <div class="card">
+    <div class="mono" style="color:var(--muted);margin-bottom:6px">Legend</div>
+    <div id="legend"></div>
+  </div>
+  <div class="card row">
+    <button class="btn" type="button" id="rebuildBtn" style="flex:1">↻ Rebuild brain</button>
+    <button class="btn" type="button" id="resetViewBtn" style="flex:1">⌂ Reset view</button>
+  </div>
+</div>
+
+<div class="card" id="reader">
+  <header><h2 id="readerTitle"></h2><span class="mono" id="readerPath" style="color:var(--muted)"></span><button class="btn" type="button" id="readerClose">✕</button></header>
+  <div id="readerBody"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const state = { history: [], eyes: false, voice: true, listening: false, busy: false, notes: [], links: [], nodeById: new Map(), health: null };
+
+  /* ================= Transcript ================= */
+  function addMsg(role, text, extra) {
+    const el = document.createElement("div");
+    el.className = "msg " + role + (extra && extra.error ? " error" : "");
+    el.textContent = text;
+    $("transcript").appendChild(el);
+    $("transcript").scrollTop = $("transcript").scrollHeight;
+    return el;
+  }
+  function setStatus(text, cls) { $("status").textContent = text; $("ring").className = "ring " + (cls || ""); }
+
+  /* ================= Health ================= */
+  async function loadHealth() {
+    const h = await (await fetch("/api/health")).json();
+    state.health = h;
+    $("pillModel").querySelector("b").textContent = h.hasKey ? h.model : "demo mode";
+    $("pillModel").classList.toggle("on", h.hasKey);
+    if (!h.hasKey) addMsg("system", "Demo mode: no API key found. Add ANTHROPIC_API_KEY to jarvis/.env and restart to talk to Claude.");
+  }
+
+  /* ================= Galaxy (three.js) ================= */
+  const G = { scene: null, camera: null, renderer: null, nodes: [], lines: null, target: new THREE.Vector3(0, 0, 0), theta: 0.6, phi: 1.1, radius: 90, drag: null, hover: null, selected: null, cited: new Set(), fly: null, labels: new Map(), search: new Set() };
+  const hasThree = typeof THREE !== "undefined";
+
+  function tagColor(tag) {
+    let h = 0; for (const c of tag) h = (h * 31 + c.charCodeAt(0)) % 360;
+    return new THREE.Color().setHSL(h / 360, 0.7, 0.62);
+  }
+
+  function initGalaxy() {
+    if (!hasThree) { addMsg("system", "The 3D library did not load, so the galaxy is hidden. Everything else works."); return; }
+    G.scene = new THREE.Scene();
+    G.scene.fog = new THREE.FogExp2(0x05080d, 0.006);
+    G.camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 2000);
+    G.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    G.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    G.renderer.setSize(innerWidth, innerHeight);
+    G.renderer.setClearColor(0x05080d, 1);
+    $("galaxy").appendChild(G.renderer.domElement);
+
+    // background stars
+    const starGeo = new THREE.BufferGeometry();
+    const pts = new Float32Array(1500 * 3);
+    for (let i = 0; i < pts.length; i++) pts[i] = (Math.random() - 0.5) * 900;
+    starGeo.setAttribute("position", new THREE.BufferAttribute(pts, 3));
+    G.scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x35506a, size: 1.1, sizeAttenuation: true })));
+
+    G.scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const light = new THREE.PointLight(0x40e0ff, 1.2, 600); light.position.set(60, 80, 60); G.scene.add(light);
+
+    const el = G.renderer.domElement;
+    el.addEventListener("mousedown", e => { G.drag = { x: e.clientX, y: e.clientY, moved: false }; });
+    addEventListener("mousemove", e => {
+      if (G.drag) {
+        const dx = e.clientX - G.drag.x, dy = e.clientY - G.drag.y;
+        if (Math.abs(dx) + Math.abs(dy) > 3) G.drag.moved = true;
+        G.theta -= dx * 0.005; G.phi = Math.min(Math.PI - 0.15, Math.max(0.15, G.phi - dy * 0.005));
+        G.drag.x = e.clientX; G.drag.y = e.clientY; G.fly = null;
+      }
+      mouse.x = (e.clientX / innerWidth) * 2 - 1; mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+    });
+    addEventListener("mouseup", () => { if (G.drag && !G.drag.moved && G.hover) openNote(G.hover.userData.id); G.drag = null; });
+    el.addEventListener("wheel", e => { G.radius = Math.min(400, Math.max(12, G.radius * (1 + Math.sign(e.deltaY) * 0.08))); G.fly = null; }, { passive: true });
+    el.addEventListener("touchstart", e => { const t = e.touches[0]; G.drag = { x: t.clientX, y: t.clientY, moved: false }; }, { passive: true });
+    el.addEventListener("touchmove", e => { const t = e.touches[0]; if (!G.drag) return; G.theta -= (t.clientX - G.drag.x) * 0.005; G.phi = Math.min(Math.PI - 0.15, Math.max(0.15, G.phi - (t.clientY - G.drag.y) * 0.005)); G.drag = { x: t.clientX, y: t.clientY, moved: true }; }, { passive: true });
+    el.addEventListener("touchend", () => { G.drag = null; });
+    addEventListener("resize", () => { G.camera.aspect = innerWidth / innerHeight; G.camera.updateProjectionMatrix(); G.renderer.setSize(innerWidth, innerHeight); });
+    requestAnimationFrame(frame);
+  }
+
+  const mouse = new THREE.Vector2(-9, -9);
+  const raycaster = hasThree ? new THREE.Raycaster() : null;
+
+  function layout(notes, links) {
+    // simple 3D force-directed layout
+    const n = notes.length, pos = notes.map(() => new THREE.Vector3((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60));
+    const idx = new Map(notes.map((x, i) => [x.id, i]));
+    const edges = links.map(l => [idx.get(l.source), idx.get(l.target), l.weight]).filter(e => e[0] !== undefined && e[1] !== undefined);
+    const vel = notes.map(() => new THREE.Vector3());
+    const tmp = new THREE.Vector3();
+    const iterations = Math.min(400, 120 + n * 2);
+    for (let it = 0; it < iterations; it++) {
+      const cool = 1 - it / iterations;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+        tmp.subVectors(pos[i], pos[j]); const d2 = Math.max(tmp.lengthSq(), 1); const f = 180 / d2;
+        tmp.normalize().multiplyScalar(f); vel[i].add(tmp); vel[j].sub(tmp);
+      }
+      for (const [a, b, w] of edges) {
+        tmp.subVectors(pos[b], pos[a]); const d = tmp.length(); const f = (d - 14) * 0.02 * (0.5 + w);
+        tmp.normalize().multiplyScalar(f); vel[a].add(tmp); vel[b].sub(tmp);
+      }
+      for (let i = 0; i < n; i++) { vel[i].sub(tmp.copy(pos[i]).multiplyScalar(0.01)); pos[i].add(vel[i].multiplyScalar(0.6 * cool)); vel[i].multiplyScalar(0.5); }
+    }
+    return pos;
+  }
+
+  function buildGalaxy(notes, links) {
+    if (!hasThree) return;
+    for (const nd of G.nodes) G.scene.remove(nd);
+    if (G.lines) G.scene.remove(G.lines);
+    for (const l of G.labels.values()) l.remove();
+    G.nodes = []; G.labels.clear(); state.nodeById.clear();
+    const pos = layout(notes, links);
+    const legend = new Map();
+    notes.forEach((note, i) => {
+      const tag = note.tags[0] || "untagged";
+      const color = tagColor(tag); legend.set(tag, color);
+      const size = 0.9 + Math.min(2.2, Math.sqrt(note.wordCount) / 12);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 18, 18), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.35, roughness: 0.4 }));
+      mesh.position.copy(pos[i]); mesh.userData = { id: note.id, title: note.title, baseSize: size, color };
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(size * 1.9, 12, 12), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.08 }));
+      mesh.add(glow);
+      G.scene.add(mesh); G.nodes.push(mesh); state.nodeById.set(note.id, mesh);
+      const label = document.createElement("div"); label.className = "label dim"; label.textContent = note.title; document.body.appendChild(label); G.labels.set(note.id, label);
+    });
+    const lp = [];
+    for (const l of links) { const a = state.nodeById.get(l.source), b = state.nodeById.get(l.target); if (a && b) lp.push(a.position.x, a.position.y, a.position.z, b.position.x, b.position.y, b.position.z); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(lp), 3));
+    G.lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0x40e0ff, transparent: true, opacity: 0.18 }));
+    G.scene.add(G.lines);
+    $("legend").innerHTML = Array.from(legend).slice(0, 12).map(([t, c]) => `<span style="--c:#${c.getHexString()}">#${t}</span>`).join("");
+    resetView();
+  }
+
+  function resetView() { G.fly = { target: new THREE.Vector3(0, 0, 0), radius: Math.max(60, G.nodes.length * 2.2), t: 0 }; }
+
+  function flyTo(id) {
+    const m = state.nodeById.get(id); if (!m) return;
+    G.fly = { target: m.position.clone(), radius: 34, t: 0 };
+  }
+
+  const clock = hasThree ? new THREE.Clock() : null;
+  function frame() {
+    requestAnimationFrame(frame);
+    const t = clock.getElapsedTime();
+    if (G.fly) { G.fly.t = Math.min(1, G.fly.t + 0.03); const e = 1 - Math.pow(1 - G.fly.t, 3); G.target.lerp(G.fly.target, e * 0.25); G.radius += (G.fly.radius - G.radius) * e * 0.25; if (G.fly.t >= 1) G.fly = null; }
+    else if (!G.drag) G.theta += 0.0006;
+    G.camera.position.set(
+      G.target.x + G.radius * Math.sin(G.phi) * Math.sin(G.theta),
+      G.target.y + G.radius * Math.cos(G.phi),
+      G.target.z + G.radius * Math.sin(G.phi) * Math.cos(G.theta));
+    G.camera.lookAt(G.target);
+
+    raycaster.setFromCamera(mouse, G.camera);
+    const hit = raycaster.intersectObjects(G.nodes, false)[0];
+    G.hover = hit ? hit.object : null;
+    document.body.style.cursor = G.hover ? "pointer" : "default";
+
+    for (const m of G.nodes) {
+      const cited = G.cited.has(m.userData.id), searched = G.search.has(m.userData.id);
+      const hot = m === G.hover || m === G.selected || cited || searched;
+      const pulse = cited ? 1 + 0.25 * Math.sin(t * 5) : 1;
+      m.scale.setScalar(hot ? 1.3 * pulse : 1);
+      m.material.emissiveIntensity = hot ? 1.2 : (G.search.size ? 0.12 : 0.35);
+      m.material.opacity = 1;
+      const label = G.labels.get(m.userData.id);
+      const v = m.position.clone().project(G.camera);
+      const visible = v.z < 1 && (hot || G.radius < 45);
+      label.style.display = visible ? "block" : "none";
+      if (visible) { label.style.left = (v.x + 1) / 2 * innerWidth + "px"; label.style.top = (1 - v.y) / 2 * innerHeight + "px"; label.className = "label" + (hot ? "" : " dim"); }
+    }
+    G.renderer.render(G.scene, G.camera);
+  }
+
+  async function loadNotes(rebuild) {
+    const r = await (await fetch("/api/notes" + (rebuild ? "?rebuild=1" : ""))).json();
+    state.notes = r.notes; state.links = r.links;
+    $("pillNotes").querySelector("b").textContent = r.notes.length + " notes";
+    $("pillNotes").classList.toggle("on", r.notes.length > 0);
+    buildGalaxy(r.notes, r.links);
+  }
+
+  /* ================= Note reader ================= */
+  async function openNote(id, highlight) {
+    const n = await (await fetch("/api/note?id=" + encodeURIComponent(id))).json();
+    $("readerTitle").textContent = n.title; $("readerPath").textContent = n.path;
+    let text = n.raw;
+    const body = $("readerBody"); body.textContent = text;
+    if (highlight) {
+      const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+      const i = text.indexOf(highlight.trim());
+      if (i >= 0) body.innerHTML = esc(text.slice(0, i)) + "<mark>" + esc(highlight.trim()) + "</mark>" + esc(text.slice(i + highlight.trim().length));
+    }
+    $("reader").classList.add("open");
+    G.selected = state.nodeById.get(id) || null;
+    flyTo(id);
+  }
+  $("readerClose").onclick = () => { $("reader").classList.remove("open"); G.selected = null; };
+
+  /* ================= Voice out ================= */
+  let voiceObj = null;
+  function pickVoice() {
+    const voices = speechSynthesis.getVoices();
+    const prefer = ["Google UK English Male", "Daniel", "Microsoft Ryan", "Microsoft George", "Google US English"];
+    for (const p of prefer) { const v = voices.find(x => x.name.includes(p)); if (v) return v; }
+    return voices.find(v => /^en/i.test(v.lang)) || voices[0] || null;
+  }
+  if ("speechSynthesis" in window) { speechSynthesis.onvoiceschanged = () => { voiceObj = pickVoice(); }; voiceObj = pickVoice(); }
+  function speak(text) {
+    if (!state.voice || !("speechSynthesis" in window) || !text) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[*_#`>]/g, ""));
+    if (voiceObj) u.voice = voiceObj;
+    u.rate = 1.02; u.pitch = 0.95;
+    u.onstart = () => setStatus("speaking", "talking"); u.onend = () => setStatus("online", "");
+    speechSynthesis.speak(u);
+  }
+
+  /* ================= Voice in ================= */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null;
+  if (SR) {
+    rec = new SR(); rec.lang = navigator.language || "en-US"; rec.interimResults = true; rec.continuous = false;
+    rec.onstart = () => { state.listening = true; $("micBtn").classList.add("live"); setStatus("listening, sir…", "listening"); speechSynthesis.cancel(); };
+    rec.onend = () => { state.listening = false; $("micBtn").classList.remove("live"); if ($("status").textContent.startsWith("listening")) setStatus("online", ""); };
+    rec.onerror = e => { addMsg("system", "Microphone: " + e.error); };
+    rec.onresult = e => {
+      let finalText = "", interim = "";
+      for (const r of e.results) (r.isFinal ? (finalText += r[0].transcript) : (interim += r[0].transcript));
+      $("askInput").value = finalText || interim;
+      if (finalText.trim()) { $("askInput").value = ""; ask(finalText.trim()); }
+    };
+  } else { $("micBtn").disabled = true; $("micBtn").title = "Speech recognition needs Chrome or Edge"; $("hint").textContent = "Speech recognition is not available in this browser. Type instead."; }
+  function startListening() { if (rec && !state.listening && !state.busy) { try { rec.start(); } catch {} } }
+  function stopListening() { if (rec && state.listening) rec.stop(); }
+  $("micBtn").onclick = () => state.listening ? stopListening() : startListening();
+  addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat && document.activeElement !== $("askInput") && document.activeElement !== $("searchInput")) { e.preventDefault(); startListening(); } });
+  addEventListener("keyup", e => { if (e.code === "Space" && document.activeElement !== $("askInput") && document.activeElement !== $("searchInput")) stopListening(); });
+
+  $("voiceBtn").onclick = () => { state.voice = !state.voice; $("voiceBtn").classList.toggle("on", state.voice); $("pillVoice").querySelector("b").textContent = state.voice ? "on" : "off"; $("pillVoice").classList.toggle("on", state.voice); if (!state.voice) speechSynthesis.cancel(); };
+  $("pillVoice").classList.add("on");
+
+  /* ================= Eyes ================= */
+  let camStream = null;
+  async function toggleEyes() {
+    if (state.eyes) { camStream && camStream.getTracks().forEach(t => t.stop()); camStream = null; state.eyes = false; }
+    else {
+      try { camStream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 } }, audio: false }); $("cam").srcObject = camStream; state.eyes = true; }
+      catch (err) { addMsg("system", "Camera: " + err.message); return; }
+    }
+    $("camWrap").classList.toggle("on", state.eyes); $("eyesBtn").classList.toggle("on", state.eyes);
+    $("pillEyes").querySelector("b").textContent = state.eyes ? "on" : "off"; $("pillEyes").classList.toggle("on", state.eyes);
+  }
+  $("eyesBtn").onclick = toggleEyes;
+  function snapshot() {
+    if (!state.eyes || !$("cam").videoWidth) return null;
+    const c = document.createElement("canvas"); const w = 640, h = Math.round($("cam").videoHeight * w / $("cam").videoWidth);
+    c.width = w; c.height = h; c.getContext("2d").drawImage($("cam"), 0, 0, w, h);
+    return c.toDataURL("image/jpeg", 0.72);
+  }
+
+  /* ================= Ask ================= */
+  async function ask(question) {
+    if (state.busy || !question) return;
+    state.busy = true; $("sendBtn").disabled = true; setStatus("thinking…", "talking");
+    addMsg("user", question);
+    const image = snapshot();
+    const bubble = addMsg("jarvis", "");
+    let text = "", citations = [];
+    G.cited.clear();
+    try {
+      const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, history: state.history, image }) });
+      const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = "";
+      while (true) {
+        const { value, done } = await reader.read(); if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i; while ((i = buf.indexOf("\n\n")) >= 0) {
+          const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
+          if (!line.startsWith("data:")) continue;
+          const ev = JSON.parse(line.slice(5));
+          if (ev.type === "text") { text += ev.text; bubble.textContent = text; $("transcript").scrollTop = $("transcript").scrollHeight; }
+          else if (ev.type === "citation") citations.push(ev.citation);
+          else if (ev.type === "error") { bubble.classList.add("error"); bubble.textContent = ev.message; text = ""; }
+          else if (ev.type === "done") finish(ev, bubble, citations);
+        }
+      }
+      if (text) { state.history.push({ role: "user", text: question }, { role: "assistant", text }); state.history = state.history.slice(-12); speak(text); }
+    } catch (err) { bubble.classList.add("error"); bubble.textContent = "Connection lost: " + err.message; }
+    state.busy = false; $("sendBtn").disabled = false; setStatus("online", "");
+  }
+
+  function finish(ev, bubble, citations) {
+    const citedIds = [];
+    for (const c of citations) { const src = ev.sources[c.document_index]; if (src && !citedIds.includes(src.id)) citedIds.push(src.id); }
+    const shown = citedIds.length ? citedIds : [];
+    if (shown.length) {
+      const wrap = document.createElement("div"); wrap.className = "sources";
+      for (const id of shown) {
+        const src = ev.sources.find(s => s.id === id); const chip = document.createElement("span"); chip.className = "chip"; chip.textContent = "◆ " + src.title;
+        const cite = citations.find(c => ev.sources[c.document_index] && ev.sources[c.document_index].id === id);
+        chip.onclick = () => openNote(id, cite && cite.cited_text); wrap.appendChild(chip); G.cited.add(id);
+      }
+      bubble.appendChild(wrap);
+      flyTo(shown[0]);
+    }
+    const meta = document.createElement("div"); meta.className = "meta";
+    if (ev.refused) meta.textContent = "Declined by the model" + (ev.refusal && ev.refusal.category ? " (" + ev.refusal.category + ")" : "");
+    else meta.textContent = (ev.demo ? "demo" : ev.model) + (ev.usage ? ` · ${ev.usage.input_tokens} in / ${ev.usage.output_tokens} out` : "") + (shown.length ? "" : " · no note cited");
+    bubble.appendChild(meta);
+  }
+
+  $("askForm").onsubmit = e => { e.preventDefault(); const q = $("askInput").value.trim(); $("askInput").value = ""; ask(q); };
+
+  /* ================= Search ================= */
+  let searchTimer;
+  $("searchInput").oninput = () => {
+    clearTimeout(searchTimer);
+    const q = $("searchInput").value.trim();
+    searchTimer = setTimeout(async () => {
+      G.search.clear();
+      if (!q) return;
+      const r = await (await fetch("/api/search?q=" + encodeURIComponent(q) + "&k=8")).json();
+      r.results.forEach(x => G.search.add(x.id));
+      if (r.results[0]) flyTo(r.results[0].id);
+    }, 250);
+  };
+  $("rebuildBtn").onclick = () => loadNotes(true);
+  $("resetViewBtn").onclick = resetView;
+
+  /* ================= Boot ================= */
+  initGalaxy();
+  loadHealth().then(loadNotes).then(() => addMsg("system", "JARVIS ready. Ask about your notes, hold Space to talk, or click a star."))
+    .catch(err => addMsg("system", "Could not reach the server: " + err.message));
+})();
+</script>
+</body>
+</html>
