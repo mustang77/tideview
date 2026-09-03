@@ -12,6 +12,15 @@
 
   <style>
     :root {
+      /* ===== IMAGES: change these three URLs to swap the pictures =====
+         --img-base   : main scene (shown by default)
+         --img-reveal : alternate scene shown inside the cursor spotlight
+         --img-thumb  : small thumbnail in the product card
+         A local file also works, e.g. url('cruise.jpg') next to this file. */
+      --img-base: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_115955_2a9adb39-5e9b-4ced-96e2-6900eabe3de9.png&w=1920&q=85');
+      --img-reveal: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_123709_183f0065-efb2-4bb2-a849-13aaa5af2f3f.png&w=1920&q=85');
+      --img-thumb: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_121937_3f02b5a0-5b86-43d9-b30e-03c5e46632e7.png&w=1920&q=85');
+
       --cream: #FBDBAF;
       --muted: rgba(251, 219, 175, 0.72);
       --label: rgba(251, 219, 175, 0.48);
@@ -63,6 +72,7 @@
       position: absolute;
       inset: 0;
       z-index: 1;
+      background-image: var(--img-base);
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
@@ -73,6 +83,7 @@
       inset: 0;
       z-index: 2;
       pointer-events: none;
+      background-image: var(--img-reveal);
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
@@ -187,6 +198,7 @@
       min-height: 86px;
       border-radius: 12px;
       overflow: hidden;
+      background-image: var(--img-thumb);
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
@@ -505,19 +517,17 @@
 </head>
 <body>
   <main class="hero">
-    <div class="hero-base-img hero-image-animate"
-         style="background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_115955_2a9adb39-5e9b-4ced-96e2-6900eabe3de9.png&w=1920&q=85');"></div>
+    <div class="hero-base-img hero-image-animate"></div>
 
-    <div class="hero-reveal-img" id="reveal-img"
-         style="background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_123709_183f0065-efb2-4bb2-a849-13aaa5af2f3f.png&w=1920&q=85');"></div>
+    <div class="hero-reveal-img" id="reveal-img"></div>
 
     <div class="hero-ui">
       <div class="hero-left">
         <div class="hero-copy">
           <h1 class="words-pull-up">
-            <span>RONIN-X //</span>
-            <span>SHADOW</span>
-            <span>NIGHTFALL</span>
+            <span>WORLD</span>
+            <span>CRUISE</span>
+            <span>ACADEMY</span>
           </h1>
           <p class="fade-up-reveal" data-delay="0.5">Cultivated with high-res optics and a zero-gravity frame for those who don't just watch the future—they wield it. Shift your reality.</p>
 
@@ -546,8 +556,7 @@
         </div>
 
         <article class="product-card">
-          <div class="product-thumb" aria-hidden="true"
-               style="background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260831_121937_3f02b5a0-5b86-43d9-b30e-03c5e46632e7.png&w=1920&q=85');"></div>
+          <div class="product-thumb" aria-hidden="true"></div>
           <div class="product-body">
             <h2 class="words-pull-up">CR-01: CYBER FRAME</h2>
             <p class="fade-up-reveal" data-delay="1.05">Precision-grade optics and a light frame for comfort and clarity.</p>
