@@ -1,175 +1,191 @@
-<style>
-.wca-home *{box-sizing:border-box;}
-.wca-home{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#16324f;line-height:1.6;overflow-x:hidden;}
-.wca-home a{text-decoration:none;}
-body.home .entry-title,body.home .ast-breadcrumbs,body.home .ast-single-post-order{display:none!important;}
-body.home .entry-content{margin-top:0!important;}
-body.home .site-content .ast-container{max-width:100%!important;padding-left:0!important;padding-right:0!important;}
-
-/* full-bleed helper */
-.wca-bleed{width:100vw;position:relative;left:50%;right:50%;margin-left:-50vw;margin-right:-50vw;}
-
-/* HERO */
-.wca-hero{min-height:78vh;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;padding:80px 22px;
-  background-image:linear-gradient(rgba(6,20,38,.42),rgba(6,20,38,.72)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/wca-hero.jpg');background-size:cover;background-position:center;}
-.wca-hero .in{max-width:820px;}
-.wca-eyebrow{text-transform:uppercase;letter-spacing:3px;font-size:.8rem;font-weight:700;color:#ffd98a;margin-bottom:16px;}
-.wca-hero h1{font-size:clamp(2.1rem,5vw,3.6rem);line-height:1.08;letter-spacing:-.5px;margin:0 0 18px;font-weight:800;text-shadow:0 2px 24px rgba(0,0,0,.3);}
-.wca-hero p{font-size:clamp(1.05rem,1.8vw,1.35rem);color:#eaf2f7;margin:0 auto 30px;max-width:60ch;}
-.wca-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
-.wca-btn{display:inline-block;background:#f2b544;color:#3a2a05;font-weight:800;padding:15px 32px;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.28);transition:transform .12s;}
-.wca-btn:hover{transform:translateY(-2px);}
-.wca-btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.55);box-shadow:none;backdrop-filter:blur(4px);}
-.wca-stats{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin-top:38px;}
-.wca-stats b{display:block;font-size:1.7rem;font-weight:800;}
-.wca-stats span{font-size:.74rem;text-transform:uppercase;letter-spacing:1.2px;color:#cfe0ea;}
-
-/* SECTIONS */
-.wca-sec{max-width:1160px;margin:0 auto;padding:72px 24px 0;}
-.wca-kicker{color:#087e6b;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;font-size:.78rem;}
-.wca-sec h2,.wca-band h2{font-size:clamp(1.6rem,2.8vw,2.15rem);letter-spacing:-.3px;margin:6px 0 10px;}
-.wca-sub{color:#5b7085;font-size:1.06rem;margin-bottom:34px;max-width:62ch;}
-
-/* GRID + cards */
-.wca-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;}
-.wca-card{position:relative;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 6px 20px rgba(10,37,64,.09);transition:transform .16s,box-shadow .16s;}
-.wca-card:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(10,37,64,.20);}
-.wca-thumb{display:block;height:180px;background-size:cover;background-position:center;transition:transform .5s ease;}
-.wca-card:hover .wca-thumb{transform:scale(1.06);}
-.wca-noimg{background:linear-gradient(135deg,#0d4d5c,#0aa88f);}
-.wca-tag{position:absolute;top:12px;left:12px;background:rgba(6,20,38,.78);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;backdrop-filter:blur(3px);}
-.wca-cbody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;}
-.wca-name{font-size:1.14rem;font-weight:700;color:#16324f;}
-.wca-go{color:#0aa88f;font-weight:700;font-size:.9rem;}
-
-/* BANDS */
-.wca-bandwrap{margin-top:72px;}
-.wca-band{max-width:1160px;margin:0 auto;padding:46px 40px;border-radius:20px;}
-.wca-band.light{background:linear-gradient(135deg,#f6f2ea,#eef5f3);}
-.wca-band.dark{background:linear-gradient(135deg,#0a2540,#0d3b54);color:#dfeaf2;}
-.wca-band.dark h2{color:#fff;}
-.wca-f{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:28px;margin-top:22px;}
-.wca-f .ico{font-size:1.9rem;}
-.wca-f h3{margin:8px 0 4px;font-size:1.12rem;}
-.wca-f p{color:#5b7085;font-size:.96rem;margin:0;}
-.wca-band.dark .wca-f p{color:#c3d5e2;}
-.wca-disc{max-width:1160px;margin:26px auto 60px;padding:0 24px;color:#8494a3;font-size:.82rem;}
-.wca-disc a{color:#0aa88f;}
-@media(max-width:600px){.wca-hero{min-height:70vh;}.wca-band{padding:34px 22px;}}
-</style>
-
-<div class="wca-home">
-  <section class="wca-bleed wca-hero">
-    <div class="in">
-      <div class="wca-eyebrow">World Cruise Academy</div>
-      <h1>See the best of every port &mdash; without the ship&rsquo;s markup.</h1>
-      <p>Honest guides to the highest-rated shore excursions at the world&rsquo;s top cruise ports. Save money, skip the crowds, and don&rsquo;t miss the highlights of your one day ashore.</p>
-      <div class="wca-btns">
-        <a class="wca-btn" href="#wca-ports">Explore 16 port guides</a>
-        <a class="wca-btn ghost" href="#wca-why">Why book independently?</a>
-      </div>
-      <div class="wca-stats">
-        <div><b>16</b><span>Top ports</span></div>
-        <div><b>30&ndash;50%</b><span>Typical savings</span></div>
-        <div><b>Free</b><span>Cancellation*</span></div>
-      </div>
+<div style="max-width:100%;">
+<section style="width:100vw;position:relative;left:50%;margin-left:-50vw;min-height:74vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:90px 22px;background-image:linear-gradient(rgba(6,20,38,.45),rgba(6,20,38,.72)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/wca-hero.jpg');background-size:cover;background-position:center;">
+  <div style="max-width:820px;">
+    <div style="text-transform:uppercase;letter-spacing:3px;font-size:.8rem;font-weight:700;color:#ffd98a;margin-bottom:14px;">World Cruise Academy</div>
+    <h1 style="font-size:clamp(2.1rem,5vw,3.5rem);line-height:1.08;letter-spacing:-.5px;margin:0 0 18px;font-weight:800;text-shadow:0 2px 20px rgba(0,0,0,.35);color:#fff;">See the best of every port &mdash; without the ship&rsquo;s markup.</h1>
+    <p style="font-size:clamp(1.05rem,1.8vw,1.3rem);color:#eaf2f7;margin:0 auto 28px;max-width:60ch;">Honest guides to the highest-rated shore excursions at the world&rsquo;s top cruise ports. Save money, skip the crowds, don&rsquo;t miss the highlights.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <a href="#ports" style="display:inline-block;background:#f2b544;color:#3a2a05;font-weight:800;padding:15px 30px;border-radius:10px;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.25);">Explore 16 port guides</a>
+      <a href="#why" style="display:inline-block;background:rgba(255,255,255,.15);color:#fff;font-weight:800;padding:15px 30px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,.6);">Why book independently?</a>
     </div>
-  </section>
-
-  <div id="wca-ports" class="wca-sec">
-    <div class="wca-kicker">Destination Guides</div>
-    <h2>Browse all 16 cruise ports</h2>
-    <p class="wca-sub">Pick your destination for the best-rated shore excursions and honest local tips.</p>
-    <div class="wca-grid">
-      <a class="wca-card" href="/cozumel-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/cozumel-cruise-excursions.jpg')"></span><span class="wca-tag">Caribbean</span>
-        <span class="wca-cbody"><span class="wca-name">Cozumel, Mexico</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/nassau-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/nassau-cruise-excursions.jpg')"></span><span class="wca-tag">Caribbean</span>
-        <span class="wca-cbody"><span class="wca-name">Nassau, Bahamas</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/grand-cayman-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/grand-cayman-cruise-excursions.jpg')"></span><span class="wca-tag">Caribbean</span>
-        <span class="wca-cbody"><span class="wca-name">Grand Cayman</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/grand-turk-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/grand-turk-cruise-excursions.jpg')"></span><span class="wca-tag">Caribbean</span>
-        <span class="wca-cbody"><span class="wca-name">Grand Turk</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/rome-civitavecchia-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/rome-civitavecchia-cruise-excursions.jpg')"></span><span class="wca-tag">Mediterranean</span>
-        <span class="wca-cbody"><span class="wca-name">Rome (Civitavecchia)</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/santorini-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/santorini-cruise-excursions.jpg')"></span><span class="wca-tag">Mediterranean</span>
-        <span class="wca-cbody"><span class="wca-name">Santorini, Greece</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/barcelona-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/barcelona-cruise-excursions.jpg')"></span><span class="wca-tag">Mediterranean</span>
-        <span class="wca-cbody"><span class="wca-name">Barcelona, Spain</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/kotor-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/kotor-cruise-excursions.jpg')"></span><span class="wca-tag">Mediterranean</span>
-        <span class="wca-cbody"><span class="wca-name">Kotor, Montenegro</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/mykonos-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/mykonos-cruise-excursions.jpg')"></span><span class="wca-tag">Mediterranean</span>
-        <span class="wca-cbody"><span class="wca-name">Mykonos, Greece</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/juneau-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/juneau-cruise-excursions.jpg')"></span><span class="wca-tag">Alaska</span>
-        <span class="wca-cbody"><span class="wca-name">Juneau, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/ketchikan-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/ketchikan-cruise-excursions.jpg')"></span><span class="wca-tag">Alaska</span>
-        <span class="wca-cbody"><span class="wca-name">Ketchikan, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/skagway-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/skagway-cruise-excursions.jpg')"></span><span class="wca-tag">Alaska</span>
-        <span class="wca-cbody"><span class="wca-name">Skagway, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/sitka-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/sitka-cruise-excursions.jpg')"></span><span class="wca-tag">Alaska</span>
-        <span class="wca-cbody"><span class="wca-name">Sitka, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/cabo-san-lucas-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/cabo-san-lucas-cruise-excursions.jpg')"></span><span class="wca-tag">Pacific &amp; Mexico</span>
-        <span class="wca-cbody"><span class="wca-name">Cabo San Lucas</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/honolulu-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/honolulu-cruise-excursions.jpg')"></span><span class="wca-tag">Pacific &amp; Mexico</span>
-        <span class="wca-cbody"><span class="wca-name">Honolulu, Hawaii</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
-      <a class="wca-card" href="/ensenada-cruise-excursions/">
-        <span class="wca-thumb" style="background-image:linear-gradient(180deg,rgba(10,37,64,0) 55%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/ensenada-cruise-excursions.jpg')"></span><span class="wca-tag">Pacific &amp; Mexico</span>
-        <span class="wca-cbody"><span class="wca-name">Ensenada, Mexico</span><span class="wca-go">View guide &rarr;</span></span>
-      </a>
+    <div style="display:flex;gap:36px;justify-content:center;flex-wrap:wrap;margin-top:36px;color:#fff;">
+      <div><div style="font-size:1.7rem;font-weight:800;">16</div><div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#cfe0ea;">Top ports</div></div>
+      <div><div style="font-size:1.7rem;font-weight:800;">30&ndash;50%</div><div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#cfe0ea;">Typical savings</div></div>
+      <div><div style="font-size:1.7rem;font-weight:800;">Free</div><div style="font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#cfe0ea;">Cancellation*</div></div>
     </div>
   </div>
+</section>
 
-  <div class="wca-bandwrap">
-    <div id="wca-why" class="wca-band light">
-      <div class="wca-kicker">The Smart Way to Port</div>
-      <h2>Why book your excursions ahead</h2>
-      <div class="wca-f">
-        <div><div class="ico">&#128176;</div><h3>Save 30&ndash;50%</h3><p>The same tour is routinely far cheaper booked independently than at the ship&rsquo;s excursion desk.</p></div>
-        <div><div class="ico">&#11088;</div><h3>Only the best-rated</h3><p>We point you to experiences with thousands of high reviews &mdash; no tourist traps.</p></div>
-        <div><div class="ico">&#128337;</div><h3>Back on time</h3><p>Reputable operators know cruise schedules and get you back to the ship with time to spare.</p></div>
-      </div>
-    </div>
+<div id="ports" style="max-width:1160px;margin:0 auto;padding:70px 24px 0;">
+  <div style="color:#087e6b;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;font-size:.78rem;">Destination Guides</div>
+  <h2 style="font-size:clamp(1.6rem,2.8vw,2.1rem);margin:6px 0 10px;color:#16324f;">Browse all 16 cruise ports</h2>
+  <p style="color:#5b7085;font-size:1.05rem;margin-bottom:32px;">Pick your destination for the best-rated shore excursions and honest local tips.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;">
+<a href="/cozumel-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/cozumel-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Caribbean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Cozumel, Mexico</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/nassau-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/nassau-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Caribbean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Nassau, Bahamas</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/grand-cayman-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/grand-cayman-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Caribbean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Grand Cayman</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/grand-turk-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/grand-turk-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Caribbean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Grand Turk</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/rome-civitavecchia-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/rome-civitavecchia-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Mediterranean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Rome (Civitavecchia)</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/santorini-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/santorini-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Mediterranean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Santorini, Greece</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/barcelona-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/barcelona-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Mediterranean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Barcelona, Spain</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/kotor-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/kotor-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Mediterranean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Kotor, Montenegro</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/mykonos-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/mykonos-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Mediterranean</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Mykonos, Greece</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/juneau-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/juneau-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Alaska</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Juneau, Alaska</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/ketchikan-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/ketchikan-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Alaska</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Ketchikan, Alaska</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/skagway-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/skagway-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Alaska</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Skagway, Alaska</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/sitka-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/sitka-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Alaska</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Sitka, Alaska</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/cabo-san-lucas-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/cabo-san-lucas-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Pacific &amp; Mexico</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Cabo San Lucas</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/honolulu-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/honolulu-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Pacific &amp; Mexico</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Honolulu, Hawaii</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
+<a href="/ensenada-cruise-excursions/" style="box-shadow:0 6px 20px rgba(10,37,64,.10);border-radius:16px;overflow:hidden;background:#fff;display:block;text-decoration:none;">
+  <span style="display:block;height:190px;position:relative;background-image:linear-gradient(180deg,rgba(10,37,64,0) 60%,rgba(10,37,64,.35)),url('https://cruises.worldcruiseacademy.co.id/wp-content/uploads/2026/09/ensenada-cruise-excursions.jpg');background-size:cover;background-position:center;">
+    <span style="position:absolute;top:12px;left:12px;background:rgba(6,20,38,.8);color:#fff;font-size:.66rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:30px;">Pacific &amp; Mexico</span>
+  </span>
+  <span style="display:block;padding:16px 18px 18px;">
+    <span style="display:block;font-size:1.15rem;font-weight:700;color:#16324f;">Ensenada, Mexico</span>
+    <span style="display:block;color:#0aa88f;font-weight:700;font-size:.9rem;margin-top:6px;">View guide &rarr;</span>
+  </span>
+</a>
   </div>
+</div>
 
-  <div class="wca-bandwrap">
-    <div class="wca-band dark">
-      <div class="wca-kicker" style="color:#f2b544;">Before You Sail</div>
-      <h2>Two things smart cruisers sort out early</h2>
-      <div class="wca-f">
-        <div><div class="ico">&#128737;</div><h3>Cruise travel insurance</h3><p>Missed ports, medical care at sea and cancellations are exactly what it covers &mdash; for a fraction of one missed sailing.</p><a class="wca-btn" style="margin-top:14px;padding:11px 22px;" href="REPLACE_WITH_INSURANCE_LINK">Compare insurance</a></div>
-        <div><div class="ico">&#128667;</div><h3>Airport &amp; port transfers</h3><p>Skip the embarkation-day taxi scramble with a fixed-price ride and a driver waiting for you.</p><a class="wca-btn" style="margin-top:14px;padding:11px 22px;" href="REPLACE_WITH_TRANSFER_LINK">Book a transfer</a></div>
-      </div>
-    </div>
+<div style="max-width:1160px;margin:70px auto 0;padding:44px 40px;border-radius:20px;background:linear-gradient(135deg,#f6f2ea,#eef5f3);" id="why">
+  <div style="color:#087e6b;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;font-size:.78rem;">The Smart Way to Port</div>
+  <h2 style="font-size:clamp(1.6rem,2.8vw,2.1rem);margin:6px 0 4px;color:#16324f;">Why book your excursions ahead</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px;margin-top:22px;">
+    <div><div style="font-size:1.9rem;">&#128176;</div><h3 style="margin:8px 0 4px;font-size:1.1rem;color:#16324f;">Save 30&ndash;50%</h3><p style="color:#5b7085;font-size:.96rem;margin:0;">The same tour is routinely far cheaper booked independently than at the ship&rsquo;s excursion desk.</p></div>
+    <div><div style="font-size:1.9rem;">&#11088;</div><h3 style="margin:8px 0 4px;font-size:1.1rem;color:#16324f;">Only the best-rated</h3><p style="color:#5b7085;font-size:.96rem;margin:0;">We point you to experiences with thousands of high reviews &mdash; no tourist traps.</p></div>
+    <div><div style="font-size:1.9rem;">&#128337;</div><h3 style="margin:8px 0 4px;font-size:1.1rem;color:#16324f;">Back on time</h3><p style="color:#5b7085;font-size:.96rem;margin:0;">Reputable operators know cruise schedules and get you back to the ship with time to spare.</p></div>
   </div>
+</div>
 
-  <p class="wca-disc">*Free cancellation available on most tours. This site contains affiliate links; if you book through them we may earn a commission at no extra cost to you. <a href="/photo-credits/">Photo credits</a>.</p>
+<div style="max-width:1160px;margin:34px auto 0;padding:44px 40px;border-radius:20px;background:linear-gradient(135deg,#0a2540,#0d3b54);color:#dfeaf2;">
+  <div style="color:#f2b544;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;font-size:.78rem;">Before You Sail</div>
+  <h2 style="font-size:clamp(1.6rem,2.8vw,2.1rem);margin:6px 0 4px;color:#fff;">Two things smart cruisers sort out early</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;margin-top:22px;">
+    <div><div style="font-size:1.9rem;">&#128737;</div><h3 style="margin:8px 0 4px;font-size:1.12rem;color:#fff;">Cruise travel insurance</h3><p style="color:#c3d5e2;font-size:.96rem;margin:0 0 12px;">Missed ports, medical care at sea and cancellations are exactly what it covers &mdash; for a fraction of one missed sailing.</p><a href="REPLACE_WITH_INSURANCE_LINK" style="display:inline-block;background:#f2b544;color:#3a2a05;font-weight:800;padding:15px 30px;border-radius:10px;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.25);padding:11px 22px;">Compare insurance</a></div>
+    <div><div style="font-size:1.9rem;">&#128667;</div><h3 style="margin:8px 0 4px;font-size:1.12rem;color:#fff;">Airport &amp; port transfers</h3><p style="color:#c3d5e2;font-size:.96rem;margin:0 0 12px;">Skip the embarkation-day taxi scramble with a fixed-price ride and a driver waiting for you.</p><a href="REPLACE_WITH_TRANSFER_LINK" style="display:inline-block;background:#f2b544;color:#3a2a05;font-weight:800;padding:15px 30px;border-radius:10px;text-decoration:none;box-shadow:0 10px 26px rgba(0,0,0,.25);padding:11px 22px;">Book a transfer</a></div>
+  </div>
+</div>
+
+<p style="max-width:1160px;margin:26px auto 50px;padding:0 24px;color:#8494a3;font-size:.82rem;">*Free cancellation available on most tours. This site contains affiliate links; if you book through them we may earn a commission at no extra cost to you. <a href="/photo-credits/" style="color:#0aa88f;">Photo credits</a>.</p>
 </div>
