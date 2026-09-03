@@ -47,7 +47,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #0a1220;
+      background: #C45A18;
       color: var(--cream);
       overflow-x: hidden;
     }
@@ -79,10 +79,9 @@
       height: 100vh;
       height: 100dvh;
       overflow: hidden;
-      /* Clean backdrop behind the text on wide screens: dusk sky fading to deep sea */
+      /* Warm orange backdrop, same feel as the original robot page */
       background:
-        radial-gradient(60% 80% at 100% 45%, rgba(224, 112, 32, 0.22) 0%, rgba(224, 112, 32, 0) 70%),
-        linear-gradient(180deg, #2b1a2a 0%, #16182b 45%, #0a1220 100%);
+        radial-gradient(75% 95% at 80% 50%, #E8782A 0%, #C45A18 55%, #A84A10 100%);
     }
 
     /* Sharp picture fitted to the screen height and parked on the right,
@@ -138,6 +137,7 @@
 
     /* Soft dark gradient so the text stays readable over the bright image */
     .hero-scrim {
+      display: none;             /* shown on phones only, see media queries */
       position: absolute;
       inset: 0;
       z-index: 3;
@@ -257,6 +257,7 @@
       .hero-ui { padding: 28px 22px 28px; }
       .hero-copy h1 { font-size: clamp(1.35rem, 7.2vw, 2.4rem); }
       :root { --edge-fade: linear-gradient(#000, #000); }
+      .hero-scrim { display: block; }
       .hero-base-img,
       .hero-reveal-img {
         background-size: cover;
