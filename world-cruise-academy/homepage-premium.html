@@ -1,0 +1,165 @@
+<!-- ============================================================
+     WORLD CRUISE ACADEMY — Premium homepage block
+     PASTE THIS into a single "Custom HTML" block on the Home page.
+     Best with: Astra page settings -> Content Layout: "Full Width /
+     Stretched" and "Disable Title" ticked (see notes I sent).
+     ============================================================ -->
+<style>
+.wca-home *{box-sizing:border-box;}
+.wca-home{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#16324f;line-height:1.6;}
+.wca-home a{text-decoration:none;}
+
+/* HERO */
+.wca-hero{position:relative;overflow:hidden;border-radius:22px;padding:64px 40px 150px;background:linear-gradient(150deg,#0a2540 0%,#0d4d5c 55%,#0aa88f 130%);color:#fff;}
+.wca-hero h1{font-size:clamp(2rem,4.4vw,3.3rem);line-height:1.1;letter-spacing:-.5px;max-width:15ch;margin:0 0 18px;font-weight:800;}
+.wca-hero p{font-size:clamp(1.05rem,1.7vw,1.3rem);color:#dcecf3;max-width:44ch;margin:0 0 28px;}
+.wca-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.wca-btn{display:inline-block;background:#f2b544;color:#3a2a05;font-weight:800;padding:15px 30px;border-radius:10px;box-shadow:0 10px 24px rgba(242,181,68,.35);transition:transform .12s;}
+.wca-btn:hover{transform:translateY(-2px);}
+.wca-btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.4);box-shadow:none;}
+.wca-stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:36px;position:relative;z-index:3;}
+.wca-stat{background:rgba(255,255,255,.12);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:14px 20px;}
+.wca-stat b{display:block;font-size:1.5rem;font-weight:800;}
+.wca-stat span{font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:#bcdae6;}
+.wca-ship{position:absolute;right:6%;top:20%;width:190px;max-width:38vw;opacity:.9;z-index:1;}
+.wca-waves{position:absolute;left:0;right:0;bottom:-2px;width:100%;z-index:2;}
+
+/* SECTION */
+.wca-sec{max-width:1120px;margin:56px auto 0;padding:0 8px;}
+.wca-kicker{color:#087e6b;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;font-size:.78rem;}
+.wca-sec h2{font-size:clamp(1.5rem,2.6vw,2rem);letter-spacing:-.3px;margin:6px 0 8px;}
+.wca-sec .sub{color:#5b7085;font-size:1.05rem;margin-bottom:28px;max-width:60ch;}
+
+/* GRID */
+.wca-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px;}
+.wca-card{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#fff;border:1px solid #e7ecf1;box-shadow:0 4px 14px rgba(10,37,64,.05);transition:transform .16s,box-shadow .16s;}
+.wca-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(10,37,64,.16);}
+.wca-scene{position:relative;display:block;height:130px;overflow:hidden;}
+.wca-scene svg{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.wca-tag{position:absolute;top:11px;left:11px;background:rgba(10,37,64,.82);color:#fff;font-size:.64rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-radius:30px;}
+.wca-cbody{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;}
+.wca-name{font-size:1.12rem;font-weight:700;color:#16324f;}
+.wca-go{color:#0aa88f;font-weight:700;font-size:.9rem;}
+
+/* FEATURE BAND */
+.wca-band{margin:60px auto 0;max-width:1120px;background:linear-gradient(135deg,#f6f2ea,#eef5f3);border-radius:20px;padding:44px;}
+.wca-band .f3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px;margin-top:24px;}
+.wca-band .ico{font-size:1.9rem;}
+.wca-band h3{margin:8px 0 4px;font-size:1.1rem;}
+.wca-band p{color:#5b7085;font-size:.96rem;margin:0;}
+.wca-disc{max-width:1120px;margin:24px auto 0;padding:0 8px;color:#8494a3;font-size:.82rem;}
+@media(max-width:600px){.wca-hero{padding:44px 22px 120px;}.wca-ship{opacity:.5;}}
+</style>
+
+<div class="wca-home">
+  <section class="wca-hero">
+    <h1>See the best of every port &mdash; without the ship&rsquo;s markup.</h1>
+    <p>Honest guides to the highest-rated shore excursions at the world&rsquo;s top cruise ports. Save money, skip the crowds, don&rsquo;t miss the highlights.</p>
+    <div class="wca-btns">
+      <a class="wca-btn" href="#wca-ports">Explore 16 port guides</a>
+      <a class="wca-btn ghost" href="#wca-why">Why book independently?</a>
+    </div>
+    <div class="wca-stats">
+      <div class="wca-stat"><b>16</b><span>Top ports</span></div>
+      <div class="wca-stat"><b>30&ndash;50%</b><span>Typical savings</span></div>
+      <div class="wca-stat"><b>Free</b><span>Cancellation*</span></div>
+    </div>
+    <!-- cruise ship silhouette -->
+    <svg class="wca-ship" viewBox="0 0 200 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="70" y="20" width="70" height="30" rx="3" fill="#ffffff" opacity=".9"/>
+      <rect x="80" y="8" width="46" height="16" rx="2" fill="#ffffff" opacity=".8"/>
+      <g fill="#0a2540" opacity=".55"><rect x="78" y="26" width="8" height="8"/><rect x="92" y="26" width="8" height="8"/><rect x="106" y="26" width="8" height="8"/><rect x="120" y="26" width="8" height="8"/></g>
+      <path d="M50 52 H165 L150 78 H62 Z" fill="#ffffff"/>
+      <circle cx="150" cy="12" r="6" fill="#f2b544"/>
+    </svg>
+    <!-- waves -->
+    <svg class="wca-waves" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 60 C240 110 480 10 720 50 C960 90 1200 20 1440 60 V120 H0 Z" fill="#ffffff" opacity=".18"/>
+      <path d="M0 80 C240 120 480 40 720 74 C960 108 1200 48 1440 82 V120 H0 Z" fill="#ffffff"/>
+    </svg>
+  </section>
+
+  <div id="wca-ports" class="wca-sec">
+    <div class="wca-kicker">Destination Guides</div>
+    <h2>Browse all 16 cruise ports</h2>
+    <p class="sub">Pick your destination for the best-rated shore excursions and honest local tips &mdash; grouped by region.</p>
+    <div class="wca-grid">
+      <a class="wca-card" href="/cozumel-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="cb0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#1fb6c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#cb0)"/><circle cx="325" cy="42" r="22" fill="#fff6d8" opacity=".92"/><path d="M0 120 Q100 108 200 120 T400 120 V170 H0 Z" fill="#12a8b8"/><path d="M0 136 Q120 126 240 136 T400 134 V170 H0 Z" fill="#0a8fa0"/><rect x="0" y="152" width="400" height="18" fill="#f4e4b8"/><g fill="#0a5c50"><path d="M60 152c-4-22-2-38 4-52-15 7-24 18-26 29 9-9 18-9 22 23z"/><path d="M64 100c15-7 28-4 37 4-15-2-26 2-32 11 2-9-3-13-5-15z"/></g></svg><span class="wca-tag">Caribbean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Cozumel, Mexico</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/nassau-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="cb1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#1fb6c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#cb1)"/><circle cx="325" cy="42" r="22" fill="#fff6d8" opacity=".92"/><path d="M0 120 Q100 108 200 120 T400 120 V170 H0 Z" fill="#12a8b8"/><path d="M0 136 Q120 126 240 136 T400 134 V170 H0 Z" fill="#0a8fa0"/><rect x="0" y="152" width="400" height="18" fill="#f4e4b8"/><g fill="#0a5c50"><path d="M60 152c-4-22-2-38 4-52-15 7-24 18-26 29 9-9 18-9 22 23z"/><path d="M64 100c15-7 28-4 37 4-15-2-26 2-32 11 2-9-3-13-5-15z"/></g></svg><span class="wca-tag">Caribbean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Nassau, Bahamas</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/grand-cayman-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="cb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#1fb6c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#cb2)"/><circle cx="325" cy="42" r="22" fill="#fff6d8" opacity=".92"/><path d="M0 120 Q100 108 200 120 T400 120 V170 H0 Z" fill="#12a8b8"/><path d="M0 136 Q120 126 240 136 T400 134 V170 H0 Z" fill="#0a8fa0"/><rect x="0" y="152" width="400" height="18" fill="#f4e4b8"/><g fill="#0a5c50"><path d="M60 152c-4-22-2-38 4-52-15 7-24 18-26 29 9-9 18-9 22 23z"/><path d="M64 100c15-7 28-4 37 4-15-2-26 2-32 11 2-9-3-13-5-15z"/></g></svg><span class="wca-tag">Caribbean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Grand Cayman</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/grand-turk-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="cb3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#1fb6c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#cb3)"/><circle cx="325" cy="42" r="22" fill="#fff6d8" opacity=".92"/><path d="M0 120 Q100 108 200 120 T400 120 V170 H0 Z" fill="#12a8b8"/><path d="M0 136 Q120 126 240 136 T400 134 V170 H0 Z" fill="#0a8fa0"/><rect x="0" y="152" width="400" height="18" fill="#f4e4b8"/><g fill="#0a5c50"><path d="M60 152c-4-22-2-38 4-52-15 7-24 18-26 29 9-9 18-9 22 23z"/><path d="M64 100c15-7 28-4 37 4-15-2-26 2-32 11 2-9-3-13-5-15z"/></g></svg><span class="wca-tag">Caribbean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Grand Turk</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/rome-civitavecchia-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="md4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2a72c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#md4)"/><g fill="#fff"><rect x="40" y="78" width="36" height="52"/><rect x="82" y="64" width="42" height="66"/><rect x="130" y="86" width="32" height="44"/><rect x="250" y="72" width="40" height="58"/><rect x="296" y="82" width="32" height="48"/><rect x="334" y="66" width="38" height="64"/></g><g fill="#2f6fb0"><circle cx="103" cy="58" r="13"/><circle cx="270" cy="66" r="12"/></g><rect x="0" y="130" width="400" height="40" fill="#1e6fc0"/><path d="M0 130 Q200 120 400 130 V170 H0 Z" fill="#155aa0"/></svg><span class="wca-tag">Mediterranean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Rome (Civitavecchia)</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/santorini-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="md5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2a72c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#md5)"/><g fill="#fff"><rect x="40" y="78" width="36" height="52"/><rect x="82" y="64" width="42" height="66"/><rect x="130" y="86" width="32" height="44"/><rect x="250" y="72" width="40" height="58"/><rect x="296" y="82" width="32" height="48"/><rect x="334" y="66" width="38" height="64"/></g><g fill="#2f6fb0"><circle cx="103" cy="58" r="13"/><circle cx="270" cy="66" r="12"/></g><rect x="0" y="130" width="400" height="40" fill="#1e6fc0"/><path d="M0 130 Q200 120 400 130 V170 H0 Z" fill="#155aa0"/></svg><span class="wca-tag">Mediterranean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Santorini, Greece</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/barcelona-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="md6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2a72c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#md6)"/><g fill="#fff"><rect x="40" y="78" width="36" height="52"/><rect x="82" y="64" width="42" height="66"/><rect x="130" y="86" width="32" height="44"/><rect x="250" y="72" width="40" height="58"/><rect x="296" y="82" width="32" height="48"/><rect x="334" y="66" width="38" height="64"/></g><g fill="#2f6fb0"><circle cx="103" cy="58" r="13"/><circle cx="270" cy="66" r="12"/></g><rect x="0" y="130" width="400" height="40" fill="#1e6fc0"/><path d="M0 130 Q200 120 400 130 V170 H0 Z" fill="#155aa0"/></svg><span class="wca-tag">Mediterranean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Barcelona, Spain</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/kotor-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="md7" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2a72c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#md7)"/><g fill="#fff"><rect x="40" y="78" width="36" height="52"/><rect x="82" y="64" width="42" height="66"/><rect x="130" y="86" width="32" height="44"/><rect x="250" y="72" width="40" height="58"/><rect x="296" y="82" width="32" height="48"/><rect x="334" y="66" width="38" height="64"/></g><g fill="#2f6fb0"><circle cx="103" cy="58" r="13"/><circle cx="270" cy="66" r="12"/></g><rect x="0" y="130" width="400" height="40" fill="#1e6fc0"/><path d="M0 130 Q200 120 400 130 V170 H0 Z" fill="#155aa0"/></svg><span class="wca-tag">Mediterranean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Kotor, Montenegro</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/mykonos-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="md8" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2a72c9"/></linearGradient></defs><rect width="400" height="170" fill="url(#md8)"/><g fill="#fff"><rect x="40" y="78" width="36" height="52"/><rect x="82" y="64" width="42" height="66"/><rect x="130" y="86" width="32" height="44"/><rect x="250" y="72" width="40" height="58"/><rect x="296" y="82" width="32" height="48"/><rect x="334" y="66" width="38" height="64"/></g><g fill="#2f6fb0"><circle cx="103" cy="58" r="13"/><circle cx="270" cy="66" r="12"/></g><rect x="0" y="130" width="400" height="40" fill="#1e6fc0"/><path d="M0 130 Q200 120 400 130 V170 H0 Z" fill="#155aa0"/></svg><span class="wca-tag">Mediterranean</span></span>
+        <span class="wca-cbody"><span class="wca-name">Mykonos, Greece</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/juneau-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="ak9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6ebf5"/><stop offset="1" stop-color="#8fb6cc"/></linearGradient></defs><rect width="400" height="170" fill="url(#ak9)"/><path d="M-10 132 L70 48 L132 112 L205 38 L288 116 L355 62 L410 132 Z" fill="#f6fafc"/><path d="M70 48 L94 74 L60 92 Z M205 38 L232 70 L186 86 Z" fill="#cddbe6"/><rect x="0" y="130" width="400" height="40" fill="#3f6d86"/><path d="M0 130 Q200 142 400 130 V170 H0 Z" fill="#2d556b"/></svg><span class="wca-tag">Alaska</span></span>
+        <span class="wca-cbody"><span class="wca-name">Juneau, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/ketchikan-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="ak10" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6ebf5"/><stop offset="1" stop-color="#8fb6cc"/></linearGradient></defs><rect width="400" height="170" fill="url(#ak10)"/><path d="M-10 132 L70 48 L132 112 L205 38 L288 116 L355 62 L410 132 Z" fill="#f6fafc"/><path d="M70 48 L94 74 L60 92 Z M205 38 L232 70 L186 86 Z" fill="#cddbe6"/><rect x="0" y="130" width="400" height="40" fill="#3f6d86"/><path d="M0 130 Q200 142 400 130 V170 H0 Z" fill="#2d556b"/></svg><span class="wca-tag">Alaska</span></span>
+        <span class="wca-cbody"><span class="wca-name">Ketchikan, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/skagway-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="ak11" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6ebf5"/><stop offset="1" stop-color="#8fb6cc"/></linearGradient></defs><rect width="400" height="170" fill="url(#ak11)"/><path d="M-10 132 L70 48 L132 112 L205 38 L288 116 L355 62 L410 132 Z" fill="#f6fafc"/><path d="M70 48 L94 74 L60 92 Z M205 38 L232 70 L186 86 Z" fill="#cddbe6"/><rect x="0" y="130" width="400" height="40" fill="#3f6d86"/><path d="M0 130 Q200 142 400 130 V170 H0 Z" fill="#2d556b"/></svg><span class="wca-tag">Alaska</span></span>
+        <span class="wca-cbody"><span class="wca-name">Skagway, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/sitka-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="ak12" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6ebf5"/><stop offset="1" stop-color="#8fb6cc"/></linearGradient></defs><rect width="400" height="170" fill="url(#ak12)"/><path d="M-10 132 L70 48 L132 112 L205 38 L288 116 L355 62 L410 132 Z" fill="#f6fafc"/><path d="M70 48 L94 74 L60 92 Z M205 38 L232 70 L186 86 Z" fill="#cddbe6"/><rect x="0" y="130" width="400" height="40" fill="#3f6d86"/><path d="M0 130 Q200 142 400 130 V170 H0 Z" fill="#2d556b"/></svg><span class="wca-tag">Alaska</span></span>
+        <span class="wca-cbody"><span class="wca-name">Sitka, Alaska</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/cabo-san-lucas-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pc13" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a"/><stop offset=".55" stop-color="#ff9e7a"/><stop offset="1" stop-color="#f5768c"/></linearGradient></defs><rect width="400" height="170" fill="url(#pc13)"/><circle cx="200" cy="76" r="32" fill="#fff2c9" opacity=".95"/><path d="M0 122 Q100 110 200 122 T400 122 V170 H0 Z" fill="#e86a6f"/><path d="M0 136 Q120 128 240 136 T400 134 V170 H0 Z" fill="#c9505e"/><g fill="#6b2f3a"><path d="M342 170c-6-28-4-46 4-60-16 9-27 21-29 34 10-10 19-8 23 26z"/></g></svg><span class="wca-tag">Pacific &amp; Mexico</span></span>
+        <span class="wca-cbody"><span class="wca-name">Cabo San Lucas</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/honolulu-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pc14" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a"/><stop offset=".55" stop-color="#ff9e7a"/><stop offset="1" stop-color="#f5768c"/></linearGradient></defs><rect width="400" height="170" fill="url(#pc14)"/><circle cx="200" cy="76" r="32" fill="#fff2c9" opacity=".95"/><path d="M0 122 Q100 110 200 122 T400 122 V170 H0 Z" fill="#e86a6f"/><path d="M0 136 Q120 128 240 136 T400 134 V170 H0 Z" fill="#c9505e"/><g fill="#6b2f3a"><path d="M342 170c-6-28-4-46 4-60-16 9-27 21-29 34 10-10 19-8 23 26z"/></g></svg><span class="wca-tag">Pacific &amp; Mexico</span></span>
+        <span class="wca-cbody"><span class="wca-name">Honolulu, Hawaii</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+      <a class="wca-card" href="/ensenada-cruise-excursions/">
+        <span class="wca-scene"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="pc15" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a"/><stop offset=".55" stop-color="#ff9e7a"/><stop offset="1" stop-color="#f5768c"/></linearGradient></defs><rect width="400" height="170" fill="url(#pc15)"/><circle cx="200" cy="76" r="32" fill="#fff2c9" opacity=".95"/><path d="M0 122 Q100 110 200 122 T400 122 V170 H0 Z" fill="#e86a6f"/><path d="M0 136 Q120 128 240 136 T400 134 V170 H0 Z" fill="#c9505e"/><g fill="#6b2f3a"><path d="M342 170c-6-28-4-46 4-60-16 9-27 21-29 34 10-10 19-8 23 26z"/></g></svg><span class="wca-tag">Pacific &amp; Mexico</span></span>
+        <span class="wca-cbody"><span class="wca-name">Ensenada, Mexico</span><span class="wca-go">View guide &rarr;</span></span>
+      </a>
+    </div>
+  </div>
+
+  <div id="wca-why" class="wca-band">
+    <div class="wca-kicker">The Smart Way to Port</div>
+    <h2>Why book your excursions ahead</h2>
+    <div class="f3">
+      <div><div class="ico">&#128176;</div><h3>Save 30&ndash;50%</h3><p>The same tour is routinely far cheaper booked independently than at the ship&rsquo;s excursion desk.</p></div>
+      <div><div class="ico">&#11088;</div><h3>Only the best-rated</h3><p>We point you to experiences with thousands of high reviews &mdash; no tourist traps.</p></div>
+      <div><div class="ico">&#128337;</div><h3>Back on time</h3><p>Reputable operators know cruise schedules and get you back to the ship with time to spare.</p></div>
+    </div>
+  </div>
+
+  <p class="wca-disc">*Free cancellation available on most tours. This site contains affiliate links; if you book through them we may earn a commission at no extra cost to you.</p>
+</div>
