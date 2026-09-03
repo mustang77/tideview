@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cruise Academy — Best Shore Excursions at Every Cruise Port</title>
+  <meta name="description" content="Independent guides to the best-rated shore excursions and tours at the world's top cruise ports. Skip the overpriced onboard tours and book the highlights yourself." />
+  <style>
+    :root {
+      --navy: #0a2540;
+      --teal: #0aa88f;
+      --teal-dark: #087e6b;
+      --sand: #f5f1e8;
+      --ink: #16324f;
+      --muted: #5b7085;
+      --line: #e3e8ee;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      line-height: 1.6;
+      background: #fff;
+    }
+    a { color: var(--teal-dark); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    header {
+      background: var(--navy);
+      color: #fff;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; max-width: 1080px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; letter-spacing: .3px; }
+    .brand .dot { color: var(--teal); }
+    .nav-links a { color: #cfe0ee; text-decoration: none; margin-left: 20px; font-size: .95rem; }
+    .nav-links a:hover { color: #fff; }
+    @media (max-width: 640px){ .nav-links { display: none; } }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #0a2540 0%, #0d4d5c 60%, #0aa88f 130%);
+      color: #fff; padding: 72px 0 84px;
+    }
+    .hero h1 { font-size: 2.5rem; line-height: 1.15; max-width: 720px; }
+    .hero p { font-size: 1.2rem; color: #d6e6ef; max-width: 620px; margin-top: 18px; }
+    .cta {
+      display: inline-block; margin-top: 28px; background: var(--teal);
+      color: #fff; text-decoration: none; font-weight: 700;
+      padding: 14px 28px; border-radius: 8px; transition: background .15s;
+    }
+    .cta:hover { background: var(--teal-dark); color:#fff; }
+    @media (max-width: 640px){ .hero h1 { font-size: 1.9rem; } }
+
+    /* Disclosure bar */
+    .disclosure {
+      background: var(--sand); color: var(--muted);
+      font-size: .85rem; text-align: center; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    }
+
+    /* Sections */
+    section { padding: 60px 0; }
+    section h2 { font-size: 1.8rem; margin-bottom: 10px; }
+    .lede { color: var(--muted); max-width: 680px; margin-bottom: 36px; }
+
+    /* Port cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+    .card {
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      display: flex; flex-direction: column; background: #fff; transition: transform .12s, box-shadow .12s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(10,37,64,.12); }
+    .card .band { height: 8px; background: linear-gradient(90deg, var(--teal), #4fd1c5); }
+    .card .body { padding: 20px 20px 22px; display: flex; flex-direction: column; flex: 1; }
+    .card h3 { font-size: 1.2rem; margin-bottom: 4px; }
+    .card .region { font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--teal-dark); font-weight: 700; }
+    .card p { color: var(--muted); font-size: .95rem; margin: 10px 0 18px; }
+    .card ul { list-style: none; margin-bottom: 18px; }
+    .card ul li { font-size: .92rem; padding: 5px 0 5px 22px; position: relative; }
+    .card ul li::before { content: "⚓"; position: absolute; left: 0; font-size: .8rem; }
+    .book {
+      margin-top: auto; text-align: center; background: var(--teal); color: #fff;
+      text-decoration: none; font-weight: 700; padding: 11px 16px; border-radius: 7px; transition: background .15s;
+    }
+    .book:hover { background: var(--teal-dark); }
+
+    /* Why section */
+    .why { background: var(--sand); }
+    .why .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 26px; margin-top: 30px; }
+    .why .item h3 { font-size: 1.1rem; margin-bottom: 6px; }
+    .why .item .ico { font-size: 1.8rem; }
+    .why .item p { color: var(--muted); font-size: .95rem; }
+
+    /* Footer */
+    footer { background: var(--navy); color: #b9cbdb; padding: 44px 0; font-size: .9rem; }
+    footer .fgrid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+    footer a { color: #cfe0ee; }
+    footer .small { font-size: .8rem; color: #7d97ac; margin-top: 22px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+  <!-- FTC affiliate disclosure (legally required, keep it) -->
+  <div class="disclosure">
+    World Cruise Academy is reader-supported. Some links are affiliate links — if you book through them we may earn a commission at no extra cost to you.
+  </div>
+
+  <header>
+    <div class="nav">
+      <div class="brand">🌊 World Cruise <span class="dot">Academy</span></div>
+      <nav class="nav-links">
+        <a href="#ports">Port Guides</a>
+        <a href="#why">Why Book Ahead</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap">
+      <h1>Book the best shore excursions — before the ship sells them to you at double the price.</h1>
+      <p>Independent, honest guides to the highest-rated tours at the world's top cruise ports. Save money, skip the crowds, see the real highlights.</p>
+      <a class="cta" href="#ports">Explore Port Guides →</a>
+    </div>
+  </div>
+
+  <section id="ports">
+    <div class="wrap">
+      <h2>Top Cruise Ports & Their Best Excursions</h2>
+      <p class="lede">Each port below links to hand-picked, top-reviewed tours you can book directly. No onboard markup, free cancellation on most, and skip-the-line options where they matter.</p>
+
+      <div class="grid">
+
+        <!-- ============================================================
+             PORT CARD TEMPLATE
+             👉 Replace each  href="REPLACE_WITH_VIATOR_LINK"  with a real
+                Viator affiliate link (your partner ID P00318076 is baked
+                into links you generate in the Viator dashboard).
+             👉 Add "?campaign=port-name" style SubIDs to track which port earns.
+             ============================================================ -->
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Caribbean</span>
+            <h3>Cozumel, Mexico</h3>
+            <p>Crystal reefs, Mayan ruins and beach clubs — Cozumel is one of the most-visited cruise ports on earth.</p>
+            <ul>
+              <li>Snorkeling at Palancar Reef</li>
+              <li>Tulum ruins day trip</li>
+              <li>Jeep &amp; beach break combo</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Cozumel tours →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Mediterranean</span>
+            <h3>Rome (Civitavecchia), Italy</h3>
+            <p>The port is 90 min from Rome — a guided transfer tour is the only way to see the city and get back on time.</p>
+            <ul>
+              <li>Rome in a day from the port</li>
+              <li>Skip-the-line Vatican &amp; Colosseum</li>
+              <li>Small-group Rome highlights</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Rome tours →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Alaska</span>
+            <h3>Juneau, Alaska</h3>
+            <p>Glaciers, whales and helicopters — Juneau's excursions sell out fast in summer, so book early.</p>
+            <ul>
+              <li>Whale watching &amp; Mendenhall Glacier</li>
+              <li>Helicopter glacier landing</li>
+              <li>Dog sledding on the ice field</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Juneau tours →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Mediterranean</span>
+            <h3>Santorini, Greece</h3>
+            <p>A tender port with steep cliffs — a pre-booked tour saves hours of queuing for the cable car.</p>
+            <ul>
+              <li>Oia sunset &amp; villages tour</li>
+              <li>Catamaran cruise with lunch</li>
+              <li>Wine tasting excursion</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Santorini tours →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Caribbean</span>
+            <h3>Nassau, Bahamas</h3>
+            <p>Turquoise water and swimming pigs — the port is walkable but the best beaches need a short boat ride.</p>
+            <ul>
+              <li>Swimming pigs &amp; snorkel tour</li>
+              <li>Blue Lagoon beach day</li>
+              <li>Catamaran &amp; reef snorkel</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Nassau tours →</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="band"></div>
+          <div class="body">
+            <span class="region">Alaska</span>
+            <h3>Ketchikan, Alaska</h3>
+            <p>The salmon capital and gateway to Misty Fjords — small port, huge nature right on the doorstep.</p>
+            <ul>
+              <li>Misty Fjords floatplane tour</li>
+              <li>Totem poles &amp; culture</li>
+              <li>Wilderness &amp; wildlife by zodiac</li>
+            </ul>
+            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Ketchikan tours →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="why" class="why">
+    <div class="wrap">
+      <h2>Why book your excursions ahead</h2>
+      <p class="lede">The cruise line's onboard tours are convenient — and usually the most expensive option in port.</p>
+      <div class="grid3">
+        <div class="item">
+          <div class="ico">💰</div>
+          <h3>Save 30–50%</h3>
+          <p>The same tour is often far cheaper booked independently than through the ship's shore-excursion desk.</p>
+        </div>
+        <div class="item">
+          <div class="ico">⭐</div>
+          <h3>Book the best-rated</h3>
+          <p>We only link tours with thousands of high reviews — no guesswork, no tourist traps.</p>
+        </div>
+        <div class="item">
+          <div class="ico">🔄</div>
+          <h3>Free cancellation</h3>
+          <p>Most tours we recommend can be cancelled free up to 24 hours before — zero risk if plans change.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <h2>About World Cruise Academy</h2>
+      <p class="lede">
+        We're an independent guide for cruise travelers who want to get the most out of every port day.
+        We research the top-rated shore excursions at each destination and point you to the best way to book them.
+        We're not a cruise line and we don't sell cruises — we help you make the most of the one you've already booked.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="fgrid">
+        <div>
+          <strong>🌊 World Cruise Academy</strong><br />
+          Best shore excursions, every port.
+        </div>
+        <div>
+          <a href="#ports">Port Guides</a> &nbsp;·&nbsp;
+          <a href="#why">Why Book Ahead</a> &nbsp;·&nbsp;
+          <a href="#about">About</a>
+        </div>
+      </div>
+      <p class="small">
+        <strong>Affiliate disclosure:</strong> World Cruise Academy participates in affiliate programs including the Viator Partner Program.
+        When you book a tour through links on this site, we may earn a commission at no additional cost to you.
+        This helps keep our guides free. We only recommend experiences we believe are worth your time.
+        <br />© <span id="year"></span> World Cruise Academy. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
