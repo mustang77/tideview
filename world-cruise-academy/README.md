@@ -7,14 +7,33 @@ the home for your affiliate links once you're approved.
 ## Files
 - `index.html` — the whole site (self-contained, no build step, no dependencies).
 
+## What's on the page
+- 12 port guides (Caribbean, Mediterranean, Alaska, Pacific & Mexico) with a
+  region filter, scenic art per region, and a written mini-guide for each port.
+- Hero, "Why book ahead", "How it works", About, and FTC disclosure.
+
 ## How to add your Viator affiliate links
+The 12 ports live in a `PORTS = [ ... ]` array inside the `<script>` block near
+the bottom of `index.html`. Each entry has a `link:` field set to
+`"REPLACE_WITH_VIATOR_LINK"`.
+
 1. In the Viator partner dashboard, use the **link builder** to search a tour
    (e.g. "Cozumel snorkeling").
 2. Copy the generated link — your Partner ID `P00318076` is already baked in.
-3. In `index.html`, find each `href="REPLACE_WITH_VIATOR_LINK"` and paste your
-   link in place of `REPLACE_WITH_VIATOR_LINK`.
+3. In `index.html`, replace each `REPLACE_WITH_VIATOR_LINK` with the matching
+   port's real link.
 4. (Recommended) Add a SubID so you can see which port earns, e.g. append
    `&campaign=cozumel` to the link.
+
+## Add / edit ports
+Edit the `PORTS` array — copy an entry, change `region`, `name`, `guide`, and
+`tours`. Use one of the existing region names so it picks up the scenic art and
+the filter: `Caribbean`, `Mediterranean`, `Alaska`, or `Pacific & Mexico`.
+
+## Want real photos instead of the SVG art?
+Each card's `<div class="scene">` renders region art. To use a photo, replace
+that scene block with `<img src="your-photo.jpg" alt="Port name">` and upload
+the image alongside `index.html`.
 
 ## How to publish it for free (GitHub Pages)
 1. Merge this branch to your default branch (or push the folder there).

@@ -4,269 +4,228 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>World Cruise Academy — Best Shore Excursions at Every Cruise Port</title>
-  <meta name="description" content="Independent guides to the best-rated shore excursions and tours at the world's top cruise ports. Skip the overpriced onboard tours and book the highlights yourself." />
+  <meta name="description" content="Independent guides to the best-rated shore excursions and tours at the world's top cruise ports. Skip the overpriced onboard tours and book the highlights yourself — often 30-50% cheaper." />
+  <meta property="og:title" content="World Cruise Academy — Best Shore Excursions at Every Cruise Port" />
+  <meta property="og:description" content="Independent guides to the best-rated tours at the world's top cruise ports." />
+  <meta property="og:type" content="website" />
   <style>
     :root {
       --navy: #0a2540;
+      --navy-2: #0d3b54;
       --teal: #0aa88f;
       --teal-dark: #087e6b;
-      --sand: #f5f1e8;
+      --gold: #f2b544;
+      --sand: #f6f2ea;
       --ink: #16324f;
       --muted: #5b7085;
       --line: #e3e8ee;
+      --shadow: 0 12px 30px rgba(10,37,64,.10);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: var(--ink);
-      line-height: 1.6;
-      background: #fff;
+      color: var(--ink); line-height: 1.65; background: #fff; -webkit-font-smoothing: antialiased;
     }
     a { color: var(--teal-dark); }
-    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    h1, h2, h3 { line-height: 1.2; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 22px; }
 
-    /* Header */
-    header {
-      background: var(--navy);
-      color: #fff;
-      position: sticky; top: 0; z-index: 10;
-    }
-    .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; max-width: 1080px; margin: 0 auto; }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; letter-spacing: .3px; }
-    .brand .dot { color: var(--teal); }
-    .nav-links a { color: #cfe0ee; text-decoration: none; margin-left: 20px; font-size: .95rem; }
+    /* ---------- Logo ---------- */
+    .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .logo svg { width: 38px; height: 38px; flex: none; }
+    .logo .txt { color: #fff; font-weight: 800; font-size: 1.12rem; letter-spacing: .2px; line-height: 1.1; }
+    .logo .txt small { display: block; font-weight: 500; font-size: .62rem; letter-spacing: 2.4px; text-transform: uppercase; color: var(--gold); }
+
+    /* ---------- Header ---------- */
+    header { background: var(--navy); position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 12px rgba(0,0,0,.18); }
+    .nav { display: flex; align-items: center; justify-content: space-between; padding: 13px 22px; max-width: 1120px; margin: 0 auto; }
+    .nav-links a { color: #cfe0ee; text-decoration: none; margin-left: 22px; font-size: .93rem; font-weight: 500; }
     .nav-links a:hover { color: #fff; }
-    @media (max-width: 640px){ .nav-links { display: none; } }
+    @media (max-width: 680px){ .nav-links { display: none; } }
 
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, #0a2540 0%, #0d4d5c 60%, #0aa88f 130%);
-      color: #fff; padding: 72px 0 84px;
-    }
-    .hero h1 { font-size: 2.5rem; line-height: 1.15; max-width: 720px; }
-    .hero p { font-size: 1.2rem; color: #d6e6ef; max-width: 620px; margin-top: 18px; }
-    .cta {
-      display: inline-block; margin-top: 28px; background: var(--teal);
-      color: #fff; text-decoration: none; font-weight: 700;
-      padding: 14px 28px; border-radius: 8px; transition: background .15s;
-    }
-    .cta:hover { background: var(--teal-dark); color:#fff; }
-    @media (max-width: 640px){ .hero h1 { font-size: 1.9rem; } }
+    /* ---------- Disclosure ---------- */
+    .disclosure { background: var(--sand); color: var(--muted); font-size: .82rem; text-align: center; padding: 9px 16px; border-bottom: 1px solid var(--line); }
 
-    /* Disclosure bar */
-    .disclosure {
-      background: var(--sand); color: var(--muted);
-      font-size: .85rem; text-align: center; padding: 10px 16px; border-bottom: 1px solid var(--line);
-    }
+    /* ---------- Hero ---------- */
+    .hero { position: relative; background: linear-gradient(150deg, #0a2540 0%, #0d4d5c 58%, #0aa88f 125%); color: #fff; padding: 78px 0 96px; overflow: hidden; }
+    .hero::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:70px;
+      background: radial-gradient(120% 100% at 50% 0, transparent 68%, #fff 69%); }
+    .hero .wrap { position: relative; z-index: 2; }
+    .hero h1 { font-size: 2.7rem; max-width: 760px; letter-spacing: -.5px; }
+    .hero p { font-size: 1.22rem; color: #dceaf1; max-width: 640px; margin-top: 20px; }
+    .cta-row { margin-top: 30px; display: flex; gap: 14px; flex-wrap: wrap; }
+    .cta { display: inline-block; background: var(--gold); color: #3a2a05; text-decoration: none; font-weight: 800; padding: 14px 28px; border-radius: 9px; transition: transform .12s, box-shadow .12s; box-shadow: 0 8px 20px rgba(242,181,68,.35); }
+    .cta:hover { transform: translateY(-2px); }
+    .cta.ghost { background: rgba(255,255,255,.10); color: #fff; box-shadow: none; border: 1px solid rgba(255,255,255,.35); }
+    .hero-stats { display: flex; gap: 34px; margin-top: 40px; flex-wrap: wrap; }
+    .hero-stats .s b { font-size: 1.6rem; display: block; color: #fff; }
+    .hero-stats .s span { font-size: .82rem; color: #b9d4e0; text-transform: uppercase; letter-spacing: 1px; }
+    @media (max-width: 680px){ .hero h1 { font-size: 2rem; } .hero p { font-size: 1.08rem; } }
 
-    /* Sections */
-    section { padding: 60px 0; }
-    section h2 { font-size: 1.8rem; margin-bottom: 10px; }
-    .lede { color: var(--muted); max-width: 680px; margin-bottom: 36px; }
+    /* ---------- Sections ---------- */
+    section { padding: 64px 0; }
+    .kicker { color: var(--teal-dark); font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px; font-size: .78rem; }
+    section h2 { font-size: 1.95rem; margin: 6px 0 10px; letter-spacing: -.3px; }
+    .lede { color: var(--muted); max-width: 700px; margin-bottom: 30px; font-size: 1.05rem; }
 
-    /* Port cards */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
-    .card {
-      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
-      display: flex; flex-direction: column; background: #fff; transition: transform .12s, box-shadow .12s;
-    }
-    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(10,37,64,.12); }
-    .card .band { height: 8px; background: linear-gradient(90deg, var(--teal), #4fd1c5); }
-    .card .body { padding: 20px 20px 22px; display: flex; flex-direction: column; flex: 1; }
-    .card h3 { font-size: 1.2rem; margin-bottom: 4px; }
-    .card .region { font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--teal-dark); font-weight: 700; }
-    .card p { color: var(--muted); font-size: .95rem; margin: 10px 0 18px; }
-    .card ul { list-style: none; margin-bottom: 18px; }
-    .card ul li { font-size: .92rem; padding: 5px 0 5px 22px; position: relative; }
-    .card ul li::before { content: "⚓"; position: absolute; left: 0; font-size: .8rem; }
-    .book {
-      margin-top: auto; text-align: center; background: var(--teal); color: #fff;
-      text-decoration: none; font-weight: 700; padding: 11px 16px; border-radius: 7px; transition: background .15s;
-    }
+    /* ---------- Filter ---------- */
+    .filter { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+    .filter button { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 8px 16px; border-radius: 40px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .12s; }
+    .filter button:hover { border-color: var(--teal); }
+    .filter button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    /* ---------- Port grid ---------- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+    .card { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; background: #fff; transition: transform .14s, box-shadow .14s; }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .scene { height: 150px; position: relative; overflow: hidden; }
+    .scene svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .scene .tag { position: absolute; top: 12px; left: 12px; z-index: 2; background: rgba(10,37,64,.82); color: #fff; font-size: .68rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; padding: 5px 11px; border-radius: 30px; backdrop-filter: blur(2px); }
+    .card .body { padding: 20px 22px 24px; display: flex; flex-direction: column; flex: 1; }
+    .card h3 { font-size: 1.28rem; margin-bottom: 8px; }
+    .card .guide { color: var(--muted); font-size: .93rem; margin-bottom: 14px; }
+    .card ul { list-style: none; margin-bottom: 20px; }
+    .card ul li { font-size: .9rem; padding: 5px 0 5px 24px; position: relative; }
+    .card ul li::before { content: "⚓"; position: absolute; left: 0; font-size: .78rem; opacity: .8; }
+    .book { margin-top: auto; text-align: center; background: var(--teal); color: #fff; text-decoration: none; font-weight: 700; padding: 12px 16px; border-radius: 9px; transition: background .14s; }
     .book:hover { background: var(--teal-dark); }
 
-    /* Why section */
+    /* ---------- Why ---------- */
     .why { background: var(--sand); }
-    .why .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 26px; margin-top: 30px; }
-    .why .item h3 { font-size: 1.1rem; margin-bottom: 6px; }
-    .why .item .ico { font-size: 1.8rem; }
-    .why .item p { color: var(--muted); font-size: .95rem; }
+    .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 28px; margin-top: 30px; }
+    .item .ico { font-size: 2rem; }
+    .item h3 { font-size: 1.15rem; margin: 8px 0 6px; }
+    .item p { color: var(--muted); font-size: .96rem; }
 
-    /* Footer */
-    footer { background: var(--navy); color: #b9cbdb; padding: 44px 0; font-size: .9rem; }
-    footer .fgrid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
-    footer a { color: #cfe0ee; }
-    footer .small { font-size: .8rem; color: #7d97ac; margin-top: 22px; line-height: 1.7; }
+    /* ---------- How it works ---------- */
+    .steps { counter-reset: step; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 26px; margin-top: 30px; }
+    .step { position: relative; padding-top: 8px; }
+    .step::before { counter-increment: step; content: counter(step); display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: var(--teal); color: #fff; font-weight: 800; margin-bottom: 12px; }
+    .step h3 { font-size: 1.08rem; margin-bottom: 5px; }
+    .step p { color: var(--muted); font-size: .94rem; }
+
+    /* ---------- About ---------- */
+    .about-card { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #dfeaf2; border-radius: 18px; padding: 44px; }
+    .about-card h2 { color: #fff; }
+    .about-card p { margin-top: 12px; max-width: 760px; }
+
+    /* ---------- Footer ---------- */
+    footer { background: var(--navy); color: #b9cbdb; padding: 48px 0 40px; font-size: .92rem; }
+    .fgrid { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+    footer a { color: #cfe0ee; text-decoration: none; }
+    footer a:hover { color: #fff; }
+    .fnav a { margin-right: 18px; }
+    .small { font-size: .78rem; color: #7d97ac; margin-top: 26px; line-height: 1.75; border-top: 1px solid rgba(255,255,255,.08); padding-top: 20px; }
   </style>
 </head>
 <body>
 
-  <!-- FTC affiliate disclosure (legally required, keep it) -->
+  <!-- FTC affiliate disclosure — legally required, keep it -->
   <div class="disclosure">
     World Cruise Academy is reader-supported. Some links are affiliate links — if you book through them we may earn a commission at no extra cost to you.
   </div>
 
   <header>
     <div class="nav">
-      <div class="brand">🌊 World Cruise <span class="dot">Academy</span></div>
+      <a class="logo" href="#top" aria-label="World Cruise Academy home">
+        <!-- Logo mark: wave + compass -->
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" fill="#0aa88f"/>
+          <circle cx="24" cy="24" r="22" stroke="#f2b544" stroke-width="2"/>
+          <path d="M24 9l3.4 8.6L36 21l-8.6 3.4L24 33l-3.4-8.6L12 21l8.6-3.4L24 9z" fill="#fff" opacity=".92"/>
+          <path d="M6 34c3 0 3-2.4 6-2.4s3 2.4 6 2.4 3-2.4 6-2.4 3 2.4 6 2.4 3-2.4 6-2.4 3 2.4 6 2.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+        </svg>
+        <span class="txt">World Cruise Academy<small>Shore Excursion Guides</small></span>
+      </a>
       <nav class="nav-links">
         <a href="#ports">Port Guides</a>
         <a href="#why">Why Book Ahead</a>
+        <a href="#how">How It Works</a>
         <a href="#about">About</a>
       </nav>
     </div>
   </header>
 
+  <a id="top"></a>
   <div class="hero">
     <div class="wrap">
-      <h1>Book the best shore excursions — before the ship sells them to you at double the price.</h1>
-      <p>Independent, honest guides to the highest-rated tours at the world's top cruise ports. Save money, skip the crowds, see the real highlights.</p>
-      <a class="cta" href="#ports">Explore Port Guides →</a>
+      <h1>See the best of every port — without paying the ship's markup.</h1>
+      <p>Independent, honest guides to the highest-rated shore excursions at the world's top cruise ports. Save money, skip the crowds, and don't miss the highlights.</p>
+      <div class="cta-row">
+        <a class="cta" href="#ports">Explore 12 Port Guides →</a>
+        <a class="cta ghost" href="#why">Why book independently?</a>
+      </div>
+      <div class="hero-stats">
+        <div class="s"><b>12</b><span>Top ports covered</span></div>
+        <div class="s"><b>30–50%</b><span>Typical savings vs ship</span></div>
+        <div class="s"><b>Free</b><span>Cancellation on most</span></div>
+      </div>
     </div>
   </div>
 
   <section id="ports">
     <div class="wrap">
-      <h2>Top Cruise Ports & Their Best Excursions</h2>
-      <p class="lede">Each port below links to hand-picked, top-reviewed tours you can book directly. No onboard markup, free cancellation on most, and skip-the-line options where they matter.</p>
+      <div class="kicker">Destination Guides</div>
+      <h2>Top Cruise Ports &amp; Their Best Excursions</h2>
+      <p class="lede">Each guide highlights the tours worth your one day in port — the best-rated, best-value experiences you can book directly, with no onboard markup and free cancellation on most.</p>
 
-      <div class="grid">
-
-        <!-- ============================================================
-             PORT CARD TEMPLATE
-             👉 Replace each  href="REPLACE_WITH_VIATOR_LINK"  with a real
-                Viator affiliate link (your partner ID P00318076 is baked
-                into links you generate in the Viator dashboard).
-             👉 Add "?campaign=port-name" style SubIDs to track which port earns.
-             ============================================================ -->
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Caribbean</span>
-            <h3>Cozumel, Mexico</h3>
-            <p>Crystal reefs, Mayan ruins and beach clubs — Cozumel is one of the most-visited cruise ports on earth.</p>
-            <ul>
-              <li>Snorkeling at Palancar Reef</li>
-              <li>Tulum ruins day trip</li>
-              <li>Jeep &amp; beach break combo</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Cozumel tours →</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Mediterranean</span>
-            <h3>Rome (Civitavecchia), Italy</h3>
-            <p>The port is 90 min from Rome — a guided transfer tour is the only way to see the city and get back on time.</p>
-            <ul>
-              <li>Rome in a day from the port</li>
-              <li>Skip-the-line Vatican &amp; Colosseum</li>
-              <li>Small-group Rome highlights</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Rome tours →</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Alaska</span>
-            <h3>Juneau, Alaska</h3>
-            <p>Glaciers, whales and helicopters — Juneau's excursions sell out fast in summer, so book early.</p>
-            <ul>
-              <li>Whale watching &amp; Mendenhall Glacier</li>
-              <li>Helicopter glacier landing</li>
-              <li>Dog sledding on the ice field</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Juneau tours →</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Mediterranean</span>
-            <h3>Santorini, Greece</h3>
-            <p>A tender port with steep cliffs — a pre-booked tour saves hours of queuing for the cable car.</p>
-            <ul>
-              <li>Oia sunset &amp; villages tour</li>
-              <li>Catamaran cruise with lunch</li>
-              <li>Wine tasting excursion</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Santorini tours →</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Caribbean</span>
-            <h3>Nassau, Bahamas</h3>
-            <p>Turquoise water and swimming pigs — the port is walkable but the best beaches need a short boat ride.</p>
-            <ul>
-              <li>Swimming pigs &amp; snorkel tour</li>
-              <li>Blue Lagoon beach day</li>
-              <li>Catamaran &amp; reef snorkel</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Nassau tours →</a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="band"></div>
-          <div class="body">
-            <span class="region">Alaska</span>
-            <h3>Ketchikan, Alaska</h3>
-            <p>The salmon capital and gateway to Misty Fjords — small port, huge nature right on the doorstep.</p>
-            <ul>
-              <li>Misty Fjords floatplane tour</li>
-              <li>Totem poles &amp; culture</li>
-              <li>Wilderness &amp; wildlife by zodiac</li>
-            </ul>
-            <a class="book" href="REPLACE_WITH_VIATOR_LINK" target="_blank" rel="nofollow sponsored">See top Ketchikan tours →</a>
-          </div>
-        </div>
-
+      <div class="filter" id="filter">
+        <button class="active" data-region="all">All ports</button>
+        <button data-region="Caribbean">Caribbean</button>
+        <button data-region="Mediterranean">Mediterranean</button>
+        <button data-region="Alaska">Alaska</button>
+        <button data-region="Pacific &amp; Mexico">Pacific &amp; Mexico</button>
       </div>
+
+      <!--
+        ============================================================
+        HOW TO ADD YOUR VIATOR LINKS
+        - Each "Book" button has href="REPLACE_WITH_VIATOR_LINK".
+        - Generate a link in the Viator dashboard (your Partner ID
+          P00318076 is baked in automatically), then paste it in.
+        - Add a SubID to track earnings, e.g. add  &campaign=cozumel
+        ============================================================
+      -->
+      <div class="grid" id="grid"><!-- cards injected by script --></div>
     </div>
   </section>
 
   <section id="why" class="why">
     <div class="wrap">
+      <div class="kicker">The Smart Way to Port</div>
       <h2>Why book your excursions ahead</h2>
-      <p class="lede">The cruise line's onboard tours are convenient — and usually the most expensive option in port.</p>
+      <p class="lede">The cruise line's onboard tours are convenient — and almost always the most expensive option in port.</p>
       <div class="grid3">
-        <div class="item">
-          <div class="ico">💰</div>
-          <h3>Save 30–50%</h3>
-          <p>The same tour is often far cheaper booked independently than through the ship's shore-excursion desk.</p>
-        </div>
-        <div class="item">
-          <div class="ico">⭐</div>
-          <h3>Book the best-rated</h3>
-          <p>We only link tours with thousands of high reviews — no guesswork, no tourist traps.</p>
-        </div>
-        <div class="item">
-          <div class="ico">🔄</div>
-          <h3>Free cancellation</h3>
-          <p>Most tours we recommend can be cancelled free up to 24 hours before — zero risk if plans change.</p>
-        </div>
+        <div class="item"><div class="ico">💰</div><h3>Save 30–50%</h3><p>The very same tour is routinely far cheaper booked independently than through the ship's shore-excursion desk.</p></div>
+        <div class="item"><div class="ico">⭐</div><h3>Only the best-rated</h3><p>We point you to experiences with thousands of high reviews — no guesswork, no tourist traps, no wasted port day.</p></div>
+        <div class="item"><div class="ico">🔄</div><h3>Free cancellation</h3><p>Most tours we recommend cancel free up to 24 hours ahead — zero risk if your itinerary changes or a port is missed.</p></div>
+        <div class="item"><div class="ico">⏱️</div><h3>Back on time</h3><p>We favour operators who know cruise schedules and guarantee you're back at the ship with time to spare.</p></div>
       </div>
     </div>
   </section>
 
-  <section id="about">
+  <section id="how">
     <div class="wrap">
-      <h2>About World Cruise Academy</h2>
-      <p class="lede">
-        We're an independent guide for cruise travelers who want to get the most out of every port day.
-        We research the top-rated shore excursions at each destination and point you to the best way to book them.
-        We're not a cruise line and we don't sell cruises — we help you make the most of the one you've already booked.
-      </p>
+      <div class="kicker">Simple</div>
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step"><h3>Find your port</h3><p>Pick your destination from the guides above — we cover the 12 busiest cruise ports.</p></div>
+        <div class="step"><h3>Compare top tours</h3><p>See the highest-rated, best-value excursions for your one day ashore.</p></div>
+        <div class="step"><h3>Book direct</h3><p>Reserve in a couple of taps — free cancellation on most, so there's no risk.</p></div>
+        <div class="step"><h3>Enjoy your day</h3><p>Skip the queues, see the highlights, and get back to the ship on time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="about-card" id="about">
+        <div class="kicker" style="color:var(--gold)">Who We Are</div>
+        <h2>About World Cruise Academy</h2>
+        <p>We're an independent guide for cruise travelers who want to make the most of every port day. We research the top-rated shore excursions at each destination and point you to the best way to book them — usually for a lot less than the cruise line charges.</p>
+        <p>We are not a cruise line and we don't sell cruises. We help you get more out of the one you've already booked. When you book a recommended tour through our links, we may earn a small commission — that's what keeps these guides free, and it never changes what you pay.</p>
+      </div>
     </div>
   </section>
 
@@ -274,24 +233,157 @@
     <div class="wrap">
       <div class="fgrid">
         <div>
-          <strong>🌊 World Cruise Academy</strong><br />
-          Best shore excursions, every port.
+          <a class="logo" href="#top" style="pointer-events:none">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:34px;height:34px">
+              <circle cx="24" cy="24" r="22" fill="#0aa88f"/>
+              <path d="M24 9l3.4 8.6L36 21l-8.6 3.4L24 33l-3.4-8.6L12 21l8.6-3.4L24 9z" fill="#fff" opacity=".92"/>
+            </svg>
+            <span class="txt">World Cruise Academy<small>Shore Excursion Guides</small></span>
+          </a>
         </div>
-        <div>
-          <a href="#ports">Port Guides</a> &nbsp;·&nbsp;
-          <a href="#why">Why Book Ahead</a> &nbsp;·&nbsp;
+        <div class="fnav">
+          <a href="#ports">Port Guides</a>
+          <a href="#why">Why Book Ahead</a>
+          <a href="#how">How It Works</a>
           <a href="#about">About</a>
         </div>
       </div>
       <p class="small">
         <strong>Affiliate disclosure:</strong> World Cruise Academy participates in affiliate programs including the Viator Partner Program.
-        When you book a tour through links on this site, we may earn a commission at no additional cost to you.
-        This helps keep our guides free. We only recommend experiences we believe are worth your time.
+        When you book a tour through links on this site, we may earn a commission at no additional cost to you. This helps keep our guides free.
+        We only recommend experiences we believe are genuinely worth your time.
         <br />© <span id="year"></span> World Cruise Academy. All rights reserved.
       </p>
     </div>
   </footer>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+  /* ============================================================
+     SCENIC ART — one SVG per region (turquoise Caribbean, white-
+     village Mediterranean, Alaskan glacier, Pacific sunset).
+     Self-contained, always renders. To use real photos instead,
+     replace a card's <div class="scene">…</div> with an <img>.
+     ============================================================ */
+  const SCENES = {
+    Caribbean: `
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8fe3ff"/><stop offset="1" stop-color="#2bc3d4"/></linearGradient></defs>
+        <rect width="400" height="150" fill="url(#cb)"/>
+        <circle cx="330" cy="38" r="20" fill="#fff6d8" opacity=".9"/>
+        <path d="M0 108 Q100 96 200 108 T400 108 V150 H0 Z" fill="#12a8b8"/>
+        <path d="M0 122 Q120 112 240 122 T400 120 V150 H0 Z" fill="#0a8fa0"/>
+        <rect x="0" y="138" width="400" height="12" fill="#f4e4b8"/>
+        <g fill="#0a5c50"><path d="M60 138c-4-20-2-34 4-46-14 6-22 16-24 26 8-8 16-8 20 20z"/>
+        <path d="M64 92c14-6 26-4 34 4-14-2-24 2-30 10 2-8-2-12-4-14z"/></g>
+      </svg>`,
+    Mediterranean: `
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="md" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7fc8ff"/><stop offset="1" stop-color="#2f7fd6"/></linearGradient></defs>
+        <rect width="400" height="150" fill="url(#md)"/>
+        <g fill="#fff"><rect x="40" y="70" width="34" height="46"/><rect x="80" y="58" width="40" height="58"/>
+        <rect x="126" y="76" width="30" height="40"/><rect x="250" y="64" width="38" height="52"/>
+        <rect x="294" y="74" width="30" height="42"/><rect x="330" y="60" width="36" height="56"/></g>
+        <g fill="#2f6fb0"><circle cx="99" cy="52" r="12"/><circle cx="268" cy="58" r="11"/></g>
+        <g fill="#1668bf"><rect x="40" y="70" width="34" height="6"/><rect x="80" y="58" width="40" height="6"/>
+        <rect x="250" y="64" width="38" height="6"/><rect x="330" y="60" width="36" height="6"/></g>
+        <rect x="0" y="116" width="400" height="34" fill="#1e6fc0"/>
+        <path d="M0 116 Q200 108 400 116 V150 H0 Z" fill="#155aa0"/>
+      </svg>`,
+    Alaska: `
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="ak" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#cfe6f2"/><stop offset="1" stop-color="#8fb6cc"/></linearGradient></defs>
+        <rect width="400" height="150" fill="url(#ak)"/>
+        <path d="M-10 118 L70 44 L130 100 L200 34 L280 104 L350 56 L410 118 Z" fill="#f4f8fb"/>
+        <path d="M70 44 L92 66 L58 84 Z M200 34 L224 62 L182 78 Z" fill="#cddbe6"/>
+        <path d="M-10 108 L60 62 L120 100 L190 58 L270 106 L340 70 L410 110 Z" fill="#e4eef4" opacity=".6"/>
+        <rect x="0" y="116" width="400" height="34" fill="#3f6d86"/>
+        <path d="M0 116 Q200 128 400 116 V150 H0 Z" fill="#2d556b"/>
+      </svg>`,
+    "Pacific & Mexico": `
+      <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="pc" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffd08a"/><stop offset=".55" stop-color="#ff9e7a"/><stop offset="1" stop-color="#f57e8e"/></linearGradient></defs>
+        <rect width="400" height="150" fill="url(#pc)"/>
+        <circle cx="200" cy="70" r="30" fill="#fff2c9" opacity=".95"/>
+        <path d="M0 112 Q100 100 200 112 T400 112 V150 H0 Z" fill="#e86a6f"/>
+        <path d="M0 124 Q120 116 240 124 T400 122 V150 H0 Z" fill="#c9505e"/>
+        <g fill="#6b2f3a"><path d="M340 150c-6-26-4-42 4-56-16 8-26 20-28 32 10-10 18-8 22 24z"/></g>
+      </svg>`
+  };
+
+  /* ============================================================
+     PORT DATA — edit freely. `link` gets pasted from Viator.
+     ============================================================ */
+  const PORTS = [
+    { region:"Caribbean", name:"Cozumel, Mexico",
+      guide:"One of the most-visited cruise ports on earth. World-class reefs sit right offshore, and the Mayan ruins of Tulum are a bucket-list day trip from here.",
+      tours:["Snorkeling at Palancar Reef","Tulum ruins day trip","Jeep & beach club combo"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Caribbean", name:"Nassau, Bahamas",
+      guide:"The port is walkable, but the famous turquoise water and swimming pigs are a short boat ride away — a pre-booked tour makes the most of a busy port day.",
+      tours:["Swimming pigs & snorkel tour","Blue Lagoon beach day","Catamaran & reef snorkel"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Caribbean", name:"Grand Cayman",
+      guide:"A tender port famous for Stingray City — a shallow sandbar where you can stand beside wild rays. Book ahead, as the best sandbar tours sell out early.",
+      tours:["Stingray City sandbar tour","Starfish Point & snorkel","Seven Mile Beach day pass"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Mediterranean", name:"Rome (Civitavecchia), Italy",
+      guide:"The port is 90 minutes from Rome, so a guided transfer tour is really the only way to see the city and be back aboard on time. Skip-the-line access is essential.",
+      tours:["Rome in a day from the port","Skip-the-line Vatican & Colosseum","Small-group Rome highlights"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Mediterranean", name:"Santorini, Greece",
+      guide:"A dramatic tender port with steep cliffs. A pre-booked tour saves you hours queuing for the cable car and gets you to Oia for the famous sunset.",
+      tours:["Oia sunset & villages tour","Catamaran cruise with lunch","Volcano & hot springs sail"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Mediterranean", name:"Barcelona, Spain",
+      guide:"Gaudí's masterpieces draw huge lines. A guided tour with priority entry to the Sagrada Família turns a chaotic port day into an easy, unforgettable one.",
+      tours:["Sagrada Família skip-the-line","Gaudí highlights & Park Güell","Old town & tapas walk"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Mediterranean", name:"Kotor, Montenegro",
+      guide:"A fjord-like bay ringed by mountains and one of the Med's most scenic ports. The panoramic drive up to Lovćen and the old town walls are the must-dos.",
+      tours:["Bay of Kotor panoramic drive","Old town walking tour","Perast & Our Lady of the Rocks"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Alaska", name:"Juneau, Alaska",
+      guide:"Glaciers, whales and helicopters — Juneau's marquee excursions sell out fast in summer, so book early. Whale-watching here has near-guaranteed sightings.",
+      tours:["Whale watching & Mendenhall Glacier","Helicopter glacier landing","Dog sledding on the ice field"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Alaska", name:"Ketchikan, Alaska",
+      guide:"The salmon capital and gateway to the Misty Fjords. A small port with enormous wilderness right on its doorstep — the floatplane tour is unforgettable.",
+      tours:["Misty Fjords floatplane tour","Totem poles & native culture","Wildlife & wilderness by zodiac"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Alaska", name:"Skagway, Alaska",
+      guide:"A Gold Rush town where the star attraction is the White Pass railway — a jaw-dropping ride into the mountains. Pair it with a Yukon drive for the full day.",
+      tours:["White Pass scenic railway","Yukon & Emerald Lake drive","Glacier & dog-camp helicopter"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Pacific & Mexico", name:"Cabo San Lucas, Mexico",
+      guide:"A tender port on the Baja tip. The iconic El Arco rock, Lover's Beach and playful sea lions are all best seen by boat — sunset cruises are a favourite.",
+      tours:["El Arco & Lover's Beach cruise","Snorkel at Santa María Bay","Sunset sail with open bar"], link:"REPLACE_WITH_VIATOR_LINK" },
+    { region:"Pacific & Mexico", name:"Honolulu, Hawaii",
+      guide:"Your gateway to Oahu. Pearl Harbor is the essential visit, while the North Shore and a circle-island tour show off Hawaii beyond Waikiki in one day.",
+      tours:["Pearl Harbor & USS Arizona","Circle island & North Shore","Diamond Head & Waikiki tour"], link:"REPLACE_WITH_VIATOR_LINK" }
+  ];
+
+  /* ---------- Render cards ---------- */
+  const grid = document.getElementById('grid');
+  function cardHTML(p){
+    const lis = p.tours.map(t => `<li>${t}</li>`).join('');
+    return `<article class="card" data-region="${p.region}">
+      <div class="scene"><span class="tag">${p.region}</span>${SCENES[p.region]||''}</div>
+      <div class="body">
+        <h3>${p.name}</h3>
+        <p class="guide">${p.guide}</p>
+        <ul>${lis}</ul>
+        <a class="book" href="${p.link}" target="_blank" rel="nofollow sponsored noopener">See top tours →</a>
+      </div>
+    </article>`;
+  }
+  grid.innerHTML = PORTS.map(cardHTML).join('');
+
+  /* ---------- Region filter ---------- */
+  document.getElementById('filter').addEventListener('click', e => {
+    const btn = e.target.closest('button'); if(!btn) return;
+    document.querySelectorAll('#filter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const r = btn.dataset.region;
+    document.querySelectorAll('#grid .card').forEach(c => {
+      c.style.display = (r === 'all' || c.dataset.region === r) ? '' : 'none';
+    });
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
