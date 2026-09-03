@@ -33,7 +33,7 @@
       --img-ratio: 0.5627;
       --img-zoom: 1;      /* 1 = fit screen height; raised on very wide screens */
       /* fade applied to the picture's left edge so it melts into the backdrop */
-      --edge-fade: linear-gradient(90deg, transparent 0%, #000 42%);
+      --edge-fade: linear-gradient(90deg, transparent 0%, #000 55%);
 
       --cream: #FBDBAF;
       --muted: rgba(251, 219, 175, 0.72);
@@ -47,7 +47,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #C45A18;
+      background: #0a1220;
       color: var(--cream);
       overflow-x: hidden;
     }
@@ -79,20 +79,10 @@
       height: 100vh;
       height: 100dvh;
       overflow: hidden;
-      background: #C45A18;
-    }
-
-    /* Blurred, darkened copy of the picture that fills the whole hero and
-       supplies matching colours behind the text on wide screens */
-    .hero-bg-blur {
-      position: absolute;
-      inset: -80px;
-      z-index: 0;
-      background-image: var(--img-base);
-      background-size: cover;
-      background-position: 30% center;
-      background-repeat: no-repeat;
-      filter: blur(42px) brightness(0.62) saturate(1.15);
+      /* Clean backdrop behind the text on wide screens: dusk sky fading to deep sea */
+      background:
+        radial-gradient(60% 80% at 100% 45%, rgba(224, 112, 32, 0.22) 0%, rgba(224, 112, 32, 0) 70%),
+        linear-gradient(180deg, #2b1a2a 0%, #16182b 45%, #0a1220 100%);
     }
 
     /* Sharp picture fitted to the screen height and parked on the right,
@@ -143,7 +133,7 @@
     /* Ultra-wide monitors (21:9 and wider): let the picture grow a little so it
        is not a thin strip, at a mild upscale that stays sharp */
     @media (min-aspect-ratio: 2/1) {
-      :root { --img-zoom: 1.28; }
+      :root { --img-zoom: 1.34; }
     }
 
     /* Soft dark gradient so the text stays readable over the bright image */
@@ -267,7 +257,6 @@
       .hero-ui { padding: 28px 22px 28px; }
       .hero-copy h1 { font-size: clamp(1.35rem, 7.2vw, 2.4rem); }
       :root { --edge-fade: linear-gradient(#000, #000); }
-      .hero-bg-blur { display: none; }
       .hero-base-img,
       .hero-reveal-img {
         background-size: cover;
@@ -354,7 +343,6 @@
 </head>
 <body>
   <main class="hero">
-    <div class="hero-bg-blur hero-image-animate" aria-hidden="true"></div>
     <div class="hero-base-img hero-image-animate"></div>
 
     <div class="hero-reveal-img" id="reveal-img"></div>
