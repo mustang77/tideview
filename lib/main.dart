@@ -8,6 +8,7 @@ import "app_state.dart";
 import "bookmarks_screen.dart";
 import "dashboard_screen.dart";
 import "home_screen.dart";
+import "nebula_background.dart";
 import "profile_screen.dart";
 import "quran_search_screen.dart";
 import "quran_service.dart";
@@ -117,49 +118,46 @@ class _SplashScreen extends StatelessWidget {
       color: Colors.transparent,
       child: Material(
         type: MaterialType.transparency,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1B8A6B), Color(0xFF0B4437)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: Center(
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: 1),
-              duration: const Duration(milliseconds: 900),
-              curve: Curves.easeOutCubic,
-              builder: (context, t, child) => Opacity(
-                opacity: t,
-                child: Transform.scale(scale: 0.85 + 0.15 * t, child: child),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset("assets/branding/icon_fg.png", width: 220),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Al-Quran",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const NebulaBackground(),
+            Center(
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, t, child) => Opacity(
+                  opacity: t,
+                  child: Transform.scale(scale: 0.85 + 0.15 * t, child: child),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset("assets/branding/icon_fg.png", width: 220),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Al-Quran",
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Read • Listen • Reflect",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.85),
+                    const SizedBox(height: 6),
+                    Text(
+                      "Read • Listen • Reflect",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

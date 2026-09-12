@@ -5,6 +5,7 @@ import "package:google_fonts/google_fonts.dart";
 
 import "app_state.dart";
 import "duas_screen.dart";
+import "nebula_background.dart";
 import "prayer_times_screen.dart";
 import "quran_data.dart";
 import "quran_service.dart";
@@ -18,8 +19,11 @@ import "tasbih_screen.dart";
 class DashboardScreen extends StatefulWidget {
   final QuranService service;
   final VoidCallback onOpenProfile;
-  const DashboardScreen(
-      {super.key, required this.service, required this.onOpenProfile});
+  const DashboardScreen({
+    super.key,
+    required this.service,
+    required this.onOpenProfile,
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -37,7 +41,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     // Re-render the countdown every 30 seconds.
     _ticker = Timer.periodic(
-        const Duration(seconds: 30), (_) => mounted ? setState(() {}) : null);
+      const Duration(seconds: 30),
+      (_) => mounted ? setState(() {}) : null,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeFetch());
   }
 
@@ -96,27 +102,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text("Cancel")),
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text("Cancel"),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text("Save")),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text("Save"),
+          ),
         ],
       ),
     );
     if (saved == true && mounted) {
       AppScope.of(context).setPrayerLocation(
-          cityController.text.trim(), countryController.text.trim());
+        cityController.text.trim(),
+        countryController.text.trim(),
+      );
       _loadedCity = "";
       _maybeFetch();
     }
   }
 
   void _openSurah(int surah) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) =>
-          SurahScreen(service: widget.service, surahNumber: surah),
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            SurahScreen(service: widget.service, surahNumber: surah),
+      ),
+    );
   }
 
   @override
@@ -137,11 +149,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
-            child: Text("Quick start",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700)),
+            child: Text(
+              "Quick start",
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
           GridView.count(
             crossAxisCount: 3,
@@ -158,58 +171,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     : "${surahByNumber(lastRead.surah).nameEnglish} ${lastRead.ayah}",
                 onTap: lastRead == null
                     ? null
-                    : () => Navigator.of(context).push(MaterialPageRoute(
+                    : () => Navigator.of(context).push(
+                        MaterialPageRoute(
                           builder: (_) => SurahScreen(
-                              service: widget.service,
-                              surahNumber: lastRead.surah,
-                              scrollToAyah: lastRead.ayah),
-                        )),
+                            service: widget.service,
+                            surahNumber: lastRead.surah,
+                            scrollToAyah: lastRead.ayah,
+                          ),
+                        ),
+                      ),
               ),
               _Action(
-                  icon: Icons.menu_book,
-                  label: "Ya-Sin",
-                  subtitle: "Surah 36",
-                  onTap: () => _openSurah(36)),
+                icon: Icons.menu_book,
+                label: "Ya-Sin",
+                subtitle: "Surah 36",
+                onTap: () => _openSurah(36),
+              ),
               _Action(
-                  icon: Icons.nightlight_round,
-                  label: "Al-Mulk",
-                  subtitle: "Surah 67",
-                  onTap: () => _openSurah(67)),
+                icon: Icons.nightlight_round,
+                label: "Al-Mulk",
+                subtitle: "Surah 67",
+                onTap: () => _openSurah(67),
+              ),
               _Action(
-                  icon: Icons.history_edu,
-                  label: "Sirah Nabi",
-                  subtitle: "Kisah Rasulullah ﷺ",
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const SirahScreen()))),
+                icon: Icons.history_edu,
+                label: "Sirah Nabi",
+                subtitle: "Kisah Nabi ﷺ",
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const SirahScreen())),
+              ),
               _Action(
-                  icon: Icons.landscape,
-                  label: "Al-Kahf",
-                  subtitle: "Surah 18",
-                  onTap: () => _openSurah(18)),
+                icon: Icons.landscape,
+                label: "Al-Kahf",
+                subtitle: "Surah 18",
+                onTap: () => _openSurah(18),
+              ),
               _Action(
-                  icon: Icons.article,
-                  label: "Tahlil",
-                  subtitle: "NU Online",
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const TahlilScreen()))),
+                icon: Icons.article,
+                label: "Tahlil",
+                subtitle: "NU Online",
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const TahlilScreen())),
+              ),
               _Action(
-                  icon: Icons.pan_tool_alt,
-                  label: "Duas",
-                  subtitle: "Daily prayers",
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const DuasScreen()))),
+                icon: Icons.pan_tool_alt,
+                label: "Duas",
+                subtitle: "Daily prayers",
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const DuasScreen())),
+              ),
               _Action(
-                  icon: Icons.radio_button_checked,
-                  label: "Tasbih",
-                  subtitle: "Dhikr counter",
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const TasbihScreen()))),
+                icon: Icons.radio_button_checked,
+                label: "Tasbih",
+                subtitle: "Dhikr counter",
+                onTap: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const TasbihScreen())),
+              ),
               _Action(
-                  icon: Icons.schedule,
-                  label: "Prayer times",
-                  subtitle: "Full schedule",
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const PrayerTimesScreen()))),
+                icon: Icons.schedule,
+                label: "Prayer times",
+                subtitle: "Full schedule",
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PrayerTimesScreen()),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -246,8 +275,13 @@ class _Hero extends StatelessWidget {
       if (next != null) {
         big = "${next.$1}, ${next.$2}";
         final parts = next.$2.split(":");
-        final when = DateTime(now.year, now.month, now.day,
-            int.parse(parts[0]), int.parse(parts[1]));
+        final when = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+        );
         final diff = when.difference(now);
         final h = diff.inHours;
         final m = diff.inMinutes % 60;
@@ -266,113 +300,120 @@ class _Hero extends StatelessWidget {
             times!.hijriDate.replaceAll(" AH", " H"),
           ].join(", ");
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1B8A6B), Color(0xFF0B4437)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(painter: _MosquePainter()),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 22),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_month,
-                          color: Colors.white, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          hijriLine,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700),
-                          overflow: TextOverflow.ellipsis,
+    return Stack(
+      children: [
+        const Positioned.fill(child: NebulaBackground()),
+        Positioned.fill(child: CustomPaint(painter: _MosquePainter())),
+        SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 8, 22),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_month,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        hijriLine,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      IconButton(
-                        onPressed: onOpenProfile,
-                        icon: userName.isEmpty
-                            ? const Icon(Icons.account_circle,
-                                color: Colors.white, size: 30)
-                            : CircleAvatar(
-                                radius: 15,
-                                backgroundColor: Colors.white,
-                                child: Text(
-                                  userName.characters.first.toUpperCase(),
-                                  style: const TextStyle(
-                                      color: Color(0xFF0B4437),
-                                      fontWeight: FontWeight.w800),
+                    ),
+                    IconButton(
+                      onPressed: onOpenProfile,
+                      icon: userName.isEmpty
+                          ? const Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 30,
+                            )
+                          : CircleAvatar(
+                              radius: 15,
+                              backgroundColor: Colors.white,
+                              child: Text(
+                                userName.characters.first.toUpperCase(),
+                                style: const TextStyle(
+                                  color: Color(0xFF0B4437),
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  InkWell(
-                    onTap: onPickCity,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.place_outlined,
-                              color: Colors.white, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            city.isEmpty ? "Set your city" : city,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600),
+                            ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                InkWell(
+                  onTap: onPickCity,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.place_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          city.isEmpty ? "Set your city" : city,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  if (loading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 18),
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  else ...[
+                ),
+                const SizedBox(height: 10),
+                if (loading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 18),
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
+                else ...[
+                  Text(
+                    big,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                    ),
+                  ),
+                  if (small.isNotEmpty) ...[
+                    const SizedBox(height: 6),
                     Text(
-                      big,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 40,
-                        fontWeight: FontWeight.w800,
-                        height: 1.1,
+                      small,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 16,
                       ),
                     ),
-                    if (small.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(small,
-                          style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 16)),
-                    ],
                   ],
                 ],
-              ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -395,16 +436,28 @@ class _MosquePainter extends CustomPainter {
     path.lineTo(w * 0.12, base);
     // left small dome
     path.lineTo(w * 0.20, base);
-    path.arcTo(Rect.fromCircle(center: Offset(w * 0.28, base), radius: w * 0.08),
-        3.14159, 3.14159, false);
+    path.arcTo(
+      Rect.fromCircle(center: Offset(w * 0.28, base), radius: w * 0.08),
+      3.14159,
+      3.14159,
+      false,
+    );
     // central big dome
     path.lineTo(w * 0.36, base);
-    path.arcTo(Rect.fromCircle(center: Offset(w * 0.52, base), radius: w * 0.16),
-        3.14159, 3.14159, false);
+    path.arcTo(
+      Rect.fromCircle(center: Offset(w * 0.52, base), radius: w * 0.16),
+      3.14159,
+      3.14159,
+      false,
+    );
     // right small dome
     path.lineTo(w * 0.72, base);
-    path.arcTo(Rect.fromCircle(center: Offset(w * 0.78, base), radius: w * 0.08),
-        3.14159, 3.14159, false);
+    path.arcTo(
+      Rect.fromCircle(center: Offset(w * 0.78, base), radius: w * 0.08),
+      3.14159,
+      3.14159,
+      false,
+    );
     // right minaret
     path.lineTo(w * 0.88, base);
     path.lineTo(w * 0.88, h * 0.45);
@@ -417,13 +470,21 @@ class _MosquePainter extends CustomPainter {
     path.close();
     canvas.drawPath(path, paint);
 
-    // crescent glow top-left
-    final glow = Paint()..color = Colors.white.withValues(alpha: 0.10);
-    canvas.drawCircle(Offset(w * 0.30, h * 0.22), w * 0.09, glow);
-    final cut = Paint()
-      ..color = const Color(0xFF15745A)
-      ..blendMode = BlendMode.srcOver;
-    canvas.drawCircle(Offset(w * 0.33, h * 0.19), w * 0.075, cut);
+    // crescent top-left, cut as a true path difference so it works over
+    // any backdrop (the nebula sky included).
+    final crescent = Path.combine(
+      PathOperation.difference,
+      Path()..addOval(
+        Rect.fromCircle(center: Offset(w * 0.30, h * 0.22), radius: w * 0.09),
+      ),
+      Path()..addOval(
+        Rect.fromCircle(center: Offset(w * 0.33, h * 0.19), radius: w * 0.075),
+      ),
+    );
+    canvas.drawPath(
+      crescent,
+      Paint()..color = const Color(0xFFF2D488).withValues(alpha: 0.35),
+    );
   }
 
   @override
@@ -436,11 +497,12 @@ class _Action extends StatelessWidget {
   final String subtitle;
   final VoidCallback? onTap;
 
-  const _Action(
-      {required this.icon,
-      required this.label,
-      required this.subtitle,
-      this.onTap});
+  const _Action({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -464,23 +526,33 @@ class _Action extends StatelessWidget {
                     color: scheme.primary.withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon,
-                      color: onTap == null
-                          ? scheme.onSurfaceVariant
-                          : scheme.primary,
-                      size: 24),
+                  child: Icon(
+                    icon,
+                    color: onTap == null
+                        ? scheme.onSurfaceVariant
+                        : scheme.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                Text(label,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 13),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                Text(subtitle,
-                    style: TextStyle(
-                        fontSize: 11, color: scheme.onSurfaceVariant),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
