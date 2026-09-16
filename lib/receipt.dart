@@ -76,6 +76,10 @@ Future<Uint8List> buildReceiptPdf(Order order, {int width = 58}) async {
           row('Tanggal', dateTimeText(order.createdAt)),
           row('Nama', order.customerName),
           row('No. HP', order.phone),
+          if (order.delivery) ...[
+            row('Layanan', 'Antar-Jemput'),
+            pw.Text('Alamat: ${order.address}', style: small),
+          ],
           line(),
           for (final item in order.items) ...[
             pw.Text(item.name, style: strong),

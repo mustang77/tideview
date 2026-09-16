@@ -22,6 +22,26 @@ const REQUIRE_OTP = process.env.REQUIRE_OTP === '1';
 
 const STATUS = ['menunggu', 'diterima', 'diproses', 'siap', 'selesai'];
 
+// Antar-jemput: kurir menjemput cucian ke rumah. Sama dengan
+// DeliveryRules di aplikasi (lib/models.dart) — ubah keduanya bersama.
+const DELIVERY_MIN_KG = 5;
+const DELIVERY_START_HOUR = 9;
+const DELIVERY_END_HOUR = 15;
+const kgOf = (items) =>
+    (items || []).filter((i) => i.unit === 'kg')
+        .reduce((s, i) => s + (Number(i.qty) || 0), 0);
+// Jadwal dikirim aplikasi sebagai waktu lokal tanpa zona
+// ("2026-09-20T10:00:00.000"), jadi jam diambil dari teksnya, bukan dari
+// Date (zona waktu server bisa berbeda).
+const hourOfIso = (s) => {
+  const m = /T(\d{2}):/.exec(String(s || ''));
+  return m ? Number(m[1]) : -1;
+};
+const waWhen = (s) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(s || ''));
+  return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}.${m[5]}` : '-';
+};
+
 const defaultServices = [
   { id: 'cuci_setrika', name: 'Cuci + Setrika', unit: 'kg', price: 7000, description: 'Cuci bersih, wangi, dan disetrika rapi', estimasiHari: 2 },
   { id: 'cuci_kering', name: 'Cuci Kering', unit: 'kg', price: 5000, description: 'Cuci dan keringkan, lipat tanpa setrika', estimasiHari: 2 },
@@ -193,6 +213,14 @@ const STATUS_NOTIF = {
   siap: 'SIAP DIAMBIL! 🎉',
   selesai: 'selesai — terima kasih! 🙏',
 };
+const STATUS_NOTIF_DELIVERY = {
+  diterima: 'sudah dijemput kurir dan diterima di laundry',
+  diproses: 'sedang diproses',
+  siap: 'SIAP DIANTAR ke alamat Anda! 🛵',
+  selesai: 'sudah diantar — terima kasih! 🙏',
+};
+const statusNotif = (o) =>
+    (o.delivery ? STATUS_NOTIF_DELIVERY : STATUS_NOTIF)[o.status];
 
 // ---- Notifikasi WhatsApp otomatis ----
 // Dikirim lewat gateway WA yang sama dengan OTP (WA_OTP_TOKEN/URL).
@@ -229,17 +257,28 @@ function waContents(o) {
 
 const WA_STATUS_MSG = {
   diterima: (o) =>
-      `Cucian pesanan *${o.id}* sudah kami terima di counter dan segera ` +
-      `diproses. 💧\n\n${waItems(o)}${waContents(o)}\n` +
+      (o.delivery
+          ? `Cucian pesanan *${o.id}* sudah dijemput kurir dan kami terima. `
+          : `Cucian pesanan *${o.id}* sudah kami terima di counter dan `) +
+      `segera diproses. 💧\n\n${waItems(o)}${waContents(o)}\n` +
       `Total: *${waRp(waTotal(o))}*\n\n_H2O Laundry Parakan_`,
   siap: (o) =>
-      `Kabar gembira! 🎉\nCucian pesanan *${o.id}* sudah *SIAP DIAMBIL* ` +
-      `di H2O Laundry Parakan.\n\n${waItems(o)}${waContents(o)}\n` +
-      `Total: *${waRp(waTotal(o))}*${o.paid ? ' (LUNAS)' : ''}\n\n` +
-      'Sampai jumpa di counter!',
+      o.delivery
+          ? `Kabar gembira! 🛵\nCucian pesanan *${o.id}* sudah selesai dan ` +
+            `*SIAP DIANTAR* ke alamat Anda:\n${o.address}\n\n` +
+            `${waItems(o)}${waContents(o)}\n` +
+            `Total: *${waRp(waTotal(o))}*` +
+            `${o.paid ? ' (LUNAS)' : ' — bayar ke kurir'}\n\n` +
+            'Mohon pastikan ada yang menerima di rumah ya.'
+          : `Kabar gembira! 🎉\nCucian pesanan *${o.id}* sudah *SIAP DIAMBIL* ` +
+            `di H2O Laundry Parakan.\n\n${waItems(o)}${waContents(o)}\n` +
+            `Total: *${waRp(waTotal(o))}*${o.paid ? ' (LUNAS)' : ''}\n\n` +
+            'Sampai jumpa di counter!',
   selesai: (o) =>
-      `Pesanan *${o.id}* selesai. Terima kasih sudah laundry di H2O ` +
-      'Laundry Parakan! 🙏',
+      (o.delivery
+          ? `Pesanan *${o.id}* sudah diantar. `
+          : `Pesanan *${o.id}* selesai. `) +
+      'Terima kasih sudah laundry di H2O Laundry Parakan! 🙏',
 };
 
 // ---- Verifikasi ID token Firebase (bukti OTP nomor HP) ----
@@ -1218,17 +1257,36 @@ app.post('/api/orders', (req, res) => {
     return res.status(400).json({ error: 'Data pesanan tidak lengkap' });
   }
   const t = now();
+  const items = b.items.map((i) => ({
+    serviceId: String(i.serviceId || ''),
+    name: String(i.name || ''),
+    unit: String(i.unit || 'pcs'),
+    price: Number(i.price) || 0,
+    qty: Number(i.qty) || 1,
+  }));
+  const delivery = b.delivery === true;
+  const address = String(b.address || '').trim();
+  if (delivery) {
+    if (kgOf(items) < DELIVERY_MIN_KG) {
+      return res.status(400).json({
+        error: `Antar-jemput minimal ${DELIVERY_MIN_KG} kg cucian kiloan`,
+      });
+    }
+    const h = hourOfIso(b.scheduledAt);
+    if (h < DELIVERY_START_HOUR || h > DELIVERY_END_HOUR) {
+      return res.status(400).json({
+        error: `Jam jemput hanya ${DELIVERY_START_HOUR}.00-${DELIVERY_END_HOUR}.00`,
+      });
+    }
+    if (address.length < 8) {
+      return res.status(400).json({ error: 'Alamat jemput belum lengkap' });
+    }
+  }
   const order = {
     id: `H2O-${String(db.seq++).padStart(4, '0')}`,
     customerName: c.name,
     phone: c.phone,
-    items: b.items.map((i) => ({
-      serviceId: String(i.serviceId || ''),
-      name: String(i.name || ''),
-      unit: String(i.unit || 'pcs'),
-      price: Number(i.price) || 0,
-      qty: Number(i.qty) || 1,
-    })),
+    items,
     contents: (Array.isArray(b.contents) ? b.contents : []).map(String),
     scheduledAt: b.scheduledAt || t,
     notes: String(b.notes || ''),
@@ -1236,6 +1294,8 @@ app.post('/api/orders', (req, res) => {
     history: [{ status: 'menunggu', at: t }],
     paid: false,
     createdAt: t,
+    delivery,
+    address: delivery ? address : '',
   };
   db.orders.unshift(order);
   save();
@@ -1243,8 +1303,11 @@ app.post('/api/orders', (req, res) => {
       `Halo ${order.customerName}! Pesanan *${order.id}* berhasil ` +
       `dibuat.\n\n${waItems(order)}${waContents(order)}\n` +
       `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
-      'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
-      'statusnya lewat aplikasi ya 💧');
+      (delivery
+          ? `🛵 Kurir kami akan menjemput cucian pada *${waWhen(order.scheduledAt)}* ` +
+            `di:\n${address}\n\nLacak statusnya lewat aplikasi ya 💧`
+          : 'Silakan antar cucian ke counter H2O Laundry Parakan. Lacak ' +
+            'statusnya lewat aplikasi ya 💧'));
   // Kabari para admin — admin tidak selalu membuka aplikasi. Tujuan:
   // No. WA tiap admin (Kelola Admin) + No. WhatsApp Info Toko, tanpa
   // duplikat.
@@ -1259,9 +1322,13 @@ app.post('/api/orders', (req, res) => {
   }
   for (const to of alertTo) {
     queueWa(to,
-        `🔔 *PESANAN BARU* ${order.id}\n` +
-        `Dari: ${order.customerName} (+${order.phone})\n\n` +
-        `${waItems(order)}${waContents(order)}\n` +
+        `🔔 *PESANAN BARU* ${order.id}` +
+        (delivery ? ' 🛵 ANTAR-JEMPUT' : '') +
+        `\nDari: ${order.customerName} (+${order.phone})\n` +
+        (delivery
+            ? `Jemput: *${waWhen(order.scheduledAt)}*\nAlamat: ${address}\n`
+            : '') +
+        `\n${waItems(order)}${waContents(order)}\n` +
         `Perkiraan total: *${waRp(waTotal(order))}*\n\n` +
         'Buka aplikasi untuk memproses ya.');
   }
@@ -1279,9 +1346,9 @@ app.post('/api/orders/:id/advance', (req, res) => {
     const entry = { status: o.status, at: now() };
     if (a.name) entry.by = a.name;
     o.history.push(entry);
-    if (STATUS_NOTIF[o.status]) {
+    if (statusNotif(o)) {
       notify(normPhone(o.phone), 'order',
-          `Pesanan ${o.id} ${STATUS_NOTIF[o.status]}`, { orderId: o.id });
+          `Pesanan ${o.id} ${statusNotif(o)}`, { orderId: o.id });
     }
     if (WA_STATUS_MSG[o.status]) {
       queueWa(o.phone, WA_STATUS_MSG[o.status](o));

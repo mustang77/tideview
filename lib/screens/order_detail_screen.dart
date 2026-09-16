@@ -54,8 +54,13 @@ class OrderDetailScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                'Pesanan dibuat! Silakan antar cucian Anda '
-                                'ke counter H2O Laundry Parakan sesuai jadwal.',
+                                order.delivery
+                                    ? 'Pesanan dibuat! Kurir kami akan '
+                                        'menjemput cucian Anda di alamat '
+                                        'yang tertera sesuai jadwal.'
+                                    : 'Pesanan dibuat! Silakan antar cucian '
+                                        'Anda ke counter H2O Laundry Parakan '
+                                        'sesuai jadwal.',
                                 style: TextStyle(
                                     color: theme
                                         .colorScheme.onPrimaryContainer),
@@ -78,6 +83,13 @@ class OrderDetailScreen extends StatelessWidget {
                       StatusChip(order: order),
                     ],
                   ),
+                  if (order.delivery)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: DeliveryBadge(large: true)),
+                    ),
                   const SizedBox(height: 16),
                   const SectionTitle('Status Pesanan'),
                   Card(
@@ -106,7 +118,9 @@ class OrderDetailScreen extends StatelessWidget {
                             child: Text(
                               order.paid
                                   ? '✓ Sudah dibayar'
-                                  : 'Bayar di counter saat pengambilan',
+                                  : order.delivery
+                                      ? 'Bayar ke kurir saat cucian diantar'
+                                      : 'Bayar di counter saat pengambilan',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: order.paid
                                     ? const Color(0xFF16A34A)
@@ -152,16 +166,28 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  const SectionTitle('Info Kedatangan'),
+                  SectionTitle(
+                      order.delivery ? 'Info Jemput' : 'Info Kedatangan'),
                   Card(
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.event),
+                          leading: Icon(order.delivery
+                              ? Icons.delivery_dining
+                              : Icons.event),
                           title: Text(dateTimeText(order.scheduledAt)),
-                          subtitle:
-                              const Text('Rencana antar ke counter'),
+                          subtitle: Text(order.delivery
+                              ? 'Jadwal kurir menjemput'
+                              : 'Rencana antar ke counter'),
                         ),
+                        if (order.delivery) ...[
+                          const Divider(height: 1),
+                          ListTile(
+                            leading: const Icon(Icons.location_on_outlined),
+                            title: Text(order.address),
+                            subtitle: const Text('Alamat jemput & antar'),
+                          ),
+                        ],
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.person_outline),

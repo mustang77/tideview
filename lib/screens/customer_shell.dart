@@ -232,6 +232,28 @@ class _HomeTabState extends State<_HomeTab> {
                 'Antar dan ambil cucian Anda langsung di counter H2O Laundry Parakan.'),
           ),
         ),
+        Card(
+          color: theme.colorScheme.tertiaryContainer,
+          child: ListTile(
+            leading: Icon(Icons.delivery_dining,
+                color: theme.colorScheme.onTertiaryContainer),
+            title: Text('Antar-Jemput ke Rumah',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onTertiaryContainer)),
+            subtitle: Text(
+              'Kurir menjemput & mengantar kembali. Jam jemput '
+              '${DeliveryRules.hoursText}, minimal '
+              '${DeliveryRules.minKg.toInt()} kg cucian kiloan.',
+              style:
+                  TextStyle(color: theme.colorScheme.onTertiaryContainer),
+            ),
+            trailing: Icon(Icons.chevron_right,
+                color: theme.colorScheme.onTertiaryContainer),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const NewOrderScreen(delivery: true))),
+          ),
+        ),
         // Pil "Chat Sekarang" — akses cepat ke Layanan Pelanggan.
         if (store.online) ...[
           const SizedBox(height: 12),
@@ -483,7 +505,7 @@ class _PromoBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pesan sekarang, bawa ke counter, kami kerjakan cepat.',
+                  'Pesan sekarang, bawa ke counter atau minta dijemput.',
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 13),

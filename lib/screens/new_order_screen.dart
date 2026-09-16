@@ -22,9 +22,13 @@ const laundryContents = [
 ];
 
 class NewOrderScreen extends StatefulWidget {
-  const NewOrderScreen({super.key, this.initialService});
+  const NewOrderScreen(
+      {super.key, this.initialService, this.delivery = false});
 
   final ServiceType? initialService;
+
+  /// Buka langsung dengan Antar-Jemput terpilih (dari kartu di beranda).
+  final bool delivery;
 
   @override
   State<NewOrderScreen> createState() => _NewOrderScreenState();
@@ -44,8 +48,12 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
   late DateTime _date = DateTime.now();
   TimeOfDay _time = const TimeOfDay(hour: 9, minute: 0);
 
+  /// Antar-jemput (kurir) atau datang sendiri ke counter.
+  late bool _delivery = widget.delivery;
+
   late final _name = TextEditingController(text: store.profile.name);
   late final _phone = TextEditingController(text: store.profile.phone);
+  late final _address = TextEditingController(text: store.profile.address);
   final _notes = TextEditingController();
 
   @override
@@ -59,8 +67,22 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
   void dispose() {
     _name.dispose();
     _phone.dispose();
+    _address.dispose();
     _notes.dispose();
     super.dispose();
+  }
+
+  double get _kg => DeliveryRules.kgOf(_items);
+
+  void _setDelivery(bool v) {
+    setState(() {
+      _delivery = v;
+      // Jam jemput hanya slot per jam 09.00-15.00; jam counter bebas.
+      if (v && !DeliveryRules.hourOk(_time.hour)) {
+        _time = const TimeOfDay(hour: DeliveryRules.startHour, minute: 0);
+      }
+      if (v) _time = TimeOfDay(hour: _time.hour, minute: 0);
+    });
   }
 
   double _minOf(ServiceType s) => s.perKg ? minKg : 1;
@@ -156,12 +178,50 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
       initialDate: _date,
       firstDate: now,
       lastDate: now.add(const Duration(days: 14)),
-      helpText: 'Kapan Anda datang ke laundry?',
+      helpText: _delivery
+          ? 'Tanggal kurir menjemput'
+          : 'Kapan Anda datang ke laundry?',
     );
     if (picked != null) setState(() => _date = picked);
   }
 
   Future<void> _pickTime() async {
+    if (_delivery) {
+      // Slot per jam di jendela jemput.
+      final picked = await showModalBottomSheet<int>(
+        context: context,
+        showDragHandle: true,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text('Jam jemput (${DeliveryRules.hoursText})',
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final h in DeliveryRules.slots)
+                    ChoiceChip(
+                      label: Text('${h.toString().padLeft(2, '0')}.00'),
+                      selected: _time.hour == h,
+                      onSelected: (_) => Navigator.pop(ctx, h),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      );
+      if (picked != null) {
+        setState(() => _time = TimeOfDay(hour: picked, minute: 0));
+      }
+      return;
+    }
     final picked = await showTimePicker(
       context: context,
       initialTime: _time,
@@ -195,7 +255,18 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           content: Text('Lengkapi nama dan no. HP dulu ya.')));
       return;
     }
-    await store.saveProfile(name, phone, store.profile.address);
+    final address = _address.text.trim();
+    if (_delivery) {
+      final problem = DeliveryRules.problem(
+          items: items, hour: _time.hour, address: address);
+      if (problem != null) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(problem)));
+        return;
+      }
+    }
+    await store.saveProfile(
+        name, phone, _delivery ? address : store.profile.address);
     final order = await store.createOrder(
       items: items,
       contents: [
@@ -207,6 +278,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
       scheduledAt: DateTime(
           _date.year, _date.month, _date.day, _time.hour, _time.minute),
       notes: _notes.text.trim(),
+      delivery: _delivery,
+      address: _delivery ? address : '',
     );
     if (!mounted) return;
     if (order == null) {
@@ -314,7 +387,68 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const SectionTitle('Rencana Datang ke Laundry'),
+                const SectionTitle('Cara Pengantaran'),
+                Card(
+                  child: RadioGroup<bool>(
+                    groupValue: _delivery,
+                    onChanged: (v) => _setDelivery(v ?? false),
+                    child: Column(
+                      children: [
+                        const RadioListTile<bool>(
+                          value: false,
+                          secondary: Icon(Icons.storefront),
+                          title: Text('Antar sendiri ke counter',
+                              style: TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle:
+                              Text('Bawa cucian ke H2O Laundry Parakan'),
+                        ),
+                        const Divider(height: 1),
+                        RadioListTile<bool>(
+                          value: true,
+                          secondary: const Icon(Icons.delivery_dining),
+                          title: const Text('Antar-Jemput ke rumah',
+                              style: TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle: Text(
+                              'Kurir menjemput & mengantar kembali. Jam '
+                              'jemput ${DeliveryRules.hoursText}, minimal '
+                              '${DeliveryRules.minKg.toInt()} kg cucian '
+                              'kiloan.'),
+                        ),
+                        if (_delivery) ...[
+                          const Divider(height: 1),
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextField(
+                                  controller: _address,
+                                  maxLines: 2,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Alamat jemput & antar',
+                                    hintText:
+                                        'Jl. / dusun, RT/RW, patokan rumah',
+                                    prefixIcon:
+                                        Icon(Icons.location_on_outlined),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _KgMeter(kg: _kg),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SectionTitle(_delivery
+                    ? 'Jadwal Jemput'
+                    : 'Rencana Datang ke Laundry'),
                 Card(
                   child: Column(
                     children: [
@@ -328,8 +462,12 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.schedule),
-                        title: Text(_time.format(context)),
-                        subtitle: const Text('Jam'),
+                        title: Text(_delivery
+                            ? '${_time.hour.toString().padLeft(2, '0')}.00'
+                            : _time.format(context)),
+                        subtitle: Text(_delivery
+                            ? 'Jam jemput (${DeliveryRules.hoursText})'
+                            : 'Jam'),
                         trailing: const Icon(Icons.edit_outlined, size: 20),
                         onTap: _pickTime,
                       ),
@@ -426,6 +564,37 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Indikator berat kiloan vs syarat minimal antar-jemput.
+class _KgMeter extends StatelessWidget {
+  const _KgMeter({required this.kg});
+  final double kg;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final ok = kg >= DeliveryRules.minKg;
+    final color = ok ? const Color(0xFF16A34A) : theme.colorScheme.error;
+    return Row(
+      children: [
+        Icon(ok ? Icons.check_circle : Icons.info_outline,
+            size: 18, color: color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            ok
+                ? 'Cucian kiloan ${qtyText(kg, 'kg')} — memenuhi syarat '
+                    'antar-jemput.'
+                : 'Cucian kiloan baru ${qtyText(kg, 'kg')}; antar-jemput '
+                    'minimal ${DeliveryRules.minKg.toInt()} kg. Tambah '
+                    'berat di bagian Pilih Item.',
+            style: theme.textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ),
+      ],
     );
   }
 }

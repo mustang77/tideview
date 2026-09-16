@@ -265,4 +265,78 @@ void main() {
     expect(legacy.total, 10000);
     expect(legacy.status, OrderStatus.diterima);
   });
+
+  test('antar-jemput: minimal 5 kg, jam 09-15, alamat wajib', () {
+    OrderItem kg(double q) => OrderItem(
+        serviceId: 'cuci_setrika',
+        name: 'Cuci + Setrika',
+        unit: 'kg',
+        price: 7000,
+        qty: q);
+    OrderItem pcs(double q) => OrderItem(
+        serviceId: 'selimut',
+        name: 'Selimut',
+        unit: 'pcs',
+        price: 15000,
+        qty: q);
+    const alamat = 'Jl. Kebonsari 12 RT 03/RW 01, dekat masjid';
+
+    // Kurang dari 5 kg kiloan (item satuan tidak dihitung).
+    expect(
+        DeliveryRules.problem(
+            items: [kg(3), pcs(2)], hour: 10, address: alamat),
+        contains('minimal 5 kg'));
+    // Dua item kiloan dijumlahkan.
+    expect(
+        DeliveryRules.problem(
+            items: [kg(3), kg(2)], hour: 10, address: alamat),
+        isNull);
+    // Di luar jam jemput.
+    expect(DeliveryRules.problem(items: [kg(5)], hour: 8, address: alamat),
+        contains('Jam jemput'));
+    expect(DeliveryRules.problem(items: [kg(5)], hour: 16, address: alamat),
+        contains('Jam jemput'));
+    expect(DeliveryRules.problem(items: [kg(5)], hour: 15, address: alamat),
+        isNull);
+    // Alamat kosong.
+    expect(DeliveryRules.problem(items: [kg(5)], hour: 9, address: ''),
+        contains('alamat'));
+    // Slot per jam 09..15.
+    expect(DeliveryRules.slots, [9, 10, 11, 12, 13, 14, 15]);
+  });
+
+  test('antar-jemput: label status & serialisasi pesanan', () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = LaundryStore();
+    await s.init();
+    final order = (await s.createOrder(
+      items: [
+        OrderItem(
+            serviceId: 'cuci_setrika',
+            name: 'Cuci + Setrika',
+            unit: 'kg',
+            price: 7000,
+            qty: 6),
+      ],
+      name: 'Dewi',
+      phone: '0813-0000',
+      scheduledAt: DateTime(2026, 9, 20, 10),
+      notes: '',
+      delivery: true,
+      address: 'Jl. Kebonsari 12 RT 03/RW 01',
+    ))!;
+    expect(order.delivery, isTrue);
+    expect(order.statusText, 'Menunggu Dijemput');
+    expect(statusLabel(OrderStatus.siap, delivery: true), 'Siap Diantar');
+    expect(statusLabel(OrderStatus.siap), 'Siap Diambil');
+    final again = Order.fromMap(order.toMap());
+    expect(again.delivery, isTrue);
+    expect(again.address, 'Jl. Kebonsari 12 RT 03/RW 01');
+    // Pesanan lama tanpa field delivery tetap terbaca sebagai counter.
+    final legacy = Order.fromMap(
+        order.toMap()
+          ..remove('delivery')
+          ..remove('address'));
+    expect(legacy.delivery, isFalse);
+  });
 }

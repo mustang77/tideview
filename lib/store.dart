@@ -825,6 +825,8 @@ class LaundryStore extends ChangeNotifier {
     required DateTime scheduledAt,
     required String notes,
     List<String> contents = const [],
+    bool delivery = false,
+    String address = '',
   }) async {
     final a = api;
     if (a != null) {
@@ -834,6 +836,8 @@ class LaundryStore extends ChangeNotifier {
           'contents': contents,
           'scheduledAt': scheduledAt.toIso8601String(),
           'notes': notes,
+          'delivery': delivery,
+          'address': address,
         }, custPhone: profile.phone, custPin: _custPin);
         final order = Order.fromMap(m);
         orders.insert(0, order);
@@ -863,6 +867,8 @@ class LaundryStore extends ChangeNotifier {
       history: [StatusEntry(OrderStatus.menunggu, now)],
       paid: false,
       createdAt: now,
+      delivery: delivery,
+      address: address,
     );
     orders.insert(0, order);
     await _save();

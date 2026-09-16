@@ -124,6 +124,42 @@ class StatusChip extends StatelessWidget {
   }
 }
 
+/// Penanda kecil "Antar-Jemput" pada kartu pesanan.
+class DeliveryBadge extends StatelessWidget {
+  const DeliveryBadge({super.key, this.large = false});
+  final bool large;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: EdgeInsets.symmetric(
+          horizontal: large ? 10 : 6, vertical: large ? 4 : 2),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.delivery_dining,
+              size: large ? 16 : 13,
+              color: theme.colorScheme.onTertiaryContainer),
+          const SizedBox(width: 3),
+          Text(
+            'Antar-Jemput',
+            style: TextStyle(
+              fontSize: large ? 12 : 10.5,
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onTertiaryContainer,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,
@@ -170,9 +206,24 @@ class OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          showCustomer ? order.customerName : order.itemsBrief,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                showCustomer
+                                    ? order.customerName
+                                    : order.itemsBrief,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            if (order.delivery) ...[
+                              const SizedBox(width: 6),
+                              const DeliveryBadge(),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -261,7 +312,7 @@ class OrderTimeline extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    statusLabel(status),
+                    statusLabel(status, delivery: order.delivery),
                     style: TextStyle(
                       fontWeight:
                           isCurrent ? FontWeight.w700 : FontWeight.w500,

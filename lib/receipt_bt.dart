@@ -69,6 +69,10 @@ List<int> buildEscposReceipt(Order order, {int width = 58}) {
   row('Tanggal', dateTimeText(order.createdAt));
   row('Nama', order.customerName);
   row('No. HP', order.phone);
+  if (order.delivery) {
+    row('Layanan', 'Antar-Jemput');
+    line('Alamat: ${order.address}');
+  }
   divider();
   for (final item in order.items) {
     line(item.name, bold: true);

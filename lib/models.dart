@@ -1,11 +1,64 @@
 /// Model data untuk aplikasi H2O Laundry Parakan.
 library;
 
-/// Alur pesanan layanan di gerai (pelanggan datang ke counter):
-/// pesanan dibuat → diterima → diproses → siap diambil → selesai.
-/// (Tanpa layanan antar-jemput — "menunggu" = menunggu pelanggan
-/// membawa cuciannya ke counter.)
+/// Alur pesanan: pesanan dibuat → diterima → diproses → siap → selesai.
+/// Untuk pesanan counter, "menunggu" = menunggu pelanggan membawa cucian;
+/// untuk antar-jemput, "menunggu" = menunggu kurir menjemput, dan "siap"
+/// = siap diantar kembali ke alamat pelanggan.
 enum OrderStatus { menunggu, diterima, diproses, siap, selesai }
+
+/// Aturan layanan antar-jemput (kurir menjemput cucian ke rumah dan
+/// mengantar kembali). Ubah di sini bila kebijakan toko berubah.
+class DeliveryRules {
+  DeliveryRules._();
+
+  /// Jam jemput: 09.00 sampai 15.00 WIB (slot per jam).
+  static const int startHour = 9;
+  static const int endHour = 15;
+
+  /// Berat minimal total item kiloan.
+  static const double minKg = 5;
+
+  static List<int> get slots =>
+      [for (var h = startHour; h <= endHour; h++) h];
+
+  static String get hoursText =>
+      '${_two(startHour)}.00–${_two(endHour)}.00 WIB';
+
+  static String _two(int n) => n.toString().padLeft(2, '0');
+
+  static bool hourOk(int hour) => hour >= startHour && hour <= endHour;
+
+  /// Total kg item kiloan dalam pesanan.
+  static double kgOf(Iterable<OrderItem> items) => items
+      .where((i) => i.unit == 'kg')
+      .fold<double>(0, (s, i) => s + i.qty);
+
+  static String _kgText(double kg) => kg == kg.roundToDouble()
+      ? kg.toInt().toString()
+      : kg.toStringAsFixed(1).replaceAll('.', ',');
+
+  /// Alasan pesanan antar-jemput ditolak, atau null bila memenuhi syarat.
+  static String? problem({
+    required Iterable<OrderItem> items,
+    required int hour,
+    required String address,
+  }) {
+    final kg = kgOf(items);
+    if (kg < minKg) {
+      return 'Antar-jemput minimal ${minKg.toInt()} kg cucian kiloan '
+          '(sekarang ${_kgText(kg)} kg).';
+    }
+    if (!hourOk(hour)) {
+      return 'Jam jemput hanya $hoursText.';
+    }
+    if (address.trim().length < 8) {
+      return 'Tulis alamat jemput yang lengkap (nama jalan / dusun, RT/RW, '
+          'patokan).';
+    }
+    return null;
+  }
+}
 
 OrderStatus statusFromName(String s) {
   // Data lama memakai nama 'dijemput' untuk status kedua.
@@ -13,18 +66,18 @@ OrderStatus statusFromName(String s) {
   return OrderStatus.values.byName(s);
 }
 
-String statusLabel(OrderStatus status) {
+String statusLabel(OrderStatus status, {bool delivery = false}) {
   switch (status) {
     case OrderStatus.menunggu:
-      return 'Pesanan Dibuat';
+      return delivery ? 'Menunggu Dijemput' : 'Pesanan Dibuat';
     case OrderStatus.diterima:
-      return 'Diterima di Laundry';
+      return delivery ? 'Dijemput & Diterima' : 'Diterima di Laundry';
     case OrderStatus.diproses:
       return 'Sedang Diproses';
     case OrderStatus.siap:
-      return 'Siap Diambil';
+      return delivery ? 'Siap Diantar' : 'Siap Diambil';
     case OrderStatus.selesai:
-      return 'Selesai';
+      return delivery ? 'Sudah Diantar' : 'Selesai';
   }
 }
 
@@ -171,6 +224,8 @@ class Order {
     required this.history,
     required this.paid,
     required this.createdAt,
+    this.delivery = false,
+    this.address = '',
   });
 
   final String id;
@@ -178,12 +233,18 @@ class Order {
   final String phone;
   final List<OrderItem> items;
 
+  /// Antar-jemput: kurir menjemput cucian di [address] pada [scheduledAt]
+  /// dan mengantarnya kembali. False = pelanggan datang ke counter.
+  final bool delivery;
+  final String address;
+
   /// Jenis pakaian yang dicuci, dideklarasikan pelanggan saat memesan
   /// (mis. Kaos, Kemeja, Handuk). Item di luar daftar ini menjadi
   /// tanggung jawab pelanggan bila hilang.
   final List<String> contents;
 
-  /// Rencana pelanggan datang mengantar cucian ke counter.
+  /// Counter: rencana pelanggan datang. Antar-jemput: jadwal kurir
+  /// menjemput di alamat pelanggan.
   final DateTime scheduledAt;
   final String notes;
   OrderStatus status;
@@ -194,7 +255,7 @@ class Order {
   double get total =>
       items.fold(0, (sum, item) => sum + item.subtotal);
   bool get selesai => status == OrderStatus.selesai;
-  String get statusText => statusLabel(status);
+  String get statusText => statusLabel(status, delivery: delivery);
 
   /// Ringkasan singkat isi pesanan, mis. "Baju Atasan ×3 +2 item".
   String get itemsBrief {
@@ -221,6 +282,8 @@ class Order {
         'history': history.map((e) => e.toMap()).toList(),
         'paid': paid,
         'createdAt': createdAt.toIso8601String(),
+        'delivery': delivery,
+        'address': address,
       };
 
   factory Order.fromMap(Map<String, dynamic> m) {
@@ -255,6 +318,8 @@ class Order {
           .toList(),
       paid: m['paid'] as bool? ?? false,
       createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
+      delivery: m['delivery'] == true,
+      address: m['address'] as String? ?? '',
     );
   }
 }

@@ -143,6 +143,13 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                         StatusChip(order: order),
                       ],
                     ),
+                    if (order.delivery)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6),
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: DeliveryBadge(large: true)),
+                      ),
                     const SizedBox(height: 12),
                     Card(
                       child: Column(
@@ -154,11 +161,23 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                           ),
                           const Divider(height: 1),
                           ListTile(
-                            leading: const Icon(Icons.event),
+                            leading: Icon(order.delivery
+                                ? Icons.delivery_dining
+                                : Icons.event),
                             title: Text(dateTimeText(order.scheduledAt)),
-                            subtitle:
-                                const Text('Rencana datang ke counter'),
+                            subtitle: Text(order.delivery
+                                ? 'Jadwal jemput (kurir)'
+                                : 'Rencana datang ke counter'),
                           ),
+                          if (order.delivery) ...[
+                            const Divider(height: 1),
+                            ListTile(
+                              leading:
+                                  const Icon(Icons.location_on_outlined),
+                              title: Text(order.address),
+                              subtitle: const Text('Alamat jemput & antar'),
+                            ),
+                          ],
                           if (order.contents.isNotEmpty) ...[
                             const Divider(height: 1),
                             ListTile(
@@ -260,7 +279,8 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                       FilledButton.icon(
                         onPressed: () => store.advanceStatus(order),
                         icon: const Icon(Icons.arrow_forward),
-                        label: Text('Tandai: ${statusLabel(next)}'),
+                        label: Text(
+                            'Tandai: ${statusLabel(next, delivery: order.delivery)}'),
                         style: FilledButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 16)),
