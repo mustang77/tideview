@@ -27,6 +27,7 @@ class _OwnerShellState extends State<OwnerShell> {
 
   /// Filter awal tab Pesanan saat dibuka dari kartu Dashboard.
   OrderStatus? _ordersFilter;
+  bool _ordersDeliveryOnly = false;
   Timer? _poll;
 
   @override
@@ -59,13 +60,21 @@ class _OwnerShellState extends State<OwnerShell> {
                 0 => _DashboardTab(
                     onShowOrders: (f) => setState(() {
                           _ordersFilter = f;
+                          _ordersDeliveryOnly = false;
+                          _index = 1;
+                        }),
+                    onShowDeliveries: () => setState(() {
+                          _ordersFilter = null;
+                          _ordersDeliveryOnly = true;
                           _index = 1;
                         }),
                     onShowReport: () => setState(() => _index = 3),
                   ),
                 1 => _OwnerOrdersTab(
-                    key: ValueKey('orders-${_ordersFilter?.name}'),
-                    initialFilter: _ordersFilter),
+                    key: ValueKey(
+                        'orders-${_ordersFilter?.name}-$_ordersDeliveryOnly'),
+                    initialFilter: _ordersFilter,
+                    initialDeliveryOnly: _ordersDeliveryOnly),
                 2 => _CustomersTab(),
                 3 => _ReportTab(),
                 _ => _PricingTab(),
@@ -93,6 +102,7 @@ class _OwnerShellState extends State<OwnerShell> {
                   selected: _index == 1,
                   onTap: () => setState(() {
                         _ordersFilter = null; // nav = mulai dari Semua
+                        _ordersDeliveryOnly = false;
                         _index = 1;
                       })),
               NavIcon(
@@ -125,7 +135,12 @@ class _OwnerShellState extends State<OwnerShell> {
 
 class _DashboardTab extends StatelessWidget {
   const _DashboardTab(
-      {required this.onShowOrders, required this.onShowReport});
+      {required this.onShowOrders,
+      required this.onShowDeliveries,
+      required this.onShowReport});
+
+  /// Buka tab Pesanan dengan filter Antar-Jemput.
+  final VoidCallback onShowDeliveries;
 
   /// Buka tab Pesanan dengan filter status tertentu (null = semua).
   final void Function(OrderStatus?) onShowOrders;
@@ -253,6 +268,50 @@ class _DashboardTab extends StatelessWidget {
                 onTap: onShowReport),
           ],
         ),
+        // Antar-jemput yang belum dijemput: kurir perlu tahu jadwal & alamat.
+        Builder(builder: (context) {
+          final jemput = store.orders
+              .where((o) => o.delivery && o.status == OrderStatus.menunggu)
+              .toList()
+            ..sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
+          if (jemput.isEmpty) return const SizedBox.shrink();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                      child: SectionTitle(
+                          'Jadwal Jemput Kurir (${jemput.length})')),
+                  TextButton(
+                      onPressed: onShowDeliveries,
+                      child: const Text('Lihat semua')),
+                ],
+              ),
+              for (final o in jemput.take(5))
+                Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  color: theme.colorScheme.tertiaryContainer,
+                  child: ListTile(
+                    leading: Icon(Icons.delivery_dining,
+                        color: theme.colorScheme.onTertiaryContainer),
+                    title: Text(
+                      '${sameDay(o.scheduledAt, now) ? 'Hari ini' : shortDate(o.scheduledAt)}'
+                      ' ${timeText(o.scheduledAt)} • ${o.customerName}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                        '${o.address}\n${o.phone} • ${o.itemsBrief}',
+                        maxLines: 4),
+                    isThreeLine: true,
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => OwnerOrderDetailScreen(order: o))),
+                  ),
+                ),
+            ],
+          );
+        }),
         const SizedBox(height: 20),
         SectionTitle('Perlu Ditindak (${active.length})'),
         if (active.isEmpty)
@@ -313,10 +372,12 @@ class _DashboardTab extends StatelessWidget {
 // -------------------------------------------------------------- Pesanan
 
 class _OwnerOrdersTab extends StatefulWidget {
-  const _OwnerOrdersTab({super.key, this.initialFilter});
+  const _OwnerOrdersTab(
+      {super.key, this.initialFilter, this.initialDeliveryOnly = false});
 
   /// Filter yang langsung aktif saat tab dibuka (dari kartu Dashboard).
   final OrderStatus? initialFilter;
+  final bool initialDeliveryOnly;
 
   @override
   State<_OwnerOrdersTab> createState() => _OwnerOrdersTabState();
@@ -324,11 +385,13 @@ class _OwnerOrdersTab extends StatefulWidget {
 
 class _OwnerOrdersTabState extends State<_OwnerOrdersTab> {
   late OrderStatus? _filter = widget.initialFilter;
+  late bool _deliveryOnly = widget.initialDeliveryOnly;
 
   @override
   Widget build(BuildContext context) {
     final orders = store.orders
         .where((o) => _filter == null || o.status == _filter)
+        .where((o) => !_deliveryOnly || o.delivery)
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -351,8 +414,21 @@ class _OwnerOrdersTabState extends State<_OwnerOrdersTab> {
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
                   label: const Text('Semua'),
-                  selected: _filter == null,
-                  onSelected: (_) => setState(() => _filter = null),
+                  selected: _filter == null && !_deliveryOnly,
+                  onSelected: (_) => setState(() {
+                    _filter = null;
+                    _deliveryOnly = false;
+                  }),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  avatar: const Icon(Icons.delivery_dining, size: 16),
+                  label: const Text('Antar-Jemput'),
+                  selected: _deliveryOnly,
+                  onSelected: (_) =>
+                      setState(() => _deliveryOnly = !_deliveryOnly),
                 ),
               ),
               for (final s in OrderStatus.values)

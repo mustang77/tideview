@@ -269,6 +269,9 @@ class LaundryStore extends ChangeNotifier {
     final fresh = Order.fromMap(m);
     order.status = fresh.status;
     order.paid = fresh.paid;
+    order.delivery = fresh.delivery;
+    order.address = fresh.address;
+    order.scheduledAt = fresh.scheduledAt;
     order.history
       ..clear()
       ..addAll(fresh.history);
@@ -935,6 +938,38 @@ class LaundryStore extends ChangeNotifier {
       return;
     }
     item.qty = qty;
+    await _save();
+  }
+
+  /// Pemilik mengubah cara pengantaran / alamat / jadwal sebuah pesanan
+  /// (mis. pelanggan telepon minta dijemput, atau ganti jam).
+  Future<void> updateDelivery(
+    Order order, {
+    required bool delivery,
+    required String address,
+    required DateTime scheduledAt,
+  }) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.setDelivery(order.id,
+            delivery: delivery,
+            address: address,
+            scheduledAt: scheduledAt,
+            adminId: currentAdminId,
+            adminPin: _adminPin);
+        _applyOrder(order, m);
+        serverOk = true;
+        await _save();
+      } catch (_) {
+        serverOk = false;
+        notifyListeners();
+      }
+      return;
+    }
+    order.delivery = delivery;
+    order.address = delivery ? address.trim() : '';
+    order.scheduledAt = scheduledAt;
     await _save();
   }
 

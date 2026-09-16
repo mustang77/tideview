@@ -157,6 +157,24 @@ class ApiClient {
       _post('/api/orders/$id/item-qty', {'index': index, 'qty': qty},
           adminId: adminId, adminPin: adminPin);
 
+  Future<Map<String, dynamic>> setDelivery(
+    String id, {
+    required bool delivery,
+    required String address,
+    required DateTime scheduledAt,
+    String? adminId,
+    String? adminPin,
+  }) =>
+      _post(
+          '/api/orders/$id/delivery',
+          {
+            'delivery': delivery,
+            'address': address,
+            'scheduledAt': scheduledAt.toIso8601String(),
+          },
+          adminId: adminId,
+          adminPin: adminPin);
+
   Future<void> deleteOrder(String id, {String? adminId, String? adminPin}) =>
       _delete('/api/orders/$id', adminId: adminId, adminPin: adminPin);
 

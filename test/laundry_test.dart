@@ -339,4 +339,44 @@ void main() {
           ..remove('address'));
     expect(legacy.delivery, isFalse);
   });
+
+  test('pemilik mengubah pengantaran: counter -> antar-jemput -> counter',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = LaundryStore();
+    await s.init();
+    final order = (await s.createOrder(
+      items: [
+        OrderItem(
+            serviceId: 'cuci_setrika',
+            name: 'Cuci + Setrika',
+            unit: 'kg',
+            price: 7000,
+            qty: 6),
+      ],
+      name: 'Eko',
+      phone: '0814-0000',
+      scheduledAt: DateTime(2026, 9, 21, 17, 30),
+      notes: '',
+    ))!;
+    expect(order.delivery, isFalse);
+    await s.updateDelivery(order,
+        delivery: true,
+        address: 'Dusun Krajan RT 02/RW 01',
+        scheduledAt: DateTime(2026, 9, 22, 11));
+    expect(order.delivery, isTrue);
+    expect(order.address, 'Dusun Krajan RT 02/RW 01');
+    expect(order.scheduledAt.hour, 11);
+    expect(order.statusText, 'Menunggu Dijemput');
+    // Tersimpan: muat ulang dari penyimpanan.
+    final s2 = LaundryStore();
+    await s2.init();
+    final again = s2.orders.firstWhere((o) => o.id == order.id);
+    expect(again.delivery, isTrue);
+    expect(again.address, 'Dusun Krajan RT 02/RW 01');
+    await s2.updateDelivery(again,
+        delivery: false, address: 'x', scheduledAt: again.scheduledAt);
+    expect(again.delivery, isFalse);
+    expect(again.address, '');
+  });
 }

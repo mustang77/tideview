@@ -235,8 +235,9 @@ class Order {
 
   /// Antar-jemput: kurir menjemput cucian di [address] pada [scheduledAt]
   /// dan mengantarnya kembali. False = pelanggan datang ke counter.
-  final bool delivery;
-  final String address;
+  /// Pemilik boleh mengubah ketiganya (updateDelivery).
+  bool delivery;
+  String address;
 
   /// Jenis pakaian yang dicuci, dideklarasikan pelanggan saat memesan
   /// (mis. Kaos, Kemeja, Handuk). Item di luar daftar ini menjadi
@@ -245,7 +246,7 @@ class Order {
 
   /// Counter: rencana pelanggan datang. Antar-jemput: jadwal kurir
   /// menjemput di alamat pelanggan.
-  final DateTime scheduledAt;
+  DateTime scheduledAt;
   final String notes;
   OrderStatus status;
   final List<StatusEntry> history;

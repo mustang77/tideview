@@ -50,6 +50,138 @@ class OwnerOrderDetailScreen extends StatelessWidget {
     }
   }
 
+  /// Ubah cara pengantaran, alamat jemput, dan jadwal (pemilik).
+  Future<void> _editDelivery(BuildContext context) async {
+    var delivery = order.delivery;
+    var when = order.scheduledAt;
+    if (delivery && !DeliveryRules.hourOk(when.hour)) {
+      when = DateTime(when.year, when.month, when.day, DeliveryRules.startHour);
+    }
+    final address = TextEditingController(text: order.address);
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Ubah pengantaran'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Antar-Jemput (kurir)'),
+                  subtitle: Text(delivery
+                      ? 'Kurir menjemput & mengantar kembali'
+                      : 'Pelanggan datang ke counter'),
+                  value: delivery,
+                  onChanged: (v) => setState(() {
+                    delivery = v;
+                    if (v && !DeliveryRules.hourOk(when.hour)) {
+                      when = DateTime(when.year, when.month, when.day,
+                          DeliveryRules.startHour);
+                    }
+                  }),
+                ),
+                if (delivery)
+                  TextField(
+                    controller: address,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Alamat jemput & antar',
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.event),
+                  title: Text(shortDate(when)),
+                  subtitle: Text(delivery ? 'Tanggal jemput' : 'Tanggal'),
+                  trailing: const Icon(Icons.edit_outlined, size: 18),
+                  onTap: () async {
+                    final d = await showDatePicker(
+                      context: ctx,
+                      initialDate: when,
+                      firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                      lastDate: DateTime.now().add(const Duration(days: 60)),
+                    );
+                    if (d != null) {
+                      setState(() => when =
+                          DateTime(d.year, d.month, d.day, when.hour, when.minute));
+                    }
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.schedule),
+                  title: Text(delivery
+                      ? '${when.hour.toString().padLeft(2, '0')}.00'
+                      : timeText(when)),
+                  subtitle: Text(delivery
+                      ? 'Jam jemput (${DeliveryRules.hoursText})'
+                      : 'Jam'),
+                  trailing: const Icon(Icons.edit_outlined, size: 18),
+                  onTap: () async {
+                    if (delivery) {
+                      final h = await showDialog<int>(
+                        context: ctx,
+                        builder: (c2) => SimpleDialog(
+                          title: const Text('Jam jemput'),
+                          children: [
+                            for (final h in DeliveryRules.slots)
+                              SimpleDialogOption(
+                                onPressed: () => Navigator.pop(c2, h),
+                                child: Text(
+                                    '${h.toString().padLeft(2, '0')}.00'),
+                              ),
+                          ],
+                        ),
+                      );
+                      if (h != null) {
+                        setState(() => when =
+                            DateTime(when.year, when.month, when.day, h));
+                      }
+                      return;
+                    }
+                    final t = await showTimePicker(
+                        context: ctx,
+                        initialTime: TimeOfDay.fromDateTime(when));
+                    if (t != null) {
+                      setState(() => when = DateTime(
+                          when.year, when.month, when.day, t.hour, t.minute));
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Batal')),
+            FilledButton(
+              onPressed: () {
+                if (delivery && address.text.trim().length < 8) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Alamat jemput belum lengkap.')));
+                  return;
+                }
+                Navigator.pop(ctx, true);
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (saved == true) {
+      await store.updateDelivery(order,
+          delivery: delivery, address: address.text, scheduledAt: when);
+    }
+    address.dispose();
+  }
+
   Future<void> _confirmDelete(BuildContext context) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -166,8 +298,11 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                                 : Icons.event),
                             title: Text(dateTimeText(order.scheduledAt)),
                             subtitle: Text(order.delivery
-                                ? 'Jadwal jemput (kurir)'
-                                : 'Rencana datang ke counter'),
+                                ? 'Jadwal jemput (kurir) • ketuk untuk ubah'
+                                : 'Rencana datang ke counter • ketuk untuk '
+                                    'ubah / jadikan antar-jemput'),
+                            trailing: const Icon(Icons.edit_outlined, size: 20),
+                            onTap: () => _editDelivery(context),
                           ),
                           if (order.delivery) ...[
                             const Divider(height: 1),
@@ -176,6 +311,9 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                                   const Icon(Icons.location_on_outlined),
                               title: Text(order.address),
                               subtitle: const Text('Alamat jemput & antar'),
+                              trailing:
+                                  const Icon(Icons.edit_outlined, size: 20),
+                              onTap: () => _editDelivery(context),
                             ),
                           ],
                           if (order.contents.isNotEmpty) ...[

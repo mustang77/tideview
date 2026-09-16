@@ -206,24 +206,11 @@ class OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                showCustomer
-                                    ? order.customerName
-                                    : order.itemsBrief,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            if (order.delivery) ...[
-                              const SizedBox(width: 6),
-                              const DeliveryBadge(),
-                            ],
-                          ],
+                        Text(
+                          showCustomer ? order.customerName : order.itemsBrief,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -238,6 +225,28 @@ class OrderCard extends StatelessWidget {
                   StatusChip(order: order),
                 ],
               ),
+              if (order.delivery) ...[
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.delivery_dining,
+                        size: 16, color: theme.colorScheme.tertiary),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        'Jemput ${dateTimeText(order.scheduledAt)}'
+                        '${order.address.isEmpty ? '' : ' • ${order.address}'}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.tertiary,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

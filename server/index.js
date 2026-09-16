@@ -1389,6 +1389,34 @@ app.post('/api/orders/:id/item-qty', (req, res) => {
   res.json(o);
 });
 
+// Pemilik mengubah cara pengantaran / alamat / jadwal (Antar-Jemput).
+app.post('/api/orders/:id/delivery', (req, res) => {
+  const a = requireAdmin(req, res);
+  if (!a) return;
+  const o = findOrder(req, res);
+  if (!o) return;
+  const b = req.body || {};
+  const delivery = b.delivery === true;
+  const address = String(b.address || '').trim();
+  const scheduledAt = String(b.scheduledAt || o.scheduledAt);
+  if (delivery) {
+    if (address.length < 8) {
+      return res.status(400).json({ error: 'Alamat jemput belum lengkap' });
+    }
+    const h = hourOfIso(scheduledAt);
+    if (h < DELIVERY_START_HOUR || h > DELIVERY_END_HOUR) {
+      return res.status(400).json({
+        error: `Jam jemput hanya ${DELIVERY_START_HOUR}.00-${DELIVERY_END_HOUR}.00`,
+      });
+    }
+  }
+  o.delivery = delivery;
+  o.address = delivery ? address : '';
+  o.scheduledAt = scheduledAt;
+  save();
+  res.json(o);
+});
+
 app.delete('/api/orders/:id', (req, res) => {
   const a = requireAdmin(req, res);
   if (!a) return;
