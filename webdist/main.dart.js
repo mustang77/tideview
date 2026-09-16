@@ -139583,7 +139583,7 @@ return A.j(A.aFS(),$async$fc)
 case 3:m=b
 p.dy=m
 m=A.aN(m.a.h(0,"h2o_api_url"))
-p.cy=m==null?"https://app.h2olaundry.com":m
+p.cy=m==null?"https://app.h2olaundry.com:8443":m
 o=A.aN(p.dy.a.h(0,"laundryku_state_v1"))
 if(o!=null)try{m=t.N
 l=t.z
