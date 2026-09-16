@@ -123,6 +123,7 @@ class LaundryStore extends ChangeNotifier {
               AdminUser.fromMap((e as Map).cast<String, dynamic>())));
         profile = CustomerProfile.fromMap(
             ((m['profile'] as Map?) ?? {}).cast<String, dynamic>());
+        about.deliveryFee = (m['deliveryFee'] as num?)?.toDouble() ?? 0;
         role = m['role'] as String?;
         currentAdminId = m['currentAdminId'] as String?;
         _adminPin = m['adminPin'] as String?;
@@ -146,9 +147,35 @@ class LaundryStore extends ChangeNotifier {
     if (online) unawaited(refresh());
   }
 
+  /// Ongkos antar-jemput saat ini (pengaturan toko).
+  double get deliveryFee => about.deliveryFee;
+
+  /// Pemilik mengubah ongkos antar-jemput. Server: tersimpan di Info Toko;
+  /// lokal: di penyimpanan perangkat. Mengembalikan pesan error/null.
+  Future<String?> setDeliveryFee(double fee) async {
+    final a = api;
+    if (a != null) {
+      try {
+        final m = await a.updateAbout({'deliveryFee': fee},
+            adminId: currentAdminId, adminPin: _adminPin);
+        about = AboutInfo.fromMap(m);
+        notifyListeners();
+        return null;
+      } on ApiException catch (e) {
+        return e.message;
+      } catch (_) {
+        return 'Tidak bisa terhubung ke server. Coba lagi.';
+      }
+    }
+    about.deliveryFee = fee;
+    await _save();
+    return null;
+  }
+
   Future<void> _save() async {
     notifyListeners();
     final m = {
+      'deliveryFee': about.deliveryFee,
       'orders': orders.map((o) => o.toMap()).toList(),
       'services': services.map((s) => s.toMap()).toList(),
       'admins': admins.map((a) => a.toMap()).toList(),
@@ -272,6 +299,7 @@ class LaundryStore extends ChangeNotifier {
     order.delivery = fresh.delivery;
     order.address = fresh.address;
     order.scheduledAt = fresh.scheduledAt;
+    order.deliveryFee = fresh.deliveryFee;
     order.history
       ..clear()
       ..addAll(fresh.history);
@@ -872,6 +900,7 @@ class LaundryStore extends ChangeNotifier {
       createdAt: now,
       delivery: delivery,
       address: address,
+      deliveryFee: delivery ? about.deliveryFee : 0,
     );
     orders.insert(0, order);
     await _save();
@@ -948,6 +977,7 @@ class LaundryStore extends ChangeNotifier {
     required bool delivery,
     required String address,
     required DateTime scheduledAt,
+    double? deliveryFee,
   }) async {
     final a = api;
     if (a != null) {
@@ -956,6 +986,7 @@ class LaundryStore extends ChangeNotifier {
             delivery: delivery,
             address: address,
             scheduledAt: scheduledAt,
+            deliveryFee: deliveryFee,
             adminId: currentAdminId,
             adminPin: _adminPin);
         _applyOrder(order, m);
@@ -970,6 +1001,7 @@ class LaundryStore extends ChangeNotifier {
     order.delivery = delivery;
     order.address = delivery ? address.trim() : '';
     order.scheduledAt = scheduledAt;
+    order.deliveryFee = delivery ? (deliveryFee ?? about.deliveryFee) : 0;
     await _save();
   }
 

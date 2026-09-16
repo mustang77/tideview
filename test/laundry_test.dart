@@ -379,4 +379,59 @@ void main() {
     expect(again.delivery, isFalse);
     expect(again.address, '');
   });
+
+  test('ongkos antar-jemput: diatur pemilik, disalin ke pesanan', () async {
+    SharedPreferences.setMockInitialValues({});
+    final s = LaundryStore();
+    await s.init();
+    expect(s.deliveryFee, 0);
+    expect(await s.setDeliveryFee(10000), isNull);
+    OrderItem kg6() => OrderItem(
+        serviceId: 'cuci_setrika',
+        name: 'Cuci + Setrika',
+        unit: 'kg',
+        price: 7000,
+        qty: 6);
+    final jemput = (await s.createOrder(
+      items: [kg6()],
+      name: 'Fani',
+      phone: '0815-0000',
+      scheduledAt: DateTime(2026, 9, 23, 10),
+      notes: '',
+      delivery: true,
+      address: 'Jl. Melati 5 RT 01/RW 02',
+    ))!;
+    final counter = (await s.createOrder(
+      items: [kg6()],
+      name: 'Gani',
+      phone: '0816-0000',
+      scheduledAt: DateTime(2026, 9, 23, 10),
+      notes: '',
+    ))!;
+    expect(jemput.deliveryFee, 10000);
+    expect(jemput.total, 42000 + 10000);
+    expect(counter.deliveryFee, 0);
+    expect(counter.total, 42000);
+
+    // Ongkos naik: pesanan lama tetap, tersimpan setelah muat ulang.
+    await s.setDeliveryFee(15000);
+    final s2 = LaundryStore();
+    await s2.init();
+    expect(s2.deliveryFee, 15000);
+    expect(s2.orders.firstWhere((o) => o.id == jemput.id).total, 52000);
+
+    // Pemilik menggratiskan satu pesanan lewat ubah pengantaran.
+    final o = s2.orders.firstWhere((x) => x.id == jemput.id);
+    await s2.updateDelivery(o,
+        delivery: true,
+        address: o.address,
+        scheduledAt: o.scheduledAt,
+        deliveryFee: 0);
+    expect(o.total, 42000);
+    // Kembali ke counter: ongkos hilang.
+    await s2.updateDelivery(o,
+        delivery: false, address: '', scheduledAt: o.scheduledAt);
+    expect(o.deliveryFee, 0);
+    expect(o.total, 42000);
+  });
 }

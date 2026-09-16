@@ -239,14 +239,18 @@ function queueWa(phone, text) {
 
 // Rincian item pesanan untuk pesan WA: "- Cuci + Setrika 3 kg".
 const waRp = (n) => `Rp ${Number(n).toLocaleString('id-ID')}`;
+const waFee = (o) => (o.delivery ? Number(o.deliveryFee || 0) : 0);
 function waItems(o) {
-  return (o.items || [])
+  const lines = (o.items || [])
       .map((i) => `- ${i.name} ${String(i.qty).replace('.', ',')} ` +
-          `${i.unit} = ${waRp(i.price * i.qty)}`)
-      .join('\n');
+          `${i.unit} = ${waRp(i.price * i.qty)}`);
+  if (o.delivery) {
+    lines.push(`- Ongkos antar-jemput = ${waFee(o) > 0 ? waRp(waFee(o)) : 'Gratis'}`);
+  }
+  return lines.join('\n');
 }
 const waTotal = (o) =>
-    (o.items || []).reduce((s, i) => s + i.price * i.qty, 0);
+    (o.items || []).reduce((s, i) => s + i.price * i.qty, 0) + waFee(o);
 
 // Isi cucian yang dideklarasikan pelanggan: "- 5 kaos", "- 2 kemeja".
 function waContents(o) {
@@ -455,6 +459,10 @@ app.post('/api/about', (req, res) => {
   for (const k of
       ['name', 'tagline', 'address', 'wa', 'hours', 'maps', 'instagram']) {
     if (b[k] !== undefined) db.about[k] = String(b[k]).trim().slice(0, 300);
+  }
+  // Ongkos antar-jemput (angka, >= 0); disalin ke pesanan saat dibuat.
+  if (b.deliveryFee !== undefined) {
+    db.about.deliveryFee = Math.max(0, Number(b.deliveryFee) || 0);
   }
   if (!db.about.name) db.about.name = 'H2O Laundry Parakan';
   save();
@@ -1296,6 +1304,7 @@ app.post('/api/orders', (req, res) => {
     createdAt: t,
     delivery,
     address: delivery ? address : '',
+    deliveryFee: delivery ? Number(db.about.deliveryFee || 0) : 0,
   };
   db.orders.unshift(order);
   save();
@@ -1413,6 +1422,11 @@ app.post('/api/orders/:id/delivery', (req, res) => {
   o.delivery = delivery;
   o.address = delivery ? address : '';
   o.scheduledAt = scheduledAt;
+  // Ongkos: nilai dari pemilik bila dikirim, kalau tidak pakai yang sudah
+  // ada di pesanan (atau pengaturan toko saat baru diubah jadi antar-jemput).
+  o.deliveryFee = !delivery ? 0
+      : b.deliveryFee !== undefined ? Math.max(0, Number(b.deliveryFee) || 0)
+      : Number(o.deliveryFee || db.about.deliveryFee || 0);
   save();
   res.json(o);
 });

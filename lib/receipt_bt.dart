@@ -79,6 +79,10 @@ List<int> buildEscposReceipt(Order order, {int width = 58}) {
     row(' ${qtyText(item.qty, item.unit)} x ${rupiah(item.price)}',
         rupiah(item.subtotal));
   }
+  if (order.delivery) {
+    row('Ongkos antar-jemput',
+        order.deliveryFee > 0 ? rupiah(order.deliveryFee) : 'Gratis');
+  }
   divider();
   row('TOTAL', rupiah(order.total), bold: true);
   line(order.paid ? '*** LUNAS ***' : 'BELUM DIBAYAR',

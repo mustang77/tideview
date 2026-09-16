@@ -244,7 +244,8 @@ class _HomeTabState extends State<_HomeTab> {
             subtitle: Text(
               'Kurir menjemput & mengantar kembali. Jam jemput '
               '${DeliveryRules.hoursText}, minimal '
-              '${DeliveryRules.minKg.toInt()} kg cucian kiloan.',
+              '${DeliveryRules.minKg.toInt()} kg cucian kiloan. Ongkos '
+              '${store.deliveryFee > 0 ? rupiah(store.deliveryFee) : 'gratis'}.',
               style:
                   TextStyle(color: theme.colorScheme.onTertiaryContainer),
             ),

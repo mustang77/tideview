@@ -226,6 +226,7 @@ class Order {
     required this.createdAt,
     this.delivery = false,
     this.address = '',
+    this.deliveryFee = 0,
   });
 
   final String id;
@@ -238,6 +239,10 @@ class Order {
   /// Pemilik boleh mengubah ketiganya (updateDelivery).
   bool delivery;
   String address;
+
+  /// Ongkos antar-jemput yang berlaku untuk pesanan ini (0 bila counter
+  /// atau gratis). Disalin dari pengaturan saat pesanan dibuat.
+  double deliveryFee;
 
   /// Jenis pakaian yang dicuci, dideklarasikan pelanggan saat memesan
   /// (mis. Kaos, Kemeja, Handuk). Item di luar daftar ini menjadi
@@ -253,8 +258,9 @@ class Order {
   bool paid;
   final DateTime createdAt;
 
-  double get total =>
+  double get itemsTotal =>
       items.fold(0, (sum, item) => sum + item.subtotal);
+  double get total => itemsTotal + (delivery ? deliveryFee : 0);
   bool get selesai => status == OrderStatus.selesai;
   String get statusText => statusLabel(status, delivery: delivery);
 
@@ -285,6 +291,7 @@ class Order {
         'createdAt': createdAt.toIso8601String(),
         'delivery': delivery,
         'address': address,
+        'deliveryFee': deliveryFee,
       };
 
   factory Order.fromMap(Map<String, dynamic> m) {
@@ -321,6 +328,7 @@ class Order {
       createdAt: DateTime.parse(m['createdAt'] as String).toLocal(),
       delivery: m['delivery'] == true,
       address: m['address'] as String? ?? '',
+      deliveryFee: (m['deliveryFee'] as num?)?.toDouble() ?? 0,
     );
   }
 }
@@ -532,6 +540,7 @@ class AboutInfo {
     this.hours = '',
     this.maps = '',
     this.instagram = '',
+    this.deliveryFee = 0,
   });
 
   String name;
@@ -542,6 +551,10 @@ class AboutInfo {
   String maps;
   String instagram;
 
+  /// Ongkos antar-jemput per pesanan (0 = gratis). Diatur pemilik di tab
+  /// Harga; disalin ke setiap pesanan saat dibuat.
+  double deliveryFee;
+
   factory AboutInfo.fromMap(Map<String, dynamic> m) => AboutInfo(
         name: m['name'] as String? ?? 'H2O Laundry Parakan',
         tagline: m['tagline'] as String? ?? '',
@@ -550,6 +563,7 @@ class AboutInfo {
         hours: m['hours'] as String? ?? '',
         maps: m['maps'] as String? ?? '',
         instagram: m['instagram'] as String? ?? '',
+        deliveryFee: (m['deliveryFee'] as num?)?.toDouble() ?? 0,
       );
 
   Map<String, dynamic> toMap() => {
@@ -560,6 +574,7 @@ class AboutInfo {
         'hours': hours,
         'maps': maps,
         'instagram': instagram,
+        'deliveryFee': deliveryFee,
       };
 }
 

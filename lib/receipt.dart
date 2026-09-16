@@ -88,6 +88,9 @@ Future<Uint8List> buildReceiptPdf(Order order, {int width = 58}) async {
               rupiah(item.subtotal),
             ),
           ],
+          if (order.delivery)
+            row('Ongkos antar-jemput',
+                order.deliveryFee > 0 ? rupiah(order.deliveryFee) : 'Gratis'),
           line(),
           row('TOTAL', rupiah(order.total),
               style: strong,

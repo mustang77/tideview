@@ -693,6 +693,45 @@ class _PricingTab extends StatelessWidget {
     }
   }
 
+  Future<void> _editDeliveryFee(BuildContext context) async {
+    final ctrl =
+        TextEditingController(text: store.deliveryFee.round().toString());
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ongkos Antar-Jemput'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Ongkos per pesanan',
+            prefixText: 'Rp ',
+            helperText: 'Isi 0 untuk gratis. Berlaku untuk pesanan baru; '
+                'pesanan lama tidak berubah.',
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Simpan')),
+        ],
+      ),
+    );
+    if (saved != true) return;
+    final v = double.tryParse(
+        ctrl.text.replaceAll('.', '').replaceAll(',', '').trim());
+    if (v == null || v < 0) return;
+    final err = await store.setDeliveryFee(v);
+    if (err != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(err)));
+    }
+  }
+
   Future<void> _confirmDelete(BuildContext context, ServiceType s) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -744,6 +783,30 @@ class _PricingTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
+        Card(
+          margin: const EdgeInsets.only(bottom: 10),
+          color: theme.colorScheme.tertiaryContainer,
+          child: ListTile(
+            leading: Icon(Icons.delivery_dining,
+                color: theme.colorScheme.onTertiaryContainer),
+            title: Text('Ongkos Antar-Jemput',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onTertiaryContainer)),
+            subtitle: Text(
+                'Per pesanan jemput-antar • jam ${DeliveryRules.hoursText}, '
+                'min ${DeliveryRules.minKg.toInt()} kg',
+                style:
+                    TextStyle(color: theme.colorScheme.onTertiaryContainer)),
+            trailing: Text(
+              store.deliveryFee > 0 ? rupiah(store.deliveryFee) : 'Gratis',
+              style: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                  fontWeight: FontWeight.w800),
+            ),
+            onTap: () => _editDeliveryFee(context),
+          ),
+        ),
         for (final s in store.services)
           Card(
             margin: const EdgeInsets.only(bottom: 10),

@@ -162,6 +162,7 @@ class ApiClient {
     required bool delivery,
     required String address,
     required DateTime scheduledAt,
+    double? deliveryFee,
     String? adminId,
     String? adminPin,
   }) =>
@@ -171,6 +172,7 @@ class ApiClient {
             'delivery': delivery,
             'address': address,
             'scheduledAt': scheduledAt.toIso8601String(),
+            'deliveryFee': ?deliveryFee,
           },
           adminId: adminId,
           adminPin: adminPin);

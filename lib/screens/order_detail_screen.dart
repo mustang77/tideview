@@ -110,6 +110,12 @@ class OrderDetailScreen extends StatelessWidget {
                               '${item.name} (${qtyText(item.qty, item.unit)} × ${rupiah(item.price)})',
                               rupiah(item.subtotal),
                             ),
+                          if (order.delivery)
+                            DetailRow(
+                                'Ongkos antar-jemput',
+                                order.deliveryFee > 0
+                                    ? rupiah(order.deliveryFee)
+                                    : 'Gratis'),
                           const Divider(),
                           DetailRow('Total', rupiah(order.total), bold: true),
                           const SizedBox(height: 6),

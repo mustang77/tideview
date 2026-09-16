@@ -169,7 +169,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
       ];
 
   double get _total =>
-      _items.fold(0, (sum, item) => sum + item.subtotal);
+      _items.fold<double>(0, (sum, item) => sum + item.subtotal) +
+      (_delivery ? store.deliveryFee : 0);
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -412,7 +413,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                               'Kurir menjemput & mengantar kembali. Jam '
                               'jemput ${DeliveryRules.hoursText}, minimal '
                               '${DeliveryRules.minKg.toInt()} kg cucian '
-                              'kiloan.'),
+                              'kiloan. Ongkos '
+                              '${store.deliveryFee > 0 ? rupiah(store.deliveryFee) : 'gratis'}.'),
                         ),
                         if (_delivery) ...[
                           const Divider(height: 1),
@@ -513,6 +515,12 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                               '${item.name} (${qtyText(item.qty, item.unit)} × ${rupiah(item.price)})',
                               rupiah(item.subtotal),
                             ),
+                          if (_delivery)
+                            DetailRow(
+                                'Ongkos antar-jemput',
+                                store.deliveryFee > 0
+                                    ? rupiah(store.deliveryFee)
+                                    : 'Gratis'),
                           const Divider(),
                           DetailRow('Total Estimasi', rupiah(_total),
                               bold: true),

@@ -58,6 +58,10 @@ class OwnerOrderDetailScreen extends StatelessWidget {
       when = DateTime(when.year, when.month, when.day, DeliveryRules.startHour);
     }
     final address = TextEditingController(text: order.address);
+    final fee = TextEditingController(
+        text: (order.delivery ? order.deliveryFee : store.deliveryFee)
+            .round()
+            .toString());
     final saved = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -83,7 +87,7 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                     }
                   }),
                 ),
-                if (delivery)
+                if (delivery) ...[
                   TextField(
                     controller: address,
                     maxLines: 2,
@@ -92,6 +96,17 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                       prefixIcon: Icon(Icons.location_on_outlined),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: fee,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Ongkos antar-jemput',
+                      prefixText: 'Rp ',
+                      helperText: '0 = gratis (mis. pelanggan tetap)',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
@@ -177,9 +192,15 @@ class OwnerOrderDetailScreen extends StatelessWidget {
     );
     if (saved == true) {
       await store.updateDelivery(order,
-          delivery: delivery, address: address.text, scheduledAt: when);
+          delivery: delivery,
+          address: address.text,
+          scheduledAt: when,
+          deliveryFee: double.tryParse(
+                  fee.text.replaceAll('.', '').replaceAll(',', '')) ??
+              order.deliveryFee);
     }
     address.dispose();
+    fee.dispose();
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -371,8 +392,18 @@ class OwnerOrderDetailScreen extends StatelessWidget {
                           const Divider(height: 1),
                           Padding(
                             padding: const EdgeInsets.all(16),
-                            child: DetailRow('Total', rupiah(order.total),
-                                bold: true),
+                            child: Column(
+                              children: [
+                                if (order.delivery)
+                                  DetailRow(
+                                      'Ongkos antar-jemput',
+                                      order.deliveryFee > 0
+                                          ? rupiah(order.deliveryFee)
+                                          : 'Gratis'),
+                                DetailRow('Total', rupiah(order.total),
+                                    bold: true),
+                              ],
+                            ),
                           ),
                         ],
                       ),
