@@ -883,11 +883,19 @@ class LaundryStore extends ChangeNotifier {
     }
 
     final now = DateTime.now();
-    final code =
+    // Nomor bisa tabrakan bila dua pesanan dibuat pada milidetik yang
+    // sama (mis. di perangkat cepat) — geser sampai unik.
+    var nomor = now.millisecondsSinceEpoch % 10000;
+    String code() =>
         'H2O-${now.year % 100}${now.month.toString().padLeft(2, '0')}'
-        '-${(now.millisecondsSinceEpoch % 10000).toString().padLeft(4, '0')}';
+        '-${nomor.toString().padLeft(4, '0')}';
+    var id = code();
+    while (orders.any((o) => o.id == id)) {
+      nomor = (nomor + 1) % 10000;
+      id = code();
+    }
     final order = Order(
-      id: code,
+      id: id,
       customerName: name,
       phone: phone,
       items: items,
@@ -1028,6 +1036,7 @@ class LaundryStore extends ChangeNotifier {
     required String name,
     required String unit,
     required double price,
+    double priceDelivery = 0,
     int estimasiHari = 2,
     String description = '',
   }) async {
@@ -1038,6 +1047,7 @@ class LaundryStore extends ChangeNotifier {
           'name': name,
           'unit': unit,
           'price': price,
+          'priceDelivery': priceDelivery,
           'estimasiHari': estimasiHari,
           'description': description,
         }, adminId: currentAdminId, adminPin: _adminPin);
@@ -1057,6 +1067,7 @@ class LaundryStore extends ChangeNotifier {
       name: name,
       unit: unit,
       price: price,
+      priceDelivery: priceDelivery,
       estimasiHari: estimasiHari,
       description: description,
     );
@@ -1070,6 +1081,7 @@ class LaundryStore extends ChangeNotifier {
     String? name,
     String? unit,
     double? price,
+    double? priceDelivery,
     int? estimasiHari,
     String? description,
   }) async {
@@ -1080,6 +1092,8 @@ class LaundryStore extends ChangeNotifier {
           if (name != null && name.isNotEmpty) 'name': name,
           'unit': ?unit,
           if (price != null && price > 0) 'price': price,
+          // 0 dikirim juga: artinya kembali ikut harga reguler.
+          'priceDelivery': ?priceDelivery,
           if (estimasiHari != null && estimasiHari > 0)
             'estimasiHari': estimasiHari,
           'description': ?description,
@@ -1089,6 +1103,7 @@ class LaundryStore extends ChangeNotifier {
           ..name = fresh.name
           ..unit = fresh.unit
           ..price = fresh.price
+          ..priceDelivery = fresh.priceDelivery
           ..estimasiHari = fresh.estimasiHari
           ..description = fresh.description;
         serverOk = true;
@@ -1102,6 +1117,9 @@ class LaundryStore extends ChangeNotifier {
     if (name != null && name.isNotEmpty) service.name = name;
     if (unit != null) service.unit = unit;
     if (price != null && price > 0) service.price = price;
+    if (priceDelivery != null) {
+      service.priceDelivery = priceDelivery > 0 ? priceDelivery : 0;
+    }
     if (estimasiHari != null && estimasiHari > 0) {
       service.estimasiHari = estimasiHari;
     }

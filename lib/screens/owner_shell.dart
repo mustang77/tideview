@@ -597,6 +597,10 @@ class _PricingTab extends StatelessWidget {
     final name = TextEditingController(text: service?.name ?? '');
     final price = TextEditingController(
         text: service == null ? '' : service.price.round().toString());
+    final priceDelivery = TextEditingController(
+        text: service == null || service.priceDelivery <= 0
+            ? ''
+            : service.priceDelivery.round().toString());
     final hari = TextEditingController(
         text: (service?.estimasiHari ?? 2).toString());
     final desc = TextEditingController(text: service?.description ?? '');
@@ -625,6 +629,16 @@ class _PricingTab extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                       labelText: 'Harga', prefixText: 'Rp '),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: priceDelivery,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      labelText: 'Harga Antar-Jemput',
+                      prefixText: 'Rp ',
+                      helperText: 'Kosongkan bila sama dengan harga biasa',
+                      helperMaxLines: 2),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
@@ -674,6 +688,11 @@ class _PricingTab extends StatelessWidget {
     final nm = name.text.trim();
     final pr = double.tryParse(
         price.text.replaceAll('.', '').replaceAll(',', ''));
+    // Kosong/0 = ikut harga reguler.
+    final prJemput = double.tryParse(priceDelivery.text
+            .replaceAll('.', '')
+            .replaceAll(',', '')) ??
+        0;
     final hr = int.tryParse(hari.text) ?? 2;
     if (nm.isEmpty || pr == null || pr <= 0) return;
     if (service == null) {
@@ -681,6 +700,7 @@ class _PricingTab extends StatelessWidget {
           name: nm,
           unit: unit,
           price: pr,
+          priceDelivery: prJemput,
           estimasiHari: hr,
           description: desc.text.trim());
     } else {
@@ -688,6 +708,7 @@ class _PricingTab extends StatelessWidget {
           name: nm,
           unit: unit,
           price: pr,
+          priceDelivery: prJemput,
           estimasiHari: hr,
           description: desc.text.trim());
     }
@@ -823,7 +844,10 @@ class _PricingTab extends StatelessWidget {
               ),
               title: Text(s.name,
                   style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: Text('Estimasi ${s.estimasiHari} hari'),
+              subtitle: Text(s.priceDelivery > 0
+                  ? 'Estimasi ${s.estimasiHari} hari • Antar-jemput '
+                      '${rupiah(s.priceDelivery)}/${s.unit}'
+                  : 'Estimasi ${s.estimasiHari} hari'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

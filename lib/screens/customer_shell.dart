@@ -234,25 +234,80 @@ class _HomeTabState extends State<_HomeTab> {
         ),
         Card(
           color: theme.colorScheme.tertiaryContainer,
-          child: ListTile(
-            leading: Icon(Icons.delivery_dining,
-                color: theme.colorScheme.onTertiaryContainer),
-            title: Text('Antar-Jemput ke Rumah',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onTertiaryContainer)),
-            subtitle: Text(
-              'Kurir menjemput & mengantar kembali. Jam jemput '
-              '${DeliveryRules.hoursText}, minimal '
-              '${DeliveryRules.minKg.toInt()} kg cucian kiloan. Ongkos '
-              '${store.deliveryFee > 0 ? rupiah(store.deliveryFee) : 'gratis'}.',
-              style:
-                  TextStyle(color: theme.colorScheme.onTertiaryContainer),
-            ),
-            trailing: Icon(Icons.chevron_right,
-                color: theme.colorScheme.onTertiaryContainer),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => const NewOrderScreen(delivery: true))),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.delivery_dining,
+                      color: theme.colorScheme.onTertiaryContainer),
+                  title: Text('Antar-Jemput ke Rumah',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.onTertiaryContainer)),
+                  subtitle: Text(
+                    'Kurir menjemput & mengantar kembali. Jam jemput '
+                    '${DeliveryRules.hoursText}, minimal '
+                    '${DeliveryRules.minKg.toInt()} kg cucian kiloan. Ongkos '
+                    '${store.deliveryFee > 0 ? rupiah(store.deliveryFee) : 'gratis'}.',
+                    style: TextStyle(
+                        color: theme.colorScheme.onTertiaryContainer),
+                  ),
+                  trailing: Icon(Icons.chevron_right,
+                      color: theme.colorScheme.onTertiaryContainer),
+                ),
+                // Rincian biaya antar-jemput (bisa berbeda dengan harga
+                // reguler di counter; diatur pemilik per layanan).
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Divider(
+                          height: 1,
+                          color: theme.colorScheme.onTertiaryContainer
+                              .withValues(alpha: 0.25)),
+                      const SizedBox(height: 10),
+                      Text('Biaya Antar-Jemput',
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color:
+                                  theme.colorScheme.onTertiaryContainer)),
+                      const SizedBox(height: 6),
+                      for (final s in store.services) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(s.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        color: theme.colorScheme
+                                            .onTertiaryContainer)),
+                              ),
+                              Text(
+                                '${rupiah(s.priceFor(true))}/${s.unit}',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: theme
+                                        .colorScheme.onTertiaryContainer),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         // Pil "Chat Sekarang" — akses cepat ke Layanan Pelanggan.

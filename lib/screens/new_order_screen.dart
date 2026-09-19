@@ -163,7 +163,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
               serviceId: s.id,
               name: s.name,
               unit: s.unit,
-              price: s.price,
+              price: s.priceFor(_delivery),
               qty: _qty[s.id]!,
             ),
       ];
@@ -315,6 +315,7 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                         _ItemRow(
                           service: store.services[i],
                           qty: _qty[store.services[i].id] ?? 0,
+                          delivery: _delivery,
                           onAdd: () => _change(
                               store.services[i], _stepOf(store.services[i])),
                           onRemove: () => _change(
@@ -611,6 +612,7 @@ class _ItemRow extends StatelessWidget {
   const _ItemRow({
     required this.service,
     required this.qty,
+    required this.delivery,
     required this.onAdd,
     required this.onRemove,
     required this.onTypeQty,
@@ -618,6 +620,9 @@ class _ItemRow extends StatelessWidget {
 
   final ServiceType service;
   final double qty;
+
+  /// Mode antar-jemput: tampilkan harga antar-jemput layanan ini.
+  final bool delivery;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final VoidCallback onTypeQty;
@@ -655,7 +660,7 @@ class _ItemRow extends StatelessWidget {
                 Text(service.name,
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 Text(
-                  '${rupiah(service.price)}/${service.unit}'
+                  '${rupiah(service.priceFor(delivery))}/${service.unit}'
                   '${service.perKg ? ' • min 3 kg' : ''}'
                   ' • ${service.estimasiHari} hari',
                   style: theme.textTheme.bodySmall,

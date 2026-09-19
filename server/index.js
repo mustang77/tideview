@@ -1265,14 +1265,25 @@ app.post('/api/orders', (req, res) => {
     return res.status(400).json({ error: 'Data pesanan tidak lengkap' });
   }
   const t = now();
-  const items = b.items.map((i) => ({
-    serviceId: String(i.serviceId || ''),
-    name: String(i.name || ''),
-    unit: String(i.unit || 'pcs'),
-    price: Number(i.price) || 0,
-    qty: Number(i.qty) || 1,
-  }));
   const delivery = b.delivery === true;
+  const items = b.items.map((i) => {
+    // Harga diambil dari katalog server (bukan dari kiriman klien):
+    // pesanan Antar-Jemput memakai priceDelivery bila pemilik
+    // menetapkannya — klien/APK lama pun otomatis kena harga benar.
+    const svc = db.services.find((s) => s.id === String(i.serviceId || ''));
+    const price = svc
+        ? (delivery && Number(svc.priceDelivery) > 0
+            ? Number(svc.priceDelivery)
+            : Number(svc.price))
+        : Number(i.price) || 0;
+    return {
+      serviceId: String(i.serviceId || ''),
+      name: String(i.name || ''),
+      unit: String(i.unit || 'pcs'),
+      price,
+      qty: Number(i.qty) || 1,
+    };
+  });
   const address = String(b.address || '').trim();
   if (delivery) {
     if (kgOf(items) < DELIVERY_MIN_KG) {
@@ -2056,6 +2067,8 @@ app.post('/api/services', (req, res) => {
     name: String(b.name),
     unit: ['kg', 'pcs', 'pasang'].includes(b.unit) ? b.unit : 'pcs',
     price: Number(b.price),
+    // Harga khusus Antar-Jemput; 0 = ikut harga reguler.
+    priceDelivery: Number(b.priceDelivery) > 0 ? Number(b.priceDelivery) : 0,
     description: String(b.description || ''),
     estimasiHari: Number(b.estimasiHari) > 0 ? Number(b.estimasiHari) : 2,
   };
@@ -2073,6 +2086,10 @@ app.put('/api/services/:id', (req, res) => {
   if (b.name) s.name = String(b.name);
   if (['kg', 'pcs', 'pasang'].includes(b.unit)) s.unit = b.unit;
   if (Number(b.price) > 0) s.price = Number(b.price);
+  // 0/kosong berarti menghapus harga khususnya (ikut harga reguler lagi).
+  if (b.priceDelivery !== undefined) {
+    s.priceDelivery = Number(b.priceDelivery) > 0 ? Number(b.priceDelivery) : 0;
+  }
   if (Number(b.estimasiHari) > 0) s.estimasiHari = Number(b.estimasiHari);
   if (b.description !== undefined) s.description = String(b.description);
   save();

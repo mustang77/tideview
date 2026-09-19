@@ -89,6 +89,7 @@ class ServiceType {
     required this.name,
     required this.unit,
     required this.price,
+    this.priceDelivery = 0,
     this.description = '',
     this.estimasiHari = 2,
   });
@@ -99,16 +100,25 @@ class ServiceType {
   /// Satuan tagihan: 'kg', 'pcs', atau 'pasang'.
   String unit;
   double price;
+
+  /// Harga khusus pesanan Antar-Jemput (0 = ikut harga reguler).
+  double priceDelivery;
   String description;
   int estimasiHari;
 
   bool get perKg => unit == 'kg';
+
+  /// Harga yang berlaku untuk sebuah pesanan: harga antar-jemput bila
+  /// pesanannya antar-jemput dan pemilik menetapkannya, selain itu reguler.
+  double priceFor(bool delivery) =>
+      delivery && priceDelivery > 0 ? priceDelivery : price;
 
   Map<String, dynamic> toMap() => {
         'id': id,
         'name': name,
         'unit': unit,
         'price': price,
+        'priceDelivery': priceDelivery,
         'description': description,
         'estimasiHari': estimasiHari,
       };
@@ -118,6 +128,7 @@ class ServiceType {
         name: m['name'] as String,
         unit: m['unit'] as String,
         price: (m['price'] as num).toDouble(),
+        priceDelivery: (m['priceDelivery'] as num? ?? 0).toDouble(),
         description: m['description'] as String? ?? '',
         estimasiHari: m['estimasiHari'] as int? ?? 2,
       );
