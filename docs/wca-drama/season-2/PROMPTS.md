@@ -1292,6 +1292,60 @@ Ep 24 — setahun nggak ada yang nanya bapaknya orang kayak gimana. Baru dia. �
 
 ---
 
+## EP 25 — "YANG INGET JADWALNYA"
+
+Ep 24 semuanya hangat, jadi Ep 25 mulai menaruh beban — tapi bukan lewat drama. Lewat satu kalimat polos dari rumah, di detik Bima paling bahagia.
+
+### Klip 1 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Koridor belakang restoran kapal pesiar yang sibuk saat jam makan malam, rak piring bersih dan pintu ayun dapur. bima-servis.png berkemeja seragam putih berjalan cepat membawa nampan berpapasan dengan maya.png yang berjalan ke arah berlawanan membawa setumpuk serbet. Tanpa melambat dan tanpa saling menatap, maya.png menyelipkan satu lap bersih ke saku celemek Bima dan terus berjalan. bima-servis.png tersenyum tipis sambil terus berjalan. Cahaya neon koridor yang rata, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Tidak ada dialog dan tidak ada tatapan. Dua orang yang sudah hafal ritme kerja satu sama lain — cara paling jujur menunjukkan kedekatan tanpa menyebutnya.
+
+### Klip 2 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Ruang makan kru kapal pada larut malam, meja panjang berlapis formika, lampu neon terang, hampir kosong. maya.png berkemeja seragam kru putih sudah duduk lebih dulu di meja yang sama seperti sebelumnya, dengan dua nampan di depannya — satu di depan kursinya, satu lagi di kursi seberang yang masih kosong. bima-servis.png masuk ke ruangan, melihat nampan yang sudah disiapkan untuknya, lalu duduk. Keduanya tidak berkata apa-apa. Cahaya neon terang dan datar, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Dia sudah mengambilkan nampan untuk Bima. "Besok lagi" di Ep 24 ternyata jadi kebiasaan.
+
+### Klip 3 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal larut malam. bima-servis.png berkemeja seragam putih berhenti makan dan bertanya pelan sambil menatap Maya: "Kamu kenapa betah di laut?" maya.png mengangkat bahu sekali sambil terus makan, lalu menjawab santai tanpa nada mengeluh sedikit pun: "Adikku dua. Yang bungsu masuk kuliah tahun depan." Ia melanjutkan makan seolah itu hal paling biasa di dunia. Cahaya neon terang, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Dia tidak mengeluh dan tidak minta dikasihani.** Itu yang membuat penonton menghormatinya, dan yang membuat Bima sadar mereka orang yang sama.
+
+### Klip 4 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Ruang makan kru kapal yang kini kosong pada dini hari. maya.png berkemeja seragam kru putih tertidur kelelahan dengan kepala bertumpu di lengannya di atas meja formika, napasnya pelan. bima-servis.png berkemeja seragam putih duduk di seberangnya tidak membangunkannya, hanya menggeser nampan Maya pelan-pelan menjauh dari sikunya supaya tidak tersenggol, lalu duduk diam menatap meja. Tidak ada dialog dan tidak ada sentuhan. Cahaya neon terang yang kini terasa sepi, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Tidak membangunkan, tidak menyelimuti, tidak menyentuh — cuma menggeser nampan supaya tidak jatuh. **Kelembutan yang paling dipercaya penonton justru yang sekecil itu.**
+
+### Klip 5 — Ingredient: `ibu.png`
+```
+Teras rumah kampung Jawa pada sore hari, kursi kayu tua dan halaman di latar belakang. Close-up ibu.png berkerudung longgar memegang HP melakukan panggilan video, wajahnya cerah dan santai, berbicara ringan seperti mengobrol biasa: "Tadi Nita nganterin obat." Ia tertawa kecil. "Dia yang inget jadwalnya. Ibu malah lupa." Ia terus berbicara riang tanpa menyadari apa pun. Cahaya sore keemasan, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> **Ibunya tidak sedang menyindir** — dia benar-benar cuma bercerita. Justru karena polos itulah kalimatnya berat: yang tersampaikan bukan "pilih Nita", tapi "ada orang lain yang mengerjakan tugasmu".
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Lorong kru kapal yang terang pada dini hari. Close-up bima-servis.png berkemeja seragam putih memegang HP di depan wajahnya, senyum lebarnya perlahan memudar sampai habis sementara ia tetap mengangguk-angguk mendengarkan. Mulutnya terbuka sedikit seperti hendak mengatakan sesuatu, lalu tertutup lagi. Ia tidak jadi bicara. Tidak ada dialog. Cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Dia hampir menceritakan Maya ke ibunya, lalu menelannya kembali. **Dua puluh lima episode dan dia masih orang yang sama.**
+
+### Nada dan musik Ep 25
+`harapan.mp3` jalan sangat pelan sejak Klip 1 sampai Klip 4 — bagian paling ringan di seluruh serial, biarkan terasa begitu.
+
+Musik **berhenti total di Klip 5 tepat saat nama Nita disebut**, dan Klip 6 sepenuhnya hening. Pemotongan itu yang memberi tahu penonton bahwa sesuatu baru saja berubah, tanpa satu kata pun.
+
+**Frame terakhir:** `"Episode 26. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 25 — dia hampir cerita soal Maya ke ibunya. Terus ibunya nyebut nama lain. 🥲 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
