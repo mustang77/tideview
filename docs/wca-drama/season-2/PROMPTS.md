@@ -1458,6 +1458,67 @@ Ep 27 — "aku ada simpanan, cukup." Dia bohong. Dan kita semua tau. 😭 #drama
 
 ---
 
+## EP 28 — "AMIN, BU"
+
+Episode milik Nita, dan ini yang menentukan apakah segitiganya terasa sakit. Kalau penonton tidak peduli pada Nita, pilihan Bima jadi gampang — dan drama yang pilihannya gampang tidak ada yang menonton.
+
+Aturan utamanya: **Nita tidak sedang menunggu siapa-siapa.** Dia punya pekerjaan, keinginan, dan jebakan yang sama persis dengan Bima dan Maya. Tiga orang, tiga rumah, semuanya membayar hidup orang lain.
+
+Dan yang membuatnya bukan saingan melainkan kembaran Bima: **dia berbohong dengan cara yang persis sama.**
+
+### Klip 1 — Ingredient: `nita.png`
+```
+Warung kecil di depan rumah kampung Jawa pada pagi buta, gerobak gorengan dan wajan besar berisi minyak panas. nita.png berkerudung longgar dan bercelemek sedang menggoreng dan menata gorengan ke dalam nampan dengan gerakan cepat dan hafal, wajahnya serius dan cekatan, tangannya sibuk. Uap dan asap tipis dari wajan. Tidak ada dialog. Cahaya pagi buta kebiruan bercampur lampu bohlam kuning warung, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Dia punya pekerjaan dan bangun lebih pagi dari siapa pun. **Penonton harus tahu ini sebelum melihatnya di rumah Bima** — kalau urutannya dibalik, dia terbaca sebagai perempuan yang hidupnya cuma mengurus ibu orang.
+
+### Klip 2 — Ingredients: `nita.png` + `ibu.png`
+```
+Dapur rumah kampung Jawa pada pagi hari. nita.png berkerudung longgar menuangkan obat ke telapak tangan ibu.png lalu menyerahkan segelas air, gerakannya sudah hafal tanpa perlu dilihat. ibu.png meminum obatnya lalu menepuk tangan Nita sekali dengan sayang. Keduanya tertawa kecil karena sesuatu yang tidak terdengar jelas. Cahaya pagi hangat dari jendela, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `nita.png`
+```
+Depan warung kampung pada pagi hari. nita.png berkerudung longgar berdiri menyerahkan bungkusan gorengan kepada seorang ibu-ibu paruh baya yang wajahnya hanya terlihat sebagian dari samping. Ibu-ibu itu berbicara dengan nada ramah yang penuh praduga sambil menepuk lengan Nita: "Sabar ya, Nit. Bima kan lagi ngumpulin buat nikah." nita.png tersenyum lebar dan sopan lalu menjawab ringan: "Amin, Bu." Setelah ibu-ibu itu pergi, senyumnya bertahan sebentar lalu hilang. Cahaya pagi yang terang, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> **"Amin, Bu."** Kebohongan sopan yang sama persis dengan "nggak apa-apa" milik Bima dan "ada yang nganter" milik ibunya. Nita bukan saingan Bima — **dia orang yang sama.**
+>
+> Senyum yang bertahan sebentar lalu hilang itu wajib, dan urutannya harus begitu: bertahan dulu, baru runtuh.
+
+### Klip 4 — Ingredient: `nita.png`
+```
+Kamar kecil rumah kampung pada malam hari, cahaya lampu belajar kuning. nita.png berkerudung dilepas dan rambut diikat sederhana duduk di lantai beralas tikar dengan sebuah buku bahasa Inggris bekas yang sampulnya sudah lusuh terbuka di pangkuannya, bibirnya bergerak pelan mengeja kalimat sendirian. Di sampingnya ada buku tulis penuh coretan. Tidak ada dialog yang jelas terdengar. Cahaya lampu belajar kuning yang sempit, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Rahasianya**, dan penonton melihatnya sebelum siapa pun di kampung itu. Buku yang sama jenisnya dengan yang dipegang Bima di Season 1, dipelajari dengan cara yang sama: sendirian, malam-malam, tanpa memberi tahu siapa pun.
+
+### Klip 5 — Ingredients: `nita.png` + `ibu.png`
+```
+Teras rumah kampung Jawa pada sore hari, kursi kayu tua dan halaman di latar belakang. nita.png berkerudung longgar duduk di anak tangga teras, tidak menatap ibu.png yang duduk di kursi di belakangnya. Setelah diam agak lama ia berbicara pelan dan hati-hati seperti takut pada jawabannya: "Bu... Nita pengen daftar juga." Ia berhenti, lalu menambahkan lebih pelan lagi: "Kayak Bima." Cahaya sore keemasan, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Dia tidak menatap saat mengatakannya — persis seperti Bima di Ep 26 saat mengaku ke Maya sambil menatap laut.
+
+### Klip 6 — Ingredients: `ibu.png` + `nita.png` — penutup
+```
+Teras rumah kampung Jawa sore hari. Close-up ibu.png berkerudung longgar duduk di kursi kayu, wajahnya tidak marah dan tidak kecewa, hanya lelah. Ia menatap halaman kosong di depannya cukup lama sebelum berbicara pelan: "Ibu nggak bisa nahan kamu, Nduk." Ia berhenti agak lama, lalu melanjutkan dengan suara yang lebih pelan: "Ibu cuma udah nggak tau harus nunggu siapa lagi." nita.png di latar depan menunduk dan tidak menjawab apa pun, tapi ia tidak beranjak dari anak tangga itu. Cahaya sore keemasan yang mulai redup, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Suaminya meninggal, anaknya pergi dua kali, dan sekarang orang ketiga yang dia sayangi mau pergi juga.
+>
+> **Nita tidak menjanjikan apa pun** — tidak bilang "Nita nggak jadi", tidak bilang "Nita tetap di sini". Dia cuma tidak beranjak. Itu satu-satunya hal jujur yang bisa dia berikan, dan penonton akan mencintainya justru karena itu.
+
+### Nada dan musik Ep 28
+Tanpa musik di Klip 1–3. `piano-sedih.mp3` masuk sangat pelan di Klip 4 saat dia membuka buku, lalu **berhenti total di Klip 5 tepat sebelum dia bicara.**
+
+Klip 6 tanpa musik sampai kalimat terakhir ibu selesai, baru `satu-nada.mp3` masuk dan dibiarkan meluruh ke layar hitam.
+
+**Frame terakhir:** `"Episode 29. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 28 — semua orang ngira dia nungguin Bima. Padahal dia lagi belajar bahasa Inggris diam-diam. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
