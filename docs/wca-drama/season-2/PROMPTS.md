@@ -1580,6 +1580,64 @@ Ep 29 — "Biayanya dari mana?" Dua season pertanyaan itu nggak kejawab. Hari in
 
 ---
 
+## EP 30 — "ENAM KALI LEWAT"
+
+Episode yang serial ini belum pernah punya: **satu momen yang benar-benar gembira.** Tiga puluh episode tanpa satu pun tawa yang tulus — penonton butuh itu, dan justru karena langka, efeknya besar.
+
+Tapi ada detail yang membuatnya bukan sekadar manis. Maya sudah tiga tahun di laut dan Bermuda sudah dia lewati berkali-kali. **Dan dia belum pernah sekali pun turun** — tiap kapal sandar, dia ambil shift tambahan demi uang sekolah adiknya.
+
+### Klip 1 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal pada larut malam, meja panjang berlapis formika, lampu neon terang. bima-servis.png berkemeja seragam putih duduk membungkuk ke depan menunjukkan selembar kertas jadwal kepada maya.png yang duduk di seberang meja, kertas dipegang menghadap mereka berdua sehingga tulisannya tidak terlihat kamera. Wajah Bima cerah dan bersemangat. Ia berkata cepat: "Bermuda. Tiga hari lagi." Cahaya neon terang dan datar, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal larut malam. bima-servis.png berkemeja seragam putih bertanya antusias sambil menatap Maya: "Kamu udah pernah turun di sana?" maya.png berkemeja seragam kru putih menjawab santai sambil mengaduk minumannya tanpa mengangkat wajah: "Enam kali lewat." Ia berhenti sebentar, lalu melanjutkan dengan nada yang sama biasanya: "Belum pernah turun." Cahaya neon terang, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Dia mengatakannya dengan nada paling biasa di dunia**, seolah itu tidak berarti apa-apa. Justru itu yang membuat penonton sesak — perempuan yang sudah mengelilingi dunia dari dalam lorong.
+
+### Klip 3 — Ingredient: `bima-servis.png`
+```
+Ruang makan kru kapal larut malam. Close-up bima-servis.png berkemeja seragam putih berhenti bergerak, senyum antusiasnya luruh sebentar saat mencerna apa yang baru didengarnya. Lalu wajahnya berubah mantap dan ia berkata pelan tapi tegas: "Kali ini turun." Ia menatap Maya tanpa berkedip. Cahaya neon terang, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 4 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Ruang makan kru kapal larut malam. maya.png berkemeja seragam kru putih menulis daftar di selembar kertas bekas dengan serius sambil menyebutkan satu per satu, sementara bima-servis.png di seberangnya menyela dengan wajah sungguh-sungguh: "Ada warung nggak di sana?" maya.png mengangkat wajahnya, menatap Bima sebentar, lalu tertawa lepas sampai menutup mulutnya dengan tangan. bima-servis.png ikut tertawa sambil menggaruk tengkuknya dengan malu. Cahaya neon terang dan datar, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, hangat dan ringan. Vertikal 9:16, 8 detik.
+```
+> **Satu-satunya tawa lepas di seluruh serial.** Biarkan klip ini ringan dan tidak sinematik — justru itu yang membuatnya terasa nyata. Tiga puluh episode penonton menahan napas; delapan detik ini hadiahnya.
+
+### Klip 5 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal larut malam. Tawa keduanya mereda perlahan. bima-servis.png berkemeja seragam putih menatap maya.png lalu berkata pelan dan sederhana: "Nanti aku fotoin kamu." maya.png berhenti menulis, pulpennya diam di atas kertas, lalu ia mengangkat wajahnya menatap Bima tanpa menjawab apa pun. Matanya sedikit basah tapi ia tersenyum tipis. Cahaya neon terang yang kini terasa lembut, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Kalimat paling romantis di episode ini, dan isinya cuma janji memotret.**
+>
+> Tiga tahun dia bekerja di kapal paling mewah di dunia, dan tidak ada satu pun orang yang pernah memotretnya. Penonton perempuan akan langsung mengerti tanpa dijelaskan.
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Kabin kru kapal yang sempit pada dini hari, hanya diterangi cahaya layar HP. Close-up bima-servis.png berkaos putih duduk di tepi ranjang bawah menatap layar HP di tangannya, layar dipegang miring sehingga isinya tidak terlihat kamera. Wajahnya yang tadi cerah perlahan berubah datar dan gelisah, rahangnya mengeras. Ia menggulir layar sekali lalu menguncinya dan meletakkannya menelungkup di kasur. Lalu ia memaksakan senyum kecil pada dirinya sendiri di kegelapan. Tidak ada dialog. Cahaya layar HP yang biru, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Dia sedang menghitung sisa uangnya. Penonton tidak perlu melihat layarnya — mereka sudah tahu isinya sejak Ep 27, saat dia berjanji membiayai sekolah dua adik Maya dengan simpanan yang tidak ada.
+>
+> **Senyum yang dia paksakan untuk dirinya sendiri di kegelapan** yang membuat klip ini menyakitkan, bukan wajah gelisahnya.
+
+### Nada dan musik Ep 30
+Tanpa musik di Klip 1–3. Di Klip 4 masukkan **suara ambience ruang makan yang ramai dan ringan** — bukan musik, cukup suara orang dan peralatan, supaya tawanya terasa berada di ruangan nyata.
+
+`harapan.mp3` masuk pelan di Klip 5 tepat setelah kalimat Bima, lalu **berhenti mendadak** di awal Klip 6. Klip 6 sepenuhnya hening.
+
+**Frame terakhir:** `"Episode 31. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 30 — tiga tahun keliling dunia, belum pernah sekalipun turun. Dan belum pernah ada yang motret dia. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
