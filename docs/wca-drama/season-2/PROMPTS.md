@@ -1165,7 +1165,9 @@ Ep 23 — setahun amplop itu nggak pernah dibuka. Ibunya nyimpen, biar anaknya b
 
 ---
 
-## EP 24 — "IBU NGGAK SENDIRIAN"
+## EP 23B — "IBU NGGAK SENDIRIAN" (jembatan — produksi bersama Ep 22–23)
+
+> Episode penghubung antara Bima di kampung dan Bima kembali di kapal. **Tidak perlu diproduksi sekarang** — Ep 24 sudah bisa jalan tanpa ini selama penonton tahu dia sudah kembali berlayar. Produksi bersama Ep 22 dan 23.
 
 Bima kembali berlayar, dan di sanalah dia menemukan cintanya. **Tidak ada yang perlu dibongkar dari Ep 1–23** — pintunya sudah disiapkan di Ep 23: amplop yang belum dibuka selama setahun, dan kalimat ibunya "Buat kamu. Kalau kamu mau balik lagi."
 
@@ -1222,11 +1224,70 @@ Lorong kru kapal yang terang. bima-servis.png berhenti mendadak di tengah lorong
 ### Nada dan musik Ep 24
 Tanpa musik di Klip 1–2. `harapan.mp3` masuk di Klip 3 **tepat pada kata "Berangkat"**, lalu mengalir sampai Klip 5. Di Klip 6 musik **berhenti mendadak** saat dia berbalik, dan klipnya berakhir dalam hening total.
 
+**Frame terakhir:** `"Episode 24. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 23B — ibunya yang nyuruh dia berangkat. Dan di lorong itu, dia denger bahasa Indonesia. 🚢 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
+## EP 24 — "BAPAK KAMU ORANGNYA KAYAK GIMANA?"
+
+Bima jatuh cinta pada Maya, dan tidak ada satu sentuhan pun di episode ini.
+
+Satu keputusan yang membuatnya bukan adegan romantis biasa: **Maya mengenal Bima dari sebelum dia jadi siapa-siapa.** Dia ada di kelas yang sama di Season 1 Episode 3, saat Bima disuruh memperkenalkan diri dalam bahasa Inggris dan mulutnya tidak bisa mengeluarkan satu kata pun.
+
+Dan yang membuat Bima jatuh bukan senyum Maya — tapi satu pertanyaan yang belum pernah ditanyakan siapa pun sejak bapaknya meninggal.
+
+### Klip 1 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal yang sederhana pada larut malam, meja panjang berlapis formika, lampu neon terang, hampir kosong. bima-servis.png berkemeja seragam putih dengan dasi kupu-kupu sudah dilonggarkan duduk sendirian makan dari nampan stainless dengan wajah lelah. maya.png berkemeja seragam kru putih datang membawa nampan, lalu langsung duduk di kursi seberangnya tanpa bertanya, meletakkan nampannya dan mulai makan seolah sudah biasa. Cahaya neon terang dan datar, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Dia duduk **tanpa minta izin**. Satu gerakan kecil yang langsung memberi tahu penonton siapa dia.
+
+### Klip 2 — Ingredient: `maya.png`
+```
+Ruang makan kru kapal larut malam. Close-up maya.png berkemeja seragam kru putih mengunyah sambil menatap ke seberang meja, lalu tersenyum kecil dan berbicara santai dengan nada menggoda yang ramah: "Kamu yang di kelas dulu nggak bisa ngomong itu, kan?" Ia mengangkat alis sedikit sambil menunggu jawaban. Cahaya neon terang dan datar, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal larut malam. bima-servis.png berkemeja seragam putih berhenti mengunyah, wajahnya memerah malu, lalu mengangguk pelan sambil menunduk ke nampannya. maya.png menatapnya sebentar lalu berbicara pelan tanpa menertawakan sama sekali: "Aku nangis di kamar mandi hari itu." bima-servis.png mengangkat wajahnya menatap Maya dengan terkejut. Cahaya neon terang, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Dia tidak menghibur Bima — dia menyerahkan rasa malunya sendiri, **persis cara Rendi menghibur Bima di Ep 14.** Itu cara orang-orang di kapal ini saling menjaga, dan sekarang Bima menerimanya dari orang yang berbeda.
+
+### Klip 4 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Dek kapal pesiar pada malam hari, pagar besi dan laut hitam pekat, langit berbintang. bima-servis.png dan maya.png berdiri berdampingan bersandar di pagar dengan jarak satu langkah, keduanya menatap laut, angin meniup baju mereka. Setelah beberapa saat maya.png bertanya pelan tanpa menoleh: "Bapak kamu orangnya kayak gimana?" bima-servis.png menoleh menatapnya, wajahnya berubah — tidak sedih, tapi terkejut. Cahaya lampu dek temaram, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Ini pertanyaannya.** Sejak bapaknya meninggal, semua orang menanyakan kabar Bima dan turut berduka. Tidak ada satu pun yang menanyakan bapaknya **orang seperti apa.**
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Dek kapal malam hari. Close-up bima-servis.png berkemeja seragam putih menatap laut, mulutnya bergerak hendak menjawab lalu berhenti, lalu akhirnya berbicara pelan: "Bapak nggak pernah muji aku." Ia berhenti sebentar, lalu sudut bibirnya naik tipis untuk pertama kalinya saat membicarakan bapaknya: "Tapi tiap aku pergi, beliau nungguin di teras sampai aku nggak kelihatan." Cahaya lampu dek temaram dari samping, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Detik dia jatuh cinta**, dan tidak ada sentuhan sama sekali. Seseorang memberinya ruang mengingat bapaknya sebagai manusia, bukan sebagai luka — dan untuk pertama kalinya sejak Ep 8, dia tersenyum saat menyebut bapaknya.
+>
+> Senyum tipis itu wajib. **Jangan biarkan Veo membuatnya menangis di klip ini.**
+
+### Klip 6 — Ingredients: `maya.png` + `bima-servis.png` — penutup
+```
+Persimpangan lorong kru kapal yang terang. maya.png berkemeja seragam kru putih berhenti di persimpangan, menoleh sekali ke arah bima-servis.png sambil berkata ringan: "Ya udah. Besok lagi." Lalu ia berbalik dan berjalan menjauh menyusuri lorong tanpa menunggu jawaban. bima-servis.png tetap berdiri di tempatnya menatap kepergiannya jauh setelah Maya menghilang di ujung lorong, tidak bergerak sama sekali. Cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Tidak terjadi apa-apa, dan justru itu sebabnya penonton akan menonton ulang. **Bima masih berdiri di situ lama setelah Maya hilang** — itu seluruh pengakuan perasaannya, tanpa satu kata pun.
+
+### Nada dan musik Ep 24
+Tanpa musik di Klip 1–3, hanya dengung ruang makan kapal. `harapan.mp3` masuk sangat pelan di Klip 4 tepat setelah pertanyaan Maya, dan **tetap pelan** sampai akhir Klip 6. Jangan dibesarkan.
+
+Ini episode yang paling mudah dirusak musik. Begitu pianonya terdengar jelas, adegannya berubah dari dua orang lelah yang saling menemukan jadi adegan roman sinetron.
+
 **Frame terakhir:** `"Episode 25. BERSAMBUNG."`
 
 **Caption TikTok:**
 ```
-Ep 24 — ibunya yang nyuruh dia berangkat. Dan di lorong itu, dia denger bahasa Indonesia. 🚢 #dramapendek #kapalpesiar #wcajogja
+Ep 24 — setahun nggak ada yang nanya bapaknya orang kayak gimana. Baru dia. 🤍 #dramapendek #kapalpesiar #wcajogja
 ```
 
 ---
