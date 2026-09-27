@@ -999,6 +999,59 @@ Ep 20 — dia minta maaf pakai bahasa Indonesia. Ke orang yang nggak ngerti sepa
 
 ---
 
+## EP 21 — "JANGAN KEMBALI"
+
+Jawaban yang sudah ada di saku dadanya sejak Ep 20. Di Season 1 Episode 1 bapaknya bilang "Sadar diri, Le" dan Bima pergi melawan kehendaknya. Sekarang, untuk menghormatinya, dia pulang. **Dia berangkat melawan bapaknya, dan kembali justru karena bapaknya.**
+
+Pembalikan yang tinggal dipetik: kalimat ancaman supervisor di Ep 19, "you don't come back", diucapkan lagi di sini dengan arti yang sepenuhnya berbeda.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal yang lebar dan terang pada pagi hari, sebuah pintu besi putih bertanda di ujung. bima-servis.png berkemeja seragam putih rapi berjalan mantap menghampiri pintu itu tanpa melambat sedikit pun, lalu langsung mengetuk tiga kali tanpa ragu. Bahunya tegak, wajahnya tenang. Tidak ada dialog. Cahaya neon terang dan rata, kamera mengikuti dari belakang, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Pintu dan sudut yang sama dengan **Ep 19 Klip 2**, saat tangannya berhenti menggantung di udara sebelum berani mengetuk. Sekarang tidak ada jeda sama sekali — penonton tahu jawabannya sebelum dia membuka mulut.
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Kantor perwira kapal yang kecil dan rapi. Close-up bima-servis.png berkemeja seragam putih berdiri tegak di depan meja, menatap lurus tanpa menunduk, lalu berbicara pelan dan jelas dalam bahasa Inggris yang sederhana: "Sir. I go home." Setelah mengucapkannya bahunya turun sedikit, seperti orang yang baru meletakkan sesuatu yang berat. Cahaya kantor kapal yang rata dan dingin, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Empat kata, dan sengaja patah. Dia sudah lancar berbahasa Inggris sejak Ep 12 — tapi kalimat ini terlalu berat, jadi keluarnya sederhana lagi.
+
+### Klip 3 — Ingredients: `supervisor.png` + `bima-servis.png`
+```
+Kantor perwira kapal. supervisor.png berseragam perwira putih menatap bima-servis.png beberapa saat tanpa berkata apa-apa, lalu berdiri dari kursinya, mengulurkan tangan menjabat tangan Bima dengan erat, dan berbicara pelan dengan senyum tipis yang hangat dalam bahasa Inggris: "Then go. And don't come back." Wajahnya sama sekali tidak mengancam, justru seperti memberi restu. Cahaya kantor kapal, kamera diam, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Kalimat yang sama persis dengan ancamannya di Ep 19**, sekarang diucapkan sebagai doa. Nada suara dan senyumnya yang membalik seluruh artinya. **Jangan ubah satu kata pun** — kekuatannya justru karena kata-katanya identik.
+
+### Klip 4 — Ingredients: `bima-servis.png` + `rekan.png`
+```
+Kabin kru kapal yang sempit, koper terbuka di atas ranjang bawah. bima-servis.png berkaos putih melipat seragam putihnya pelan-pelan dan meletakkannya ke dalam koper. rekan.png berkaos dalam putih duduk di tepi ranjang atas menatapnya tanpa berkata apa-apa, kakinya menggantung. Setelah beberapa saat rekan.png berbicara pelan dalam bahasa Inggris: "Say hi to your mother." Cahaya lampu kabin kuning redup, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+
+### Klip 5 — Ingredients: `bima-servis.png` + `anak-baru.png`
+```
+Lorong kru kapal yang lebar dan terang. bima-servis.png berkaos polo rapi menarik koper besar berjalan menyusuri lorong, lalu berhenti saat melihat anak-baru.png berapron karet hijau toska berdiri di ambang pintu ruang cuci piring menatapnya. Keduanya tidak berkata apa-apa. bima-servis.png mengangguk satu kali padanya, anak itu mengangguk balik. Lalu Bima melanjutkan langkahnya. Cahaya neon terang dan rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Cermin dari **Ep 16 Klip 6** — lorong dan posisi yang sama, anak yang sama di pintu yang sama. Bedanya sekarang Bima membawa koper dan tidak akan kembali. Satu anggukan itu seluruh serah terimanya.
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Dermaga pelabuhan pada pagi hari, lambung kapal pesiar putih raksasa memenuhi seluruh latar belakang menjulang tinggi. bima-servis.png berkaos polo rapi menuruni tangga gangway sambil menarik koper, sampai di dermaga, lalu berhenti dan menoleh sekali ke atas menatap kapal itu. Setelah beberapa detik ia berbalik dan berjalan menjauh dari kapal, tubuhnya terlihat sangat kecil dibanding lambung kapal. Tidak ada dialog. Cahaya pagi yang terang, kamera diam tanpa bergerak dari jauh, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Kebalikan langsung dari gambar Season 1 Episode 8, saat dia berdiri di dek kapal itu dengan bangga. Sekarang dia berjalan menjauh — **dan itu bukan kekalahan.**
+
+### Nada dan musik Ep 21
+Tanpa musik di Klip 1–2. `satu-nada.mp3` masuk di Klip 3 tepat pada kata "go". Klip 4–5 hening lagi. Di Klip 6, `harapan.mp3` masuk penuh dan dibiarkan mengalir sampai kartu penutup — **pertama kalinya sejak Ep 8 musik boleh terdengar lega sepanjang satu klip utuh.**
+
+**Frame terakhir:** `"Episode 22. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 21 — dia berangkat ngelawan bapaknya. Dia pulang karena bapaknya. 🤍 #dramapendek #kapalpesiar #wcajogja #perantauan
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
