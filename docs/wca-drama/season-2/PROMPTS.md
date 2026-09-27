@@ -1732,6 +1732,81 @@ Ep 31 — enam kali lewat, dan hari ini akhirnya turun. 🤍 Tapi tolong perhati
 
 ---
 
+## EP 32 — "YANG NGGAK BISA DIBAGI DUA"
+
+Kebalikan total dari Ep 31. Kemarin dia bahagia; hari ini dia mulai menggali kuburannya sendiri. Ada dua orang yang menunggu uangnya — ibunya dan dua adik Maya — dan dia hanya punya satu gaji.
+
+**Ini episode di mana bohongnya berhenti jadi kecelakaan dan mulai jadi kebiasaan.** Di Ep 27 dia berbohong karena terburu-buru. Di sini dia berbohong dengan tenang, dan itu jauh lebih menakutkan.
+
+### Klip 1 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Ruang makan kru kapal pada larut malam, hanya satu lampu neon menyala di ujung ruangan. bima-servis.png berkaos putih duduk sendiri di meja panjang, di depannya selembar kertas bekas yang ia tulisi angka-angka dengan pulpen, kertas dipegang rata di meja dan diambil dari samping sehingga tulisannya tidak terlihat kamera. Di sebelah kertas itu tergeletak sebuah foto cetak kecil berisi wajah maya.png tersenyum tipis. Bima berhenti menulis, menatap foto itu sebentar, lalu menggeser foto itu menjauh dari kertas dengan satu jari. Tidak ada dialog. Cahaya neon tunggal yang keras dan sepi, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sunyi dan berat. Vertikal 9:16, 8 detik.
+```
+> Fotonya sudah dicetak — janji dari Ep 31 dibayar. Tapi perhatikan apa yang dia lakukan: **dia menggeser fotonya menjauh dari angka-angka itu.** Dia sedang memisahkan perempuan yang dia cintai dari hitungan yang tidak masuk.
+>
+> Kalau wajah di foto cetak itu keluar tidak mirip Maya, jangan diulang berkali-kali — cukup ambil ulang dengan jempol Bima menutupi separuh foto, atau foto dalam posisi agak miring memantulkan cahaya. Penonton tetap akan tahu itu foto siapa.
+
+### Klip 2 — Ingredient: `ibu.png`
+```
+Ruang tamu rumah kampung Jawa pada malam hari, lampu kuning redup, dinding berkapur. ibu.png berdaster bermotif bunga pudar dan kerudung longgar duduk di kursi kayu memegang HP di telinganya dengan kedua tangan. Wajahnya berusaha terlihat baik-baik saja. Ia berkata hati-hati seperti orang yang sudah lama menunda kalimat itu: "Bukan buat Ibu, Bim." Ia berhenti sebentar menelan ludah lalu melanjutkan lebih pelan: "Utang rumah sakit bapakmu belum lunas." Cahaya lampu kuning redup dari atas, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Hantu bapaknya kembali dari Season 2 lewat satu kalimat, tanpa perlu flashback. **Bapaknya sudah meninggal dan tagihannya masih hidup.** Penonton Indonesia tahu ini bukan cerita karangan.
+>
+> Jangan biarkan ibunya menangis di sini. Dia berusaha terdengar biasa — itu yang membuat anaknya hancur.
+
+### Klip 3 — Ingredients: `rekan.png` + `bima-servis.png`
+```
+Kabin kru kapal yang sempit, ranjang susun besi, lampu kuning redup. rekan.png berkaos dalam putih duduk di tepi ranjang bawah, mendengarkan lalu menggeleng pelan dengan wajah menyesal dan berkata dengan aksen Filipina: "I want to help, but I send everything home also." Ia diam sebentar menatap bima-servis.png yang berkaos putih berdiri di depannya, lalu bertanya dengan suara lebih rendah dan hati-hati: "Bima. What did you promise her?" bima-servis.png tidak menjawab, pandangannya jatuh ke lantai. Cahaya lampu kabin kuning redup, kamera diam, handheld, candid, tekstur kulit natural, menegangkan. Vertikal 9:16, 8 detik.
+```
+> Rekan menanyakan pertanyaan yang sedang ditanyakan seluruh kolom komentar. **Dan Bima tidak menjawab** — itu jawabannya.
+>
+> Subtitle Indonesia wajib untuk dua kalimat Inggris ini.
+
+### Klip 4 — Ingredients: `supervisor.png` + `bima-servis.png`
+```
+Dapur kapal berbahan stainless steel pada siang hari, cahaya terang dan dingin. supervisor.png berseragam perwira putih memegang papan jadwal, menatap bima-servis.png berkemeja seragam putih dengan dahi berkerut lalu berkata tegas: "Every day off? You will break." bima-servis.png berdiri tegak dan menjawab cepat tanpa ragu: "I need the hours, sir." supervisor.png menatapnya sebentar lalu menambahkan lebih pelan: "You have shore leave next port." bima-servis.png menjawab datar: "I don't need it." Cahaya dapur kapal yang terang dan dingin, kamera diam, handheld, candid, tekstur kulit natural, tegang. Vertikal 9:16, 8 detik.
+```
+> Delapan detik lalu dia baru saja turun ke darat pertama kali bersama Maya, dan sekarang dia membuang shore leave berikutnya. **Dia sedang menjual kembali hal yang baru dia dapatkan.** Penonton akan berteriak di komentar.
+
+### Klip 5 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Lorong kru kapal berpintu besi putih pada pagi hari. maya.png berkemeja seragam kru putih berjalan mendekat dengan wajah cerah dan bertanya ringan: "Port besok kita turun lagi, kan?" bima-servis.png berkemeja seragam putih berhenti sebentar, lalu tersenyum dengan sangat tenang dan menjawab lancar tanpa terburu-buru: "Aku dapat shift, May. Lumayan bayarannya." Ia bahkan menambahkan sendiri: "Buat tabungan kita." maya.png tersenyum lega dan mengangguk lalu berjalan lewat. Setelah Maya lewat, senyum bima-servis.png hilang perlahan. Cahaya neon putih kapal yang rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, halus dan menegangkan. Vertikal 9:16, 8 detik.
+```
+> **Bandingkan dengan Ep 27.** Di sana dia berbohong dengan terburu-buru dan berkedip dua kali. Di sini dia berbohong dengan tenang, lancar, dan bahkan menambahkan satu kalimat yang tidak perlu — "buat tabungan kita."
+>
+> Itu bukan improvisasi lagi. Itu latihan. Arahkan aktornya atau prompt-nya ke arah **santai**, bukan gelisah. Kebohongan yang mulus jauh lebih mengerikan daripada kebohongan yang gugup, dan penonton akan merasakannya tanpa bisa menjelaskan kenapa.
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Stasiun pencucian piring kapal pada dini hari, hanya sebagian lampu neon menyala, tumpukan piring putih dan keranjang plastik biru di sekeliling. bima-servis.png berkaos seragam putih dan apron karet hijau toska berdiri sendiri bekerja dengan wajah sangat lelah, mata setengah tertutup, punggung sedikit membungkuk. Ia berhenti sebentar, mengeluarkan sebuah foto cetak kecil dari saku dadanya dengan sarung tangan karet yang masih basah, menatapnya beberapa detik, lalu memasukkannya kembali ke saku dan meneruskan bekerja. Tidak ada dialog. Cahaya neon yang keras memantul di stainless steel, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sunyi dan menyayat. Vertikal 9:16, 8 detik.
+```
+> Dia kembali ke stasiun cuci piring — tempat dia berdiri di Episode 1. **Seragam servisnya dilapisi apron karet lagi.** Penonton lama akan langsung merasakan artinya tanpa satu kata pun: dia turun lagi, dan kali ini dengan sukarela.
+>
+> Foto di saku dadanya membuat seluruh episode ini jadi kisah cinta, bukan kisah utang. Tanpa foto itu, ini cuma orang kecapekan.
+
+### Nada dan musik Ep 32
+`piano-sedih.mp3` masuk sangat pelan di Klip 1 lalu **hilang begitu ibunya mulai bicara** di Klip 2. Klip 2 sampai 5 tanpa musik — hanya ambience mesin kapal dan langkah di lorong.
+
+Musik baru kembali di Klip 6 dengan `satu-nada.mp3`, masuk **tepat saat dia mengeluarkan foto dari sakunya**, bukan sebelumnya.
+
+Volume musik maksimal 25% dari dialog, seperti biasa.
+
+**Frame terakhir:** `"Episode 33. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 32 — dua orang nunggu uangnya, dan dia cuma punya satu gaji. Perhatiin cara dia bohong di detik ke-40. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+### Catatan produksi
+- **Urutan emosinya: sepi → hancur → telanjang → keras kepala → dingin → menyayat.** Tidak ada satu pun klip yang lega di episode ini, dan itu memang tujuannya — Ep 31 sudah membayar penonton, sekarang saatnya menagih.
+- Kertas berisi angka di Klip 1 dan papan jadwal di Klip 4 **jangan sampai tulisannya terbaca kamera**. Veo akan mengarang angka yang ngawur.
+- Dua dialog Inggris (Klip 3 dan 4) wajib bersubtitle Indonesia, dan semua dialog Indonesia wajib bercaption.
+- Potong bersih antar klip. Tidak ada dissolve di episode ini — setiap potongan harus terasa seperti pintu ditutup.
+- Kalau kamu ingin episode ini lebih pendek, klip yang boleh dibuang cuma Klip 3. Klip 5 dan 6 adalah alasan episode ini ada.
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
