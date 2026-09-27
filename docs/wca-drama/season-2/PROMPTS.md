@@ -1052,6 +1052,60 @@ Ep 21 — dia berangkat ngelawan bapaknya. Dia pulang karena bapaknya. 🤍 #dra
 
 ---
 
+## EP 22 — "KAMU UDAH MAKAN?"
+
+Yang ditunggu penonton sejak pagar pelabuhan di Ep 15.
+
+Satu keputusan menentukan seluruh episode: **Bima tidak memberi kabar.** Kalau ibunya sudah menunggu di depan rumah, momennya jadi lega biasa. Kalau ibunya sedang menyapu halaman dan tidak tahu apa-apa, momennya jadi tidak tertahankan.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Jalan tanah kampung Jawa pada sore hari, rumah-rumah bata dan pohon pisang di kiri kanan, jemuran di latar belakang. bima-servis.png mengenakan kaos polo polos rapi tanpa seragam, menarik koper besar berjalan menyusuri jalan dengan langkah tenang dan tidak tergesa, wajahnya lelah tapi damai. Roda koper berderak di jalan tanah. Tidak ada dialog. Cahaya sore keemasan tidak merata, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredient: `ibu.png`
+```
+Halaman rumah kampung Jawa pada sore hari, dinding bata ekspos dan jemuran di latar belakang. ibu.png berkerudung longgar dan berdaster sedang menyapu halaman dengan sapu lidi, gerakannya pelan dan rutin, punggungnya membungkuk, sama sekali tidak menyadari ada siapa-siapa. Ia menyapu terus tanpa mengangkat kepala. Tidak ada dialog. Cahaya sore keemasan, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Dia harus benar-benar terlihat **tidak menunggu siapa-siapa**. Itu yang membuat klip berikutnya bekerja.
+
+### Klip 3 — Ingredient: `ibu.png`
+```
+Halaman rumah kampung Jawa sore hari. ibu.png berhenti menyapu dan mengangkat kepalanya menatap ke arah kamera, lalu seluruh tubuhnya membeku. Sapu lidi terlepas dari tangannya jatuh ke tanah. Ia tidak berlari, tidak berteriak, tidak bergerak sama sekali — hanya berdiri menatap dengan mulut sedikit terbuka dan mata yang perlahan basah, seperti orang yang tidak percaya pada apa yang dilihatnya. Cahaya sore keemasan, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Dia tidak berlari.** Orang yang benar-benar terkejut membeku dulu, dan diamnya jauh lebih menghantam daripada berlari sambil menangis.
+
+### Klip 4 — Ingredient: `ibu.png`
+```
+Close-up ibu.png berkerudung longgar di halaman rumah kampung, wajahnya basah oleh air mata yang mengalir tanpa dia sadari, bibirnya bergetar. Ia mencoba berbicara dua kali dan gagal, lalu akhirnya keluar satu pertanyaan dengan suara pecah dan serak: "Kamu... udah makan?" Cahaya sore keemasan hangat dari samping, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Kalimat episodenya.** Setahun berpisah, suaminya meninggal, anaknya muncul tanpa kabar — dan yang keluar adalah pertanyaan tentang makan, karena itulah satu-satunya cara dia tahu menyayangi orang. Menyambung langsung ke Ep 15, saat dia naik bus semalaman hanya untuk menonton anaknya makan dua puluh menit.
+
+### Klip 5 — Ingredients: `bima-servis.png` + `ibu.png`
+```
+Halaman rumah kampung Jawa sore hari. bima-servis.png berkaos polo melepas gagang kopernya dan melangkah cepat memeluk ibu.png, memeluknya erat dengan kepala menunduk di bahu ibunya. ibu.png yang jauh lebih kecil darinya memukul dada anaknya pelan beberapa kali sambil menangis, lalu berhenti memukul dan menggenggam punggung baju anaknya erat-erat. Tidak ada apa pun yang memisahkan mereka. Cahaya sore keemasan, kamera diam, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Di Ep 15 ada pagar besi di antara mereka dan tidak boleh ada satu pun sentuhan. Di sini tidak ada apa-apa lagi. **Itu bayaran dari episode pelabuhan.**
+
+### Klip 6 — Ingredients: `bima-servis.png` + `ibu.png` — penutup
+```
+Dapur rumah kampung Jawa pada malam hari, meja kayu sederhana dengan piring nasi dan lauk, cahaya bohlam kuning hangat. bima-servis.png berkaos polo duduk makan dengan tangan, tidak tergesa sama sekali. ibu.png duduk di kursi seberang meja hanya menatapnya makan tanpa ikut makan, dagunya bertopang di tangan, wajahnya tenang dan puas. Kamera menatap wajah ibu, bukan wajah anaknya. Tidak ada dialog dan tidak ada yang terburu-buru. Cahaya bohlam kuning hangat, kamera diam tanpa bergerak, handheld sangat halus, candid, tekstur kulit natural, sinematik hangat. Vertikal 9:16, 8 detik.
+```
+> Cermin dari **Ep 15 Klip 4** — dia menonton anaknya makan. Bedanya: tidak ada pagar, tidak ada sirene kapal, tidak ada batas dua puluh menit. Kameranya di wajah ibu, bukan Bima, karena yang selesai di episode ini adalah penantiannya.
+
+### Nada dan musik Ep 22
+Tanpa musik di Klip 1–2. `harapan.mp3` masuk pelan di Klip 3 **tepat saat sapu lidi jatuh**, lalu dibiarkan mengalir penuh sampai akhir Klip 6 tanpa terputus. Satu-satunya episode di seluruh serial yang musiknya tidak pernah dipotong.
+
+**Frame terakhir:** `"Episode 23: Bima nggak punya kerja. BERSAMBUNG."`
+> Kartu itu yang memikul beban cliffhanger, supaya Klip 6 bisa dibiarkan hangat tanpa diganggu.
+
+**Caption TikTok:**
+```
+Ep 22 — setahun, dan kalimat pertama ibunya cuma "kamu udah makan?" 🥲 #dramapendek #kapalpesiar #wcajogja #ibu
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
