@@ -1519,6 +1519,67 @@ Ep 28 — semua orang ngira dia nungguin Bima. Padahal dia lagi belajar bahasa I
 
 ---
 
+## EP 29 — "BIAYANYA DARI MANA"
+
+Momen brand-nya, dan justru karena itu paling berbahaya. Kalau episode ini berubah jadi iklan, sembilan episode kerja membangun kepercayaan hilang dalam empat puluh detik.
+
+Aturannya: **episodenya bukan tentang sekolahnya, tapi tentang uang dan harga diri.** WCA cuma tempat kejadiannya.
+
+Dan ada yang bisa dipetik di sini, menggantung sejak Season 1 Episode 1: bapak Karno bertanya *"Biayanya dari mana? Sadar diri, Le."* Pertanyaan itu menghantui dua season. Sekarang seorang gadis masuk ke gedung yang sama dan menjawabnya sendiri — dengan uang gorengan.
+
+### Klip 1 — Ingredient: `nita.png`
+```
+Kamar kecil rumah kampung pada pagi buta, cahaya lampu bohlam kuning. nita.png berkerudung longgar duduk di lantai beralas tikar membuka sebuah kaleng biskuit tua, lalu mengeluarkan gulungan-gulungan uang kertas kecil yang diikat karet dan menatanya satu per satu di atas tikar dengan rapi. Wajahnya serius dan tangannya hati-hati. Tidak ada dialog. Cahaya bohlam kuning yang sempit, kamera diam sedikit dari atas, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Uang kecil yang digulung dan diikat karet — uang warung, dikumpulkan sepuluh ribu demi sepuluh ribu. Penonton langsung tahu berapa lama dia menabungnya tanpa satu angka pun disebut.
+
+### Klip 2 — Ingredient: `nita.png`
+```
+Bagian dalam bus kota yang sederhana pada pagi hari, kursi-kursi penumpang lain terlihat blur, jendela menampilkan jalanan kota yang lewat. nita.png berkerudung longgar dan berbaju rapi duduk sendirian dekat jendela memeluk sebuah map plastik berisi berkas di dadanya dengan dua tangan, punggungnya tegak, matanya menatap lurus ke depan dengan gugup. Tidak ada dialog. Cahaya pagi dari jendela bus, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Dia berangkat **sendirian**, tanpa memberi tahu ibu Bima dan tanpa memberi tahu Bima. Itu harga dirinya.
+
+### Klip 3 — SISIPAN FOOTAGE ASLI (gerbang dan plang kampus WCA)
+Rekam pakai HP: plang nama, gerbang, halaman depan. 5–8 detik, tanpa dialog. Kalau perlu sisipkan satu shot AI Nita berdiri di depannya:
+```
+nita.png berkerudung longgar dan berbaju rapi berdiri di trotoar di depan sebuah gedung kampus, memeluk map plastik di dadanya, mendongak menatap ke atas ke arah papan nama gedung dengan campuran gugup dan kagum, lalu menelan ludah. Cahaya pagi yang terang, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik penuh harap. Vertikal 9:16, 8 detik.
+```
+> Blocking-nya **sama persis dengan Bima di Season 1 Episode 3** — berdiri di trotoar, mendongak, menelan ludah. Penonton lama akan mengenalinya seketika.
+
+### Klip 4 — Ingredient: `nita.png`
+```
+Meja pendaftaran kampus yang sederhana, komputer dan tumpukan berkas di atas meja. nita.png berkerudung longgar duduk di kursi di depan meja, mengeluarkan gulungan-gulungan uang kecil dari dalam map plastik dan menatanya di atas meja dengan dua tangan, pelan dan hati-hati, tanpa malu-malu. Di seberang meja seorang staf perempuan berkemeja rapi, wajah terlihat sebagian dari samping, mulai menghitung. Cahaya ruangan yang rata, kamera diam sedikit dari atas, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> **Dia tidak malu.** Dia menata uangnya dengan tenang dan kepala tegak. Kalau Veo membuatnya terlihat malu, ulangi.
+
+### Klip 5 — Ingredient: `nita.png`
+```
+Meja pendaftaran kampus. Staf perempuan di seberang meja, wajah terlihat sebagian dari samping, berhenti menghitung lalu mengangkat wajahnya. nita.png berkerudung longgar menegakkan punggungnya dan bertanya pelan dengan suara yang berusaha tetap tenang: "Kurangnya... boleh dicicil, Bu?" Staf itu tersenyum dan mengangguk sambil kembali menata berkas, menjawab santai seolah itu hal paling biasa: "Bisa, Mbak. Banyak yang gitu." Wajah nita.png berubah lega. Cahaya ruangan yang rata, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Jantung episodenya, dan sekaligus bagian paling berharga untuk WCA — tanpa satu kalimat iklan pun.**
+>
+> Keberatan terbesar di kepala setiap penonton sejak Season 1 Episode 1 adalah "biayanya dari mana". Di klip ini pertanyaan itu dijawab — bukan lewat narasi promosi, tapi lewat satu kalimat belas kasih di tengah adegan paling menegangkan hidup seorang gadis.
+>
+> ⚠️ **Sesuaikan jawaban stafnya dengan kebijakan WCA yang sebenarnya.** Kalau tidak ada cicilan, ganti dengan skema yang memang ada. Drama yang menjanjikan sesuatu yang tidak ada akan menghasilkan telepon marah minggu depan.
+
+### Klip 6 — Ingredient: `nita.png` — penutup
+```
+Trotoar di depan gedung kampus pada siang hari, jalanan kota di latar belakang. nita.png berkerudung longgar berjalan keluar gerbang memegang selembar kertas bukti pendaftaran, lalu berhenti beberapa langkah dan berdiri diam. Matanya perlahan basah dan satu air mata jatuh tanpa ia isak sedikit pun. Ia mengusapnya cepat dengan punggung tangan, menarik napas, lalu memasukkan kertas itu ke dalam map dan berjalan pergi dengan langkah cepat. Cahaya siang yang terang, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Dia mengusapnya cepat dan langsung berjalan pergi, karena **besok subuh warungnya harus buka.** Satu-satunya momen sepanjang serial dia menangis untuk dirinya sendiri, dan lamanya cuma dua detik.
+
+### Nada dan musik Ep 29
+Tanpa musik di Klip 1–4. `harapan.mp3` masuk di Klip 5 **tepat setelah** kalimat staf "Banyak yang gitu", lalu terus mengalir sampai habis di Klip 6.
+
+**Frame terakhir:** `"Episode 30. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 29 — "Biayanya dari mana?" Dua season pertanyaan itu nggak kejawab. Hari ini dijawab pakai uang gorengan. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
