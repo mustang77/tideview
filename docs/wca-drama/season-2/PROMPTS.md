@@ -1165,6 +1165,72 @@ Ep 23 — setahun amplop itu nggak pernah dibuka. Ibunya nyimpen, biar anaknya b
 
 ---
 
+## EP 24 — "IBU NGGAK SENDIRIAN"
+
+Bima kembali berlayar, dan di sanalah dia menemukan cintanya. **Tidak ada yang perlu dibongkar dari Ep 1–23** — pintunya sudah disiapkan di Ep 23: amplop yang belum dibuka selama setahun, dan kalimat ibunya "Buat kamu. Kalau kamu mau balik lagi."
+
+Dan Maya bukan orang asing: teman seangkatan di WCA, sama-sama lulus, sama-sama berlayar, baru bertemu lagi di kapal. **Yang mempertemukan mereka adalah sekolahnya** — jauh lebih baik untuk WCA daripada kisah cinta kapal yang datang entah dari mana.
+
+> Pagar yang harus dijaga sepanjang alur ini: hubungannya sopan, dewasa, dan tidak sembunyi-sembunyi. Penontonmu adalah orang tua yang sedang menimbang melepas anaknya berlayar.
+
+### Aset baru: `maya.png` — 22 tahun, kru kapal, seangkatan WCA
+```
+Foto iPhone candid seorang perempuan Indonesia berusia 22 tahun, kulit sawo matang, rambut hitam disanggul rapi ke belakang sesuai standar kru, wajah tenang dan percaya diri dengan sedikit lelah di bawah mata, riasan sangat tipis, mengenakan kemeja seragam kru kapal pesiar putih dengan name tag di dada, berdiri di lorong kru kapal dengan pintu besi putih di latar belakang. Diambil dari level mata, sedikit off-center. Cahaya neon putih kapal yang rata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah perempuan pekerja yang sudah lama di laut. Realisme gaya editorial.
+```
+> **Dia lebih senior dari Bima** — tiga tahun di laut, tidak pernah putus kontrak. Wajahnya harus tenang dan tahu apa yang dia kerjakan, bukan manis dan malu-malu. Itu yang membuatnya menarik, dan itu yang membuat penonton perempuan tidak muak.
+
+### Aset baru: `nita.png` — 21 tahun, gadis kampung sebelah
+```
+Foto iPhone candid seorang perempuan Indonesia berusia 21 tahun, kulit sawo matang, rambut hitam diikat sederhana, wajah ramah dan cekatan, tanpa makeup, mengenakan kerudung longgar dan tunik katun sederhana, berdiri di halaman rumah kampung Jawa sambil menenteng rantang susun. Diambil dari level mata, sedikit off-center. Cahaya sore keemasan tidak merata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah perempuan kampung biasa. Realisme gaya editorial.
+```
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Kamar rumah kampung Jawa pada pagi hari, cahaya masuk dari jendela kecil. Close-up bima-servis.png berkaos oblong duduk di tepi ranjang memegang amplop coklat yang masih tertutup di kedua tangannya, menatapnya lama tanpa membukanya, ibu jarinya mengusap tepi amplop itu sekali. Wajahnya bimbang. Tidak ada dialog. Cahaya pagi lembut dari samping, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredients: `nita.png` + `ibu.png`
+```
+Dapur rumah kampung Jawa pada pagi hari. nita.png berkerudung longgar meletakkan rantang susun di atas meja kayu lalu langsung mengambil sapu dan membereskan dapur tanpa diminta, gerakannya sudah hafal dan terbiasa. ibu.png berkerudung duduk di kursi menatapnya dengan senyum hangat seperti menatap anak sendiri. nita.png berbicara santai sambil terus bekerja: "Besok Nita anter ke puskesmas ya, Bu." Cahaya pagi hangat, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Nita **tidak** diperkenalkan sebagai calon pacar, tapi sebagai orang yang sudah setahun merawat ibunya sementara Bima di laut. Penonton menyimpulkan sendiri, dan itu jauh lebih kuat daripada disodorkan.
+
+### Klip 3 — Ingredients: `ibu.png` + `bima-servis.png`
+```
+Teras rumah kampung Jawa pagi hari, kursi kayu tua di sampingnya. ibu.png berkerudung longgar berdiri menatap anaknya, lalu mengambil amplop coklat dari tangan bima-servis.png dan menempelkannya kembali ke dada anaknya sambil menahan tangan Bima di situ. Ia berbicara pelan dan mantap: "Berangkat, Le." Ia berhenti sebentar. "Ibu nggak sendirian." Cahaya pagi keemasan, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Kalimat yang sama persis dengan kebohongannya di Ep 17**, saat dia duduk sendirian di kursi suaminya dan bilang "nggak sendirian kok, Le. Rame." Sekarang kalimat itu benar.
+
+### Klip 4 — Ingredients: `bima-servis.png` + `ibu.png` + `nita.png`
+```
+Jalan tanah kampung Jawa pada pagi hari. bima-servis.png berkaos polo rapi menarik koper berjalan menjauh dari kamera menyusuri jalan kampung. Di latar depan yang sedikit blur, ibu.png dan nita.png berdiri berdampingan di depan pagar rumah menatap kepergiannya, ibu.png melambaikan tangan pelan. Bima berhenti sekali, menoleh, lalu melanjutkan langkahnya. Cahaya pagi keemasan, kamera diam tanpa bergerak, handheld, candid, sinematik tenang. Vertikal 9:16, 8 detik.
+```
+> Kali ini ada **dua orang** di pagar, bukan satu. Itu yang membuat kepergiannya boleh terasa lega, bukan seperti pengkhianatan.
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Lorong kru kapal pesiar yang lebar dan terang, dinding besi putih, barisan lampu neon memanjang ke kejauhan, troli stainless berjajar di satu sisi. bima-servis.png berkemeja seragam kru putih dengan name tag baru berjalan menyusuri lorong sambil menarik koper, menatap sekeliling dengan wajah tenang orang yang sudah tahu tempat ini. Bahunya tegak. Tidak ada dialog. Cahaya neon terang dan rata, kamera mengikuti dari belakang, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> Lorong yang sama seperti Ep 1, tapi jalannya sudah berbeda. Dulu dia mendorong troli piring kotor dengan bahu membungkuk.
+
+### Klip 6 — Ingredients: `bima-servis.png` + `maya.png` — cliffhanger
+```
+Lorong kru kapal yang terang. bima-servis.png berhenti mendadak di tengah lorong sambil memegang gagang koper karena mendengar sesuatu di belakangnya, wajahnya berubah. Ia berbalik perlahan. Di kejauhan lorong berdiri maya.png berkemeja seragam kru putih memegang setumpuk berkas, sama-sama berhenti menatapnya. Keduanya tidak berkata apa-apa. Cahaya neon terang dan rata, kamera perlahan mendekat ke wajah Bima, handheld, candid, tekstur kulit natural, sinematik menegangkan. Vertikal 9:16, 8 detik.
+```
+> Yang dia dengar adalah **bahasa Indonesia** di lorong yang selama ini hanya berbahasa Inggris — persis seperti yang dia berikan ke anak baru di Ep 16. Sekarang dia yang menerimanya.
+
+### Nada dan musik Ep 24
+Tanpa musik di Klip 1–2. `harapan.mp3` masuk di Klip 3 **tepat pada kata "Berangkat"**, lalu mengalir sampai Klip 5. Di Klip 6 musik **berhenti mendadak** saat dia berbalik, dan klipnya berakhir dalam hening total.
+
+**Frame terakhir:** `"Episode 25. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 24 — ibunya yang nyuruh dia berangkat. Dan di lorong itu, dia denger bahasa Indonesia. 🚢 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
