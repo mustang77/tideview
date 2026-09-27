@@ -1400,59 +1400,60 @@ Ep 26 — 26 episode dia bilang "nggak apa-apa". Baru sekarang ada yang nggak pe
 
 ---
 
-## EP 27 — "TAPI AKU PENGEN KAMU IKUT"
+## EP 27 — "BUKAN KARENA LAPER"
 
-Pernyataan Bima, dan pemicunya sudah tersedia: di Ep 26 Maya bilang "kalau kamu mau pulang, pulang aja." Episode ini adalah jawabannya atas kalimat itu.
+Pernyataan Bima, dan pemicunya sudah tersedia: di Ep 26 Maya bilang "kalau kamu mau pulang, pulang aja."
 
-**Bima tidak akan mengucapkan kata "cinta".** Dua puluh enam episode karakternya adalah orang yang tidak pernah mengatakan apa pun secara langsung — kalau tiba-tiba dia berpidato romantis, penonton tidak akan percaya. Pengakuannya keluar dalam bahasanya sendiri: praktis, pendek, dan justru karena itu jauh lebih menghantam.
+**Dan di episode ini Bima berbohong.** Dia sudah berbohong lima kali sepanjang serial — selalu untuk melindungi orang lain. Sekarang, untuk pertama kalinya, dia berbohong untuk mendapatkan sesuatu. Penonton tahu dia bohong karena sudah melihat isi lacinya di Ep 23: satu amplop, tanpa pekerjaan, tanpa pemasukan.
 
 ### Klip 1 — Ingredient: `bima-servis.png`
 ```
-Lorong kru kapal yang lebar dan terang, kosong. bima-servis.png berkemeja seragam putih berdiri sendirian di depan dinding besi putih memegang lap di tangannya, bibirnya bergerak pelan mengulang-ulang kalimat untuk dirinya sendiri tanpa suara yang jelas terdengar, lalu ia menggeleng sendiri dan menghela napas. Wajahnya gugup. Cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+Lorong kru kapal yang lebar dan terang, kosong. bima-servis.png berkemeja seragam putih berdiri sendirian menghadap dinding besi putih, bibirnya bergerak mengulang-ulang kalimat untuk dirinya sendiri, lalu ia memejamkan mata dan menggeleng sendiri karena tidak puas. Tangannya mengusap wajah sekali. Cahaya neon terang dan rata, kamera diam, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
 ```
-> Cermin dari **Ep 12 Klip 1**, saat dia melatih kalimat bahasa Inggris sebelum hari pertama di restoran. Sekarang dia melatih kalimat bahasa Indonesia, dan itu jauh lebih menakutkan.
 
 ### Klip 2 — Ingredients: `bima-servis.png` + `maya.png`
 ```
-Dek kapal pesiar pada sore hari, pagar besi dan laut biru luas, cahaya matahari rendah. maya.png berkemeja seragam kru putih berdiri bersandar di pagar sedang melipat serbet sambil menatap laut. bima-servis.png berkemeja seragam putih datang mendekat lalu berhenti beberapa langkah di belakangnya, tangannya tidak tahu harus ditaruh di mana. maya.png menoleh dan menunggu. Cahaya sore laut yang hangat, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+Dek kapal pesiar saat matahari terbenam, pagar besi dan laut keemasan luas di latar belakang, langit jingga. maya.png berkemeja seragam kru putih berdiri bersandar di pagar sendirian menatap matahari terbenam, rambutnya sedikit tertiup angin. bima-servis.png berkemeja seragam putih datang berdiri di sampingnya, keduanya sama-sama menatap laut tanpa berkata apa-apa selama beberapa saat. Cahaya matahari terbenam yang hangat dan keemasan, handheld, candid, tekstur kulit natural, sinematik romantis lembut. Vertikal 9:16, 8 detik.
 ```
+> Satu-satunya klip di seluruh serial yang **boleh terlihat cantik**. Biarkan cahayanya keemasan.
 
 ### Klip 3 — Ingredient: `bima-servis.png`
 ```
-Dek kapal sore hari. Close-up bima-servis.png berkemeja seragam putih membuka mulut hendak bicara lalu berhenti, menelan ludah, mencoba lagi dan keluar terbata: "Yang kemarin... yang kamu bilang itu..." Ia berhenti lagi, wajahnya memerah, lalu menggosok tengkuknya dengan canggung. Cahaya sore laut yang hangat dari samping, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+Dek kapal saat matahari terbenam. Close-up bima-servis.png berkemeja seragam putih menatap laut, tidak berani menatap Maya, lalu berbicara pelan dengan suara sedikit bergetar: "Aku nggak pinter ngomong kayak gini." Ia berhenti, menelan ludah, lalu melanjutkan lebih pelan: "Tapi tiap malam aku nungguin jam sebelas." Ia akhirnya menoleh menatap Maya: "Bukan karena laper." Cahaya jingga matahari terbenam dari samping, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
 ```
-> **Dia harus gagal dulu.** Orang yang lancar menyatakan perasaan tidak akan dipercaya penonton — apalagi orang ini.
+> **"Bukan karena laper."** Kalimat paling romantis yang bisa keluar dari mulut orang ini — dan penonton langsung mengerti, karena sudah melihat meja ruang makan kru itu setiap malam sejak Ep 24.
 
-### Klip 4 — Ingredient: `bima-servis.png`
+### Klip 4 — Ingredients: `bima-servis.png` + `maya.png`
 ```
-Dek kapal sore hari. Close-up bima-servis.png berkemeja seragam putih akhirnya menatap lurus ke depan dengan mantap, berhenti gugup sepenuhnya, lalu berbicara pelan dan jelas: "Aku emang mau pulang." Ia berhenti cukup lama, menarik napas. "Tapi aku pengen kamu ikut." Setelah mengucapkannya ia tidak memalingkan wajah sama sekali. Cahaya sore laut yang hangat, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+Dek kapal saat matahari terbenam. bima-servis.png berkemeja seragam putih menghadap penuh ke arah maya.png yang kini balas menatapnya. Ia berbicara pelan tapi mantap: "Aku mau pulang, Maya." Ia berhenti agak lama, lalu melanjutkan dengan suara yang lebih lembut: "Tapi aku nggak bisa mbayangin pulang sendirian." maya.png menatapnya tanpa berkedip. Cahaya jingga keemasan, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
 ```
-> **Pernyataannya.** Sembilan kata, tidak ada kata cinta di dalamnya, dan tidak ada yang lebih jelas dari itu.
+
+### Klip 5 — Ingredients: `maya.png` + `bima-servis.png` — kebohongannya
+```
+Dek kapal saat matahari terbenam. maya.png berkemeja seragam kru putih menunduk sebentar lalu berkata pelan dengan suara berat: "Adikku dua, Bim." bima-servis.png langsung menjawab terlalu cepat, sedikit terburu-buru, seperti orang yang sudah menyiapkan jawaban itu sebelumnya: "Biar aku yang urus sekolahnya." Ia menambahkan lagi lebih cepat: "Aku ada simpanan. Cukup." Matanya berkedip dua kali. Cahaya jingga keemasan, kamera diam, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Kebohongannya.** Penonton sudah melihat isi lacinya di Ep 23 — satu amplop, tanpa pekerjaan, tanpa pemasukan.
 >
-> Jeda setelah "Aku emang mau pulang" harus **panjang** — cukup lama untuk membuat penonton mengira ini penolakan. Di situ letak seluruh kerjanya.
+> Dua penandanya wajib ada dan jangan dihilangkan: **dia menjawab terlalu cepat**, dan **dia berkedip dua kali**. Itu yang memberi tahu penonton tanpa satu kata pun.
 
-### Klip 5 — Ingredient: `maya.png`
+### Klip 6 — Ingredients: `maya.png` + `bima-servis.png` — penutup
 ```
-Dek kapal sore hari. Close-up maya.png berkemeja seragam kru putih, wajah tenangnya yang biasa retak untuk pertama kalinya — matanya membesar sedikit, tangannya yang memegang serbet berhenti bergerak, bibirnya terbuka tapi tidak ada suara keluar. Ia berkedip dua kali dan tidak menjawab apa pun. Cahaya sore laut yang hangat, kamera diam intim, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+Dek kapal saat matahari terbenam, diambil dari belakang bahu maya.png sehingga wajah bima-servis.png terlihat jelas di seberangnya. maya.png menutup mulutnya dengan satu tangan lalu tertawa kecil sambil menangis karena lega, bahunya turun seperti orang yang baru meletakkan beban bertahun-tahun, dan ia mengangguk berkali-kali. Di seberangnya bima-servis.png ikut tersenyum, lalu senyum itu perlahan memudar sampai habis sementara Maya masih mengangguk dan tidak melihatnya. Cahaya jingga keemasan yang mulai redup, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
 ```
-> Perempuan yang sepanjang empat episode selalu punya jawaban, sekarang tidak punya.
-
-### Klip 6 — Ingredient: `maya.png` — cliffhanger
-```
-Dek kapal sore hari. maya.png berkemeja seragam kru putih akhirnya menunduk menatap serbet di tangannya, lalu berbicara sangat pelan dengan suara yang bergetar sedikit: "Adikku dua, Bim." Ia tidak melanjutkan kalimatnya dan tidak mengangkat wajahnya. Cahaya sore laut yang mulai meredup, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
-```
-> **Bukan penolakan.** Itu alasan kenapa sulit, dan penonton sudah tahu artinya sejak Ep 25 — yang bungsu masuk kuliah tahun depan, dan dialah yang membiayai.
+> Maya bahagia untuk pertama kalinya sepanjang empat episode, dan **dia tidak melihat wajah Bima.** Cuma penonton yang melihat.
 >
-> Masalahnya bukan dia tidak mau. Masalahnya kalau dia ikut pulang, ada dua anak yang berhenti sekolah.
+> Diambil **dari belakang bahu Maya** — ini wajib. Kalau kameranya di wajah Maya, klipnya jadi adegan bahagia. Kalau di wajah Bima lewat bahu Maya, klipnya jadi bom waktu.
 
 ### Nada dan musik Ep 27
-Tanpa musik di Klip 1–3. `harapan.mp3` masuk sangat pelan di Klip 4 **tepat setelah** kata "ikut" — bukan sebelumnya. Di Klip 6 musik berhenti mendadak tepat pada kata "Bim", dan layar gelap dalam hening.
+`harapan.mp3` masuk pelan di Klip 2 saat matahari terbenam, naik lembut sepanjang Klip 3 dan 4 — **bagian paling romantis di seluruh serial, biarkan musiknya terdengar.**
+
+Lalu **berhenti mendadak di Klip 5 tepat pada kata "Cukup."** Klip 6 tanpa musik sama sekali, hanya angin laut dan tawa kecil Maya. Musik yang mati tepat di kalimat bohongnya itu yang memberi tahu penonton apa yang baru saja terjadi.
 
 **Frame terakhir:** `"Episode 28. BERSAMBUNG."`
 
 **Caption TikTok:**
 ```
-Ep 27 — sembilan kata, nggak ada kata cinta satu pun. 🤍 #dramapendek #kapalpesiar #wcajogja
+Ep 27 — "aku ada simpanan, cukup." Dia bohong. Dan kita semua tau. 😭 #dramapendek #kapalpesiar #wcajogja
 ```
 
 ---
