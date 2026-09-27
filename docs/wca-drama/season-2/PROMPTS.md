@@ -1638,6 +1638,100 @@ Ep 30 — tiga tahun keliling dunia, belum pernah sekalipun turun. Dan belum per
 
 ---
 
+## EP 31 — "NAPAK TANAH"
+
+Kapal merapat di Bermuda. Mereka turun lewat gangway sambil bergandengan tangan — **sentuhan fisik pertama di seluruh serial**, tiga puluh satu episode setelah episode pertama. Lalu Maya menginjak tanah, dan di klip terakhir dia mengucapkan terima kasih untuk uang yang tidak pernah ada.
+
+### Aset baru: `bima-kasual.png` dan `maya-kasual.png`
+
+Ini satu-satunya episode di mana keduanya **tidak berseragam**. Aturannya tetap sama seperti `bima-dish` ke `bima-servis`: ganti kostum wajib pakai aset baru, jangan minta Veo mengganti pakaian di dalam prompt — wajahnya akan melayang.
+
+```
+Foto iPhone candid seorang laki-laki Indonesia berusia 21 tahun, kulit sawo matang, rambut hitam pendek disisir seadanya, wajah muda yang lelah tapi cerah, mengenakan kaos polo biru tua sederhana yang sudah agak pudar dan celana jeans, menyandang tas selempang kain kecil, berdiri di lorong kru kapal berpintu besi putih. Diambil dari level mata, sedikit off-center. Cahaya neon putih kapal yang rata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah anak kampung yang jarang pakai baju bagus. Realisme gaya editorial.
+```
+
+```
+Foto iPhone candid seorang perempuan Indonesia berusia 22 tahun, kulit sawo matang, rambut hitam dilepas dari sanggul dan dibiarkan tergerai sampai bahu, wajah tenang dengan sedikit lelah di bawah mata, riasan sangat tipis, mengenakan kaos putih lengan pendek sederhana dan rok denim panjang, menyandang tas kain kecil, berdiri di lorong kru kapal berpintu besi putih. Diambil dari level mata, sedikit off-center. Cahaya neon putih kapal yang rata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah perempuan pekerja yang sedang libur sehari. Realisme gaya editorial.
+```
+
+> Generate `bima-kasual.png` dengan `bima-servis.png` sebagai referensi wajah, dan `maya-kasual.png` dengan `maya.png`. Wajahnya harus **persis sama** — yang berubah hanya pakaian dan rambut Maya yang tergerai.
+>
+> **Rambut Maya tergerai itu detail yang paling penting di episode ini.** Penonton sudah tiga puluh episode hanya melihat dia dengan sanggul kru. Tidak perlu dijelaskan apa pun — mereka langsung paham ini hari yang berbeda.
+
+### Klip 1 — Tanpa Ingredient — kapal merapat
+```
+Pagi hari di pelabuhan pulau tropis. Lambung kapal pesiar raksasa berwarna terang tanpa tulisan atau logo apa pun mendekat perlahan ke dermaga beton. Tali tambat tebal berwarna putih membentang dari lambung kapal ke bolder besi di dermaga dan mengencang. Dua petugas tali berseragam rompi oranye menyala bekerja di dermaga, dilihat dari jauh dan dari belakang sehingga wajah mereka tidak terlihat. Sebuah kapal pandu kecil bergerak di sisi lambung meninggalkan riak putih di air biru kehijauan. Cahaya matahari pagi yang keras, langit biru bersih, kamera diam tanpa bergerak, handheld, candid, sinematik dokumenter. Vertikal 9:16, 8 detik.
+```
+> Delapan detik ini tidak ada wajah, tidak ada dialog, dan justru itu gunanya — penonton perlu satu tarikan napas untuk mengerti bahwa kapalnya benar-benar berhenti. Setelah tiga puluh episode di dalam lorong, air biru ini akan terasa seperti udara.
+>
+> Jangan minta banyak orang di dermaga. Dua petugas, dari jauh, dari belakang. Wajah ketiga di frame akan membuat Veo mulai merusak.
+
+### Klip 2 — Ingredients: `bima-kasual.png` + `maya-kasual.png`
+```
+Lorong kru kapal di dekat pintu keluar, pintu besi putih dan pipa di langit-langit. bima-kasual.png berkaos polo biru tua berjalan mendekat lalu berhenti mendadak saat melihat maya-kasual.png berkaos putih dan rok denim dengan rambut tergerai berdiri menunggu. Wajah Bima kaget lalu pelan-pelan tersenyum. Ia berkata jujur tanpa dibuat-buat: "Aku hampir nggak kenal." maya-kasual.png menarik ujung kaosnya dengan sedikit malu lalu menjawab datar: "Tiga tahun cuma punya dua kaos, Bim." Cahaya neon putih yang rata, kamera diam, handheld, candid, tekstur kulit natural, hangat dan sedikit canggung. Vertikal 9:16, 8 detik.
+```
+> Kalimat Maya lucu dan menyakitkan dalam waktu yang sama. **Jangan dibuat sedih** — dia mengatakannya seperti fakta biasa, sama seperti "enam kali lewat" di Ep 30.
+
+### Klip 3 — Ingredients: `maya-kasual.png` + `bima-kasual.png`
+```
+Ambang pintu keluar kapal di ujung atas gangway, cahaya matahari luar yang menyilaukan masuk dari depan. maya-kasual.png berkaos putih berhenti tepat di ambang pintu, tangannya menggenggam tali tasnya, ia menatap keluar tanpa melangkah. Wajahnya ragu seperti orang yang tiba-tiba takut. bima-kasual.png berkaos polo biru tua berdiri di sampingnya, menoleh sebentar ke arahnya, lalu mengulurkan tangan kanannya terbuka ke samping tanpa memaksa. Ia hanya berkata satu kata dengan tenang: "Bareng." Cahaya kontras tinggi antara lorong gelap dan matahari terang di luar, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Tahan klip ini di editor selama mungkin. Kalau perlu, ini satu-satunya klip di episode ini yang boleh melewati delapan detik dengan cara digabung dua generate.
+>
+> **Dia ragu bukan karena Bima. Dia ragu karena enam kali dia sudah berdiri di ambang pintu ini dan selalu balik masuk.** Penonton yang menonton Ep 30 akan mengerti persis, dan mereka yang belum pun akan merasakannya dari wajahnya.
+
+### Klip 4 — Ingredients: `bima-kasual.png` + `maya-kasual.png` — klip utama
+```
+Gangway kapal pesiar yang miring ke bawah menempel di lambung kapal berwarna terang tanpa tulisan apa pun, dilihat dari bawah dari arah dermaga. bima-kasual.png berkaos polo biru tua dan maya-kasual.png berkaos putih dan rok denim berjalan turun menuruni gangway bersama sambil bergandengan tangan, tangan mereka terlihat jelas saling menggenggam. Beberapa penumpang lain berjalan turun di belakang mereka jauh di atas, dilihat dari belakang sehingga wajahnya tidak terlihat. Maya sesekali menoleh ke laut di sebelahnya. Cahaya matahari pagi yang keras dari samping, langit biru, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sinematik dan lapang. Vertikal 9:16, 8 detik.
+```
+> **Inilah klip yang orang akan screenshot.** Pastikan tangan yang bergandengan benar-benar terlihat di frame — kalau hasil generate menyembunyikan tangannya di balik badan, ulangi.
+>
+> Sopan dan wajar: bergandengan tangan, titik. Tidak ada pelukan, tidak ada apa pun yang lebih. Penontonmu orang tua yang sedang menimbang melepas anaknya berlayar, dan mereka justru akan lebih percaya pada dua anak yang tahu batas.
+
+### Klip 5 — Ingredients: `maya-kasual.png` + `bima-kasual.png`
+```
+Dermaga beton di tepi pelabuhan pulau tropis, lambung kapal raksasa memenuhi seluruh latar belakang. maya-kasual.png berkaos putih dan rok denim melangkah turun dari ujung gangway ke tanah lalu berhenti mendadak dan berdiri diam, menunduk menatap beton di bawah sepatunya. bima-kasual.png berkaos polo biru tua berhenti di sebelahnya tanpa bertanya. maya-kasual.png berkata pelan dengan suara sedikit bergetar sambil masih menunduk: "Ini pertama kali aku napak tanah di sini." Lalu ia tertawa kecil pada dirinya sendiri sambil cepat-cepat mengusap matanya. Cahaya matahari pagi yang keras, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Tawanya setelah mengusap mata itu bagian terpentingnya. **Orang yang sudah lama kuat tidak menangis dengan tenang — dia buru-buru menutupinya sendiri dan malu.** Itu yang akan membuat penonton ikut menangis, bukan air matanya.
+
+### Klip 6 — Ingredients: `bima-kasual.png` + `maya-kasual.png`
+```
+Jalan kecil di pulau tropis dengan dinding rumah berwarna pastel pink dan kuning serta bunga bugenvil merah di belakangnya. bima-kasual.png berkaos polo biru tua mengangkat HP dengan kedua tangan mengarah ke maya-kasual.png, layar HP menghadap Bima sehingga tidak terlihat kamera. maya-kasual.png berkaos putih berdiri kaku tidak tahu harus berpose bagaimana lalu menurunkan tangannya dengan malu. bima-kasual.png berkata sambil tetap membidik: "Jangan senyum. Liat aja ke sana." maya-kasual.png menoleh ke samping menatap kejauhan, dan wajahnya melunak dengan sendirinya. Cahaya matahari siang yang cerah dan berwarna, kamera diam, handheld, candid, tekstur kulit natural, hangat dan romantis. Vertikal 9:16, 8 detik.
+```
+> Janji dari Ep 30 Klip 5, "Nanti aku fotoin kamu", dibayar di sini. **Tiga tahun kerja di kapal paling mewah di dunia dan tidak ada satu pun orang yang pernah memotretnya.**
+>
+> Kalau kamu mau satu kalimat tambahan setelah ini, pakai ini sebagai klip 6B: Bima menurunkan HP-nya dan berkata, "Nanti aku cetak. Yang beneran, di kertas." Cetak di kertas itu janji yang berbeda dari foto di HP, dan perempuan penonton akan langsung tahu bedanya.
+
+### Klip 7 — Ingredients: `maya-kasual.png` + `bima-kasual.png` — penutup
+```
+Tembok pembatas rendah dari batu di tepi laut, air biru kehijauan di belakang. maya-kasual.png berkaos putih duduk di atas tembok menghadap laut, wajahnya untuk pertama kalinya benar-benar tenang dan bahagia. Ia berkata pelan tanpa menoleh: "Kalau adikku udah sekolah, aku mau bawa dia ke sini." Lalu ia menoleh ke bima-kasual.png berkaos polo biru tua yang duduk di sebelahnya dan berkata dengan tulus: "Makasih ya, Bim." bima-kasual.png tersenyum, dan senyum itu tertahan satu ketukan terlalu lama, lalu matanya bergeser menjauh ke arah laut. Ia tidak menjawab apa pun. Cahaya matahari siang yang cerah, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, indah tapi menegangkan. Vertikal 9:16, 8 detik.
+```
+> Ini pisaunya. **Dia baru saja diucapkan terima kasih untuk uang yang tidak ada.**
+>
+> Seluruh episode ini indah, dan penonton sudah lupa soal Ep 27 — sampai delapan detik terakhir. Jangan tambahkan musik sedih di sini, jangan zoom, jangan apa pun. Cukup senyum yang tertahan satu ketukan terlalu lama, lalu mata yang bergeser ke laut. Kolom komentar akan mengerjakan sisanya.
+
+### Nada dan musik Ep 31
+Klip 1–3 **tanpa musik sama sekali**. Cukup ambience: mesin kapal yang berdenyut rendah, air, burung laut, teriakan petugas dari jauh di Klip 1.
+
+`harapan.mp3` masuk tepat saat kaki pertama menuruni gangway di Klip 4, jalan terus lewat Klip 5 dan 6 — ini satu-satunya episode di serial ini yang musiknya boleh terdengar lega.
+
+Di Klip 7, **turunkan musik sampai hilang tepat sebelum kalimat "Makasih ya, Bim."** Sisa klip hanya suara laut. Keheningan itu yang menyampaikan bahwa ada yang salah, bukan wajah Bima.
+
+**Frame terakhir:** `"Episode 32. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 31 — enam kali lewat, dan hari ini akhirnya turun. 🤍 Tapi tolong perhatiin detik terakhir. #dramapendek #kapalpesiar #wcajogja
+```
+
+### Catatan produksi
+- **Jangan ada tulisan atau logo terbaca** di lambung kapal, gangway, atau dermaga. Veo selalu mengarang tulisan, dan tulisan yang ngawur di lambung kapal akan langsung merusak kepercayaan penonton. Semua prompt di atas sudah menyebut "tanpa tulisan atau logo apa pun" — jangan dihapus.
+- **Maksimal dua wajah terbaca per klip.** Penumpang lain selalu dari belakang atau dari jauh.
+- Gangway di Klip 4 lebih mudah jadi kalau diambil **dari bawah, dari arah dermaga** seperti di foto referensimu. Kalau diminta dari atas, Veo cenderung membuat perspektif yang aneh dan tangga yang melengkung.
+- Kalau Klip 4 gagal berkali-kali karena gangway-nya rusak, pecah jadi dua: satu klip kaki dan tangan bergandengan menuruni tangga logam dari dekat, satu klip wide dua orang di gangway dari jauh. Gabung di editor.
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
