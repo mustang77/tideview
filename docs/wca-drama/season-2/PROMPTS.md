@@ -1106,6 +1106,65 @@ Ep 22 — setahun, dan kalimat pertama ibunya cuma "kamu udah makan?" 🥲 #dram
 
 ---
 
+## EP 23 — "AMPLOP YANG BELUM DIBUKA"
+
+Bima di rumah, tanpa pekerjaan. Kampung yang menertawakannya di Season 1, lalu membanggakannya saat dia di kapal, sekarang membalik lagi — dan memakai kalimat bapaknya yang sudah meninggal.
+
+Tapi puncaknya bukan di warung. Puncaknya ada di laci.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Halaman rumah kampung Jawa pada pagi hari, dinding bata ekspos dan jemuran di latar belakang. bima-servis.png berkaos oblong biasa dan celana pendek sedang menyapu halaman dengan sapu lidi, gerakannya pelan, wajahnya tenang tapi kosong. Sebuah kursi kayu tua terlihat di teras di latar belakang. Tidak ada dialog. Cahaya pagi yang terang dan datar, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> Sapu lidi yang sama yang jatuh dari tangan ibunya di Ep 22. Sekarang dia yang memegangnya — bukan karena rajin, tapi karena tidak ada lagi yang bisa dikerjakan.
+
+### Klip 2 — Ingredient: `bima-servis.png`
+```
+Warung kelontong kecil di pinggir jalan kampung pada siang hari, rak berisi mi instan dan kopi sachet, bangku kayu panjang di depannya. bima-servis.png berkaos oblong berdiri membeli sesuatu sambil menyerahkan uang, membelakangi dua orang bapak-bapak paruh baya yang duduk di bangku sambil merokok, wajah keduanya tidak terlihat jelas. Kedua bapak itu saling melirik lalu mulai berbicara dengan suara yang sengaja cukup keras untuk terdengar. Cahaya siang yang keras, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — tanpa aset
+```
+Bangku kayu di depan warung kampung siang hari. Close-up dua orang bapak-bapak paruh baya duduk merokok, diambil dari samping sehingga wajah mereka hanya terlihat sebagian. Yang pertama berbicara dengan nada ramah yang menusuk: "Lho, katanya kerja di kapal. Kok balik?" Yang kedua menyahut sambil tertawa kecil: "Lha namanya juga anak petani." Keduanya tertawa pendek. Cahaya siang yang keras, kamera diam, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+> **"Namanya juga anak petani"** adalah kalimat bapaknya sendiri di Season 1 Episode 1, sekarang dipakai tetangga untuk menertawakannya — dan bapaknya sudah tidak ada untuk menariknya kembali.
+>
+> Diambil dari samping, wajah hanya sebagian, jadi tidak perlu aset dan tokoh sekali pakai tetap aman di Veo.
+
+### Klip 4 — Ingredient: `bima-servis.png`
+```
+Jalan kampung siang hari. Close-up bima-servis.png berkaos oblong berjalan pulang sambil menenteng kantong plastik belanjaan, wajahnya sama sekali tidak berubah — tidak marah, tidak sedih, hanya datar. Ia tidak menoleh ke belakang dan tidak melambatkan langkahnya sedikit pun. Rahangnya mengeras sekali, lalu kembali biasa. Cahaya siang yang keras, kamera mengikuti dari depan, handheld, candid, tekstur kulit natural, sinematik muram. Vertikal 9:16, 8 detik.
+```
+> Dia tidak menjawab dan tidak menoleh. Dua puluh tiga episode dia begitu. **Rahang yang mengeras sekali lalu kembali biasa itu satu-satunya kebocoran yang boleh terlihat.**
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Kamar rumah kampung Jawa pada malam hari, cahaya bohlam kuning redup. bima-servis.png berkaos oblong membuka laci lemari kayu tua mencari sesuatu, lalu tangannya berhenti. Di dalam laci tergeletak sebuah amplop coklat yang masih tertutup rapat dan belum pernah dibuka, tergeletak di atas kain. Ia mengambilnya pelan dengan dua tangan dan menatapnya, wajahnya berubah. Tidak ada dialog. Cahaya bohlam kuning redup, kamera perlahan mendekat, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> Amplop yang dia selipkan lewat celah pagar pelabuhan di **Ep 15**. Setahun, dan ibunya tidak pernah membukanya.
+
+### Klip 6 — Ingredients: `ibu.png` + `bima-servis.png` — penutup
+```
+Kamar rumah kampung Jawa malam hari. ibu.png berkerudung longgar berdiri di ambang pintu kamar melihat anaknya memegang amplop itu. bima-servis.png bertanya pelan dengan suara serak: "Bu... kenapa nggak dipakai?" ibu.png tersenyum tipis dan tenang, lalu menjawab dengan suara lembut: "Buat kamu. Kalau kamu mau balik lagi." Wajah bima-servis.png membeku sepenuhnya. Cahaya bohlam kuning redup, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Inilah episodenya.** Di Ep 18 ibunya memohon dia pulang. Dan selama setahun yang sama, ibunya menyimpan uang itu supaya anaknya bisa pergi lagi kalau mau.
+>
+> Dua hal yang kelihatannya bertentangan, dipegang bersamaan oleh orang yang sama. Tidak perlu satu kalimat pun untuk menjelaskannya.
+
+### Nada dan musik Ep 23
+Tanpa musik sama sekali di Klip 1–4. **Tawa dua bapak-bapak di Klip 3 harus jatuh di ruang yang kering**, tanpa musik yang memberi tahu penonton harus merasa apa.
+
+`satu-nada.mp3` masuk di Klip 5 tepat saat tangannya berhenti di laci. Di Klip 6, `harapan.mp3` masuk pelan **tepat setelah** kalimat ibunya selesai — bukan sebelumnya.
+
+**Frame terakhir:** `"Episode 24. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 23 — setahun amplop itu nggak pernah dibuka. Ibunya nyimpen, biar anaknya bisa pergi lagi. 🥲 #dramapendek #kapalpesiar #wcajogja #ibu
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
