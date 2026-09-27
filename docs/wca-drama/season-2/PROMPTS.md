@@ -1346,6 +1346,60 @@ Ep 25 — dia hampir cerita soal Maya ke ibunya. Terus ibunya nyebut nama lain. 
 
 ---
 
+## EP 26 — "AKU HAFAL ORANG YANG BILANG NGGAK APA-APA"
+
+Dua puluh enam episode Bima menelan semuanya sendiri, dan tidak ada satu pun yang menolak kebohongannya. Rendi menerima, ibunya menerima, kakek di Ep 13 menerima. **Maya orang pertama yang tidak menerima.**
+
+Dan yang menjaga episode ini tidak berubah jadi drama cemburu: Maya tidak menuntut apa pun. Dia justru memberi Bima izin meninggalkannya, sebelum apa pun dimulai.
+
+### Klip 1 — Ingredients: `bima-servis.png` + `maya.png`
+```
+Restoran kapal pesiar saat jam makan malam yang ramai, meja bertaplak putih dan tamu blur di latar belakang. bima-servis.png berkemeja seragam putih berdiri menuang air ke gelas dengan gerakan mekanis, matanya kosong menatap ke kejauhan, pikirannya jelas tidak di ruangan itu. Di seberang ruangan maya.png berkemeja seragam kru putih sedang menata meja, berhenti sejenak dan menatap Bima dari jauh dengan dahi sedikit berkerut. Cahaya restoran hangat, handheld, candid, tekstur kulit natural, framing tidak sempurna. Vertikal 9:16, 8 detik.
+```
+
+### Klip 2 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Dek kapal pesiar pada malam hari, pagar besi dan laut hitam. bima-servis.png berkemeja seragam putih berdiri sendirian bersandar di pagar menatap laut. maya.png berkemeja seragam kru putih datang mendekat, berdiri di sampingnya, lalu bertanya langsung tanpa basa-basi sambil menatap wajah Bima: "Kamu kenapa?" Cahaya lampu dek temaram, angin laut, kamera diam, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+
+### Klip 3 — Ingredient: `bima-servis.png`
+```
+Dek kapal malam hari. Close-up bima-servis.png berkemeja seragam putih menoleh dan langsung tersenyum lebar dengan senyum sopan yang terlatih, lalu menjawab ringan: "Nggak apa-apa." Senyumnya sempurna dan sama sekali tidak sampai ke matanya. Cahaya lampu dek temaram, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> Senyum yang sama persis dengan Ep 18 Klip 6, saat dia menyapa tamu tiga menit setelah ibunya minta dia pulang. Penonton sudah hafal senyum ini.
+
+### Klip 4 — Ingredient: `maya.png`
+```
+Dek kapal malam hari. Close-up maya.png berkemeja seragam kru putih tidak ikut tersenyum sama sekali, menatap Bima lurus tanpa berkedip. Ia berbicara pelan dan datar tanpa nada menghakimi: "Aku udah tiga tahun di kapal." Ia berhenti sebentar. "Aku hafal orang yang bilang nggak apa-apa." Cahaya lampu dek temaram dari samping, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Poros seluruh episode.** Dia tidak marah dan tidak memaksa — dia cuma menolak dibohongi. Dan alasannya bukan karena peka, tapi karena sudah melihat ratusan kru hancur diam-diam.
+
+### Klip 5 — Ingredient: `bima-servis.png`
+```
+Dek kapal malam hari. Close-up bima-servis.png berkemeja seragam putih, senyumnya luruh sepenuhnya, ia menatap laut dan tidak menatap Maya. Setelah diam beberapa saat ia berbicara pelan dan serak: "Ibuku sendirian di rumah." Ia menelan ludah sekali, lalu melanjutkan lebih pelan lagi: "Ada orang lain yang ngerawat dia. Bukan aku." Cahaya lampu dek temaram, kamera diam intim, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> Dia menyebut Nita tanpa menyebut namanya, dan tanpa menyebut apa pun tentang perasaan. Yang keluar bukan cemburu — **rasa bersalah**.
+
+### Klip 6 — Ingredient: `maya.png` — penutup
+```
+Dek kapal malam hari. Close-up maya.png berkemeja seragam kru putih menatap laut, bukan menatap Bima, wajahnya tenang. Ia berbicara pelan dan datar tanpa sedikit pun mengasihani dirinya sendiri: "Aku dulu milih laut." Ia berhenti sebentar. "Orangnya nggak nunggu." Ia menoleh sekilas ke arah Bima lalu kembali menatap laut: "Jadi kalau kamu mau pulang, pulang aja." Cahaya lampu dek temaram, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, klimaks emosional. Vertikal 9:16, 8 detik.
+```
+> **Dia melepaskan Bima sebelum memilikinya.** Tidak menangis, tidak menahan, tidak menuntut — dan justru karena itu penonton akan berpihak padanya, termasuk penonton yang seharusnya berpihak pada Nita.
+>
+> **Jangan biarkan Veo membuatnya terlihat terluka di klip ini.** Dia tenang. Lukanya sudah lama sembuh, dan itu sebabnya dia tahu apa yang dia bicarakan.
+
+### Nada dan musik Ep 26
+Tanpa musik sama sekali dari Klip 1 sampai Klip 5 — hanya angin laut dan dengung mesin kapal. `satu-nada.mp3` masuk di Klip 6 **tepat setelah** kalimat terakhir Maya selesai, bukan sebelumnya, lalu dibiarkan meluruh ke layar hitam.
+
+**Frame terakhir:** `"Episode 27. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 26 — 26 episode dia bilang "nggak apa-apa". Baru sekarang ada yang nggak percaya. 🤍 #dramapendek #kapalpesiar #wcajogja
+```
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
