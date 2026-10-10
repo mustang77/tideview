@@ -1807,6 +1807,87 @@ Ep 32 — dua orang nunggu uangnya, dan dia cuma punya satu gaji. Perhatiin cara
 
 ---
 
+## EP 33 — "ENAM BELAS JAM"
+
+Badannya yang bayar duluan. Dia tumbang di tempat kerja, berakhir di klinik kapal dengan infus di tangan — **di posisi yang sama persis seperti bapaknya di Ep 7** — dan di sanalah dia mendapat kesempatan terakhir untuk berkata jujur.
+
+Dia tidak mengambilnya. Dan bohongnya justru dihadiahi.
+
+> Judulnya sengaja menjawab Ep 8 Season 2, "Delapan Jam". Dulu delapan jam adalah jarak antara dia dan operasi bapaknya. Sekarang enam belas jam adalah jarak antara dia dan kebohongannya.
+
+### Klip 1 — Ingredient: `bima-servis.png`
+```
+Stasiun pencucian piring kapal pada dini hari, lampu neon keras, uap air tipis mengambang, tumpukan piring putih di sekeliling. bima-servis.png berkaos seragam putih dan apron karet hijau toska berhenti bekerja, wajahnya pucat dan berkeringat, matanya berkedip lambat seperti tidak fokus. Ia mencengkeram tepi meja stainless steel dengan kedua tangan bersarung karet dan menunduk, menarik napas dalam dua kali, lalu memaksa dirinya berdiri lurus kembali. Tidak ada dialog, tidak ada barang yang jatuh. Cahaya neon putih keras memantul di stainless steel, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sunyi dan mencekam. Vertikal 9:16, 8 detik.
+```
+> **Tidak ada piring yang jatuh di episode ini.** Satu, karena itu sudah dipakai di episode komplain tamu. Dua, karena orang yang benar-benar kehabisan tenaga justru memegang apa pun sekuat-kuatnya. Mencengkeram meja lebih menakutkan daripada piring pecah.
+
+### Klip 2 — Ingredients: `supervisor.png` + `bima-servis.png`
+```
+Lantai dapur kapal berbahan stainless steel pada dini hari. bima-servis.png berkaos seragam putih dan apron karet hijau toska duduk bersandar di lemari besi di lantai, kaki terlipat, wajah pucat kelabu dan basah oleh keringat. supervisor.png berseragam perwira putih berjongkok di depannya, meletakkan satu tangan di bahu Bima dan berkata tegas tapi tidak marah: "You are done. Clinic. Now." bima-servis.png menggeleng lemah lalu memohon dengan suara serak dan hampir habis: "Jangan dicatat, sir. Tolong." supervisor.png terdiam menatapnya, rahangnya mengeras. Cahaya dapur kapal yang terang dan dingin, kamera sedikit di atas level mata, diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **"Jangan dicatat, sir" adalah kalimat paling penting di episode ini.** Catatan medis berarti dia dilarang kerja, dilarang kerja berarti tidak ada uang. Dia tidak takut sakit — dia takut berhenti.
+>
+> Penonton yang pernah kerja kontrak akan langsung paham. Yang belum, akan paham dari wajah supervisornya.
+
+### Klip 3 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Klinik kecil di dalam kapal, dinding putih, ranjang tunggal berseprai putih, tiang infus di samping. bima-servis.png berkaos putih berbaring setengah duduk di ranjang dengan selang infus di tangan kirinya, wajah pucat dan lelah. Pintu terbuka dan maya.png berkemeja seragam kru putih masuk lalu berhenti mendadak di ambang pintu saat melihatnya. Wajahnya berubah dari khawatir menjadi hancur, mulutnya terbuka sedikit tanpa suara, matanya langsung berkaca-kaca. Ia tidak mengatakan apa pun. Cahaya lampu klinik yang datar dan pucat, kamera sedikit di atas level mata, diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
+```
+> **Ambil klip ini dari sudut yang sama persis seperti `bapak-sakit.png`** — sedikit di atas level mata, cahaya rumah sakit yang pucat dan datar, selang infus di sebelah kiri frame. Penonton yang menonton Season 2 akan merasakan sesuatu yang tidak bisa mereka jelaskan: anaknya sekarang berbaring di ranjang yang sama seperti bapaknya.
+>
+> Jangan tulis itu di caption. Jangan jelaskan. Cukup samakan sudut kameranya dan biarkan tubuh penonton yang mengingat.
+
+### Klip 4 — Ingredients: `maya.png` + `bima-servis.png`
+```
+Klinik kecil di dalam kapal, dinding putih, cahaya lampu pucat. maya.png berkemeja seragam kru putih duduk di kursi kecil di samping ranjang dan bertanya dengan suara pecah: "Kenapa kamu ambil semua shift, Bim?" bima-servis.png berkaos putih dengan selang infus di tangan menatapnya lama, menelan ludah, lalu menjawab pelan dan tenang: "Buat adik-adikmu, May." maya.png terdiam, lalu menunduk dan menggenggam tangan Bima yang bebas dengan kedua tangannya, dan berbisik: "Makasih." Cahaya lampu klinik pucat, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, hangat dan menyakitkan. Vertikal 9:16, 8 detik.
+```
+> Di sini dia punya kesempatan terakhir untuk jujur, dan dia memilih kalimat yang **separuh benar dan seratus persen bohong**. Dia memang bekerja sampai tumbang. Tapi tabungan yang dia janjikan di Ep 27 tidak pernah ada.
+>
+> **Kebohongannya baru saja dihadiahi.** Perempuan yang dia cintai berterima kasih kepadanya karena hampir mati demi uang yang tidak dia punya.
+>
+> Sentuhan kedua di seluruh serial — dan kali ini Maya yang memulai. Tetap sopan: dua tangan menggenggam satu tangan, tidak lebih.
+
+### Klip 5 — Ingredient: `maya.png`
+```
+Lorong kru kapal berpintu besi putih, cahaya neon rata. maya.png berkemeja seragam kru putih berdiri menyandar di dinding besi dengan HP di telinga, matanya masih merah tapi wajahnya kini lega dan bahagia. Ia berkata pada seseorang di telepon dengan suara bergetar dan penuh harapan: "Udah ada, Dek." Ia tertawa kecil lalu melanjutkan lebih mantap: "Kamu daftar aja. Jangan nunggu lagi." Cahaya neon putih kapal yang rata, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, hangat tapi mencekam. Vertikal 9:16, 8 detik.
+```
+> **Sekarang kebohongannya sudah keluar dari kapal.** Ada anak di Indonesia yang baru saja disuruh berhenti menunggu.
+>
+> Delapan detik ini yang membuat Ep 33 tidak bisa dibatalkan. Sebelum klip ini, Bima masih bisa mengaku dan semuanya selesai dengan satu percakapan. Setelah klip ini, mengaku berarti menghancurkan dua anak yang tidak pernah dia temui.
+
+### Klip 6 — Ingredient: `bima-servis.png` — penutup
+```
+Klinik kecil di dalam kapal pada dini hari, lampu sudah diredupkan, hanya cahaya lemah dari celah pintu. bima-servis.png berkaos putih berbaring sendiri di ranjang dengan selang infus di tangan kirinya, memegang HP di tangan kanannya dan mengetik pesan dengan satu jempol, layar dipegang miring sehingga isinya tidak terlihat kamera. Ia berhenti mengetik, menatap layar beberapa detik, lalu menghapus semuanya dengan menahan jempolnya lama. Ia meletakkan HP di dadanya dan menatap langit-langit tanpa berkedip. Tidak ada dialog. Cahaya redup dan dingin dari celah pintu, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sunyi dan menyayat. Vertikal 9:16, 8 detik.
+```
+> Dia mencoba mengaku. Dia mengetiknya. Lalu dia menghapusnya.
+>
+> **Jangan tunjukkan isi layarnya** — penonton tidak perlu tahu kalimatnya, mereka hanya perlu melihat jempol yang menahan tombol hapus terlalu lama. Itu sudah seluruh ceritanya.
+
+### Nada dan musik Ep 33
+Klip 1 dan 2 **tanpa musik sama sekali**. Hanya suara air, mesin kapal, dan napasnya. Keheningan di dua klip pertama yang membuat klinik di Klip 3 terasa seperti keheningan yang berbeda.
+
+Klip 3 tanpa musik juga — cukup suara infus dan langkah Maya berhenti.
+
+Di Klip 4, masukkan `harapan.mp3` pelan. **Ya, lagu yang bahagia, di klip yang isinya kebohongan.** Itu memang tujuannya: penonton akan merasa hangat selama delapan detik, lalu merasa mual setelah mereka ingat apa yang sebenarnya terjadi. Jangan pakai lagu sedih di sini — lagu sedih akan memberi tahu penonton apa yang harus dirasakan, dan merusak seluruh efeknya.
+
+Musik itu **dibiarkan jalan terus melintasi Klip 5**, lalu **dimatikan mendadak** tepat di potongan masuk Klip 6. Klip 6 sepenuhnya hening.
+
+**Frame terakhir:** `"Episode 34. BERSAMBUNG."`
+
+**Caption TikTok:**
+```
+Ep 33 — dia dapat kesempatan terakhir buat jujur, dan dia milih kalimat yang paling manis. 🤍 Dengerin lagunya di menit terakhir. #dramapendek #kapalpesiar #wcajogja
+```
+
+### Catatan produksi
+- **Sudut kamera Klip 3 dan 6 wajib meniru `bapak-sakit.png`** — sedikit di atas level mata, cahaya pucat datar, infus di kiri frame. Ini gema paling kuat di seluruh Season 3 dan gratis: cukup sudut kamera.
+- Tidak ada barang jatuh, tidak ada piring pecah, tidak ada potong-ke-hitam di dalam prompt. Fade hitam kalau mau, kerjakan di editor.
+- Tiga dialog Inggris di Klip 2 wajib bersubtitle Indonesia. Semua dialog Indonesia wajib bercaption.
+- Potong bersih di semua sambungan **kecuali** masuk ke Klip 3: di situ boleh satu dissolve pendek 8 frame dari dapur ke klinik, supaya penonton merasa ada waktu yang hilang. Jangan lebih panjang dari itu — dissolve panjang melelehkan wajah.
+- Infus dan selangnya adalah titik rawan Veo. Kalau tangannya keluar aneh, ambil ulang dengan frame lebih ketat ke wajah dan selang hanya terlihat sebagian di tepi frame.
+
+---
+
 # BAGIAN 3 — CHECKLIST SEBELUM EXPORT TIAP EPISODE
 
 - [ ] Caption menyala untuk **semua** dialog, termasuk yang bahasa Indonesia
