@@ -1485,31 +1485,6 @@ Depan warung kampung pada pagi hari. nita.png berkerudung longgar berdiri menyer
 >
 > Senyum yang bertahan sebentar lalu hilang itu wajib, dan urutannya harus begitu: bertahan dulu, baru runtuh.
 
-### Aset baru: `staf-wca.png` — staf pendaftaran WCA
-
-**Generate aset ini dengan foto meja pendaftaran WCA yang asli sebagai gambar referensi.** Kamu punya hak pakai atas foto itu — pakai. Model gambar (Nano Banana Pro / ChatGPT Images) jauh lebih rapi menulis teks daripada Veo, jadi biarkan logo dan tulisan WORLD CRUISE ACADEMY lahir di tahap gambar, bukan di tahap video.
-
-```
-Foto iPhone candid seorang laki-laki Indonesia berusia 27 tahun, kulit sawo matang, rambut hitam pendek rapi, wajah ramah dan terbuka, mengenakan kaos polo hitam berkerah dengan logo bordir kecil di dada kiri, duduk di belakang meja pendaftaran kampus yang sederhana dengan komputer, tumpukan berkas, dan papan nama meja kecil di atasnya. Diambil dari level mata, sedikit off-center. Cahaya ruangan dalam yang rata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah staf administrasi kampus yang ramah. Realisme gaya editorial.
-```
-
-> ⚠️ **Jangan minta Veo menulis "WORLD CRUISE ACADEMY" di kaos.** Ini kesalahan yang paling sering menghancurkan episode brand. Veo akan mengarang huruf — "WORLO CRUSE ACADEMV", "WORLD CRUIS ACAOEMY" — dan satu frame tulisan ngawur di kaos resmi sekolahmu lebih merusak daripada tidak ada logo sama sekali. Penonton akan screenshot dan menertawakannya.
->
-> **Tiga cara benar memasang brand-nya, urut dari yang paling aman:**
-> 1. Logo dipasang di editor sebagai overlay di sudut frame. Nol risiko.
-> 2. Footage asli HP: rekam meja pendaftaran sungguhan, plang, dan gedungnya. Sisipkan sebagai Klip 3. Ini yang paling kuat dan paling murah.
-> 3. Di prompt Veo, sebut hanya **"logo bordir kecil di dada kiri"** tanpa menyebut tulisannya. Logo kecil yang blur terbaca sebagai logo; tulisan panjang yang salah terbaca sebagai lelucon.
-
-### Klip 3B — Ingredients: `nita.png` + `staf-wca.png` — salam pembuka
-```
-Meja pendaftaran kampus yang sederhana dengan komputer dan tumpukan berkas di atasnya, dinding polos di belakang. nita.png berkerudung longgar dan berbaju rapi berdiri di depan meja, memeluk map plastik lalu berkata dengan sopan sambil tersenyum: "Selamat pagi." Ia mulai mengeluarkan berkas persyaratan dari dalam map plastik dan menatanya di atas meja dengan dua tangan, pelan dan hati-hati, tanpa malu-malu. Di seberang meja staf-wca.png berkaos polo hitam berlogo bordir kecil di dada kiri mengangkat wajahnya dan menjawab dengan ramah: "Ingin daftar, Mbak?" nita.png menjawab singkat: "Iya, Mas." Cahaya ruangan yang rata, kamera diam sedikit dari atas, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
-```
-> **Dia berdiri di klip ini, lalu duduk di Klip 4.** Jangan "duduk berdiri" di satu prompt — Veo akan menghasilkan tubuh yang setengah berdiri setengah duduk, atau mengganti posisinya di tengah klip dan wajahnya ikut berubah. Satu klip satu posisi tubuh. Berdiri menyapa dulu, baru duduk waktu urusannya mulai serius; urutan itu juga lebih sopan dan lebih mirip kejadian sungguhan.
->
-> Tiga dialog dalam delapan detik sudah batas maksimal. Jangan tambah satu kalimat lagi di klip ini.
->
-> Staf laki-laki di sini lebih baik daripada staf perempuan di Klip 5 — artinya dua orang berbeda yang melayaninya, dan itu membuat kantornya terasa seperti kantor sungguhan, bukan satu ruangan dengan satu orang.
-
 ### Klip 4 — Ingredient: `nita.png`
 ```
 Kamar kecil rumah kampung pada malam hari, cahaya lampu belajar kuning. nita.png berkerudung dilepas dan rambut diikat sederhana duduk di lantai beralas tikar dengan sebuah buku bahasa Inggris bekas yang sampulnya sudah lusuh terbuka di pangkuannya, bibirnya bergerak pelan mengeja kalimat sendirian. Di sampingnya ada buku tulis penuh coretan. Tidak ada dialog yang jelas terdengar. Cahaya lampu belajar kuning yang sempit, kamera diam tanpa bergerak, handheld, candid, tekstur kulit natural, sangat emosional. Vertikal 9:16, 8 detik.
@@ -1570,6 +1545,31 @@ Rekam pakai HP: plang nama, gerbang, halaman depan. 5–8 detik, tanpa dialog. K
 nita.png berkerudung longgar dan berbaju rapi berdiri di trotoar di depan sebuah gedung kampus, memeluk map plastik di dadanya, mendongak menatap ke atas ke arah papan nama gedung dengan campuran gugup dan kagum, lalu menelan ludah. Cahaya pagi yang terang, handheld, sedikit goyangan kamera, candid, tekstur kulit natural, framing tidak sempurna, sinematik penuh harap. Vertikal 9:16, 8 detik.
 ```
 > Blocking-nya **sama persis dengan Bima di Season 1 Episode 3** — berdiri di trotoar, mendongak, menelan ludah. Penonton lama akan mengenalinya seketika.
+
+### Aset baru: `staf-wca.png` — staf pendaftaran WCA
+
+**Generate aset ini dengan foto meja pendaftaran WCA yang asli sebagai gambar referensi.** Kamu punya hak pakai atas foto itu — pakai. Model gambar (Nano Banana Pro / ChatGPT Images) jauh lebih rapi menulis teks daripada Veo, jadi biarkan logo dan tulisan WORLD CRUISE ACADEMY lahir di tahap gambar, bukan di tahap video.
+
+```
+Foto iPhone candid seorang laki-laki Indonesia berusia 27 tahun, kulit sawo matang, rambut hitam pendek rapi, wajah ramah dan terbuka, mengenakan kaos polo hitam berkerah dengan logo bordir kecil di dada kiri, duduk di belakang meja pendaftaran kampus yang sederhana dengan komputer, tumpukan berkas, dan papan nama meja kecil di atasnya. Diambil dari level mata, sedikit off-center. Cahaya ruangan dalam yang rata. Eksposur sedikit tidak sempurna. Tekstur kulit nyata, tidak diretuh. Bukan model, wajah staf administrasi kampus yang ramah. Realisme gaya editorial.
+```
+
+> ⚠️ **Jangan minta Veo menulis "WORLD CRUISE ACADEMY" di kaos.** Ini kesalahan yang paling sering menghancurkan episode brand. Veo akan mengarang huruf — "WORLO CRUSE ACADEMV", "WORLD CRUIS ACAOEMY" — dan satu frame tulisan ngawur di kaos resmi sekolahmu lebih merusak daripada tidak ada logo sama sekali. Penonton akan screenshot dan menertawakannya.
+>
+> **Tiga cara benar memasang brand-nya, urut dari yang paling aman:**
+> 1. Logo dipasang di editor sebagai overlay di sudut frame. Nol risiko.
+> 2. Footage asli HP: rekam meja pendaftaran sungguhan, plang, dan gedungnya. Sisipkan sebagai Klip 3. Ini yang paling kuat dan paling murah.
+> 3. Di prompt Veo, sebut hanya **"logo bordir kecil di dada kiri"** tanpa menyebut tulisannya. Logo kecil yang blur terbaca sebagai logo; tulisan panjang yang salah terbaca sebagai lelucon.
+
+### Klip 3B — Ingredients: `nita.png` + `staf-wca.png` — salam pembuka
+```
+Meja pendaftaran kampus yang sederhana dengan komputer dan tumpukan berkas di atasnya, dinding polos di belakang. nita.png berkerudung longgar dan berbaju rapi berdiri di depan meja, memeluk map plastik lalu berkata dengan sopan sambil tersenyum: "Selamat pagi." Ia mulai mengeluarkan berkas persyaratan dari dalam map plastik dan menatanya di atas meja dengan dua tangan, pelan dan hati-hati, tanpa malu-malu. Di seberang meja staf-wca.png berkaos polo hitam berlogo bordir kecil di dada kiri mengangkat wajahnya dan menjawab dengan ramah: "Ingin daftar, Mbak?" nita.png menjawab singkat: "Iya, Mas." Cahaya ruangan yang rata, kamera diam sedikit dari atas, handheld, candid, tekstur kulit natural. Vertikal 9:16, 8 detik.
+```
+> **Dia berdiri di klip ini, lalu duduk di Klip 4.** Jangan "duduk berdiri" di satu prompt — Veo akan menghasilkan tubuh yang setengah berdiri setengah duduk, atau mengganti posisinya di tengah klip dan wajahnya ikut berubah. Satu klip satu posisi tubuh. Berdiri menyapa dulu, baru duduk waktu urusannya mulai serius; urutan itu juga lebih sopan dan lebih mirip kejadian sungguhan.
+>
+> Tiga dialog dalam delapan detik sudah batas maksimal. Jangan tambah satu kalimat lagi di klip ini.
+>
+> Staf laki-laki di sini lebih baik daripada staf perempuan di Klip 5 — artinya dua orang berbeda yang melayaninya, dan itu membuat kantornya terasa seperti kantor sungguhan, bukan satu ruangan dengan satu orang.
 
 ### Klip 4 — Ingredient: `nita.png`
 ```
