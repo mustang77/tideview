@@ -111,11 +111,14 @@ dari hostname, dan nama pengirim per akun dari domain e-mailnya
 |---|---|---|
 | webmail.worldcruiseacademy.co.id | WCA Mail | mail.worldcruiseacademy.co.id |
 | webmail.westlakeresortjogja.com | Westlake Mail | mail.worldcruiseacademy.co.id |
+| webmail.aveonhoteljogja.com | Aveon Mail | mail.worldcruiseacademy.co.id |
 | webmail.mayaresortsubud.com | Maya Resort Mail | mail.h2olaundry.com |
 | lainnya | H2O Mail | mail.h2olaundry.com |
 
 Logo Westlake (`assets/westlake_logo_160.png`, `web/icons/westlake-*.png`)
 = logo resmi The Westlake (bulat, cincin emas); ikon = logo di atas putih.
+Logo Aveon (`assets/aveon_logo_160.png`, `web/icons/aveon-*.png`) masih
+monogram "A" sementara.
 
 ## Arsitektur
 

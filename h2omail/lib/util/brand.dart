@@ -81,6 +81,18 @@ const List<BrandDef> _brands = [
     tagline: 'Hotel · Resort · Villa',
     company: 'The WestLake Resort Jogja',
   ),
+  BrandDef(
+    key: 'aveon',
+    name: 'Aveon Mail',
+    icon: Icons.hotel,
+    seed: Color(0xFF1F3A5F),
+    server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
+    hostSuffix: 'aveonhoteljogja.com',
+    logoAsset: 'assets/aveon_logo_160.png',
+    logoUrl:
+        'https://webmail.aveonhoteljogja.com/assets/assets/aveon_logo_160.png',
+    company: 'Aveon Hotel Jogja',
+  ),
 ];
 
 const BrandDef _h2o = BrandDef(
