@@ -85,12 +85,13 @@ const List<BrandDef> _brands = [
     key: 'aveon',
     name: 'Aveon Mail',
     icon: Icons.hotel,
-    seed: Color(0xFF1F3A5F),
+    seed: Color(0xFFB08D2E),
     server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
     hostSuffix: 'aveonhoteljogja.com',
     logoAsset: 'assets/aveon_logo_160.png',
     logoUrl:
         'https://webmail.aveonhoteljogja.com/assets/assets/aveon_logo_160.png',
+    tagline: 'By Daphna Management',
     company: 'Aveon Hotel Jogja',
   ),
 ];

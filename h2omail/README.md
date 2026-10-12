@@ -117,8 +117,8 @@ dari hostname, dan nama pengirim per akun dari domain e-mailnya
 
 Logo Westlake (`assets/westlake_logo_160.png`, `web/icons/westlake-*.png`)
 = logo resmi The Westlake (bulat, cincin emas); ikon = logo di atas putih.
-Logo Aveon (`assets/aveon_logo_160.png`, `web/icons/aveon-*.png`) masih
-monogram "A" sementara.
+Logo Aveon (`assets/aveon_logo_160.png`, `web/icons/aveon-*.png`) = logo resmi
+Aveon Hotel (emas/perak di atas hitam).
 
 ## Arsitektur
 
