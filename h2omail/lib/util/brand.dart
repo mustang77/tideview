@@ -72,12 +72,13 @@ const List<BrandDef> _brands = [
     key: 'westlake',
     name: 'Westlake Mail',
     icon: Icons.water,
-    seed: Color(0xFF2E7D5B),
+    seed: Color(0xFF0E5C3F),
     server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
     hostSuffix: 'westlakeresortjogja.com',
     logoAsset: 'assets/westlake_logo_160.png',
     logoUrl:
         'https://webmail.westlakeresortjogja.com/assets/assets/westlake_logo_160.png',
+    tagline: 'Hotel · Resort · Villa',
     company: 'Westlake Resort Jogja',
   ),
 ];

@@ -115,7 +115,7 @@ dari hostname, dan nama pengirim per akun dari domain e-mailnya
 | lainnya | H2O Mail | mail.h2olaundry.com |
 
 Logo Westlake (`assets/westlake_logo_160.png`, `web/icons/westlake-*.png`)
-masih monogram "W" sementara — ganti file dengan logo asli, ukuran sama.
+= logo resmi The Westlake (bulat, cincin emas); ikon = logo di atas putih.
 
 ## Arsitektur
 
