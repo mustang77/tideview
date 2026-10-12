@@ -68,6 +68,18 @@ const List<BrandDef> _brands = [
     tagline: 'Serenity in the Heart of Bali',
     company: 'Maya Resort Ubud',
   ),
+  BrandDef(
+    key: 'westlake',
+    name: 'Westlake Mail',
+    icon: Icons.water,
+    seed: Color(0xFF2E7D5B),
+    server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
+    hostSuffix: 'westlakeresortjogja.com',
+    logoAsset: 'assets/westlake_logo_160.png',
+    logoUrl:
+        'https://webmail.westlakeresortjogja.com/assets/assets/westlake_logo_160.png',
+    company: 'Westlake Resort Jogja',
+  ),
 ];
 
 const BrandDef _h2o = BrandDef(

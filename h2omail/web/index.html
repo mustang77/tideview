@@ -21,7 +21,7 @@
     html, body { margin: 0; padding: 0; height: 100%; background: #0b1622; }
   </style>
 
-  <!-- One deploy serves three hostnames; brand the tab, PWA name and icons
+  <!-- One deploy serves several hostnames; brand the tab, PWA name and icons
        per hostname by swapping the title, apple-touch-icon and manifest. -->
   <script>
     (function () {
@@ -31,6 +31,11 @@
             name: 'Maya Resort Mail', theme: '#00897B', bg: '#ffffff',
             p192: 'icons/maya-192.png', p512: 'icons/maya-512.png',
             touch: 'icons/maya-180.png'
+          } :
+          h.indexOf('westlakeresortjogja') >= 0 ? {
+            name: 'Westlake Mail', theme: '#2E7D5B', bg: '#ffffff',
+            p192: 'icons/westlake-192.png', p512: 'icons/westlake-512.png',
+            touch: 'icons/westlake-180.png'
           } :
           h.indexOf('worldcruiseacademy') >= 0 ? {
             name: 'WCA Mail', theme: '#0d2149', bg: '#ffffff',

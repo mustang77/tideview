@@ -100,6 +100,23 @@ Catatan: kedua varian memakai applicationId yang sama, jadi satu HP hanya
 bisa memasang salah satu; kalau butuh keduanya terpasang bersamaan, tambahkan
 product flavors di build.gradle (sesi terpisah).
 
+## Brand per hostname
+
+Satu build web melayani beberapa merek; `lib/util/brand.dart` (`_brands`) +
+skrip di `web/index.html` memilih nama, warna, ikon PWA dan logo tanda tangan
+dari hostname, dan nama pengirim per akun dari domain e-mailnya
+(`Brand.defFor`).
+
+| Hostname | Merek | Server |
+|---|---|---|
+| webmail.worldcruiseacademy.co.id | WCA Mail | mail.worldcruiseacademy.co.id |
+| webmail.westlakeresortjogja.com | Westlake Mail | mail.worldcruiseacademy.co.id |
+| webmail.mayaresortsubud.com | Maya Resort Mail | mail.h2olaundry.com |
+| lainnya | H2O Mail | mail.h2olaundry.com |
+
+Logo Westlake (`assets/westlake_logo_160.png`, `web/icons/westlake-*.png`)
+masih monogram "W" sementara — ganti file dengan logo asli, ukuran sama.
+
 ## Arsitektur
 
 - `lib/jmap/jmap_client.dart` — klien JMAP (session, Mailbox/get, Email/query,
