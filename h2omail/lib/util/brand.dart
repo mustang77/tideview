@@ -79,7 +79,7 @@ const List<BrandDef> _brands = [
     logoUrl:
         'https://webmail.westlakeresortjogja.com/assets/assets/westlake_logo_160.png',
     tagline: 'Hotel · Resort · Villa',
-    company: 'Westlake Resort Jogja',
+    company: 'The WestLake Resort Jogja',
   ),
 ];
 
