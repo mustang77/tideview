@@ -45,6 +45,7 @@
           h.indexOf('klubbungaresort') >= 0 ? {
             name: 'Klub Bunga Mail', theme: '#2E2A87', bg: '#ffffff',
             p192: 'icons/klubbunga-192.png', p512: 'icons/klubbunga-512.png',
+            mask: 'icons/klubbunga-512-maskable.png', // wide logo: extra margin
             touch: 'icons/klubbunga-180.png'
           } :
           h.indexOf('worldcruiseacademy') >= 0 ? {
@@ -92,7 +93,7 @@
         icons: [
           { src: base + brand.p192, sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: base + brand.p512, sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: base + brand.p512, sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: base + (brand.mask || brand.p512), sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       };
       var link = document.querySelector('link[rel="manifest"]');

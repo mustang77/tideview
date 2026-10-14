@@ -122,7 +122,9 @@ Logo Aveon (`assets/aveon_logo_160.png`, `web/icons/aveon-*.png`) = logo resmi
 Aveon Hotel (emas/perak di atas hitam).
 Logo Klub Bunga (`assets/klubbunga_logo_160.png`, `web/icons/klubbunga-*.png`)
 = logo resmi Klub Bunga Butik Resort (dari klien, tanpa strip bunga bawah),
-di atas putih.
+di atas putih. Ikon PWA maskable terpisah (`klubbunga-512-maskable.png`,
+logo 66% lebar) karena logonya lebar: launcher Android memotong ke lingkaran
+80%; brand lain tanpa `mask` memakai p512 seperti biasa.
 
 ## Arsitektur
 
