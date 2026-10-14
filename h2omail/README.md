@@ -112,6 +112,7 @@ dari hostname, dan nama pengirim per akun dari domain e-mailnya
 | webmail.worldcruiseacademy.co.id | WCA Mail | mail.worldcruiseacademy.co.id |
 | webmail.westlakeresortjogja.com | Westlake Mail | mail.worldcruiseacademy.co.id |
 | webmail.aveonhoteljogja.com | Aveon Mail | mail.worldcruiseacademy.co.id |
+| webmail.klubbungaresort.com | Klub Bunga Mail | mail.worldcruiseacademy.co.id |
 | webmail.mayaresortsubud.com | Maya Resort Mail | mail.h2olaundry.com |
 | lainnya | H2O Mail | mail.h2olaundry.com |
 
@@ -119,6 +120,9 @@ Logo Westlake (`assets/westlake_logo_160.png`, `web/icons/westlake-*.png`)
 = logo resmi The Westlake (bulat, cincin emas); ikon = logo di atas putih.
 Logo Aveon (`assets/aveon_logo_160.png`, `web/icons/aveon-*.png`) = logo resmi
 Aveon Hotel (emas/perak di atas hitam).
+Logo Klub Bunga (`assets/klubbunga_logo_160.png`, `web/icons/klubbunga-*.png`)
+= PLACEHOLDER (bunga mawar digambar sendiri); ganti dengan logo resmi
+Klub Bunga Resort begitu tersedia (nama file sama, ukuran 160/180/192/512).
 
 ## Arsitektur
 

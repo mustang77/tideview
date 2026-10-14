@@ -94,6 +94,18 @@ const List<BrandDef> _brands = [
     tagline: 'By Daphna Management',
     company: 'Aveon Hotel Jogja',
   ),
+  BrandDef(
+    key: 'klubbunga',
+    name: 'Klub Bunga Mail',
+    icon: Icons.local_florist,
+    seed: Color(0xFFB8326A),
+    server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
+    hostSuffix: 'klubbungaresort.com',
+    logoAsset: 'assets/klubbunga_logo_160.png', // placeholder until the official logo
+    logoUrl:
+        'https://webmail.klubbungaresort.com/assets/assets/klubbunga_logo_160.png',
+    company: 'Klub Bunga Resort',
+  ),
 ];
 
 const BrandDef _h2o = BrandDef(
