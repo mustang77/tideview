@@ -101,7 +101,7 @@ const List<BrandDef> _brands = [
     seed: Color(0xFF2E2A87), // indigo of the logo lettering
     server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
     hostSuffix: 'klubbungaresort.com',
-    logoAsset: 'assets/klubbunga_logo_160.png', // placeholder until the official logo
+    logoAsset: 'assets/klubbunga_logo_160.png',
     logoUrl:
         'https://webmail.klubbungaresort.com/assets/assets/klubbunga_logo_160.png',
     company: 'Klub Bunga Butik Resort',
