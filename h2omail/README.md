@@ -120,6 +120,7 @@ dari hostname, dan nama pengirim per akun dari domain e-mailnya
 | webmail.westlakeresortjogja.com | Westlake Mail | mail.worldcruiseacademy.co.id |
 | webmail.aveonhoteljogja.com | Aveon Mail | mail.worldcruiseacademy.co.id |
 | webmail.klubbungaresort.com | Klub Bunga Mail | mail.worldcruiseacademy.co.id |
+| webmail.moschahotelsurabaya.com | Moscha Mail | mail.worldcruiseacademy.co.id |
 | webmail.mayaresortsubud.com | Maya Resort Mail | mail.h2olaundry.com |
 | lainnya | H2O Mail | mail.h2olaundry.com |
 
@@ -132,6 +133,9 @@ Logo Klub Bunga (`assets/klubbunga_logo_160.png`, `web/icons/klubbunga-*.png`)
 di atas putih. Ikon PWA maskable terpisah (`klubbunga-512-maskable.png`,
 logo 66% lebar) karena logonya lebar: launcher Android memotong ke lingkaran
 80%; brand lain tanpa `mask` memakai p512 seperti biasa.
+Logo Moscha (`assets/moscha_logo_160.png`, `web/icons/moscha-*.png`) = PLACEHOLDER
+(huruf M di lingkaran merah marun, digambar sendiri) dan warna #7A1F2B juga tebakan;
+ganti dengan logo + warna resmi Moscha Hotel Surabaya begitu tersedia (nama file sama).
 
 ## Arsitektur
 

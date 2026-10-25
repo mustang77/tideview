@@ -106,6 +106,18 @@ const List<BrandDef> _brands = [
         'https://webmail.klubbungaresort.com/assets/assets/klubbunga_logo_160.png',
     company: 'Klub Bunga Butik Resort',
   ),
+  BrandDef(
+    key: 'moscha',
+    name: 'Moscha Mail',
+    icon: Icons.hotel,
+    seed: Color(0xFF7A1F2B), // placeholder burgundy until the hotel's own colour is known
+    server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
+    hostSuffix: 'moschahotelsurabaya.com',
+    logoAsset: 'assets/moscha_logo_160.png',
+    logoUrl:
+        'https://webmail.moschahotelsurabaya.com/assets/assets/moscha_logo_160.png',
+    company: 'Moscha Hotel Surabaya',
+  ),
 ];
 
 const BrandDef _h2o = BrandDef(
