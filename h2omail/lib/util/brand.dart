@@ -110,7 +110,7 @@ const List<BrandDef> _brands = [
     key: 'moscha',
     name: 'Moscha Mail',
     icon: Icons.hotel,
-    seed: Color(0xFF7A1F2B), // placeholder burgundy until the hotel's own colour is known
+    seed: Color(0xFF203245), // navy of the Moscha Hotel logo
     server: 'mail.worldcruiseacademy.co.id', // menumpang ke server WCA
     hostSuffix: 'moschahotelsurabaya.com',
     logoAsset: 'assets/moscha_logo_160.png',

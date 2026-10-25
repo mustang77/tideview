@@ -133,9 +133,9 @@ Logo Klub Bunga (`assets/klubbunga_logo_160.png`, `web/icons/klubbunga-*.png`)
 di atas putih. Ikon PWA maskable terpisah (`klubbunga-512-maskable.png`,
 logo 66% lebar) karena logonya lebar: launcher Android memotong ke lingkaran
 80%; brand lain tanpa `mask` memakai p512 seperti biasa.
-Logo Moscha (`assets/moscha_logo_160.png`, `web/icons/moscha-*.png`) = PLACEHOLDER
-(huruf M di lingkaran merah marun, digambar sendiri) dan warna #7A1F2B juga tebakan;
-ganti dengan logo + warna resmi Moscha Hotel Surabaya begitu tersedia (nama file sama).
+Logo Moscha (`assets/moscha_logo_160.png`, `web/icons/moscha-*.png`) = logo resmi
+Moscha Hotel (dari klien: kotak navy #203245, tanda M + MOSCHA HOTEL emas); sumbernya
+hanya 168 px, jadi ikon 512 sedikit lembut: ganti dengan file lebih besar bila ada.
 
 ## Arsitektur
 
