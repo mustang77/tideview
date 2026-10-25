@@ -261,7 +261,20 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
         (_) => false,
       );
     } on JmapException catch (e) {
-      _toast('Gagal masuk ${a.email}: ${e.message}');
+      if (!mounted) return;
+      // usually a password changed elsewhere: let the user type the new one
+      // (same e-mail = the saved account is replaced, see AccountsStore.upsert)
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text('Gagal masuk ${a.email}: ${e.message}'),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: 'Masuk ulang',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => LoginScreen(adding: true, email: a.email))),
+          ),
+        ));
     }
   }
 
@@ -285,8 +298,14 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
+      // many saved accounts made the sheet taller than the screen and cut off
+      // "Tambah akun" / "Keluar": let it grow to 85 % and scroll
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85),
       builder: (sheetCtx) => SafeArea(
-        child: Column(
+        child: SingleChildScrollView(
+         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             for (var i = 0; i < accounts.length; i++)
@@ -343,6 +362,7 @@ class _MailHomeScreenState extends State<MailHomeScreen> {
               },
             ),
           ],
+         ),
         ),
       ),
     );

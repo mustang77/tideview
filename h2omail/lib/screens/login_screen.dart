@@ -8,7 +8,9 @@ import 'mail_home_screen.dart';
 class LoginScreen extends StatefulWidget {
   /// When true this screen adds another account (no auto-login).
   final bool adding;
-  const LoginScreen({super.key, this.adding = false});
+  /// Pre-filled e-mail ("Masuk ulang" after a password change).
+  final String? email;
+  const LoginScreen({super.key, this.adding = false, this.email});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -24,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.email != null) _email.text = widget.email!;
     if (!widget.adding) _tryAutoLogin();
   }
 
