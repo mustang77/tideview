@@ -33,8 +33,15 @@ flutter run -d chrome
 ## Build & deploy (host di server Webuzo / subdomain sendiri)
 
 ```powershell
-flutter build web --release
+flutter build web --release --no-web-resources-cdn
+python tool/stamp_web.py
 ```
+
+`stamp_web.py` WAJIB setelah build: Cloudflare / LiteSpeed menyimpan
+flutter_bootstrap.js dan main.dart.js sampai setahun, jadi tanpa ini HP tetap
+menjalankan versi lama setelah upload. Script memberi URL baru tiap build
+(`?v=<hash>`, folder `canvaskit-<engine>/`). `--no-web-resources-cdn` = mesin
+gambar ikut di-upload, tidak dari gstatic.com (kadang diblokir ISP Indonesia).
 
 Upload isi `build/web/` ke subdomain mana pun (mis. `webmail.h2olaundry.com`
 di server Webuzo, atau Cloudflare Pages). App ini murni file statis — tidak
