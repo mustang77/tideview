@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../util/text_size.dart';
+
 /// Renders untrusted email HTML in a WebView with JavaScript disabled.
 /// Tapped links open in the external browser.
 class HtmlContentView extends StatefulWidget {
@@ -20,7 +22,8 @@ class _HtmlContentViewState extends State<HtmlContentView> {
     super.initState();
     final doc = '<!DOCTYPE html><html><head>'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        '<style>body{font-family:sans-serif;margin:12px;word-break:break-word;'
+        '<style>html{zoom:$kEmailZoom}'
+        'body{font-family:sans-serif;margin:12px;line-height:1.5;word-break:break-word;'
         'background:#ffffff;color:#111111;} img{max-width:100%;height:auto;}'
         '</style></head><body>${widget.html}</body></html>';
     _controller = WebViewController()

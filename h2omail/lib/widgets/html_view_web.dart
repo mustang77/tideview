@@ -3,6 +3,8 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/widgets.dart';
 import 'package:web/web.dart' as web;
 
+import '../util/text_size.dart';
+
 /// Renders untrusted email HTML inside a sandboxed iframe (no scripts).
 class HtmlContentView extends StatefulWidget {
   final String html;
@@ -21,8 +23,12 @@ class _HtmlContentViewState extends State<HtmlContentView> {
     super.initState();
     _viewType = 'h2omail-html-${_counter++}';
     final doc =
-        '<base target="_blank"><style>body{font-family:sans-serif;margin:12px;'
-        'word-break:break-word;background:#ffffff;color:#111111;}</style>'
+        // zoom on the root = browser zoom: emails with their own small px
+        // sizes grow too, and the text still wraps to the window
+        '<base target="_blank"><style>html{zoom:$kEmailZoom}'
+        'body{font-family:sans-serif;margin:12px;line-height:1.5;'
+        'word-break:break-word;background:#ffffff;color:#111111;}'
+        'img{max-width:100%;height:auto;}</style>'
         '${widget.html}';
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int _) {
       final iframe = web.HTMLIFrameElement()

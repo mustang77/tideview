@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../jmap/jmap_client.dart';
 import '../util/format.dart';
 import '../widgets/html_view.dart';
+import '../util/text_size.dart';
 
 class MessageView extends StatelessWidget {
   final EmailDetail detail;
@@ -115,7 +116,9 @@ class MessageView extends StatelessWidget {
               ? HtmlContentView(html: detail.html!)
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                  child: SelectableText(detail.text ?? '(email kosong)'),
+                  child: SelectableText(detail.text ?? '(email kosong)',
+                      style: const TextStyle(
+                          fontSize: kEmailFontSize, height: 1.5)),
                 ),
         ),
       ],
